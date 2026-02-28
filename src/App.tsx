@@ -26,7 +26,10 @@ import ClientProfile from "./pages/ClientProfile";
 import NotFound from "./pages/NotFound";
 import FaqPage from "./pages/FaqPage";
 import Legal from "./pages/Legal";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import DevSwitcher from "./components/DevSwitcher";
+import AppFooter from "./components/AppFooter";
 
 
 const queryClient = new QueryClient();
@@ -63,9 +66,12 @@ const App = () => (
               <Route path="/client-profile" element={<ClientProfile />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/legal" element={<Legal />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
+          <AppFooter />
           <DevSwitcher />
         </BrowserRouter>
       </I18nProvider>

@@ -85,6 +85,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const [answerDetails, setAnswerDetails] = useState<Record<string, string>>(existingData?.answerDetails || {});
 
   const [consent, setConsent] = useState(existingData?.consent || false);
+  const [privacyConsent, setPrivacyConsent] = useState(false);
   const [signatureDataUrl, setSignatureDataUrl] = useState(existingData?.signatureDataUrl || '');
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -229,7 +230,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   };
 
   const canProceedStep1 = fullName.trim().length > 0 && idNumber.trim().length > 0;
-  const canProceedStep3 = consent && signatureDataUrl.length > 0;
+  const canProceedStep3 = consent && privacyConsent && signatureDataUrl.length > 0;
 
   const hasAnyRedFlag = dbQuestions.some(q => q.risk_level === 'red' && answers[q.id]);
   const hasAnyYellow = dbQuestions.some(q => q.risk_level === 'yellow' && answers[q.id]);
@@ -708,6 +709,53 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                   </span>
                   <span className="text-sm font-medium" style={{ color: T.text }}>
                     {isHe ? 'קראתי, הבנתי ואני מסכים/ה לכל האמור לעיל' : 'I have read, understood and agree to the above'}
+                  </span>
+                </button>
+
+                {/* Privacy & Terms consent checkbox */}
+                <button
+                  type="button"
+                  onClick={() => !readOnly && setPrivacyConsent(!privacyConsent)}
+                  disabled={readOnly}
+                  className="flex items-center gap-3 w-full text-start px-4 py-3.5 rounded-2xl min-h-[48px] active:scale-[0.98] transition-transform mb-5"
+                  style={{ backgroundColor: '#fafaf8', border: `1px solid ${T.inputBorder}` }}
+                >
+                  <span
+                    className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200"
+                    style={{
+                      border: `2px solid ${privacyConsent ? T.gold : 'rgba(212,175,55,0.35)'}`,
+                      backgroundColor: privacyConsent ? T.gold : 'transparent',
+                      boxShadow: privacyConsent ? '0 0 10px rgba(212,175,55,0.3)' : 'none',
+                    }}
+                  >
+                    {privacyConsent && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                  </span>
+                  <span className="text-sm font-medium leading-relaxed" style={{ color: T.text }}>
+                    {isHe ? (
+                      <>
+                        אני מאשרת שקראתי את{' '}
+                        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>
+                          מדיניות הפרטיות
+                        </a>
+                        {' '}ו
+                        <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>
+                          תנאי שימוש
+                        </a>
+                        {' '}של Glow Push ואני מסכימה לשמירת המידע במערכת.
+                      </>
+                    ) : (
+                      <>
+                        I confirm that I have read the{' '}
+                        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>
+                          Privacy Policy
+                        </a>
+                        {' '}and{' '}
+                        <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>
+                          Terms of Service
+                        </a>
+                        {' '}of Glow Push and agree to data storage.
+                      </>
+                    )}
                   </span>
                 </button>
 

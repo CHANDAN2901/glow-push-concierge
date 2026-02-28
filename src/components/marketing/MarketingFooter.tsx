@@ -1,4 +1,5 @@
 import { Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Props {
   isHe: boolean;
@@ -10,8 +11,8 @@ const MarketingFooter = ({ isHe }: Props) => (
       <div className="flex flex-col md:flex-row items-center justify-between gap-6">
         <span className="text-gold-gradient font-serif text-xl font-bold tracking-wider">GlowPush</span>
         <div className="flex items-center gap-6 text-sm" style={{ color: '#999999' }}>
-          <a href="#" className="hover:text-foreground transition-colors">{isHe ? 'תנאי שימוש' : 'Terms'}</a>
-          <a href="#" className="hover:text-foreground transition-colors">{isHe ? 'פרטיות' : 'Privacy'}</a>
+          <Link to="/terms" className="hover:text-foreground transition-colors">{isHe ? 'תנאי שימוש' : 'Terms'}</Link>
+          <Link to="/privacy" className="hover:text-foreground transition-colors">{isHe ? 'פרטיות' : 'Privacy'}</Link>
           <div className="flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5" />
             <span>Powered by Stripe</span>
