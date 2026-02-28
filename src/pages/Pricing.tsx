@@ -1,73 +1,9 @@
-import { Check, Crown, Sparkles, Star, Flame } from 'lucide-react';
+import { Check, Crown, Star, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/usePricingPlans';
-
-const iconMap: Record<string, React.ElementType> = {
-  pro: Sparkles,
-  elite: Star,
-  'vip-3year': Crown,
-};
-
-/* ── Plan title renderer ── */
-const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
-  const lastSpace = name.lastIndexOf(' ');
-  const prefix = lastSpace > 0 ? name.slice(0, lastSpace) : '';
-  const suffix = lastSpace > 0 ? name.slice(lastSpace + 1) : name;
-
-  if (slug === 'elite' || slug === 'vip-3year') {
-    return (
-      <h2 className="text-xl font-medium" style={{ color: '#333' }}>
-        <span className="font-light tracking-wide">{prefix} </span>
-        <span
-          className="font-serif font-bold bg-clip-text text-transparent"
-          style={{ backgroundImage: 'linear-gradient(135deg, #D4AF37, #F1D592)' }}
-        >
-          {suffix}
-        </span>
-      </h2>
-    );
-  }
-
-  return (
-    <h2 className="text-xl" style={{ color: '#333333' }}>
-      <span className="font-light tracking-wide">{prefix} </span>
-      <span className="font-semibold">{suffix}</span>
-    </h2>
-  );
-};
-
-/* ── FOMO badge sub-component ── */
-const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; takenSpots: number; isHe: boolean }) => {
-  if (totalSpots <= 0) return null;
-  const remaining = Math.max(totalSpots - takenSpots, 0);
-  const pct = Math.min((takenSpots / totalSpots) * 100, 100);
-  const isUrgent = remaining <= 10;
-
-  const textColor = isUrgent ? '#C0392B' : '#B8860B';
-  const barColor = isUrgent
-    ? 'linear-gradient(90deg, #E74C3C, #C0392B)'
-    : 'linear-gradient(90deg, #D4AF37, #F9F295, #D4AF37)';
-
-  return (
-    <div className="mb-4 rounded-xl px-4 py-3" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
-      <div className="flex items-center gap-2 mb-2">
-        {isUrgent && <Flame className="w-4 h-4 animate-pulse" style={{ color: '#E74C3C' }} />}
-        <span className="text-sm font-bold" style={{ color: textColor }}>
-          {isHe
-            ? `נשארו רק ${remaining} מקומות אחרונים במחיר המייסדות!`
-            : `Only ${remaining} founding-price spots left!`}
-        </span>
-      </div>
-      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(212,175,55,0.15)' }}>
-        <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, background: barColor }}
-        />
-      </div>
-    </div>
-  );
-};
+import PricingEliteCard from '@/components/pricing/PricingEliteCard';
+import PricingVipCard from '@/components/pricing/PricingVipCard';
 
 const Pricing = () => {
   const { lang } = useI18n();
@@ -77,131 +13,70 @@ const Pricing = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF9E6 40%, #FFFDF5 100%)' }}>
         <div className="animate-pulse text-muted-foreground font-serif">טוען...</div>
       </div>
     );
   }
 
+  const elitePlan = plans.find(p => p.slug === 'elite');
+  const vipPlan = plans.find(p => p.slug === 'vip-3year');
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF]" dir={isHe ? 'rtl' : 'ltr'}>
-      {/* Header */}
-      <div className="pt-20 pb-10 text-center px-4">
-        <h1
-          className="text-3xl md:text-5xl font-serif font-light tracking-wider mb-4 animate-fade-up"
-          style={{ color: '#1a1a1a', animationFillMode: 'both' }}
-        >
-          {isHe ? 'בחרי את המסלול שמתאים לקליניקה שלך ✨' : 'Choose the Perfect Plan for Your Clinic ✨'}
-        </h1>
-        <p
-          className="text-base md:text-lg max-w-xl mx-auto leading-relaxed animate-fade-up"
-          style={{ color: '#888', animationDelay: '120ms', animationFillMode: 'both' }}
-        >
-          {isHe ? 'הכלים הדיגיטליים המתקדמים ביותר למאפרות שמכוונות רחוק.' : 'Advanced digital tools for ambitious PMU artists.'}
-        </p>
+    <div
+      className="min-h-screen relative overflow-hidden"
+      dir={isHe ? 'rtl' : 'ltr'}
+      style={{
+        background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF9E6 30%, #FFFCF0 60%, #FFFDF5 100%)',
+      }}
+    >
+      {/* Ambient gold light trails */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
-          className="w-20 h-[2px] mx-auto mt-6 rounded-full animate-fade-up"
-          style={{
-            background: 'linear-gradient(90deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-            animationDelay: '200ms',
-            animationFillMode: 'both',
-          }}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full opacity-20"
+          style={{ background: 'radial-gradient(ellipse, rgba(212,175,55,0.3) 0%, transparent 70%)' }}
+        />
+        <div
+          className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full opacity-10"
+          style={{ background: 'radial-gradient(ellipse, rgba(212,175,55,0.4) 0%, transparent 70%)' }}
         />
       </div>
 
-      {/* Cards */}
-      <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-8 max-w-lg">
-        {plans.map((plan, idx) => {
-          const Icon = iconMap[plan.slug] || Sparkles;
-          const features = isHe ? plan.features_he : plan.features_en;
-          const name = isHe ? plan.name_he : plan.name_en;
-          const cta = isHe ? plan.cta_he : plan.cta_en;
-          const badge = isHe ? plan.badge_he : plan.badge_en;
-          const isElite = plan.is_highlighted;
-
-          return (
-            <div
-              key={plan.id}
-              className={`w-full rounded-3xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center ${isElite ? '' : 'bg-white'}`}
-              style={{
-                border: isElite ? '2px solid #D4AF37' : '1px solid rgba(212,175,55,0.25)',
-                background: isElite
-                  ? 'linear-gradient(180deg, #FFFDF5 0%, #FFF9E6 100%)'
-                  : '#ffffff',
-                boxShadow: isElite
-                  ? '0 6px 36px -8px rgba(212,175,55,0.28)'
-                  : '0 2px 16px -4px rgba(0,0,0,0.04)',
-                animationDelay: `${200 + idx * 100}ms`,
-                animationFillMode: 'both',
-              }}
-            >
-              {isElite && badge && (
-                <span
-                  className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
-                  style={{
-                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                    color: '#5C4033',
-                    boxShadow: '0 2px 12px rgba(212,175,55,0.4)',
-                  }}
-                >
-                  {badge}
-                </span>
-              )}
-
-              <div className={`flex items-center justify-center gap-2 ${isElite ? 'mt-4' : ''} mb-6`}>
-                <PlanTitle slug={plan.slug} name={name} />
-                <Icon className="w-5 h-5" style={{ color: '#D4AF37' }} />
-              </div>
-
-              <div className="mb-8">
-                <div className="flex items-baseline justify-center gap-1.5">
-                  <span
-                    className="text-5xl font-serif font-bold"
-                    style={{
-                      color: isElite ? undefined : '#333',
-                      backgroundImage: isElite ? 'linear-gradient(135deg, #B8860B, #D4AF37 40%, #F1D592)' : undefined,
-                      WebkitBackgroundClip: isElite ? 'text' : undefined,
-                      WebkitTextFillColor: isElite ? 'transparent' : undefined,
-                    }}
-                  >
-                    {isHe ? `₪${plan.price_monthly.toLocaleString()}` : `$${plan.price_usd.toLocaleString()}`}
-                  </span>
-                  <span className="text-sm" style={{ color: '#999' }}>
-                    {plan.slug === 'vip-3year' ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time') : (isHe ? '/ חודש' : '/ month')}
-                  </span>
-                </div>
-              </div>
-
-              <ul className="space-y-4 mb-10 flex-1">
-                {features.map((f, i) => (
-                  <li key={i} className="flex items-center justify-center gap-3 text-sm" style={{ color: '#444' }}>
-                    <Check className="w-4 h-4 shrink-0 order-first rtl:order-last" style={{ color: '#D4AF37' }} />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {plan.slug === 'vip-3year' && plan.total_promo_spots > 0 && (
-                <FomoBadge totalSpots={plan.total_promo_spots} takenSpots={vipTaken} isHe={isHe} />
-              )}
-
-              <Link
-                to="/auth"
-                className="w-full inline-flex items-center justify-center py-4 rounded-2xl text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-md hover:scale-[1.01]"
-                style={{
-                  border: '2px solid #333',
-                  color: '#333',
-                  background: 'transparent',
-                }}
-              >
-                {cta}
-              </Link>
-            </div>
-          );
-        })}
+      {/* Header */}
+      <div className="relative pt-16 pb-8 text-center px-4">
+        <div
+          className="inline-block rounded-2xl px-8 py-4 mb-4"
+          style={{
+            background: 'linear-gradient(135deg, rgba(184,134,11,0.08), rgba(212,175,55,0.12), rgba(184,134,11,0.08))',
+            border: '1px solid rgba(212,175,55,0.2)',
+          }}
+        >
+          <h1
+            className="text-2xl md:text-4xl font-serif font-light tracking-wider"
+            style={{ color: '#2a2015' }}
+          >
+            {isHe ? 'חבילות ומחירים' : 'Packages & Pricing'}
+          </h1>
+        </div>
+        <div
+          className="w-16 h-[2px] mx-auto mt-4 rounded-full"
+          style={{ background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)' }}
+        />
       </div>
 
-      <p className="text-center text-xs pb-10 px-4" style={{ color: '#bbb' }}>
+      {/* Cards grid – side by side */}
+      <div className="relative mx-auto px-4 pb-16 max-w-3xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          {elitePlan && (
+            <PricingEliteCard plan={elitePlan} isHe={isHe} />
+          )}
+          {vipPlan && (
+            <PricingVipCard plan={vipPlan} isHe={isHe} vipTaken={vipTaken} />
+          )}
+        </div>
+      </div>
+
+      <p className="relative text-center text-xs pb-10 px-4" style={{ color: '#bbb' }}>
         {isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}
       </p>
     </div>
