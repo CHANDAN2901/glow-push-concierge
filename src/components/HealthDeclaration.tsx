@@ -30,6 +30,8 @@ export interface HealthDeclarationData {
   g6pd: boolean;
   eyeSensitivity: boolean;
   consent: boolean;
+  legalConsent: boolean;
+  legalConsentAt: string;
   signatureDataUrl: string;
   submittedAt: string;
 }
@@ -85,6 +87,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const [answerDetails, setAnswerDetails] = useState<Record<string, string>>(existingData?.answerDetails || {});
 
   const [consent, setConsent] = useState(existingData?.consent || false);
+  const [legalConsent, setLegalConsent] = useState(existingData?.legalConsent || false);
   const [signatureDataUrl, setSignatureDataUrl] = useState(existingData?.signatureDataUrl || '');
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -213,7 +216,9 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         skinConditions: false, autoimmune: false,
         antibiotics: false, antibioticsDetail: '',
         botoxFiller: false, g6pd: false, eyeSensitivity: false,
-        consent, signatureDataUrl,
+        consent, legalConsent,
+        legalConsentAt: legalConsent ? new Date().toISOString() : '',
+        signatureDataUrl,
         submittedAt: new Date().toISOString(),
       };
       await onComplete(data);
@@ -229,7 +234,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   };
 
   const canProceedStep1 = fullName.trim().length > 0 && idNumber.trim().length > 0;
-  const canProceedStep3 = consent && signatureDataUrl.length > 0;
+  const canProceedStep3 = consent && legalConsent && signatureDataUrl.length > 0;
 
   const hasAnyRedFlag = dbQuestions.some(q => q.risk_level === 'red' && answers[q.id]);
   const hasAnyYellow = dbQuestions.some(q => q.risk_level === 'yellow' && answers[q.id]);
@@ -708,6 +713,45 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                   </span>
                   <span className="text-sm font-medium" style={{ color: T.text }}>
                     {isHe ? 'קראתי, הבנתי ואני מסכים/ה לכל האמור לעיל' : 'I have read, understood and agree to the above'}
+                  </span>
+                </button>
+
+                {/* Legal consent checkbox */}
+                <button
+                  type="button"
+                  onClick={() => !readOnly && setLegalConsent(!legalConsent)}
+                  disabled={readOnly}
+                  className="flex items-start gap-3 w-full text-start px-4 py-3.5 rounded-2xl min-h-[48px] active:scale-[0.98] transition-transform mb-5"
+                  style={{ backgroundColor: '#fafaf8', border: `1px solid ${T.inputBorder}` }}
+                >
+                  <span
+                    className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5"
+                    style={{
+                      border: `2px solid ${legalConsent ? T.gold : 'rgba(212,175,55,0.35)'}`,
+                      backgroundColor: legalConsent ? T.gold : 'transparent',
+                      boxShadow: legalConsent ? '0 0 10px rgba(212,175,55,0.3)' : 'none',
+                    }}
+                  >
+                    {legalConsent && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                  </span>
+                  <span className="text-sm font-medium leading-relaxed" style={{ color: T.text }}>
+                    {isHe ? (
+                      <>
+                        אני מאשרת כי הפרטים נמסרו מרצוני, וכי קראתי והסכמתי ל
+                        <a href="/legal?tab=terms" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>תנאי השימוש</a>
+                        {' '}ול
+                        <a href="/legal?tab=privacy" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>מדיניות הפרטיות</a>
+                        {' '}של Glow Push.
+                      </>
+                    ) : (
+                      <>
+                        I confirm that the information was provided voluntarily, and that I have read and agreed to the{' '}
+                        <a href="/legal?tab=terms" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>Terms of Service</a>
+                        {' '}and{' '}
+                        <a href="/legal?tab=privacy" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>Privacy Policy</a>
+                        {' '}of Glow Push.
+                      </>
+                    )}
                   </span>
                 </button>
 

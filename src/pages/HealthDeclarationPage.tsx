@@ -41,6 +41,7 @@ const HealthDeclarationPage = () => {
           idNumber: data.idNumber,
           answers: data.answers,
           answerDetails: data.answerDetails,
+          legalConsentAt: data.legalConsentAt,
         },
         signatureDataUrl: data.signatureDataUrl,
       },
