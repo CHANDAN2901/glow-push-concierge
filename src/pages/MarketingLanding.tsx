@@ -1,17 +1,10 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
 const MarketingLanding = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-
-  useEffect(() => {
-    if (!loading && user) {
-      navigate('/artist', { replace: true });
-    }
-  }, [user, loading, navigate]);
+  const { user } = useAuth();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6 text-center space-y-8" dir="rtl">
@@ -108,7 +101,7 @@ const MarketingLanding = () => {
 
       {/* Call to Action Button */}
       <Button
-        onClick={() => navigate('/auth?mode=signup')}
+        onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
         className="font-semibold py-6 px-12 rounded-full text-lg border-0 tracking-wide"
         style={{
           background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37)',
@@ -116,7 +109,7 @@ const MarketingLanding = () => {
           boxShadow: '0 4px 16px rgba(212, 175, 55, 0.35)',
         }}
       >
-        התנסות בחינם ללא התחייבות ←
+        {user ? 'לקליניקה שלי →' : 'התנסות בחינם ללא התחייבות ←'}
       </Button>
     </div>
   );

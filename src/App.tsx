@@ -44,8 +44,7 @@ const App = () => (
           <Header />
           <ErrorBoundary>
             <Routes>
-              <Route path="/" element={<ArtistDashboard />} />
-              <Route path="/marketing" element={<MarketingLanding />} />
+              <Route path="/" element={<MarketingLanding />} />
               <Route path="/home" element={<Landing />} />
               <Route path="/client" element={<ClientHome />} />
               <Route path="/artist" element={<ArtistDashboard />} />
