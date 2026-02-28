@@ -538,6 +538,8 @@ const ArtistDashboard = () => {
   const [showDigitalCardPreview, setShowDigitalCardPreview] = useState(false);
   const [savingClient, setSavingClient] = useState(false);
   const [showHelpCenter, setShowHelpCenter] = useState(false);
+  const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [showHealthEditor, setShowHealthEditor] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showWelcomeTour, setShowWelcomeTour] = useState(false);
@@ -2512,6 +2514,16 @@ const ArtistDashboard = () => {
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
 
+                {/* Delete Account */}
+                <button
+                  onClick={() => setShowDeleteAccountConfirm(true)}
+                  className="flex items-center gap-3 w-full py-3 text-start hover:bg-destructive/5 rounded-lg px-1 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                  <p className="text-sm font-medium flex-1 text-destructive">{lang === 'en' ? 'Delete My Account' : 'מחיקת החשבון שלי'}</p>
+                  <ChevronRight className="w-4 h-4 text-destructive/50" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+                </button>
+
               </div>
             </div>
 
@@ -2902,6 +2914,53 @@ const ArtistDashboard = () => {
         currentPhone={artistPhone}
         onProfileUpdated={fetchProfileId}
       />
+
+      {/* Delete Account Confirmation Dialog */}
+      <Dialog open={showDeleteAccountConfirm} onOpenChange={setShowDeleteAccountConfirm}>
+        <DialogContent className="max-w-sm rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              {lang === 'en' ? 'Delete Account' : 'מחיקת חשבון'}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {lang === 'en'
+              ? 'This will permanently delete your account and ALL associated data including clients, health declarations, images, and settings. This action cannot be undone.'
+              : 'פעולה זו תמחק לצמיתות את החשבון שלך ואת כל הנתונים הקשורים – לקוחות, הצהרות בריאות, תמונות והגדרות. לא ניתן לבטל פעולה זו.'}
+          </p>
+          <div className="flex gap-3 mt-2">
+            <Button
+              variant="outline"
+              className="flex-1 rounded-full"
+              onClick={() => setShowDeleteAccountConfirm(false)}
+              disabled={deletingAccount}
+            >
+              {lang === 'en' ? 'Cancel' : 'ביטול'}
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1 rounded-full"
+              disabled={deletingAccount}
+              onClick={async () => {
+                setDeletingAccount(true);
+                try {
+                  const { error } = await supabase.functions.invoke('delete-account');
+                  if (error) throw error;
+                  await supabase.auth.signOut();
+                  localStorage.clear();
+                  window.location.href = '/marketing';
+                } catch (err: any) {
+                  toast({ title: lang === 'en' ? 'Failed to delete account' : 'מחיקת החשבון נכשלה', description: err?.message, variant: 'destructive' });
+                  setDeletingAccount(false);
+                }
+              }}
+            >
+              {deletingAccount ? '...' : (lang === 'en' ? 'Delete Forever' : 'מחיקה לצמיתות')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Welcome Tour */}
       <WelcomeTour
