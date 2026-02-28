@@ -1,0 +1,1 @@
+UPDATE pricing_plans SET is_highlighted = true, badge_he = 'הכי פופולרי', badge_en = '⭐ Most Popular' WHERE slug = 'elite';

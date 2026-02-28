@@ -1,0 +1,1 @@
+ALTER TABLE public.pricing_plans ADD COLUMN IF NOT EXISTS price_usd numeric NOT NULL DEFAULT 0;

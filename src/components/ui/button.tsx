@@ -1,0 +1,49 @@
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+
+import { cn } from "@/lib/utils";
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-serif tracking-wide ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  {
+    variants: {
+      variant: {
+        default: "btn-metallic-gold font-semibold hover:brightness-105 active:scale-[0.98]",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-[hsl(38_30%_80%)] bg-white text-[#5C4033] hover:bg-[hsl(38_40%_95%)] hover:border-[#D4AF37]",
+        secondary: "btn-metallic-gold font-semibold hover:brightness-105 active:scale-[0.98]",
+        ghost: "hover:bg-[hsl(38_40%_92%)] hover:text-[#5C4033]",
+        link: "text-[#B8860B] underline-offset-4 hover:underline",
+        gold: "btn-metallic-gold font-semibold hover:brightness-105 active:scale-[0.98]",
+        jewel: "btn-metallic-gold font-semibold",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-xl px-3",
+        lg: "h-12 rounded-2xl px-8",
+        icon: "h-10 w-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  },
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+  },
+);
+Button.displayName = "Button";
+
+export { Button, buttonVariants };

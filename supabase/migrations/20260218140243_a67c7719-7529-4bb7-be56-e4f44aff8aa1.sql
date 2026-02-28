@@ -1,0 +1,1 @@
+ALTER TABLE public.portfolio_images ADD COLUMN IF NOT EXISTS base64_data text;

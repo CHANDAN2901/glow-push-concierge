@@ -1,0 +1,1 @@
+ALTER TABLE public.pricing_plans ADD COLUMN IF NOT EXISTS total_promo_spots integer NOT NULL DEFAULT 0;
