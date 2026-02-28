@@ -26,6 +26,7 @@ import ClientProfile from "./pages/ClientProfile";
 import NotFound from "./pages/NotFound";
 import FaqPage from "./pages/FaqPage";
 import Legal from "./pages/Legal";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DevSwitcher from "./components/DevSwitcher";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
@@ -64,6 +65,7 @@ const App = () => (
               <Route path="/client-profile" element={<ClientProfile />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/legal" element={<Legal />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
