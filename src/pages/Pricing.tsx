@@ -1,8 +1,6 @@
 import { Check, Crown, Sparkles, Star, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface PricingPlan {
   id: string;
@@ -90,32 +88,106 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
   );
 };
 
+const HARDCODED_PLANS: PricingPlan[] = [
+  {
+    id: 'pro',
+    slug: 'pro',
+    name_he: 'Glow Push Pro',
+    name_en: 'Glow Push Pro',
+    price_monthly: 79,
+    price_usd: 22,
+    is_highlighted: false,
+    badge_he: null,
+    badge_en: null,
+    features_he: [
+      'ניהול לקוחות ויומן מלא',
+      'הצהרות בריאות דיגיטליות',
+      'גלריה אישית לכל לקוחה',
+      'קולאז׳ לפני/אחרי עם AI',
+      'מסע החלמה מותאם אישית',
+      'כרטיס דיגיטלי מקצועי',
+    ],
+    features_en: [
+      'Full client & calendar management',
+      'Digital health declarations',
+      'Personal gallery per client',
+      'AI Before & After collage',
+      'Custom healing journey',
+      'Professional digital card',
+    ],
+    cta_he: 'התחילי ניסיון חינם',
+    cta_en: 'Start Free Trial',
+    sort_order: 1,
+    total_promo_spots: 0,
+  },
+  {
+    id: 'elite',
+    slug: 'elite',
+    name_he: 'Glow Push Elite',
+    name_en: 'Glow Push Elite',
+    price_monthly: 149,
+    price_usd: 39,
+    is_highlighted: true,
+    badge_he: '⭐ הכי פופולרי',
+    badge_en: '⭐ Most Popular',
+    features_he: [
+      'כל מה שיש ב-Pro',
+      'אוטומציית וואטסאפ מלאה',
+      'עד 200 הודעות בחודש',
+      'תמיכת VIP אישית',
+      'תזכורות אוטומטיות',
+      'עדכונים שוטפים ותכונות חדשות',
+    ],
+    features_en: [
+      'Everything in Pro',
+      'Full WhatsApp automation',
+      'Up to 200 messages/month',
+      'Personal VIP support',
+      'Automated reminders',
+      'Ongoing updates & new features',
+    ],
+    cta_he: 'שדרגי ל-Elite',
+    cta_en: 'Upgrade to Elite',
+    sort_order: 2,
+    total_promo_spots: 0,
+  },
+  {
+    id: 'vip-3year',
+    slug: 'vip-3year',
+    name_he: 'Glow Push VIP',
+    name_en: 'Glow Push VIP',
+    price_monthly: 1490,
+    price_usd: 399,
+    is_highlighted: false,
+    badge_he: null,
+    badge_en: null,
+    features_he: [
+      'כל מה שיש ב-Elite',
+      'גישה ל-3 שנים מלאות',
+      'מחיר מייסדות מיוחד',
+      'עדיפות בתמיכה לתמיד',
+      'כל התכונות העתידיות כלולות',
+    ],
+    features_en: [
+      'Everything in Elite',
+      'Full 3-year access',
+      'Special founding price',
+      'Priority support forever',
+      'All future features included',
+    ],
+    cta_he: 'הצטרפי כמייסדת',
+    cta_en: 'Join as Founder',
+    sort_order: 3,
+    total_promo_spots: 50,
+  },
+];
+
 const Pricing = () => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
-  const [plans, setPlans] = useState<PricingPlan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [vipTaken, setVipTaken] = useState(0);
+  const plans = HARDCODED_PLANS;
+  const vipTaken = 12;
 
-  useEffect(() => {
-    // Fetch plans + count of active VIP users in parallel
-    Promise.all([
-      supabase.from('pricing_plans').select('*').order('sort_order'),
-      supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('subscription_tier', 'master'),
-    ]).then(([plansRes, countRes]) => {
-      setPlans((plansRes.data as unknown as PricingPlan[]) || []);
-      setVipTaken(countRes.count ?? 0);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF] flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground font-serif">טוען...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF]" dir={isHe ? 'rtl' : 'ltr'}>
