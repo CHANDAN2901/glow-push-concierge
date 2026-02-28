@@ -369,7 +369,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   // ═══════════════ MAIN FORM ═══════════════
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" style={{ background: T.bg }}>
-      <div className="min-h-screen flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-28 sm:pb-20">
+      <div className="min-h-screen flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-40 sm:pb-32">
         <div className="w-full max-w-lg">
 
           {/* ═══ Luxury Dark Equipment Header ═══ */}
