@@ -10,7 +10,7 @@ const MarketingFooter = ({ isHe }: Props) => (
       <div className="flex flex-col md:flex-row items-center justify-between gap-6">
         <span className="text-gold-gradient font-serif text-xl font-bold tracking-wider">GlowPush</span>
         <div className="flex items-center gap-6 text-sm" style={{ color: '#999999' }}>
-          <a href="/legal?tab=terms" className="hover:text-foreground transition-colors">{isHe ? 'תנאי שימוש' : 'Terms'}</a>
+          <a href="/terms" className="hover:text-foreground transition-colors">{isHe ? 'תנאי שימוש' : 'Terms of Service'}</a>
           <a href="/legal?tab=privacy" className="hover:text-foreground transition-colors">{isHe ? 'פרטיות' : 'Privacy'}</a>
           <a href="/privacy" className="hover:text-foreground transition-colors">{isHe ? 'מדיניות פרטיות' : 'Privacy Policy'}</a>
           <div className="flex items-center gap-1.5">
