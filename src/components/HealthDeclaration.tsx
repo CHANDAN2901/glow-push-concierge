@@ -32,6 +32,8 @@ export interface HealthDeclarationData {
   consent: boolean;
   legalConsent: boolean;
   legalConsentAt: string;
+  medicalConsent: boolean;
+  medicalConsentAt: string;
   signatureDataUrl: string;
   submittedAt: string;
 }
@@ -88,6 +90,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 
   const [consent, setConsent] = useState(existingData?.consent || false);
   const [legalConsent, setLegalConsent] = useState(existingData?.legalConsent || false);
+  const [medicalConsent, setMedicalConsent] = useState(existingData?.medicalConsent || false);
   const [signatureDataUrl, setSignatureDataUrl] = useState(existingData?.signatureDataUrl || '');
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -218,6 +221,8 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         botoxFiller: false, g6pd: false, eyeSensitivity: false,
         consent, legalConsent,
         legalConsentAt: legalConsent ? new Date().toISOString() : '',
+        medicalConsent,
+        medicalConsentAt: medicalConsent ? new Date().toISOString() : '',
         signatureDataUrl,
         submittedAt: new Date().toISOString(),
       };
@@ -234,7 +239,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   };
 
   const canProceedStep1 = fullName.trim().length > 0 && idNumber.trim().length > 0;
-  const canProceedStep3 = consent && legalConsent && signatureDataUrl.length > 0;
+  const canProceedStep3 = consent && legalConsent && medicalConsent && signatureDataUrl.length > 0;
 
   const hasAnyRedFlag = dbQuestions.some(q => q.risk_level === 'red' && answers[q.id]);
   const hasAnyYellow = dbQuestions.some(q => q.risk_level === 'yellow' && answers[q.id]);
@@ -750,6 +755,37 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                         {' '}and{' '}
                         <a href="/legal?tab=privacy" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>Privacy Policy</a>
                         {' '}of Glow Push.
+                      </>
+                    )}
+                  </span>
+                </button>
+
+                {/* Medical data & messaging consent */}
+                <button
+                  type="button"
+                  onClick={() => !readOnly && setMedicalConsent(!medicalConsent)}
+                  disabled={readOnly}
+                  className="flex items-start gap-3 w-full text-start px-4 py-3.5 rounded-2xl min-h-[48px] active:scale-[0.98] transition-transform mb-5"
+                  style={{ backgroundColor: '#fafaf8', border: `1px solid ${T.inputBorder}` }}
+                >
+                  <span
+                    className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5"
+                    style={{
+                      border: `2px solid ${medicalConsent ? T.gold : 'rgba(212,175,55,0.35)'}`,
+                      backgroundColor: medicalConsent ? T.gold : 'transparent',
+                      boxShadow: medicalConsent ? '0 0 10px rgba(212,175,55,0.3)' : 'none',
+                    }}
+                  >
+                    {medicalConsent && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                  </span>
+                  <span className="text-sm font-medium leading-relaxed" style={{ color: T.text }}>
+                    {isHe ? (
+                      <>
+                        אני מסכימה לעיבוד המידע הרפואי שלי ולקבלת הודעות אוטומטיות בנוגע לטיפול האחר שלי באמצעות SMS / WhatsApp.
+                      </>
+                    ) : (
+                      <>
+                        I consent to the processing of my medical data and agree to receive automated SMS/WhatsApp notifications regarding my aftercare.
                       </>
                     )}
                   </span>

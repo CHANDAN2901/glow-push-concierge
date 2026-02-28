@@ -27,6 +27,7 @@ import NotFound from "./pages/NotFound";
 import FaqPage from "./pages/FaqPage";
 import Legal from "./pages/Legal";
 import DevSwitcher from "./components/DevSwitcher";
+import CookieConsentBanner from "./components/CookieConsentBanner";
 
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
             </Routes>
           </ErrorBoundary>
           <DevSwitcher />
+          <CookieConsentBanner />
         </BrowserRouter>
       </I18nProvider>
     </TooltipProvider>

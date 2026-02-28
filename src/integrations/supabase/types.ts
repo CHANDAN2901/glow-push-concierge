@@ -365,6 +365,7 @@ export type Database = {
           form_data: Json
           id: string
           is_signed: boolean
+          medical_consent_at: string | null
           signature_svg: string | null
         }
         Insert: {
@@ -374,6 +375,7 @@ export type Database = {
           form_data?: Json
           id?: string
           is_signed?: boolean
+          medical_consent_at?: string | null
           signature_svg?: string | null
         }
         Update: {
@@ -383,6 +385,7 @@ export type Database = {
           form_data?: Json
           id?: string
           is_signed?: boolean
+          medical_consent_at?: string | null
           signature_svg?: string | null
         }
         Relationships: [
