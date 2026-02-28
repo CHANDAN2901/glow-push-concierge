@@ -70,6 +70,7 @@ Deno.serve(async (req) => {
         form_data: formData,
         is_signed: !!signatureDataUrl,
         signature_svg: signatureDataUrl || null,
+        consent_accepted_at: formData?.legalConsentAt || null,
       });
 
     if (declErr) throw declErr;

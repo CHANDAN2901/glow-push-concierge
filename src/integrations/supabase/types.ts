@@ -360,6 +360,7 @@ export type Database = {
       health_declarations: {
         Row: {
           client_id: string
+          consent_accepted_at: string | null
           created_at: string
           form_data: Json
           id: string
@@ -368,6 +369,7 @@ export type Database = {
         }
         Insert: {
           client_id: string
+          consent_accepted_at?: string | null
           created_at?: string
           form_data?: Json
           id?: string
@@ -376,6 +378,7 @@ export type Database = {
         }
         Update: {
           client_id?: string
+          consent_accepted_at?: string | null
           created_at?: string
           form_data?: Json
           id?: string
