@@ -21,8 +21,20 @@ export default function PlansUpgradeScreen({ onBack, currentTier }: Props) {
   const { data: plans = [], isLoading } = usePricingPlans();
 
   const handleUpgrade = (plan: PricingPlan) => {
+    // Log full plan object for debugging — confirm DB data is used
+    console.log('[Upgrade] Selected plan object:', JSON.stringify(plan, null, 2));
+    console.log('[Upgrade] stripe_price_id:', plan.stripe_price_id);
+
+    if (!plan.stripe_price_id) {
+      toast({
+        title: isHe ? 'מזהה Stripe חסר לתוכנית זו' : 'Stripe price ID missing for this plan',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     toast({ title: isHe ? 'מעבירים אותך לתשלום מאובטח... 🔒' : 'Redirecting to secure checkout... 🔒' });
-    // Stripe/payment integration placeholder – use plan.slug or plan.id
+    // TODO: Create Stripe checkout session using plan.stripe_price_id
   };
 
   if (isLoading) {
@@ -62,152 +74,30 @@ export default function PlansUpgradeScreen({ onBack, currentTier }: Props) {
 
         if (isHighlighted) {
           return (
-            <div
+            <HighlightedPlanCard
               key={plan.id}
-              className="rounded-2xl border-2 p-5 space-y-4 relative overflow-hidden"
-              style={{
-                borderColor: '#D4AF37',
-                background: 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--pink)) 100%)',
-                boxShadow: '0 6px 30px -6px rgba(212, 175, 55, 0.2)',
-              }}
-            >
-              {/* Badge */}
-              {(plan.badge_he || plan.badge_en) && (
-                <div className="absolute top-0 left-0 right-0 flex justify-center">
-                  <span
-                    className="px-4 py-1 text-[11px] font-bold rounded-b-xl"
-                    style={{
-                      background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-                      color: '#fff',
-                    }}
-                  >
-                    {isHe ? plan.badge_he : plan.badge_en}
-                  </span>
-                </div>
-              )}
-
-              <div className="flex items-center gap-3 pt-4">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)' }}
-                >
-                  <Icon className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-foreground text-base">{name}</h2>
-                  <div className="flex items-baseline gap-1.5 mt-0.5">
-                    <span
-                      className="text-xl font-bold bg-clip-text text-transparent"
-                      style={{ backgroundImage: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
-                    >
-                      {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
-                    </span>
-                    <span className="text-xs text-foreground/50">
-                      {plan.slug === 'vip-3year'
-                        ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
-                        : (isHe ? 'לחודש' : '/month')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2.5">
-                {features.map((f, i) => (
-                  <div key={i} className="flex items-start gap-2.5">
-                    <div
-                      className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                      style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)' }}
-                    >
-                      <Check className="w-3 h-3 text-white" />
-                    </div>
-                    <p className="text-sm text-foreground font-medium leading-relaxed">{f}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* WhatsApp automation visual */}
-              <div
-                className="rounded-xl p-3 flex items-center gap-3"
-                style={{ backgroundColor: 'rgba(37, 211, 102, 0.08)', border: '1px solid rgba(37, 211, 102, 0.2)' }}
-              >
-                <MessageCircle className="w-5 h-5 shrink-0" style={{ color: '#25d366' }} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-foreground">
-                    {isHe ? 'אוטומציה מלאה' : 'Full Automation'}
-                  </p>
-                  <p className="text-[10px] text-foreground/60">
-                    {isHe ? 'ההודעות נשלחות אוטומטית ללקוחות שלך' : 'Messages are sent automatically to your clients'}
-                  </p>
-                </div>
-                <Zap className="w-4 h-4 text-accent shrink-0" />
-              </div>
-
-              {/* CTA */}
-              <button
-                onClick={() => handleUpgrade(plan)}
-                className="w-full py-4 rounded-2xl text-base font-bold border border-[#D4AF37]/30 transition-all active:scale-[0.97] hover:shadow-lg flex items-center justify-center gap-2"
-                style={{
-                  background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-                  color: '#5C4033',
-                  boxShadow: '0 4px 20px -4px rgba(212, 175, 55, 0.4)',
-                }}
-              >
-                <Crown className="w-5 h-5" />
-                {cta}
-              </button>
-            </div>
+              plan={plan}
+              name={name}
+              features={features}
+              cta={cta}
+              Icon={Icon}
+              isHe={isHe}
+              onUpgrade={handleUpgrade}
+            />
           );
         }
 
-        // Non-highlighted plan card
         return (
-          <div key={plan.id} className="rounded-2xl border border-border bg-card p-5 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                <Icon className="w-5 h-5 text-accent" />
-              </div>
-              <div>
-                <h2 className="font-bold text-foreground text-base">{name}</h2>
-                {plan.price_monthly > 0 && (
-                  <div className="flex items-baseline gap-1.5 mt-0.5">
-                    <span className="text-lg font-bold text-foreground">
-                      {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
-                    </span>
-                    <span className="text-xs text-foreground/50">
-                      {plan.slug === 'vip-3year'
-                        ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
-                        : (isHe ? 'לחודש' : '/month')}
-                    </span>
-                  </div>
-                )}
-                {plan.price_monthly === 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    {isHe ? 'כלול במנוי' : 'Included in Subscription'}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2.5">
-              {features.map((f, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <Check className="w-3 h-3 text-accent" />
-                  </div>
-                  <p className="text-sm text-foreground/80 leading-relaxed">{f}</p>
-                </div>
-              ))}
-            </div>
-
-            {!isHighlighted && (
-              <button
-                onClick={() => handleUpgrade(plan)}
-                className="w-full py-3 rounded-2xl text-sm font-bold border border-border transition-all active:scale-[0.97] hover:bg-accent/5 flex items-center justify-center gap-2 text-foreground"
-              >
-                {cta}
-              </button>
-            )}
-          </div>
+          <StandardPlanCard
+            key={plan.id}
+            plan={plan}
+            name={name}
+            features={features}
+            cta={cta}
+            Icon={Icon}
+            isHe={isHe}
+            onUpgrade={handleUpgrade}
+          />
         );
       })}
 
@@ -217,6 +107,164 @@ export default function PlansUpgradeScreen({ onBack, currentTier }: Props) {
           ? 'ביטול בכל עת. תשלום מאובטח דרך Stripe. ללא התחייבות.'
           : 'Cancel anytime. Secure payment via Stripe. No commitment.'}
       </p>
+    </div>
+  );
+}
+
+/* ── Highlighted Plan Card ── */
+interface PlanCardProps {
+  plan: PricingPlan;
+  name: string;
+  features: string[];
+  cta: string;
+  Icon: React.ElementType;
+  isHe: boolean;
+  onUpgrade: (plan: PricingPlan) => void;
+}
+
+function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade }: PlanCardProps) {
+  return (
+    <div
+      className="rounded-2xl border-2 p-5 space-y-4 relative overflow-hidden"
+      style={{
+        borderColor: '#D4AF37',
+        background: 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--pink)) 100%)',
+        boxShadow: '0 6px 30px -6px rgba(212, 175, 55, 0.2)',
+      }}
+    >
+      {(plan.badge_he || plan.badge_en) && (
+        <div className="absolute top-0 left-0 right-0 flex justify-center">
+          <span
+            className="px-4 py-1 text-[11px] font-bold rounded-b-xl"
+            style={{
+              background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
+              color: '#fff',
+            }}
+          >
+            {isHe ? plan.badge_he : plan.badge_en}
+          </span>
+        </div>
+      )}
+
+      <div className="flex items-center gap-3 pt-4">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)' }}
+        >
+          <Icon className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h2 className="font-bold text-foreground text-base">{name}</h2>
+          <div className="flex items-baseline gap-1.5 mt-0.5">
+            <span
+              className="text-xl font-bold bg-clip-text text-transparent"
+              style={{ backgroundImage: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
+            >
+              {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
+            </span>
+            <span className="text-xs text-foreground/50">
+              {plan.slug === 'vip-3year'
+                ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
+                : (isHe ? 'לחודש' : '/month')}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2.5">
+        {features.map((f, i) => (
+          <div key={i} className="flex items-start gap-2.5">
+            <div
+              className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+              style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)' }}
+            >
+              <Check className="w-3 h-3 text-white" />
+            </div>
+            <p className="text-sm text-foreground font-medium leading-relaxed">{f}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* WhatsApp automation visual */}
+      <div
+        className="rounded-xl p-3 flex items-center gap-3"
+        style={{ backgroundColor: 'rgba(37, 211, 102, 0.08)', border: '1px solid rgba(37, 211, 102, 0.2)' }}
+      >
+        <MessageCircle className="w-5 h-5 shrink-0" style={{ color: '#25d366' }} />
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-bold text-foreground">
+            {isHe ? 'אוטומציה מלאה' : 'Full Automation'}
+          </p>
+          <p className="text-[10px] text-foreground/60">
+            {isHe ? 'ההודעות נשלחות אוטומטית ללקוחות שלך' : 'Messages are sent automatically to your clients'}
+          </p>
+        </div>
+        <Zap className="w-4 h-4 text-accent shrink-0" />
+      </div>
+
+      <button
+        onClick={() => onUpgrade(plan)}
+        className="w-full py-4 rounded-2xl text-base font-bold border border-[#D4AF37]/30 transition-all active:scale-[0.97] hover:shadow-lg flex items-center justify-center gap-2"
+        style={{
+          background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
+          color: '#5C4033',
+          boxShadow: '0 4px 20px -4px rgba(212, 175, 55, 0.4)',
+        }}
+      >
+        <Crown className="w-5 h-5" />
+        {cta}
+      </button>
+    </div>
+  );
+}
+
+/* ── Standard Plan Card ── */
+function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade }: PlanCardProps) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+          <Icon className="w-5 h-5 text-accent" />
+        </div>
+        <div>
+          <h2 className="font-bold text-foreground text-base">{name}</h2>
+          {plan.price_monthly > 0 && (
+            <div className="flex items-baseline gap-1.5 mt-0.5">
+              <span className="text-lg font-bold text-foreground">
+                {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
+              </span>
+              <span className="text-xs text-foreground/50">
+                {plan.slug === 'vip-3year'
+                  ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
+                  : (isHe ? 'לחודש' : '/month')}
+              </span>
+            </div>
+          )}
+          {plan.price_monthly === 0 && (
+            <p className="text-xs text-muted-foreground">
+              {isHe ? 'כלול במנוי' : 'Included in Subscription'}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-2.5">
+        {features.map((f, i) => (
+          <div key={i} className="flex items-start gap-2.5">
+            <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
+              <Check className="w-3 h-3 text-accent" />
+            </div>
+            <p className="text-sm text-foreground/80 leading-relaxed">{f}</p>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={() => onUpgrade(plan)}
+        className="w-full py-3 rounded-2xl text-sm font-bold border border-border transition-all active:scale-[0.97] hover:bg-accent/5 flex items-center justify-center gap-2 text-foreground"
+      >
+        {cta}
+      </button>
     </div>
   );
 }

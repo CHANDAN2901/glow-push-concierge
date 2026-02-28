@@ -18,6 +18,7 @@ export interface PricingPlan {
   cta_he: string;
   sort_order: number;
   total_promo_spots: number;
+  stripe_price_id: string | null;
 }
 
 const QUERY_KEY = ['pricing-plans'];

@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { Crown, Bell, MessageCircle, Zap, Check, Lock } from 'lucide-react';
+import { Crown, Bell, Zap, Check } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
-import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { usePricingPlans } from '@/hooks/usePricingPlans';
 
 interface Props {
   hasWhatsAppAutomation: boolean;
@@ -14,22 +13,18 @@ export default function NotificationUpgradeSection({ hasWhatsAppAutomation, user
   const { lang } = useI18n();
   const navigate = useNavigate();
   const isHe = lang === 'he';
+  const { data: plans = [] } = usePricingPlans();
 
-  const features = isHe
-    ? [
-        'הודעות וואטסאפ אוטומטיות ביום 1, 4, 10',
-        'עד 200 הודעות בחודש',
-        'ללא צורך בלחיצה ידנית — הכל אוטומטי',
-        'תזכורות טאצ׳ אפ ביום 30',
-        'סטטיסטיקות שליחה ופתיחה',
-      ]
-    : [
-        'Automated WhatsApp messages on Day 1, 4, 10',
-        'Up to 200 messages per month',
-        'No manual clicks needed — fully automated',
-        'Touch-up reminders on Day 30',
-        'Send & open statistics',
-      ];
+  // Find the highlighted (elite) plan dynamically for the CTA price
+  const elitePlan = plans.find(p => p.is_highlighted) || plans[0];
+  const ctaPrice = elitePlan
+    ? (isHe ? `${elitePlan.price_monthly} ₪ לחודש` : `₪${elitePlan.price_monthly}/month`)
+    : '';
+
+  // Use features from the elite plan if available, fallback to empty
+  const features = elitePlan
+    ? (isHe ? elitePlan.features_he : elitePlan.features_en)
+    : [];
 
   if (hasWhatsAppAutomation) {
     return (
@@ -56,7 +51,6 @@ export default function NotificationUpgradeSection({ hasWhatsAppAutomation, user
 
   return (
     <div className="bg-card rounded-3xl border border-accent/30 p-5 shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)] overflow-hidden relative">
-      {/* Decorative shimmer line */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gold-shimmer" />
 
       <div className="flex items-center gap-3 mb-4">
@@ -71,12 +65,13 @@ export default function NotificationUpgradeSection({ hasWhatsAppAutomation, user
             {isHe ? 'שדרוג לאוטומציה מלאה' : 'Upgrade to Full Automation'}
           </h2>
           <p className="text-xs text-muted-foreground">
-            {isHe ? 'רוצה שהודעות הוואטסאפ יישלחו ללקוחות שלך באופן אוטומטי לחלוטין? שדרגי למסלול VIP.' : 'Want WhatsApp messages sent to your clients fully automatically? Upgrade to VIP.'}
+            {elitePlan
+              ? (isHe ? `שדרגי ל${isHe ? elitePlan.name_he : elitePlan.name_en}` : `Upgrade to ${elitePlan.name_en}`)
+              : (isHe ? 'שדרגי עכשיו' : 'Upgrade now')}
           </p>
         </div>
       </div>
 
-      {/* Current mode indicator */}
       <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/50 border border-border mb-4">
         <Bell className="w-4 h-4 text-accent" />
         <div className="flex-1">
@@ -89,9 +84,8 @@ export default function NotificationUpgradeSection({ hasWhatsAppAutomation, user
         </div>
       </div>
 
-      {/* Benefits list */}
       <div className="space-y-2.5 mb-5">
-        {features.map((text, i) => (
+        {features.slice(0, 5).map((text, i) => (
           <div key={i} className="flex items-start gap-3">
             <div
               className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
@@ -104,16 +98,16 @@ export default function NotificationUpgradeSection({ hasWhatsAppAutomation, user
         ))}
       </div>
 
-      {/* CTA */}
       <button
         onClick={() => {
+          console.log('[NotificationUpgrade] Plan used for CTA:', elitePlan);
           if (onRequestUpgrade) onRequestUpgrade();
           else navigate('/pricing');
         }}
         className="w-full py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.97] shadow-lg btn-jewel-gold"
       >
         <Crown className="w-4 h-4" />
-        {isHe ? 'שדרגי עכשיו ב-49 ₪ לחודש' : 'Upgrade Now — ₪49/month'}
+        {isHe ? `שדרגי עכשיו ב-${ctaPrice}` : `Upgrade Now — ${ctaPrice}`}
       </button>
 
       <p className="text-center text-[10px] text-muted-foreground mt-2">
