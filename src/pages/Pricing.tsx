@@ -1,26 +1,7 @@
 import { Check, Crown, Sparkles, Star, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-
-interface PricingPlan {
-  id: string;
-  slug: string;
-  name_he: string;
-  name_en: string;
-  price_monthly: number;
-  price_usd: number;
-  is_highlighted: boolean;
-  badge_he: string | null;
-  badge_en: string | null;
-  features_he: string[];
-  features_en: string[];
-  cta_he: string;
-  cta_en: string;
-  sort_order: number;
-  total_promo_spots: number;
-}
+import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/usePricingPlans';
 
 const iconMap: Record<string, React.ElementType> = {
   pro: Sparkles,
@@ -30,7 +11,6 @@ const iconMap: Record<string, React.ElementType> = {
 
 /* ── Plan title renderer ── */
 const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
-  // Split "Glow Push Pro" → ["Glow Push", "Pro"] or "Glow Push Elite" → ["Glow Push", "Elite"]
   const lastSpace = name.lastIndexOf(' ');
   const prefix = lastSpace > 0 ? name.slice(0, lastSpace) : '';
   const suffix = lastSpace > 0 ? name.slice(lastSpace + 1) : name;
@@ -79,7 +59,6 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
             : `Only ${remaining} founding-price spots left!`}
         </span>
       </div>
-      {/* mini progress bar */}
       <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(212,175,55,0.15)' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
@@ -93,22 +72,10 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
 const Pricing = () => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
-  const [plans, setPlans] = useState<PricingPlan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [vipTaken, setVipTaken] = useState(0);
+  const { data: plans = [], isLoading } = usePricingPlans();
+  const { data: vipTaken = 0 } = useVipTakenCount();
 
-  useEffect(() => {
-    Promise.all([
-      supabase.from('pricing_plans').select('*').order('sort_order'),
-      supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('subscription_tier', 'master'),
-    ]).then(([plansRes, countRes]) => {
-      setPlans((plansRes.data as unknown as PricingPlan[]) || []);
-      setVipTaken(countRes.count ?? 0);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF] flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground font-serif">טוען...</div>
@@ -142,7 +109,7 @@ const Pricing = () => {
         />
       </div>
 
-      {/* Cards – single column, centered */}
+      {/* Cards */}
       <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-8 max-w-lg">
         {plans.map((plan, idx) => {
           const Icon = iconMap[plan.slug] || Sparkles;
@@ -150,8 +117,6 @@ const Pricing = () => {
           const name = isHe ? plan.name_he : plan.name_en;
           const cta = isHe ? plan.cta_he : plan.cta_en;
           const badge = isHe ? plan.badge_he : plan.badge_en;
-          const mobileOrder = plan.is_highlighted ? 2 : idx + 1;
-
           const isElite = plan.is_highlighted;
 
           return (
@@ -159,7 +124,6 @@ const Pricing = () => {
               key={plan.id}
               className={`w-full rounded-3xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center ${isElite ? '' : 'bg-white'}`}
               style={{
-                order: mobileOrder,
                 border: isElite ? '2px solid #D4AF37' : '1px solid rgba(212,175,55,0.25)',
                 background: isElite
                   ? 'linear-gradient(180deg, #FFFDF5 0%, #FFF9E6 100%)'
@@ -171,7 +135,6 @@ const Pricing = () => {
                 animationFillMode: 'both',
               }}
             >
-              {/* Badge for highlighted plan */}
               {isElite && badge && (
                 <span
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
@@ -185,13 +148,11 @@ const Pricing = () => {
                 </span>
               )}
 
-              {/* Title – centered */}
               <div className={`flex items-center justify-center gap-2 ${isElite ? 'mt-4' : ''} mb-6`}>
                 <PlanTitle slug={plan.slug} name={name} />
                 <Icon className="w-5 h-5" style={{ color: '#D4AF37' }} />
               </div>
 
-              {/* Price – centered */}
               <div className="mb-8">
                 <div className="flex items-baseline justify-center gap-1.5">
                   <span
@@ -209,14 +170,8 @@ const Pricing = () => {
                     {plan.slug === 'vip-3year' ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time') : (isHe ? '/ חודש' : '/ month')}
                   </span>
                 </div>
-                {plan.slug === 'vip-3year' && (
-                  <p className="text-xs mt-2" style={{ color: '#B8860B' }}>
-                    {isHe ? '(שווה ערך ל-₪41 בחודש בלבד! חיסכון ענק)' : '(Huge savings! Equivalent to $11/mo)'}
-                  </p>
-                )}
               </div>
 
-              {/* Features */}
               <ul className="space-y-4 mb-10 flex-1">
                 {features.map((f, i) => (
                   <li key={i} className="flex items-center justify-center gap-3 text-sm" style={{ color: '#444' }}>
@@ -226,12 +181,10 @@ const Pricing = () => {
                 ))}
               </ul>
 
-              {/* FOMO counter */}
               {plan.slug === 'vip-3year' && plan.total_promo_spots > 0 && (
                 <FomoBadge totalSpots={plan.total_promo_spots} takenSpots={vipTaken} isHe={isHe} />
               )}
 
-              {/* CTA – outlined style like screenshot */}
               <Link
                 to="/auth"
                 className="w-full inline-flex items-center justify-center py-4 rounded-2xl text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-md hover:scale-[1.01]"
@@ -248,7 +201,6 @@ const Pricing = () => {
         })}
       </div>
 
-      {/* Fine print */}
       <p className="text-center text-xs pb-10 px-4" style={{ color: '#bbb' }}>
         {isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}
       </p>

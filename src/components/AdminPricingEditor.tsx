@@ -5,50 +5,18 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useQueryClient } from '@tanstack/react-query';
-
-interface PricingPlan {
-  id: string;
-  slug: string;
-  name_en: string;
-  name_he: string;
-  price_monthly: number;
-  price_usd: number;
-  currency: string;
-  is_highlighted: boolean;
-  badge_en: string | null;
-  badge_he: string | null;
-  features_en: string[];
-  features_he: string[];
-  cta_en: string;
-  cta_he: string;
-  sort_order: number;
-  total_promo_spots: number;
-}
+import { usePricingPlans, useInvalidatePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
 
 export default function AdminPricingEditor() {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { data: fetchedPlans = [], isLoading: loading } = usePricingPlans();
+  const invalidatePlans = useInvalidatePricingPlans();
   const [plans, setPlans] = useState<PricingPlan[]>([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchPlans();
-  }, []);
-
-  const fetchPlans = async () => {
-    const { data, error } = await supabase
-      .from('pricing_plans')
-      .select('*')
-      .order('sort_order');
-    if (error) {
-      toast({ title: 'שגיאה בטעינת חבילות', variant: 'destructive' });
-    } else {
-      setPlans((data as unknown as PricingPlan[]) || []);
-    }
-    setLoading(false);
-  };
+    setPlans(fetchedPlans);
+  }, [fetchedPlans]);
 
   const updatePlan = (id: string, field: keyof PricingPlan, value: any) => {
     setPlans(plans.map(p => p.id === id ? { ...p, [field]: value } : p));
@@ -112,7 +80,7 @@ export default function AdminPricingEditor() {
     }
     setSaving(false);
     if (!hasError) {
-      await queryClient.invalidateQueries({ queryKey: ['pricing-plans'] });
+      await invalidatePlans();
     }
     toast({
       title: hasError ? 'שגיאה בשמירה' : 'החבילות עודכנו בהצלחה! ✨',
