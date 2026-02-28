@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
-import { Upload, Sparkles, UserPlus, ChevronLeft, ChevronRight, CheckCircle, X } from 'lucide-react';
+import { Upload, Sparkles, UserPlus, ChevronLeft, ChevronRight, CheckCircle, X, Camera, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,9 +35,47 @@ export default function OnboardingWizard({
   const isHe = lang === 'he';
   const [step, setStep] = useState(0);
   const [logoUrl, setLogoUrl] = useState(currentLogoUrl);
+  const [logoPreview, setLogoPreview] = useState(currentLogoUrl);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [businessName, setBusinessName] = useState(currentName);
   const [businessPhone, setBusinessPhone] = useState(currentPhone);
   const [saving, setSaving] = useState(false);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !userProfileId) return;
+
+    // Preview immediately
+    const reader = new FileReader();
+    reader.onload = (ev) => setLogoPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+
+    setUploadingLogo(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+      const path = `${userProfileId}/logo.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('portfolio')
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('portfolio')
+        .getPublicUrl(path);
+
+      setLogoUrl(urlData.publicUrl);
+      toast({ title: isHe ? 'הלוגו הועלה בהצלחה ✅' : 'Logo uploaded ✅' });
+    } catch (err: any) {
+      console.error('Logo upload error:', err);
+      toast({ title: isHe ? 'שגיאה בהעלאת הלוגו' : 'Logo upload failed', variant: 'destructive' });
+      setLogoPreview(logoUrl);
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   if (!open) return null;
 
@@ -78,16 +116,36 @@ export default function OnboardingWizard({
       <div className="space-y-3">
         <div className="space-y-1.5">
           <Label className="text-xs font-medium" style={{ color: 'hsl(38 40% 45%)' }}>
-            {isHe ? 'כתובת URL של הלוגו' : 'Logo URL'}
+            {isHe ? 'לוגו העסק' : 'Business Logo'}
           </Label>
-          <Input
-            value={logoUrl}
-            onChange={e => setLogoUrl(e.target.value)}
-            placeholder="https://..."
-            dir="ltr"
-            className="h-11 rounded-xl"
-            style={{ border: '1px solid hsl(38 40% 82%)' }}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleLogoUpload}
           />
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center justify-center gap-3 h-24 rounded-xl cursor-pointer transition-colors hover:opacity-80"
+            style={{
+              border: '2px dashed hsl(38 40% 82%)',
+              background: logoPreview ? 'transparent' : 'hsl(38 55% 62% / 0.04)',
+            }}
+          >
+            {uploadingLogo ? (
+              <Loader2 className="w-6 h-6 animate-spin" style={{ color: goldColor }} />
+            ) : logoPreview ? (
+              <img src={logoPreview} alt="Logo" className="h-16 w-16 object-contain rounded-lg" />
+            ) : (
+              <div className="flex flex-col items-center gap-1.5">
+                <Camera className="w-6 h-6" style={{ color: goldColor }} />
+                <span className="text-xs" style={{ color: 'hsl(38 40% 45%)' }}>
+                  {isHe ? 'לחצי להעלאת לוגו' : 'Tap to upload logo'}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs font-medium" style={{ color: 'hsl(38 40% 45%)' }}>
