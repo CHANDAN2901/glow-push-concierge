@@ -426,9 +426,13 @@ const Auth = () => {
         </div>
 
         {/* Legal link */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 flex items-center justify-center gap-3">
           <Link to="/legal" className="text-xs transition-colors" style={{ color: 'hsl(38 40% 55%)' }}>
             {lang === 'en' ? 'Terms & Cancellation Policy' : 'תקנון ותנאי שימוש'}
+          </Link>
+          <span className="text-xs" style={{ color: 'hsl(38 40% 75%)' }}>·</span>
+          <Link to="/privacy" className="text-xs transition-colors" style={{ color: 'hsl(38 40% 55%)' }}>
+            {lang === 'en' ? 'Privacy Policy' : 'מדיניות פרטיות'}
           </Link>
         </div>
       </div>

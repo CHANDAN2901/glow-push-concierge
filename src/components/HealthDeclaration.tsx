@@ -745,7 +745,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                         אני מאשרת כי הפרטים נמסרו מרצוני, וכי קראתי והסכמתי ל
                         <a href="/legal?tab=terms" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>תנאי השימוש</a>
                         {' '}ול
-                        <a href="/legal?tab=privacy" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>מדיניות הפרטיות</a>
+                        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>מדיניות הפרטיות</a>
                         {' '}של Glow Push.
                       </>
                     ) : (
@@ -753,7 +753,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                         I confirm that the information was provided voluntarily, and that I have read and agreed to the{' '}
                         <a href="/legal?tab=terms" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>Terms of Service</a>
                         {' '}and{' '}
-                        <a href="/legal?tab=privacy" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>Privacy Policy</a>
+                        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline font-bold" style={{ color: T.gold }} onClick={e => e.stopPropagation()}>Privacy Policy</a>
                         {' '}of Glow Push.
                       </>
                     )}
