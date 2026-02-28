@@ -558,6 +558,7 @@ export type Database = {
           price_usd: number
           slug: string
           sort_order: number
+          stripe_price_id: string | null
           total_promo_spots: number
           updated_at: string
         }
@@ -578,6 +579,7 @@ export type Database = {
           price_usd?: number
           slug: string
           sort_order?: number
+          stripe_price_id?: string | null
           total_promo_spots?: number
           updated_at?: string
         }
@@ -598,6 +600,7 @@ export type Database = {
           price_usd?: number
           slug?: string
           sort_order?: number
+          stripe_price_id?: string | null
           total_promo_spots?: number
           updated_at?: string
         }
