@@ -442,6 +442,91 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     }
   }, [clientId, clientName, resolvedArtistId, selectedPhotos, transforms, artistLogoUrl]);
 
+  // Build canvas helper (shared between save & download)
+  const buildCollageCanvas = useCallback(async (): Promise<HTMLCanvasElement> => {
+    const loadImg = (url: string): Promise<HTMLImageElement> =>
+      new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+        img.src = url;
+      });
+
+    const [beforeImg, afterImg] = await Promise.all([
+      loadImg(selectedPhotos[0]!.public_url),
+      loadImg(selectedPhotos[1]!.public_url),
+    ]);
+
+    const HALF_W = 600, HALF_H = 600, DIVIDER = 3, FOOTER_H = 60;
+    const CANVAS_W = HALF_W * 2 + DIVIDER, CANVAS_H = HALF_H + FOOTER_H;
+    const canvas = document.createElement('canvas');
+    canvas.width = CANVAS_W; canvas.height = CANVAS_H;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+    const drawHalf = (img: HTMLImageElement, t: ImageTransform, xStart: number) => {
+      ctx.save();
+      ctx.beginPath(); ctx.rect(xStart, 0, HALF_W, HALF_H); ctx.clip();
+      const cx = xStart + HALF_W / 2 + t.offsetX, cy = HALF_H / 2 + t.offsetY;
+      ctx.translate(cx, cy); ctx.rotate((t.rotation * Math.PI) / 180); ctx.scale(t.scale, t.scale);
+      const imgAspect = img.width / img.height, halfAspect = HALF_W / HALF_H;
+      let drawW: number, drawH: number;
+      if (imgAspect > halfAspect) { drawH = HALF_H; drawW = HALF_H * imgAspect; }
+      else { drawW = HALF_W; drawH = HALF_W / imgAspect; }
+      ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+      ctx.restore();
+    };
+
+    drawHalf(afterImg, transforms[1], 0);
+    drawHalf(beforeImg, transforms[0], HALF_W + DIVIDER);
+    ctx.fillStyle = GOLD; ctx.fillRect(HALF_W, 0, DIVIDER, HALF_H);
+
+    ctx.font = 'bold 22px serif'; ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = 4;
+    ctx.textAlign = 'left'; ctx.fillText('אחרי ✨', 16, HALF_H - 16);
+    ctx.textAlign = 'right'; ctx.fillText('לפני', CANVAS_W - 16, HALF_H - 16);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#fefcf7'; ctx.fillRect(0, HALF_H, CANVAS_W, FOOTER_H);
+    ctx.fillStyle = GOLD_DARK; ctx.font = 'bold 18px serif'; ctx.textAlign = 'right';
+    ctx.fillText(clientName, CANVAS_W - 20, HALF_H + 30);
+    ctx.font = '14px serif'; ctx.fillStyle = '#999';
+    ctx.fillText(format(new Date(), 'dd/MM/yyyy'), CANVAS_W - 20, HALF_H + 50);
+
+    const logoToUse = artistLogoUrl || glowPushLogo;
+    try {
+      const logoImg = await loadImg(logoToUse);
+      const logoH = 36, logoW = (logoImg.width / logoImg.height) * logoH;
+      ctx.globalAlpha = 0.5;
+      ctx.drawImage(logoImg, 16, HALF_H + (FOOTER_H - logoH) / 2, logoW, logoH);
+      ctx.globalAlpha = 1;
+    } catch { /* skip logo */ }
+
+    return canvas;
+  }, [selectedPhotos, transforms, clientName, artistLogoUrl]);
+
+  // Download collage directly to user's device
+  const downloadCollageToDevice = useCallback(async () => {
+    try {
+      setSavingCollage(true);
+      const canvas = await buildCollageCanvas();
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `collage-${clientName.replace(/\s+/g, '-')}-${format(new Date(), 'dd-MM-yyyy')}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast({ title: 'הקולאז׳ הורד בהצלחה ✅' });
+    } catch (err: any) {
+      toast({ title: `שגיאה בהורדה: ${err?.message || 'Unknown'}`, variant: 'destructive' });
+    } finally {
+      setSavingCollage(false);
+    }
+  }, [buildCollageCanvas, clientName]);
+
   const sortedPhotos = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   if (loading) {
@@ -774,16 +859,25 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           {/* Floating edit toolbar */}
           {renderEditToolbar()}
 
-          {/* Save button */}
-          <div className="flex justify-center">
+          {/* Save + Download buttons */}
+          <div className="flex flex-col items-center gap-2">
             <button
               onClick={saveCollageToDevice}
               disabled={savingCollage}
               className="flex items-center gap-2.5 px-7 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
               style={{ background: GOLD_GRADIENT, color: '#5C4033', boxShadow: '0 4px 16px -2px rgba(212,175,55,0.5)' }}
             >
-              <Download className="w-4 h-4" />
+              <Layers className="w-4 h-4" />
               {savingCollage ? 'שומר...' : 'שמירת קולאז׳ לגלריה'}
+            </button>
+            <button
+              onClick={downloadCollageToDevice}
+              disabled={savingCollage}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
+              style={{ background: '#ffffff', border: `2px solid ${GOLD}`, color: GOLD_DARK }}
+            >
+              <Download className="w-4 h-4" />
+              הורדה למכשיר 📲
             </button>
           </div>
 
