@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Loader2, Download, Pencil } from 'lucide-react';
+import { Upload, Loader2, Download, Pencil, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
 import ImageEditorDialog from './ImageEditorDialog';
@@ -172,6 +172,15 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
   const [editingSrc, setEditingSrc] = useState('');
   const [autoSaved, setAutoSaved] = useState(false);
 
+  const clearCollageSelection = useCallback(() => {
+    setBeforeUrl('');
+    setAfterUrl('');
+    setAutoSaved(false);
+    setUploadErrorMessage(null);
+    setCollageErrorMessage(null);
+    setFetchErrorMessage(null);
+  }, []);
+
   // Resolve clientId: if it's a UUID use directly, otherwise look up by name
   const [resolvedClientId, setResolvedClientId] = useState<string | null>(null);
   useEffect(() => {
@@ -190,47 +199,17 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
     resolve();
   }, [clientId]);
 
+  // Reset collage slots when client/page context changes
+  useEffect(() => {
+    clearCollageSelection();
+    setSavedToGallery(false);
+    if (beforeImg) setBeforeUrl(beforeImg);
+    if (afterImg) setAfterUrl(afterImg);
+  }, [clientId, artistProfileId, beforeImg, afterImg, clearCollageSelection]);
+
   const hasBefore = !!beforeUrl && beforeUrl !== PLACEHOLDER;
   const hasAfter = !!afterUrl && afterUrl !== PLACEHOLDER;
   const hasBoth = hasBefore && hasAfter;
-
-  useEffect(() => {
-    if (!artistProfileId || !clientId) return;
-    const fetchImages = async () => {
-      setFetchErrorMessage(null);
-      try {
-        const { data, error } = await supabase
-          .from('images_metadata')
-          .select('storage_path, category')
-          .eq('artist_profile_id', artistProfileId)
-          .eq('client_id', clientId)
-          .in('category', ['before', 'after']);
-
-        if (error) throw error;
-
-        if (data && data.length > 0) {
-          for (const img of data) {
-            const { data: urlData } = supabase.storage
-              .from('client-photos')
-              .getPublicUrl(img.storage_path);
-            if (img.category === 'before' && !beforeUrl) setBeforeUrl(urlData.publicUrl);
-            else if (img.category === 'after' && !afterUrl) setAfterUrl(urlData.publicUrl);
-          }
-        }
-      } catch (e: any) {
-        const { data: { user } } = await supabase.auth.getUser();
-        const message = e?.message || 'Unknown gallery fetch error';
-        console.error('Healing gallery fetch failed', {
-          userId: user?.id || null,
-          fileName: null,
-          bucketPath: `images_metadata?artist_profile_id=${artistProfileId}&client_id=${clientId}`,
-          supabaseError: e,
-        });
-        setFetchErrorMessage(message);
-      }
-    };
-    fetchImages();
-  }, [artistProfileId, clientId]);
 
   const handleUpload = useCallback(async (file: File, category: 'before' | 'after') => {
     const setUploading = category === 'before' ? setUploadingBefore : setUploadingAfter;
@@ -481,9 +460,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
       if (insertError) throw insertError;
 
       setSavedToGallery(true);
-      setBeforeUrl(null);
-      setAfterUrl(null);
-      setAutoSaved(false);
+      clearCollageSelection();
       toast({ title: isHe ? 'הקולאז׳ נשמר בגלריה! 🎉' : 'Collage saved to gallery! 🎉' });
     } catch (e: any) {
       const { data: { user } } = await supabase.auth.getUser();
@@ -527,6 +504,19 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
 
       {/* Actions */}
       <div className="px-5 pb-5 pt-3 flex flex-col items-center gap-3">
+        {(hasBefore || hasAfter) && (
+          <button
+            onClick={() => {
+              clearCollageSelection();
+              setSavedToGallery(false);
+            }}
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all border border-border text-muted-foreground hover:bg-muted/50"
+          >
+            <X className="w-4 h-4" />
+            {isHe ? 'נקה בחירה' : 'Clear Selection'}
+          </button>
+        )}
+
         {hasBoth && (
           <div className="flex flex-wrap justify-center gap-2">
             <button
