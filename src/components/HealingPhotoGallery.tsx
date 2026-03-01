@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, RotateCcw, RotateCw, ZoomIn, ZoomOut, Move } from 'lucide-react';
+import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
+import { useGesture } from '@use-gesture/react';
 import { format, differenceInDays } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
@@ -27,6 +28,85 @@ interface ImageTransform {
 
 const defaultTransform = (): ImageTransform => ({ scale: 1, offsetX: 0, offsetY: 0, rotation: 0 });
 
+// Gesture-powered collage half component
+interface CollageHalfProps {
+  index: number;
+  imgUrl: string;
+  label: string;
+  labelPosition: 'left' | 'right';
+  transform: ImageTransform;
+  isActive: boolean;
+  onActivate: () => void;
+  updateTransform: (index: number, partial: Partial<ImageTransform>) => void;
+  isDraggingRef: React.MutableRefObject<boolean>;
+}
+
+const CollageHalf = ({ index, imgUrl, label, labelPosition, transform, isActive, onActivate, updateTransform, isDraggingRef }: CollageHalfProps) => {
+  const startRef = useRef<ImageTransform | null>(null);
+
+  const bind = useGesture(
+    {
+      onDrag: ({ delta: [dx, dy], first, tap }) => {
+        if (tap) { onActivate(); return; }
+        if (first) { onActivate(); isDraggingRef.current = true; }
+        updateTransform(index, {
+          offsetX: transform.offsetX + dx,
+          offsetY: transform.offsetY + dy,
+        });
+      },
+      onDragEnd: () => { isDraggingRef.current = false; },
+      onPinchStart: () => {
+        onActivate();
+        isDraggingRef.current = true;
+        startRef.current = { ...transform };
+      },
+      onPinch: ({ offset: [s], da: [, angle] }) => {
+        if (!startRef.current) return;
+        updateTransform(index, {
+          scale: Math.max(0.3, Math.min(5, s)),
+          rotation: (startRef.current.rotation || 0) + (angle || 0),
+        });
+      },
+      onPinchEnd: () => {
+        isDraggingRef.current = false;
+        startRef.current = null;
+      },
+    },
+    {
+      drag: { filterTaps: true, pointer: { touch: true } },
+      pinch: { scaleBounds: { min: 0.3, max: 5 }, pointer: { touch: true } },
+    }
+  );
+
+  return (
+    <div
+      {...bind()}
+      className="w-1/2 relative overflow-hidden transition-shadow duration-200"
+      style={{
+        touchAction: 'none',
+        boxShadow: isActive ? `inset 0 0 0 2.5px ${GOLD}, inset 0 0 20px -6px ${GOLD}55` : 'none',
+      }}
+    >
+      <img
+        src={imgUrl} alt={label}
+        className="w-full h-full object-cover"
+        crossOrigin="anonymous"
+        draggable={false}
+        style={{
+          transform: `translate(${transform.offsetX}px, ${transform.offsetY}px) scale(${transform.scale}) rotate(${transform.rotation}deg)`,
+          transition: isDraggingRef.current ? 'none' : 'transform 0.15s ease',
+        }}
+      />
+      <span
+        className={`absolute bottom-2 ${labelPosition === 'left' ? 'left-2' : 'right-2'} text-white text-xs font-bold px-2.5 py-1 rounded-full`}
+        style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+};
+
 const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: HealingPhotoGalleryProps) => {
   const { photos, loading, fetchError, uploadPhoto, deletePhoto, resolvedArtistId } = useClientGallery(clientId, artistId);
   const [collageMode, setCollageMode] = useState(false);
@@ -42,9 +122,6 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   // Manual edit transforms for before (index 0) and after (index 1)
   const [transforms, setTransforms] = useState<[ImageTransform, ImageTransform]>([defaultTransform(), defaultTransform()]);
   const [activeEditIndex, setActiveEditIndex] = useState<number | null>(null);
-
-  // Dragging state
-  const dragRef = useRef<{ startX: number; startY: number; startOffsetX: number; startOffsetY: number } | null>(null);
 
   // Artist logo URL
   const [artistLogoUrl, setArtistLogoUrl] = useState<string | null>(null);
@@ -141,30 +218,8 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     });
   };
 
-  // Pointer drag handlers for panning
-  const handlePointerDown = (e: React.PointerEvent, index: number) => {
-    if (activeEditIndex !== index) return;
-    e.preventDefault();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    dragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startOffsetX: transforms[index].offsetX,
-      startOffsetY: transforms[index].offsetY,
-    };
-  };
-
-  const handlePointerMove = (e: React.PointerEvent, index: number) => {
-    if (!dragRef.current || activeEditIndex !== index) return;
-    const dx = e.clientX - dragRef.current.startX;
-    const dy = e.clientY - dragRef.current.startY;
-    updateTransform(index, {
-      offsetX: dragRef.current.startOffsetX + dx,
-      offsetY: dragRef.current.startOffsetY + dy,
-    });
-  };
-
-  const handlePointerUp = () => { dragRef.current = null; };
+  // Dragging flag for disabling CSS transitions during gesture
+  const isDragging = useRef(false);
 
   // Render collage to canvas and save
   const saveCollageToDevice = useCallback(async () => {
@@ -381,36 +436,35 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           })}
         </div>
 
-        {/* Toolbar */}
+        {/* Minimal toolbar: zoom + reset */}
         {activeEditIndex !== null && (
           <div
             className="flex items-center gap-1 px-3 py-1.5 rounded-full backdrop-blur-sm"
             style={{ background: 'rgba(255,252,247,0.85)', boxShadow: `0 2px 12px -3px ${GOLD}44, 0 1px 3px rgba(0,0,0,0.06)`, border: `1px solid ${GOLD}33` }}
           >
-            {[
-              { icon: <ZoomIn className="w-4 h-4" />, action: () => updateTransform(activeIdx, { scale: t.scale + 0.1 }), title: 'זום+' },
-              { icon: <ZoomOut className="w-4 h-4" />, action: () => updateTransform(activeIdx, { scale: Math.max(0.3, t.scale - 0.1) }), title: 'זום-' },
-              null,
-              { icon: <RotateCcw className="w-4 h-4" />, action: () => updateTransform(activeIdx, { rotation: t.rotation - 1 }), title: '↺ 1°' },
-              { icon: <RotateCw className="w-4 h-4" />, action: () => updateTransform(activeIdx, { rotation: t.rotation + 1 }), title: '↻ 1°' },
-              null,
-              { icon: <span className="text-[10px] font-serif font-bold">איפוס</span>, action: () => updateTransform(activeIdx, defaultTransform()), title: 'איפוס' },
-            ].map((item, idx) =>
-              item === null ? (
-                <div key={`sep-${idx}`} className="w-px h-5 mx-0.5" style={{ background: `${GOLD}33` }} />
-              ) : (
-                <button
-                  key={idx}
-                  onClick={item.action}
-                  title={item.title}
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                  style={{ color: GOLD_DARK }}
-                >
-                  {item.icon}
-                </button>
-              )
-            )}
+            <button onClick={() => updateTransform(activeIdx, { scale: t.scale + 0.15 })} title="זום+"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+              style={{ color: GOLD_DARK }}>
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            <button onClick={() => updateTransform(activeIdx, { scale: Math.max(0.3, t.scale - 0.15) })} title="זום-"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+              style={{ color: GOLD_DARK }}>
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <div className="w-px h-5 mx-0.5" style={{ background: `${GOLD}33` }} />
+            <button onClick={() => updateTransform(activeIdx, defaultTransform())} title="איפוס"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+              style={{ color: GOLD_DARK }}>
+              <RotateCcw className="w-4 h-4" />
+            </button>
           </div>
+        )}
+
+        {activeEditIndex !== null && (
+          <p className="text-[10px] font-serif text-center" style={{ color: `${GOLD_DARK}99` }}>
+            ☝️ גרירה להזזה &nbsp;·&nbsp; 🤏 צביטה לזום וסיבוב
+          </p>
         )}
       </div>
     );
@@ -566,66 +620,38 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       {showCollage && selectedPhotos.length === 2 && (
         <div className="space-y-3 animate-fade-up">
           <p className="text-center text-xs font-serif" style={{ color: GOLD_DARK }}>
-            🎨 גררי לזוז, השתמשי בכפתורים לזום וסיבוב
+            🎨 גררי להזזה · צבטי לזום וסיבוב
           </p>
 
           <div className="relative w-full rounded-2xl overflow-hidden shadow-lg border-2" style={{ borderColor: GOLD, background: '#ffffff' }}>
             <div className="flex" style={{ aspectRatio: '2/1' }}>
               {/* After (left side) */}
-              <div
-                className="w-1/2 relative overflow-hidden transition-shadow duration-200"
-                style={{
-                  cursor: activeEditIndex === 1 ? 'grab' : 'pointer',
-                  touchAction: 'none',
-                  boxShadow: activeEditIndex === 1 ? `inset 0 0 0 2.5px ${GOLD}, inset 0 0 20px -6px ${GOLD}55` : 'none',
-                }}
-                onClick={() => { if (activeEditIndex !== 1) setActiveEditIndex(1); }}
-                onPointerDown={(e) => handlePointerDown(e, 1)}
-                onPointerMove={(e) => handlePointerMove(e, 1)}
-                onPointerUp={handlePointerUp}
-              >
-                <img
-                  src={selectedPhotos[1]!.public_url} alt="After"
-                  className="w-full h-full object-cover"
-                  crossOrigin="anonymous"
-                  draggable={false}
-                  style={{
-                    transform: `translate(${transforms[1].offsetX}px, ${transforms[1].offsetY}px) scale(${transforms[1].scale}) rotate(${transforms[1].rotation}deg)`,
-                    transition: dragRef.current ? 'none' : 'transform 0.15s ease',
-                  }}
-                />
-                <span className="absolute bottom-2 left-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>אחרי ✨</span>
-              </div>
+              <CollageHalf
+                index={1}
+                imgUrl={selectedPhotos[1]!.public_url}
+                label="אחרי ✨"
+                labelPosition="left"
+                transform={transforms[1]}
+                isActive={activeEditIndex === 1}
+                onActivate={() => setActiveEditIndex(1)}
+                updateTransform={updateTransform}
+                isDraggingRef={isDragging}
+              />
 
               <div className="w-[3px] flex-shrink-0" style={{ backgroundColor: GOLD }} />
 
               {/* Before (right side) */}
-              <div
-                className="w-1/2 relative overflow-hidden transition-shadow duration-200"
-                style={{
-                  cursor: activeEditIndex === 0 ? 'grab' : 'pointer',
-                  touchAction: 'none',
-                  boxShadow: activeEditIndex === 0 ? `inset 0 0 0 2.5px ${GOLD}, inset 0 0 20px -6px ${GOLD}55` : 'none',
-                }}
-                onClick={() => { if (activeEditIndex !== 0) setActiveEditIndex(0); }}
-                onPointerDown={(e) => handlePointerDown(e, 0)}
-                onPointerMove={(e) => handlePointerMove(e, 0)}
-                onPointerUp={handlePointerUp}
-              >
-                <img
-                  src={selectedPhotos[0]!.public_url} alt="Before"
-                  className="w-full h-full object-cover"
-                  crossOrigin="anonymous"
-                  draggable={false}
-                  style={{
-                    transform: `translate(${transforms[0].offsetX}px, ${transforms[0].offsetY}px) scale(${transforms[0].scale}) rotate(${transforms[0].rotation}deg)`,
-                    transition: dragRef.current ? 'none' : 'transform 0.15s ease',
-                  }}
-                />
-                <span className="absolute bottom-2 right-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>לפני</span>
-              </div>
+              <CollageHalf
+                index={0}
+                imgUrl={selectedPhotos[0]!.public_url}
+                label="לפני"
+                labelPosition="right"
+                transform={transforms[0]}
+                isActive={activeEditIndex === 0}
+                onActivate={() => setActiveEditIndex(0)}
+                updateTransform={updateTransform}
+                isDraggingRef={isDragging}
+              />
             </div>
 
             {/* Footer with logo */}
