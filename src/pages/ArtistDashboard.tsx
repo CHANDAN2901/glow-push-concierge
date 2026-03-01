@@ -1500,6 +1500,81 @@ const ArtistDashboard = () => {
               })()}
             </div>
 
+            {/* ── Daily Aftercare Tasks (WhatsApp fallback for non-push clients) ── */}
+            {(() => {
+              const dayMessages = [
+                { day: 1, label: lang === 'en' ? 'Day 1 🎉' : 'יום 1 🎉' },
+                { day: 3, label: lang === 'en' ? 'Day 3 🛡️' : 'יום 3 🛡️' },
+                { day: 7, label: lang === 'en' ? 'Day 7 👻' : 'יום 7 👻' },
+                { day: 30, label: lang === 'en' ? 'Day 30 📅' : 'יום 30 📅' },
+              ];
+              const fallbackClients = clients.filter(c => {
+                if (c.pushOptedIn) return false;
+                return dayMessages.some(d => d.day === c.day);
+              });
+              if (fallbackClients.length === 0) return null;
+              return (
+                <div className="animate-fade-up" style={{ animationDelay: '0.38s', opacity: 0 }}>
+                  <h3 className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground mb-3">
+                    {lang === 'en' ? '📋 Daily Aftercare Tasks' : '📋 משימות ליווי יומיות'}
+                  </h3>
+                  <div className="space-y-2">
+                    {fallbackClients.map((client, i) => {
+                      const matchDay = dayMessages.find(d => d.day === client.day);
+                      const msg = buildWhatsAppText(client.day, client.name, artistName || 'האמנית שלך');
+                      const cleanPhone = client.phone ? formatPhone(client.phone) : '';
+                      const waUrl = cleanPhone
+                        ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
+                        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+                      const sentKey = `${client.name}-day${client.day}`;
+                      const alreadySent = !!waSentLog[sentKey];
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-center gap-3 p-4 rounded-2xl"
+                          style={{
+                            background: alreadySent ? 'hsl(142 76% 36% / 0.06)' : 'rgba(255,255,255,0.6)',
+                            border: alreadySent ? '1px solid hsl(142 76% 36% / 0.2)' : '1px solid hsl(var(--gold) / 0.2)',
+                          }}
+                        >
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0"
+                            style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))' }}
+                          >
+                            {client.name.charAt(0)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-foreground truncate">{client.name}</p>
+                            <p className="text-xs text-muted-foreground">{matchDay?.label} · {client.treatment}</p>
+                          </div>
+                          {alreadySent ? (
+                            <span className="text-[10px] font-bold px-3 py-1.5 rounded-full" style={{ color: 'hsl(142 76% 36%)', background: 'hsl(142 76% 36% / 0.1)' }}>
+                              {lang === 'en' ? '✅ Sent' : '✅ נשלח'}
+                            </span>
+                          ) : (
+                            <a
+                              href={waUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => {
+                                const updated = { ...waSentLog, [sentKey]: new Date().toLocaleString('he-IL') };
+                                setWaSentLog(updated);
+                                saveSentLog(updated);
+                              }}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95"
+                              style={{ background: '#25D366', color: '#fff' }}
+                            >
+                              <MessageCircle className="w-3.5 h-3.5" />
+                              {lang === 'en' ? 'Send' : 'שלחי'}
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* ── Recent Clients Preview ── */}
             <div className="animate-fade-up" style={{ animationDelay: '0.4s', opacity: 0 }}>
               <div className="flex items-center justify-between mb-3">

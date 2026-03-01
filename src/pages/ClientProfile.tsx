@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import {
   Phone, MessageCircle, Instagram, Heart, Camera, FileText,
   PenLine, Calendar, ChevronRight, User, Sparkles, ArrowUp,
-  LifeBuoy, HelpCircle, Eye, Send, Play, Mic,
+  LifeBuoy, HelpCircle, Eye, Send, Play, Mic, Bell,
 } from 'lucide-react';
 
 import ClientSharedGallery from '@/components/ClientSharedGallery';
@@ -14,6 +14,8 @@ import { STUDIO_NAME } from '@/lib/branding';
 import { supabase } from '@/integrations/supabase/client';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
 import InstallBanner from '@/components/InstallBanner';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 /* ── theme tokens ── */
 const GOLD = '#D4AF37';
@@ -38,6 +40,78 @@ interface HealthDeclRow {
   is_signed: boolean;
   created_at: string;
   form_data: any;
+}
+
+/* ── Test Push Button Component ── */
+function TestPushButton({ clientId, clientName, lang }: { clientId: string; clientName: string; lang: string }) {
+  const { toast } = useToast();
+  const [sending, setSending] = useState(false);
+
+  const handleTestPush = async () => {
+    setSending(true);
+    try {
+      // Check if there's an active push subscription for this client
+      const { data: subs } = await supabase
+        .from('push_subscriptions')
+        .select('endpoint, p256dh, auth_key')
+        .eq('client_id', clientId)
+        .limit(1);
+
+      if (!subs || subs.length === 0) {
+        toast({
+          title: lang === 'en' ? 'No push subscription found for this client' : 'לא נמצא מנוי Push ללקוחה זו',
+          variant: 'destructive',
+        });
+        setSending(false);
+        return;
+      }
+
+      const sub = subs[0];
+      const { error } = await supabase.functions.invoke('send-push', {
+        body: {
+          subscription: {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth_key },
+          },
+          title: '🔔 Test Push — Glow Push',
+          body: lang === 'en'
+            ? `Hi ${clientName}, this is a test notification!`
+            : `היי ${clientName}, זוהי התראת בדיקה! ✨`,
+          day: 1,
+        },
+      });
+
+      if (error) throw error;
+      toast({
+        title: lang === 'en' ? 'Test push sent! ✅' : 'התראת בדיקה נשלחה! ✅',
+      });
+    } catch (err: any) {
+      console.error('Test push failed:', err);
+      toast({
+        title: lang === 'en' ? 'Push failed: ' + (err?.message || 'Unknown error') : 'שליחה נכשלה: ' + (err?.message || 'שגיאה'),
+        variant: 'destructive',
+      });
+    }
+    setSending(false);
+  };
+
+  return (
+    <button
+      onClick={handleTestPush}
+      disabled={sending}
+      className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl text-white transition-all hover:opacity-90 disabled:opacity-50"
+      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+    >
+      {sending ? (
+        <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+      ) : (
+        <Bell className="w-4 h-4" />
+      )}
+      {sending
+        ? (lang === 'en' ? 'Sending...' : 'שולח...')
+        : (lang === 'en' ? 'Send Test Push Now' : 'שלחי התראת בדיקה עכשיו')}
+    </button>
+  );
 }
 
 const ClientProfile = () => {
@@ -338,6 +412,15 @@ const ClientProfile = () => {
               {lang === 'en' ? 'View Full Declaration' : 'צפי בהצהרה המלאה'}
             </button>
           )}
+        </SectionCard>
+
+        {/* ── Test Push Button (temporary) ── */}
+        <SectionCard
+          icon={<Bell className="w-5 h-5" style={{ color: GOLD }} />}
+          title={lang === 'en' ? '🔔 Test Push' : '🔔 בדיקת התראה'}
+          delay="150"
+        >
+          <TestPushButton clientId={resolvedClientId} clientName={name} lang={lang} />
         </SectionCard>
 
         {/* ── Healing Journey ── */}
