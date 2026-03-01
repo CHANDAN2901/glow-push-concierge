@@ -21,7 +21,7 @@ import AdminPricingEditor from '@/components/AdminPricingEditor';
 import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
 
-type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'settings';
+type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
 
 /* ── dummy data ── */
 const artists = [

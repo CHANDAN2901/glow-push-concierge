@@ -25,6 +25,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ClientProfile from "./pages/ClientProfile";
 import NotFound from "./pages/NotFound";
 import FaqPage from "./pages/FaqPage";
+import FaqManager from "./pages/FaqManager";
 import Legal from "./pages/Legal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/admin/timeline-content" element={<TimelineContentEditorPage />} />
               <Route path="/admin/timeline-settings" element={<TimelineSettings />} />
               <Route path="/admin/faq" element={<FaqPage />} />
+              <Route path="/admin/faq-manager" element={<FaqManager />} />
               <Route path="/super-admin" element={<SuperAdmin />} />
               <Route path="/debug-test" element={<DebugTest />} />
               <Route path="/client-profile" element={<ClientProfile />} />
