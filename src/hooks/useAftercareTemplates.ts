@@ -14,6 +14,7 @@ interface AftercareMessage {
   label: string;
   labelEn: string;
   template: string;
+  treatmentPrefix?: string;
 }
 
 interface ArtistMessageSettings {
@@ -36,29 +37,45 @@ const FALLBACK_MESSAGES: AftercareMessage[] = [
   { day: 30, label: 'תזכורת טאצ׳ אפ 📅', labelEn: 'Touch-up 📅', template: 'היי [ClientName]! 📅 הזמן לטאצ׳ אפ!\n[ArtistName]' },
 ];
 
-const CLIENT_PLACEHOLDER_PATTERNS = [/\[ClientName\]/g, /\{שם_לקוחה\}/g, /\{Client_Name\}/g];
+const CLIENT_PLACEHOLDER_PATTERNS = [/\[ClientName\]/g, /\{שם_לקוחה\}/g, /\{Client_Name\}/g, /\[שם הלקוחה\]/g];
 const ARTIST_PLACEHOLDER_PATTERNS = [/\[ArtistName\]/g, /\{שם_אמנית\}/g, /\{Artist_Name\}/g];
+
+// Map Hebrew treatment names to the prefix used in settings keys
+const TREATMENT_PREFIX_MAP: Record<string, string> = {
+  'גבות': 'brows',
+  'שפתיים': 'lips',
+  'eyebrows': 'brows',
+  'lips': 'lips',
+  'brows': 'brows',
+  'Brows': 'brows',
+  'Lips': 'lips',
+};
 
 function normalizeDayValue(value: unknown): number | null {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function getMatchingDay(clientDay: number): number {
-  if (clientDay <= 1) return 1;
-  if (clientDay <= 5) return 3;
-  if (clientDay <= 20) return 7;
-  return 30;
+function getTreatmentPrefix(treatmentType: string): string | null {
+  const normalized = treatmentType.trim().toLowerCase();
+  // Direct match
+  for (const [key, prefix] of Object.entries(TREATMENT_PREFIX_MAP)) {
+    if (key.toLowerCase() === normalized) return prefix;
+  }
+  // Partial match
+  if (normalized.includes('גבות') || normalized.includes('brow')) return 'brows';
+  if (normalized.includes('שפתיי') || normalized.includes('lip')) return 'lips';
+  return null;
 }
 
-function mapArtistSettingsToMessages(settings: unknown): AftercareMessage[] {
+function mapArtistSettingsToMessages(settings: unknown, filterPrefix?: string | null): AftercareMessage[] {
   if (!settings || typeof settings !== 'object') return [];
 
   const parsed = settings as ArtistMessageSettings;
   const drafts = parsed.drafts ?? {};
   const days = parsed.days ?? {};
 
-  const perDay = new Map<number, AftercareMessage>();
+  const result: AftercareMessage[] = [];
 
   Object.entries(drafts).forEach(([templateId, templateText]) => {
     if (typeof templateText !== 'string' || !templateText.trim()) return;
@@ -66,22 +83,31 @@ function mapArtistSettingsToMessages(settings: unknown): AftercareMessage[] {
     const rawDay = normalizeDayValue(days[templateId]);
     if (rawDay === null) return;
 
-    const day = getMatchingDay(rawDay);
-    if (perDay.has(day)) return;
+    // Extract prefix from template key (e.g., "brows" from "brows_day1")
+    const underscoreIdx = templateId.indexOf('_');
+    const keyPrefix = underscoreIdx > 0 ? templateId.substring(0, underscoreIdx) : null;
 
-    perDay.set(day, {
-      day,
-      label: `יום ${day}`,
-      labelEn: `Day ${day}`,
+    // If filtering by treatment, only include matching prefix templates + custom ones
+    if (filterPrefix) {
+      const isCustom = templateId.startsWith('custom_');
+      if (!isCustom && keyPrefix !== filterPrefix) return;
+    }
+
+    result.push({
+      day: rawDay,
+      label: `יום ${rawDay}`,
+      labelEn: `Day ${rawDay}`,
       template: templateText,
+      treatmentPrefix: keyPrefix || undefined,
     });
   });
 
-  return Array.from(perDay.values()).sort((a, b) => a.day - b.day);
+  return result.sort((a, b) => a.day - b.day);
 }
 
 export function useAftercareTemplates() {
-  const [messages, setMessages] = useState<AftercareMessage[]>(FALLBACK_MESSAGES);
+  const [allMessages, setAllMessages] = useState<AftercareMessage[]>([]);
+  const [rawSettings, setRawSettings] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [isFromDb, setIsFromDb] = useState(false);
 
@@ -107,16 +133,20 @@ export function useAftercareTemplates() {
               .eq('artist_profile_id', profile.id)
               .maybeSingle();
 
-            const settingsMessages = mapArtistSettingsToMessages(settingsRow?.settings);
-            if (!cancelled && settingsMessages.length > 0) {
-              setMessages(settingsMessages);
-              setIsFromDb(true);
-              setLoading(false);
-              return;
+            if (!cancelled && settingsRow?.settings) {
+              setRawSettings(settingsRow.settings);
+              const allMsgs = mapArtistSettingsToMessages(settingsRow.settings);
+              if (allMsgs.length > 0) {
+                setAllMessages(allMsgs);
+                setIsFromDb(true);
+                setLoading(false);
+                return;
+              }
             }
           }
         }
 
+        // Fallback to global message_templates
         const { data, error } = await supabase
           .from('message_templates')
           .select('*')
@@ -137,7 +167,7 @@ export function useAftercareTemplates() {
           };
         });
 
-        setMessages(mapped);
+        setAllMessages(mapped);
         setIsFromDb(true);
       } catch {
         if (!cancelled) setLoading(false);
@@ -150,34 +180,38 @@ export function useAftercareTemplates() {
     };
   }, []);
 
-  const getMatchingDayValue = (clientDay: number): number => {
-    const normalized = normalizeDayValue(clientDay);
-    return getMatchingDay(normalized ?? 1);
+  /** Get messages filtered by treatment type */
+  const getMessagesForTreatment = (treatmentType?: string): AftercareMessage[] => {
+    if (!treatmentType || !rawSettings) return allMessages;
+    const prefix = getTreatmentPrefix(treatmentType);
+    if (!prefix) return allMessages;
+    const filtered = mapArtistSettingsToMessages(rawSettings, prefix);
+    return filtered.length > 0 ? filtered : [];
   };
 
-  const getMessageForDay = (clientDay: number): AftercareMessage | null => {
+  const getMessageForDay = (clientDay: number, treatmentType?: string): AftercareMessage | null => {
     const normalized = normalizeDayValue(clientDay);
     if (normalized === null) return null;
 
-    const targetDay = getMatchingDay(normalized);
-    return messages.find((m) => m.day === targetDay) || null;
+    const msgs = treatmentType ? getMessagesForTreatment(treatmentType) : allMessages;
+    // Exact day match first
+    const exact = msgs.find((m) => m.day === normalized);
+    if (exact) return exact;
+    return null;
   };
 
-  const hasMessageForDay = (clientDay: number): boolean => {
-    const normalized = normalizeDayValue(clientDay);
-    if (normalized === null) return false;
-
-    const targetDay = getMatchingDay(normalized);
-    const msg = messages.find((m) => m.day === targetDay);
+  const hasMessageForDay = (clientDay: number, treatmentType?: string): boolean => {
+    const msg = getMessageForDay(clientDay, treatmentType);
     return !!msg && msg.template.trim().length > 0;
   };
 
   const buildWhatsAppText = (
     clientDay: number,
     clientName: string,
-    artistName: string
+    artistName: string,
+    treatmentType?: string
   ): string | null => {
-    const msg = getMessageForDay(clientDay);
+    const msg = getMessageForDay(clientDay, treatmentType);
     if (!msg) return null;
 
     let text = msg.template;
@@ -191,6 +225,12 @@ export function useAftercareTemplates() {
     return text;
   };
 
+  // Keep backward compatibility
+  const messages = allMessages;
+  const getMatchingDayValue = (clientDay: number): number => {
+    const normalized = normalizeDayValue(clientDay);
+    return normalized ?? 1;
+  };
+
   return { messages, loading, isFromDb, getMessageForDay, getMatchingDayValue, hasMessageForDay, buildWhatsAppText };
 }
-

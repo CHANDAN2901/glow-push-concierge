@@ -755,15 +755,12 @@ const ArtistDashboard = () => {
       return;
     }
 
-    const dayForTemplate = getMatchingDayValue(clientDay);
-
-    if (!hasMessageForDay(dayForTemplate)) {
+    if (!hasMessageForDay(clientDay, client.treatment)) {
       toast({ title: lang === 'en' ? 'Please define text for this day in Push Management' : 'נא להגדיר טקסט ליום זה במסך ניהול פושים', variant: 'destructive' });
       return;
     }
 
-    const aftercareMsg = getMessageForDay(dayForTemplate);
-    const msg = buildWhatsAppText(dayForTemplate, client.name, artistName || 'האמנית שלך');
+    const msg = buildWhatsAppText(clientDay, client.name, artistName || 'האמנית שלך', client.treatment);
     if (!msg) return;
 
     const encoded = encodeURIComponent(msg);
@@ -772,7 +769,8 @@ const ArtistDashboard = () => {
     window.location.href = url;
 
     // Track send
-    const key = `${client.name}-day${aftercareMsg?.day ?? dayForTemplate}`;
+    const aftercareMsg = getMessageForDay(clientDay, client.treatment);
+    const key = `${client.name}-day${aftercareMsg?.day ?? clientDay}`;
     const now = new Date().toLocaleString('he-IL');
     const updated = { ...waSentLog, [key]: now };
     setWaSentLog(updated);
@@ -1556,8 +1554,8 @@ const ArtistDashboard = () => {
                           clientName={client.name}
                           day={client.day}
                           hasAutomation={hasWhatsAppAutomation}
-                          hasTemplate={hasMessageForDay(client.day)}
-                          previewText={buildWhatsAppText(client.day, client.name, artistName)}
+                          hasTemplate={hasMessageForDay(client.day, client.treatment)}
+                          previewText={buildWhatsAppText(client.day, client.name, artistName, client.treatment)}
                           onManualSend={() => sendSmartReminder(client)}
                         />
                       </div>
