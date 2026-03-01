@@ -173,6 +173,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
   const [autoSaved, setAutoSaved] = useState(false);
   const [aligning, setAligning] = useState(false);
   const [alignedImage, setAlignedImage] = useState<string | null>(null);
+  const alignedResultRef = useRef<HTMLDivElement>(null);
 
   const clearCollageSelection = useCallback(() => {
     setBeforeUrl('');
@@ -343,7 +344,10 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
       const url = data?.alignedUrl;
       if (!url) throw new Error('No result from AI');
       setAlignedImage(url);
-      toast({ title: isHe ? 'היישור הושלם בהצלחה ✨' : 'Alignment complete ✨' });
+      toast({ title: isHe ? 'הקולאז׳ מוכן! ✨' : 'Collage is ready! ✨' });
+      setTimeout(() => {
+        alignedResultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 200);
     } catch (err: any) {
       console.error('AI align error:', err);
       toast({ title: isHe ? 'שגיאה ביישור AI' : 'AI alignment failed', description: err?.message, variant: 'destructive' });
@@ -641,7 +645,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
 
         {/* AI Aligned Result Preview */}
         {alignedImage && (
-          <div className="w-full flex flex-col items-center gap-3 mt-2">
+          <div ref={alignedResultRef} className="w-full flex flex-col items-center gap-3 mt-2">
             <p className="text-xs font-serif font-semibold tracking-widest uppercase text-accent">
               {isHe ? 'תוצאת יישור AI' : 'AI Aligned Result'}
             </p>
