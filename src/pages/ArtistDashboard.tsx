@@ -67,6 +67,7 @@ interface ClientEntry {
   link: string;
   beforeImg: string;
   afterImg: string;
+  pushOptedIn?: boolean;
 }
 
 interface SmartMessage {
@@ -858,7 +859,7 @@ const ArtistDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('clients')
-        .select('id, full_name, phone, treatment_type, treatment_date, created_at')
+        .select('id, full_name, phone, treatment_type, treatment_date, created_at, push_opted_in')
         .eq('artist_id', userProfileId)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -875,6 +876,7 @@ const ArtistDashboard = () => {
             link: `${origin}/client?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}`,
             beforeImg: '',
             afterImg: '',
+            pushOptedIn: c.push_opted_in || false,
           };
         });
         setClients(prev => {
@@ -1820,6 +1822,11 @@ const ArtistDashboard = () => {
                                   </div>
                                   {hasFlags && <span className="text-[10px] font-bold text-destructive">⚠️</span>}
                                   {isSafe && <ShieldCheck className="w-3.5 h-3.5 text-accent" />}
+                                  {client.pushOptedIn && (
+                                    <span title={lang === 'en' ? 'Push Subscribed' : 'מנוי להתראות'}>
+                                      <Bell className="w-3.5 h-3.5 text-accent" />
+                                    </span>
+                                  )}
                                 </div>
                                 {isSafe && <p className="text-[10px] text-accent font-medium mt-1 mr-12">{lang === 'en' ? '✅ Cleared for Treatment' : '✅ מאושר לטיפול'}</p>}
                                 {hasFlags && (

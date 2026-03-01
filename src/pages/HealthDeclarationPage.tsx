@@ -17,15 +17,56 @@ const HealthDeclarationPage = () => {
 
   const [isArtist, setIsArtist] = useState(false);
 
-  // Check if current user is a logged-in artist
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session?.user) setIsArtist(true);
     });
   }, []);
 
+  const requestPushSubscription = async (clientId: string) => {
+    try {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.warn('Push not supported on this device');
+        return;
+      }
 
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        console.log('Push permission denied');
+        return;
+      }
 
+      const registration = await navigator.serviceWorker.ready;
+      const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!vapidKey) {
+        console.warn('VAPID public key not configured');
+        return;
+      }
+
+      const sub = await (registration as any).pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: vapidKey,
+      });
+
+      const subJson = sub.toJSON();
+
+      await supabase.from('push_subscriptions').insert({
+        client_name: clientName || 'Unknown',
+        endpoint: subJson.endpoint!,
+        p256dh: subJson.keys?.p256dh || '',
+        auth_key: subJson.keys?.auth || '',
+        artist_profile_id: artistId || null,
+        client_id: clientId,
+      });
+
+      // Mark client as push opted in
+      await supabase.from('clients').update({ push_opted_in: true }).eq('id', clientId);
+
+      console.log('Push subscription stored for client:', clientId);
+    } catch (err) {
+      console.error('Push subscription failed:', err);
+    }
+  };
 
   const handleComplete = async (data: HealthDeclarationData) => {
     if (!artistId) {
@@ -57,6 +98,12 @@ const HealthDeclarationPage = () => {
       } catch {}
       throw new Error(msg);
     }
+
+    // If client opted in for push notifications, request permission and store subscription
+    if (data.pushOptIn && result?.clientId) {
+      await requestPushSubscription(result.clientId);
+    }
+
     return result;
   };
 
