@@ -52,8 +52,8 @@ const SimpleGallery = () => {
     const newPending: PendingFile[] = [];
     Array.from(files).forEach(file => {
       if (!file.type.startsWith('image/')) return;
-      if (file.size > 5 * 1024 * 1024) {
-        toast({ title: lang === 'en' ? 'File too large (max 5MB)' : 'הקובץ גדול מדי (מקסימום 5MB)', variant: 'destructive' });
+      if (file.size > 10 * 1024 * 1024) {
+        toast({ title: lang === 'en' ? 'File too large (max 10MB)' : 'הקובץ גדול מדי (מקסימום 10MB)', variant: 'destructive' });
         return;
       }
       newPending.push({ file, previewUrl: URL.createObjectURL(file) });
@@ -97,8 +97,8 @@ const SimpleGallery = () => {
           errorCount++;
           continue;
         }
-        if (pending.file.size > 5 * 1024 * 1024) {
-          toast({ title: lang === 'en' ? `"${pending.file.name}" is too large (max 5MB)` : `"${pending.file.name}" גדול מדי (מקסימום 5MB)`, variant: 'destructive' });
+        if (pending.file.size > 10 * 1024 * 1024) {
+          toast({ title: lang === 'en' ? `"${pending.file.name}" is too large (max 10MB)` : `"${pending.file.name}" גדול מדי (מקסימום 10MB)`, variant: 'destructive' });
           errorCount++;
           continue;
         }
@@ -115,10 +115,30 @@ const SimpleGallery = () => {
         }, ...prev]);
 
         if (profileId) {
+          // Upload via edge function to storage
+          const { data: uploadData, error: uploadErr } = await supabase.functions.invoke('upload-client-photo', {
+            body: {
+              artistProfileId: profileId,
+              clientId: 'portfolio',
+              category: 'portfolio',
+              base64Data: base64,
+              fileName: `portfolio-${Date.now()}.jpg`,
+            },
+          });
+
+          if (uploadErr || uploadData?.error) {
+            const errMsg = uploadErr?.message || uploadData?.error || 'Upload failed';
+            console.error('Storage upload error:', errMsg);
+            toast({ title: lang === 'en' ? `Failed to upload "${pending.file.name}"` : `שגיאה בהעלאת "${pending.file.name}"`, variant: 'destructive' });
+            setImages(prev => prev.filter(i => i.id !== localId));
+            errorCount++;
+            continue;
+          }
+
           const { error: insertError } = await supabase.from('portfolio_images').insert({
             artist_profile_id: profileId,
-            image_url: 'base64',
-            base64_data: base64,
+            image_url: uploadData.url,
+            base64_data: null,
             category: 'brows',
             is_public: true,
           } as any);
@@ -221,7 +241,7 @@ const SimpleGallery = () => {
           {lang === 'en' ? 'Click or drag photos here' : 'לחצי או גררי תמונות לכאן'}
         </p>
         <p className="text-[11px] text-muted-foreground">
-          PNG, JPG {lang === 'en' ? 'up to' : 'עד'} 5MB
+          PNG, JPG {lang === 'en' ? 'up to' : 'עד'} 10MB
         </p>
         <input
           ref={fileInputRef}
