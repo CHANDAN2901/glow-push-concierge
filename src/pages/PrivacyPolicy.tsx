@@ -42,7 +42,7 @@ const PrivacyPolicy = () => {
             {isHe ? 'מדיניות פרטיות' : 'Privacy Policy'}
           </h1>
           <p className="text-xs mt-2" style={{ color: 'hsl(0 0% 55%)' }}>
-            {isHe ? 'עדכון אחרון: 28 בפברואר 2026' : 'Last Updated: February 28, 2026'}
+            {isHe ? 'עודכן לאחרונה: 1 במרץ, 2026' : 'Last Updated: March 1, 2026'}
           </p>
         </div>
 
@@ -57,108 +57,77 @@ const PrivacyPolicy = () => {
         >
           <p className="text-sm leading-relaxed" style={{ color: 'hsl(0 0% 30%)' }}>
             {isHe
-              ? 'ברוכים הבאים ל-Glow Push ("אנחנו", "שלנו" או "אותנו"). אנו מחויבים להגנה על פרטיותך ולוודא שהנתונים האישיים שלך מטופלים בצורה בטוחה ואחראית. מדיניות פרטיות זו מפרטת כיצד אנו אוספים, משתמשים ומגינים על המידע של מאפרות ה-PMU המשתמשות בפלטפורמה שלנו ("משתמשות") ושל לקוחותיהן ("לקוחות").'
-              : 'Welcome to Glow Push ("we," "our," or "us"). We are committed to protecting your privacy and ensuring that your personal data is handled safely and responsibly. This Privacy Policy outlines how we collect, use, and protect the information of the Permanent Makeup (PMU) Artists who use our platform ("Users") and their end-clients ("Clients").'}
+              ? 'ברוכים הבאים ל-Glow Push. אנו מחויבים להגן על פרטיותך. מדיניות זו מסבירה כיצד אנו אוספים ושומרים על המידע של אמני איפור קבוע ("משתמשים") ושל לקוחות הקצה שלהם ("לקוחות").'
+              : 'Welcome to Glow Push ("we," "our," or "us"). We are committed to protecting your privacy and ensuring that your personal data is handled safely. This Privacy Policy outlines how we collect and protect the information of Permanent Makeup (PMU) Artists ("Users") and their end-clients ("Clients").'}
           </p>
 
           <Divider />
 
-          <Section title={isHe ? '1. תפקידנו בעיבוד נתונים' : '1. Our Role in Data Processing'}>
+          <Section title={isHe ? '1. תפקידנו בעיבוד נתונים:' : '1. Our Role in Data Processing:'}>
             <p>
               {isHe
-                ? 'על פי תקנת הגנת הנתונים הכללית (GDPR) וחוקי פרטיות דומים, Glow Push פועלת כ-מעבד נתונים. המאפרת (המשתמשת שלנו) היא בעלת השליטה בנתונים. משמעות הדבר היא שהמאפרת אחראית לקבלת ההסכמות הנדרשות מלקוחותיה לאיסוף ואחסון הצהרות רפואיות, תמונות פנים ופרטי קשר בפלטפורמה שלנו.'
-                : 'Under the General Data Protection Regulation (GDPR) and similar privacy laws, Glow Push acts as a Data Processor. The PMU Artist (our User) is the Data Controller. This means the Artist is responsible for obtaining the necessary consents from their Clients to collect and store medical declarations, facial images, and contact information on our platform.'}
+                ? 'תחת חוקי ה-GDPR, אנו משמשים כ"מעבדי נתונים". המאפרת היא "בקרת הנתונים" והיא האחראית לקבלת הסכמה מהלקוחות.'
+                : 'Under the GDPR and similar laws, Glow Push acts as a Data Processor. The PMU Artist is the Data Controller, responsible for obtaining necessary client consents.'}
             </p>
           </Section>
 
           <Divider />
 
-          <Section title={isHe ? '2. מידע שאנו אוספים' : '2. Information We Collect'}>
+          <Section title={isHe ? '2. מידע שאנו אוספים:' : '2. Information We Collect:'}>
             <p>
               {isHe
-                ? 'ממשתמשות (מאפרות): פרטי חשבון (שם, דוא"ל, פרטי עסק), פרטי חיוב (מעובדים באופן מאובטח דרך ספקי צד שלישי כמו Lemon Squeezy), ונתוני שימוש באפליקציה.'
-                : 'From Users (Artists): Account information (name, email, business details), billing information (processed securely via third-party providers like Lemon Squeezy), and app usage data.'}
-            </p>
-            <p>
-              {isHe
-                ? 'מלקוחות (באמצעות המאפרות): שם, פרטי קשר (מספר טלפון להודעות SMS/WhatsApp), תמונות פנים (מיפוי לפני/אחרי ותמונות טיפול), יומני טיפול (נוסחאות פיגמנט, תצורות מחטים), ומידע רפואי רגיש הנדרש להצהרות בריאות דיגיטליות (כגון אלרגיות, מצבים רפואיים).'
-                : 'From Clients (via Artists): Name, contact details (phone number for SMS/WhatsApp notifications), facial images (before/after mapping and treatment photos), treatment logs (pigment formulas, needle configurations), and sensitive medical information required for Digital Health Declarations (e.g., allergies, medical conditions).'}
+                ? 'ממשתמשים: פרטי חשבון וחיוב (מעובד בצורה מאובטחת דרך Lemon Squeezy). מלקוחות: שם, טלפון, תמונות פנים, תיעוד טיפולים והצהרות בריאות.'
+                : 'From Artists: Account and billing details (processed securely via Lemon Squeezy). From Clients: Name, phone number, facial images, treatment logs, and medical declarations.'}
             </p>
           </Section>
 
           <Divider />
 
-          <Section title={isHe ? '3. כיצד אנו משתמשים במידע' : '3. How We Use the Information'}>
-            <p>{isHe ? 'אנו משתמשים בנתונים אך ורק לצורך מתן שירות Glow Push. זה כולל:' : 'We strictly use the data to provide the Glow Push service. This includes:'}</p>
-            <ul className="list-disc list-inside space-y-1.5 pl-1">
-              <li>{isHe ? 'אירוח מערכת ניהול הקליניקה הדיגיטלית.' : 'Hosting the digital clinic management system.'}</li>
-              <li>{isHe ? 'אחסון ואבטחת הצהרות בריאות דיגיטליות ורשומות קליניות.' : 'Storing and securing Digital Health Declarations and clinical notes.'}</li>
-              <li>{isHe ? 'יצירת יומן ההחלמה הדיגיטלי ללקוחות.' : 'Generating the Digital Recovery Journal for Clients.'}</li>
-              <li>{isHe ? 'שליחת הנחיות טיפוח אוטומטיות ותזכורות באמצעות ממשקי תקשורת של צד שלישי (כגון SMS, WhatsApp) בשם המאפרת.' : 'Sending automated aftercare instructions and reminders via third-party communication APIs (e.g., SMS, WhatsApp) on behalf of the Artist.'}</li>
-            </ul>
-          </Section>
-
-          <Divider />
-
-          <Section title={isHe ? '4. שיתוף נתונים ושירותי צד שלישי' : '4. Data Sharing and Third-Party Services'}>
+          <Section title={isHe ? '3. שימוש במידע:' : '3. How We Use Information:'}>
             <p>
               {isHe
-                ? 'אנו לא מוכרים, משכירים או סוחרים בנתונים אישיים. אנו משתפים מידע רק עם ספקי שירות צד שלישי מהימנים הנדרשים להפעלת האפליקציה (כגון מסדי נתונים מאובטחים בענן, ממשקי שליחת הודעות אוטומטיות). כל ספקי צד שלישי נבדקים בקפדנות לעמידה בתקני GDPR ו-CCPA.'
-                : 'We do not sell, rent, or trade personal data. We only share information with trusted third-party service providers necessary to operate the app (e.g., secure cloud hosting databases, automated messaging APIs). All third-party providers are strictly vetted for GDPR and CCPA compliance.'}
+                ? 'לאחסון מערכת הניהול, אבטחת מידע רפואי, יצירת יומן החלמה דיגיטלי ושליחת הודעות אוטומטיות.'
+                : 'To host the digital clinic system, secure health records, generate Digital Recovery Journals, and send automated SMS/WhatsApp aftercare notifications.'}
             </p>
           </Section>
 
           <Divider />
 
-          <Section title={isHe ? '5. אבטחת מידע' : '5. Data Security'}>
+          <Section title={isHe ? '4. שיתוף מידע:' : '4. Data Sharing:'}>
             <p>
               {isHe
-                ? 'אנו מיישמים אמצעי אבטחה ברמה גבוהה, כולל אבטחה ברמת שורה (RLS) על מסדי הנתונים שלנו והצפנה, כדי להבטיח שגורמים לא מורשים לא יוכלו לגשת לנתונים רפואיים רגישים או לרשומות לקוחות. מאפרת יכולה לגשת רק לנתוני הלקוחות שלה.'
-                : 'We implement high-level security measures, including Row Level Security (RLS) on our databases and encryption, to ensure that unauthorized parties cannot access sensitive medical data or client records. An Artist can only access the data of their own Clients.'}
+                ? 'איננו מוכרים נתונים. המידע משותף רק עם ספקי צד-שלישי מאובטחים הנדרשים להפעלת האפליקציה.'
+                : 'We do not sell data. We share information only with trusted, GDPR-compliant third-party APIs needed to operate the app.'}
             </p>
           </Section>
 
           <Divider />
 
-          <Section title={isHe ? '6. זכויות הפרטיות שלך (GDPR ו-CCPA)' : '6. Your Privacy Rights (GDPR & CCPA)'}>
-            <p>{isHe ? 'בהתאם למיקומך, לך וללקוחותייך יש את הזכויות הבאות:' : 'Depending on your location, you and your Clients have the following rights:'}</p>
-            <ul className="list-disc list-inside space-y-1.5 pl-1">
-              <li>{isHe ? 'הזכות לגישה: ניתן לבקש עותק של הנתונים האישיים שאנו מחזיקים.' : 'The Right to Access: You can request a copy of the personal data we hold.'}</li>
-              <li>{isHe ? 'הזכות לתיקון: ניתן לתקן נתונים שגויים או חלקיים.' : 'The Right to Rectification: You can correct inaccurate or incomplete data.'}</li>
-              <li>{isHe ? 'הזכות למחיקה ("הזכות להישכח"): משתמשות יכולות למחוק את חשבונן ישירות מהגדרות האפליקציה, מה שימחק לצמיתות את כל נתוני הלקוחות, התמונות ורשומות הבריאות המשויכים מהשרתים שלנו.' : 'The Right to Erasure ("Right to be Forgotten"): Users can delete their accounts directly within the app\'s settings, which will permanently erase all associated Client data, images, and health records from our servers.'}</li>
-              <li>{isHe ? 'הזכות לביטול הסכמה: לקוחות יכולים לבטל את קבלת הודעות SMS/WhatsApp אוטומטיות בכל עת.' : 'The Right to Opt-Out: Clients may opt out of receiving automated SMS/WhatsApp notifications at any time.'}</li>
-            </ul>
-          </Section>
-
-          <Divider />
-
-          <Section title={isHe ? '7. שמירת נתונים' : '7. Data Retention'}>
+          <Section title={isHe ? '5. אבטחת מידע:' : '5. Data Security:'}>
             <p>
               {isHe
-                ? 'אנו שומרים על נתוני לקוחות והצהרות בריאות כל עוד למאפרת יש חשבון Glow Push פעיל, או כנדרש על פי חוקי אחריות רפואית מקומיים, אלא אם כן הוגשה בקשת מחיקה.'
-                : 'We retain Client data and health declarations as long as the Artist maintains an active Glow Push account, or as required by local medical liability laws, unless a deletion request is initiated.'}
+                ? 'אנו משתמשים בהצפנה ואבטחת RLS. כל מאפרת חשופה אך ורק לנתוני הלקוחות שלה.'
+                : 'We use high-level encryption and Row Level Security (RLS). An Artist can only access their own Clients\' data.'}
             </p>
           </Section>
 
           <Divider />
 
-          <Section title={isHe ? '8. צור קשר' : '8. Contact Us'}>
+          <Section title={isHe ? '6. זכויות פרטיות:' : '6. Your Privacy Rights:'}>
             <p>
               {isHe
-                ? 'אם יש לך שאלות או בקשות בנוגע למדיניות פרטיות זו או לנתונים שלך, ניתן לפנות אלינו:'
-                : 'If you have any questions or requests regarding this Privacy Policy or your data, please contact us at:'}
+                ? 'למשתמשים יש את ה"זכות להישכח". מחיקת חשבון של מאפרת תמחק לצמיתות את כל נתוני הלקוחות המשויכים אליה מהשרתים שלנו.'
+                : 'Users and Clients have the right to access, rectify, or request erasure of their data ("Right to be Forgotten"). Users can delete their accounts, which permanently erases associated Client data.'}
             </p>
+          </Section>
+
+          <Divider />
+
+          <Section title={isHe ? '7. צור קשר:' : '7. Contact Us:'}>
             <p>
-              <strong>{isHe ? 'דוא"ל:' : 'Email:'}</strong>{' '}
-              <a href="mailto:hello@glowpush.app" className="underline" style={{ color: '#D4AF37' }}>
-                hello@glowpush.app
-              </a>
-            </p>
-            <p>
-              <strong>{isHe ? 'אתר:' : 'Website:'}</strong>{' '}
-              <a href="https://www.glowpush.app" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: '#D4AF37' }}>
-                www.glowpush.app
-              </a>
+              {isHe
+                ? 'לכל שאלה בנושא פרטיות: hello@glowpush.app'
+                : 'For privacy inquiries, email us at: hello@glowpush.app'}
             </p>
           </Section>
         </div>
@@ -179,3 +148,4 @@ const PrivacyPolicy = () => {
 };
 
 export default PrivacyPolicy;
+
