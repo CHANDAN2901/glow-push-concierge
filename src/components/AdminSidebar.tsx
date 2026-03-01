@@ -7,6 +7,7 @@ type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages
 interface AdminSidebarProps {
   active: AdminView;
   onNavigate: (view: AdminView) => void;
+  isAdmin?: boolean;
 }
 
 const navItems: { id: AdminView; label: string; labelHe: string; icon: React.ElementType; path?: string }[] = [
@@ -25,7 +26,8 @@ const navItems: { id: AdminView; label: string; labelHe: string; icon: React.Ele
   { id: 'settings', label: 'Settings', labelHe: 'הגדרות', icon: Settings },
 ];
 
-export default function AdminSidebar({ active, onNavigate }: AdminSidebarProps) {
+export default function AdminSidebar({ active, onNavigate, isAdmin }: AdminSidebarProps) {
+  const visibleItems = isAdmin ? navItems : navItems.filter(item => item.id !== 'faq-manager');
   return (
     <aside className="w-56 shrink-0 border-r border-border bg-card min-h-[calc(100vh-4rem)] hidden md:block">
       <div className="p-4 border-b border-border">
@@ -37,7 +39,7 @@ export default function AdminSidebar({ active, onNavigate }: AdminSidebarProps) 
         </div>
       </div>
       <nav className="p-2 space-y-1">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const classes = cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left',
             active === item.id

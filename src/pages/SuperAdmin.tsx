@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Users, DollarSign, TrendingUp, UserPlus,
   Shield, Send, Pencil, Ban, CalendarDays, Eye,
   Settings, Save, Plus, X, MessageSquareText, Heart,
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -71,7 +73,37 @@ const statusBadge = (status: string) => (
 /* ── component ── */
 const SuperAdmin = () => {
   const { toast } = useToast();
+  const { isAdmin, loading } = useAuth();
+  const navigate = useNavigate();
   const [view, setView] = useState<AdminView>('dashboard');
+  const [trialDays, setTrialDays] = useState('14');
+  const [litePrice, setLitePrice] = useState('89');
+  const [proPrice, setProPrice] = useState('129');
+  const [masterPrice, setMasterPrice] = useState('199');
+  const [termsText, setTermsText] = useState('הריני מאשרת כי כל הפרטים שמסרתי בטופס זה הם נכונים ומדויקים. אני מבינה כי הטיפול מבוצע בהסכמתי המלאה, וכי הוסברו לי הסיכונים האפשריים, תהליך ההחלמה והוראות הטיפול בבית. ידוע לי שתוצאות הטיפול משתנות מאחת לאחת ותלויות גם בסוג העור ובשמירה על ההוראות.');
+  const [healthQuestions, setHealthQuestions] = useState([
+    'האם את בהריון או מניקה?',
+    'האם את נוטלת מדללי דם (אספירין, קומדין) או תרופות באופן קבוע?',
+    'האם את סובלת מסוכרת (ובאיזה רמת איזון)?',
+    'האם יש לך נטייה להצטלקות (קלואידים) או ריפוי איטי של פצעים?',
+    'האם נטלת רואקוטן (Roaccutane) בשנה האחרונה?',
+    'האם את משתמשת בתכשירים עם רטינול A או חומצות לפנים?',
+    'האם יש לך מחלות מדבקות המועברות בדם (HIV, הפטיטיס)?',
+    'האם עברת טיפולי כימותרפיה או הקרנות בחצי השנה האחרונה?',
+    'האם את סובלת מאפילפסיה?',
+    'האם יש לך קוצב לב או בעיות לבביות?',
+    'האם ביצעת הזרקות (בוטוקס/חומצה היאלורונית) באזור הטיפול בחודש האחרון?',
+    'האם את סובלת מהרפס (פצעי חום) בשפתיים? (קריטי לטיפולי שפתיים)',
+    'האם ידועה רגישות לחומרי אלחוש (לידוקאין), לטקס או מתכות?',
+    'האם קיים איפור קבוע ישן באזור הטיפול?',
+    'האם שתית אלכוהול או נטלת משככי כאבים ב-24 השעות האחרונות?',
+  ]);
+  const [newQuestion, setNewQuestion] = useState('');
+
+  if (!loading && !isAdmin) {
+    navigate('/');
+    return null;
+  }
 
   const dashboardStats = [
     { icon: DollarSign, label: 'Total Revenue', value: '₪15,400', color: 'text-accent' },
@@ -225,29 +257,6 @@ const SuperAdmin = () => {
   );
 
   /* ── Settings View ── */
-  const [trialDays, setTrialDays] = useState('14');
-  const [litePrice, setLitePrice] = useState('89');
-  const [proPrice, setProPrice] = useState('129');
-  const [masterPrice, setMasterPrice] = useState('199');
-  const [termsText, setTermsText] = useState('הריני מאשרת כי כל הפרטים שמסרתי בטופס זה הם נכונים ומדויקים. אני מבינה כי הטיפול מבוצע בהסכמתי המלאה, וכי הוסברו לי הסיכונים האפשריים, תהליך ההחלמה והוראות הטיפול בבית. ידוע לי שתוצאות הטיפול משתנות מאחת לאחת ותלויות גם בסוג העור ובשמירה על ההוראות.');
-  const [healthQuestions, setHealthQuestions] = useState([
-    'האם את בהריון או מניקה?',
-    'האם את נוטלת מדללי דם (אספירין, קומדין) או תרופות באופן קבוע?',
-    'האם את סובלת מסוכרת (ובאיזה רמת איזון)?',
-    'האם יש לך נטייה להצטלקות (קלואידים) או ריפוי איטי של פצעים?',
-    'האם נטלת רואקוטן (Roaccutane) בשנה האחרונה?',
-    'האם את משתמשת בתכשירים עם רטינול A או חומצות לפנים?',
-    'האם יש לך מחלות מדבקות המועברות בדם (HIV, הפטיטיס)?',
-    'האם עברת טיפולי כימותרפיה או הקרנות בחצי השנה האחרונה?',
-    'האם את סובלת מאפילפסיה?',
-    'האם יש לך קוצב לב או בעיות לבביות?',
-    'האם ביצעת הזרקות (בוטוקס/חומצה היאלורונית) באזור הטיפול בחודש האחרון?',
-    'האם את סובלת מהרפס (פצעי חום) בשפתיים? (קריטי לטיפולי שפתיים)',
-    'האם ידועה רגישות לחומרי אלחוש (לידוקאין), לטקס או מתכות?',
-    'האם קיים איפור קבוע ישן באזור הטיפול?',
-    'האם שתית אלכוהול או נטלת משככי כאבים ב-24 השעות האחרונות?',
-  ]);
-  const [newQuestion, setNewQuestion] = useState('');
 
   const addQuestion = () => {
     if (newQuestion.trim()) {
@@ -334,7 +343,7 @@ const SuperAdmin = () => {
 
   return (
     <div className="min-h-screen bg-background flex pt-16">
-      <AdminSidebar active={view} onNavigate={setView} />
+      <AdminSidebar active={view} onNavigate={setView} isAdmin={isAdmin} />
 
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border/50"
         style={{
