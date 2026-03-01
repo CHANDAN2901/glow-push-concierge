@@ -142,7 +142,7 @@ export type Database = {
       client_gallery_photos: {
         Row: {
           artist_id: string
-          client_id: string
+          client_id: string | null
           created_at: string
           day_number: number | null
           id: string
@@ -155,7 +155,7 @@ export type Database = {
         }
         Insert: {
           artist_id: string
-          client_id: string
+          client_id?: string | null
           created_at?: string
           day_number?: number | null
           id?: string
@@ -168,7 +168,7 @@ export type Database = {
         }
         Update: {
           artist_id?: string
-          client_id?: string
+          client_id?: string | null
           created_at?: string
           day_number?: number | null
           id?: string

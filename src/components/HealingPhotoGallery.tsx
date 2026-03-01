@@ -159,91 +159,113 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   }, [selectedPhotos, resolvedArtistId]);
 
   const saveCollageToDevice = useCallback(async () => {
-    if (!resolvedArtistId) return;
-
-    const collageFileName = `collage_${clientName.replace(/\s+/g, '_')}_${format(new Date(), 'yyyyMMdd')}.jpg`;
+    console.log('[CollageFlow] Step 1: Start save. resolvedArtistId=', resolvedArtistId, 'clientId=', clientId);
+    if (!resolvedArtistId) {
+      const msg = 'פרופיל האמנית לא נטען עדיין, נסי שוב בעוד רגע';
+      setCollageErrorMessage(msg);
+      toast({ title: msg, variant: 'destructive' });
+      return;
+    }
 
     setSavingCollage(true);
     setCollageErrorMessage(null);
 
     try {
-      // If AI-aligned image exists, save that directly
-      if (aiAlignedUrl) {
-        await uploadPhoto(aiAlignedUrl, { photoType: 'collage', label: 'קולאז׳ AI לפני ואחרי', uploadedBy: 'artist' });
+      let base64Data: string;
 
-        // Also trigger download
+      // Step 2: Get base64 from AI result or canvas
+      if (aiAlignedUrl) {
+        console.log('[CollageFlow] Step 2: Using AI-aligned URL, fetching as base64...');
         try {
           const resp = await fetch(aiAlignedUrl);
           const blob = await resp.blob();
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = collageFileName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        } catch { /* download is optional */ }
-
-        toast({ title: 'הקולאז׳ נשמר בגלריה בהצלחה! ✨' });
-        setSelectedIds([]);
-        setShowCollage(false);
-        setCollageMode(false);
-        setAiAlignedUrl(null);
-        setSavingCollage(false);
-        return;
+          base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          console.log('[CollageFlow] Step 2: AI image converted to base64, length=', base64Data.length);
+        } catch (fetchErr: any) {
+          throw new Error(`Failed to fetch AI image: ${fetchErr?.message}`);
+        }
+      } else {
+        console.log('[CollageFlow] Step 2: Rendering canvas from collageRef...');
+        if (!collageRef.current) {
+          throw new Error('Collage element not found in DOM');
+        }
+        const canvas = await html2canvas(collageRef.current, {
+          useCORS: true,
+          scale: 2,
+          backgroundColor: '#ffffff',
+        });
+        base64Data = canvas.toDataURL('image/jpeg', 0.92);
+        console.log('[CollageFlow] Step 2: Canvas rendered, base64 length=', base64Data.length);
       }
 
-      // Fallback: capture from canvas
-      if (!collageRef.current) { setSavingCollage(false); return; }
-
-      const canvas = await html2canvas(collageRef.current, {
-        useCORS: true,
-        scale: 2,
-        backgroundColor: '#ffffff',
+      // Step 3: Upload to storage via edge function
+      console.log('[CollageFlow] Step 3: Uploading to storage via edge function...');
+      const fileName = `collage-${Date.now()}.jpg`;
+      const safeClientId = clientId ? clientId.replace(/[^a-zA-Z0-9_-]/g, '_') : 'general';
+      
+      const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-client-photo', {
+        body: {
+          artistProfileId: resolvedArtistId,
+          clientId: safeClientId,
+          category: 'gallery-collage',
+          base64Data,
+          fileName,
+        },
       });
 
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          setCollageErrorMessage('שגיאה ביצירת הקולאז׳');
-          toast({ title: 'שגיאה ביצירת הקולאז׳', variant: 'destructive' });
-          setSavingCollage(false);
-          return;
-        }
+      if (uploadError) {
+        console.error('[CollageFlow] Step 3 FAILED: Edge function error', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
+      }
+      if (uploadData?.error) {
+        console.error('[CollageFlow] Step 3 FAILED: Upload returned error', uploadData.error);
+        throw new Error(`Upload returned error: ${uploadData.error}`);
+      }
 
-        try {
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-          await uploadPhoto(dataUrl, { photoType: 'collage', label: 'קולאז׳ לפני ואחרי', uploadedBy: 'artist' });
-        } catch (e: any) {
-          const message = e?.message || 'Unknown collage upload error';
-          setCollageErrorMessage(message);
-          toast({ title: `שגיאה בשמירת הקולאז׳: ${message}`, variant: 'destructive' });
-          setSavingCollage(false);
-          return;
-        }
+      console.log('[CollageFlow] Step 3: Upload success. URL=', uploadData?.url, 'storagePath=', uploadData?.storagePath);
 
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = collageFileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+      // Step 4: Insert into client_gallery_photos
+      console.log('[CollageFlow] Step 4: Inserting into client_gallery_photos...');
+      const { error: insertError } = await supabase.from('client_gallery_photos').insert({
+        client_id: clientId || null,
+        artist_id: resolvedArtistId,
+        storage_path: uploadData.storagePath,
+        public_url: uploadData.url,
+        photo_type: 'collage',
+        label: aiAlignedUrl ? 'קולאז׳ AI לפני ואחרי' : 'קולאז׳ לפני ואחרי',
+        day_number: null,
+        uploaded_by: 'artist',
+        seen_by_client: false,
+      } as any);
 
-        toast({ title: 'הקולאז׳ נשמר בגלריה בהצלחה! ✨' });
-        setSelectedIds([]);
-        setShowCollage(false);
-        setCollageMode(false);
-        setSavingCollage(false);
-      }, 'image/jpeg', 0.92);
+      if (insertError) {
+        console.error('[CollageFlow] Step 4 FAILED: DB insert error', insertError);
+        throw new Error(`DB insert failed: ${insertError.message}`);
+      }
+
+      console.log('[CollageFlow] Step 4: DB insert success!');
+
+      // Step 5: Success! Clear state
+      console.log('[CollageFlow] Step 5: Done! Clearing state...');
+      toast({ title: 'נשמר בהצלחה ✅' });
+      setSelectedIds([]);
+      setShowCollage(false);
+      setCollageMode(false);
+      setAiAlignedUrl(null);
     } catch (err: any) {
       const message = err?.message || 'Unknown collage save error';
+      console.error('[CollageFlow] FAILED:', message, err);
       setCollageErrorMessage(message);
       toast({ title: `שגיאה בשמירה: ${message}`, variant: 'destructive' });
+    } finally {
       setSavingCollage(false);
     }
-  }, [clientId, clientName, resolvedArtistId, uploadPhoto, aiAlignedUrl]);
+  }, [clientId, clientName, resolvedArtistId, aiAlignedUrl]);
 
   const sortedPhotos = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
