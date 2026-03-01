@@ -28,7 +28,7 @@ interface ImageTransform {
 
 const defaultTransform = (): ImageTransform => ({ scale: 1, offsetX: 0, offsetY: 0, rotation: 0 });
 
-// Gesture-powered collage half component
+// Gesture-powered collage half — uses refs for 60fps DOM updates, syncs to React on gesture end
 interface CollageHalfProps {
   index: number;
   imgUrl: string;
@@ -37,44 +37,73 @@ interface CollageHalfProps {
   transform: ImageTransform;
   isActive: boolean;
   onActivate: () => void;
-  updateTransform: (index: number, partial: Partial<ImageTransform>) => void;
+  onTransformEnd: (index: number, t: ImageTransform) => void;
   isDraggingRef: React.MutableRefObject<boolean>;
 }
 
-const CollageHalf = ({ index, imgUrl, label, labelPosition, transform, isActive, onActivate, updateTransform, isDraggingRef }: CollageHalfProps) => {
-  const startRef = useRef<ImageTransform | null>(null);
+const CollageHalf = ({ index, imgUrl, label, labelPosition, transform, isActive, onActivate, onTransformEnd, isDraggingRef }: CollageHalfProps) => {
+  const imgRef = useRef<HTMLImageElement>(null);
+  // Live transform tracked in ref for 60fps — no React re-renders during gesture
+  const liveRef = useRef<ImageTransform>({ ...transform });
+
+  // Sync from parent when not dragging
+  useEffect(() => {
+    if (!isDraggingRef.current) {
+      liveRef.current = { ...transform };
+      applyTransform();
+    }
+  }, [transform]);
+
+  const applyTransform = () => {
+    const el = imgRef.current;
+    if (!el) return;
+    const t = liveRef.current;
+    el.style.transform = `translate(${t.offsetX}px, ${t.offsetY}px) scale(${t.scale}) rotate(${t.rotation}deg)`;
+  };
 
   const bind = useGesture(
     {
       onDrag: ({ delta: [dx, dy], first, tap }) => {
         if (tap) { onActivate(); return; }
-        if (first) { onActivate(); isDraggingRef.current = true; }
-        updateTransform(index, {
-          offsetX: transform.offsetX + dx,
-          offsetY: transform.offsetY + dy,
-        });
+        if (first) {
+          onActivate();
+          isDraggingRef.current = true;
+          if (imgRef.current) imgRef.current.style.transition = 'none';
+        }
+        liveRef.current.offsetX += dx;
+        liveRef.current.offsetY += dy;
+        applyTransform();
       },
-      onDragEnd: () => { isDraggingRef.current = false; },
-      onPinchStart: () => {
-        onActivate();
-        isDraggingRef.current = true;
-        startRef.current = { ...transform };
+      onDragEnd: () => {
+        isDraggingRef.current = false;
+        if (imgRef.current) imgRef.current.style.transition = 'transform 0.15s ease';
+        onTransformEnd(index, { ...liveRef.current });
       },
-      onPinch: ({ offset: [s], da: [, angle] }) => {
-        if (!startRef.current) return;
-        updateTransform(index, {
-          scale: Math.max(0.3, Math.min(5, s)),
-          rotation: (startRef.current.rotation || 0) + (angle || 0),
-        });
+      onPinch: ({ first, offset: [scale], movement: [, angleDelta], memo }) => {
+        if (first) {
+          onActivate();
+          isDraggingRef.current = true;
+          if (imgRef.current) imgRef.current.style.transition = 'none';
+          memo = { startRotation: liveRef.current.rotation };
+        }
+        liveRef.current.scale = Math.max(0.3, Math.min(5, scale));
+        liveRef.current.rotation = memo.startRotation + angleDelta;
+        applyTransform();
+        return memo;
       },
       onPinchEnd: () => {
         isDraggingRef.current = false;
-        startRef.current = null;
+        if (imgRef.current) imgRef.current.style.transition = 'transform 0.15s ease';
+        onTransformEnd(index, { ...liveRef.current });
       },
     },
     {
       drag: { filterTaps: true, pointer: { touch: true } },
-      pinch: { scaleBounds: { min: 0.3, max: 5 }, pointer: { touch: true } },
+      pinch: {
+        scaleBounds: { min: 0.3, max: 5 },
+        pointer: { touch: true },
+        from: () => [liveRef.current.scale, 0],
+      },
     }
   );
 
@@ -88,17 +117,20 @@ const CollageHalf = ({ index, imgUrl, label, labelPosition, transform, isActive,
       }}
     >
       <img
+        ref={imgRef}
         src={imgUrl} alt={label}
         className="w-full h-full object-cover"
         crossOrigin="anonymous"
         draggable={false}
         style={{
+          transformOrigin: 'center center',
           transform: `translate(${transform.offsetX}px, ${transform.offsetY}px) scale(${transform.scale}) rotate(${transform.rotation}deg)`,
-          transition: isDraggingRef.current ? 'none' : 'transform 0.15s ease',
+          transition: 'transform 0.15s ease',
+          willChange: 'transform',
         }}
       />
       <span
-        className={`absolute bottom-2 ${labelPosition === 'left' ? 'left-2' : 'right-2'} text-white text-xs font-bold px-2.5 py-1 rounded-full`}
+        className={`absolute bottom-2 ${labelPosition === 'left' ? 'left-2' : 'right-2'} text-white text-xs font-bold px-2.5 py-1 rounded-full pointer-events-none`}
         style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}
       >
         {label}
@@ -214,6 +246,14 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     setTransforms(prev => {
       const next = [...prev] as [ImageTransform, ImageTransform];
       next[index] = { ...next[index], ...partial };
+      return next;
+    });
+  };
+
+  const setTransformFull = (index: number, t: ImageTransform) => {
+    setTransforms(prev => {
+      const next = [...prev] as [ImageTransform, ImageTransform];
+      next[index] = t;
       return next;
     });
   };
@@ -634,7 +674,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
                 transform={transforms[1]}
                 isActive={activeEditIndex === 1}
                 onActivate={() => setActiveEditIndex(1)}
-                updateTransform={updateTransform}
+                onTransformEnd={setTransformFull}
                 isDraggingRef={isDragging}
               />
 
@@ -649,7 +689,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
                 transform={transforms[0]}
                 isActive={activeEditIndex === 0}
                 onActivate={() => setActiveEditIndex(0)}
-                updateTransform={updateTransform}
+                onTransformEnd={setTransformFull}
                 isDraggingRef={isDragging}
               />
             </div>
