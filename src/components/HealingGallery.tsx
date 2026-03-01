@@ -202,17 +202,16 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
     resolve();
   }, [clientId]);
 
-  // Reset collage slots ONLY when switching to a different client/artist
-  const prevClientRef = useRef(clientId);
+  // Reset collage slots ONLY when the artist changes (not clientId, which can
+  // flip between name ↔ dbId for the same person and cause false resets).
   const prevArtistRef = useRef(artistProfileId);
   useEffect(() => {
-    if (prevClientRef.current !== clientId || prevArtistRef.current !== artistProfileId) {
+    if (prevArtistRef.current !== artistProfileId) {
       clearCollageSelection();
       setSavedToGallery(false);
-      prevClientRef.current = clientId;
       prevArtistRef.current = artistProfileId;
     }
-  }, [clientId, artistProfileId, clearCollageSelection]);
+  }, [artistProfileId, clearCollageSelection]);
 
   // Sync initial prop images (only when they first appear, not on every render)
   useEffect(() => {
