@@ -45,7 +45,6 @@ const App = () => (
           <ErrorBoundary>
             <Routes>
               <Route path="/" element={<MarketingLanding />} />
-              <Route path="/home" element={<Landing />} />
               <Route path="/client" element={<ClientHome />} />
               <Route path="/artist" element={<ArtistDashboard />} />
               <Route path="/pricing" element={<Pricing />} />
@@ -53,8 +52,6 @@ const App = () => (
               
               <Route path="/digital-card" element={<DigitalCard />} />
               <Route path="/health-declaration" element={<HealthDeclarationPage />} />
-              <Route path="/client-form" element={<HealthDeclarationPage />} />
-              <Route path="/declaration" element={<HealthDeclarationPage />} />
               <Route path="/admin/aftercare" element={<AftercareEditorPage />} />
               <Route path="/admin/timeline" element={<TimelineEditorPage />} />
               <Route path="/admin/timeline-content" element={<TimelineContentEditorPage />} />
