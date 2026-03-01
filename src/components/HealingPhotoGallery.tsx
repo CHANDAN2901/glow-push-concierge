@@ -151,6 +151,8 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           });
           setCollageErrorMessage(message);
           toast({ title: `שגיאה בשמירת הקולאז׳: ${message}`, variant: 'destructive' });
+          setSavingCollage(false);
+          return;
         }
 
         // Trigger download
@@ -163,7 +165,11 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        toast({ title: 'הקולאז׳ נשמר בהצלחה! ✨' });
+        // Success: reset selection so gallery shows cleanly
+        toast({ title: 'הקולאז׳ נשמר בגלריה בהצלחה! ✨' });
+        setSelectedIds([]);
+        setShowCollage(false);
+        setCollageMode(false);
         setSavingCollage(false);
       }, 'image/jpeg', 0.92);
     } catch (err: any) {
