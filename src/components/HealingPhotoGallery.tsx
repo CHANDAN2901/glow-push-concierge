@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download } from 'lucide-react';
+import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, Sparkles } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import html2canvas from 'html2canvas';
 import { toast } from '@/hooks/use-toast';
@@ -27,6 +27,9 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   const [uploading, setUploading] = useState(false);
   const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
   const [collageErrorMessage, setCollageErrorMessage] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [aiAligning, setAiAligning] = useState(false);
+  const [aiAlignedUrl, setAiAlignedUrl] = useState<string | null>(null);
   const collageRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -48,10 +51,6 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       return;
     }
 
-    const safeClientId = clientId.replace(/[^a-zA-Z0-9_-]/g, '_');
-    const fileName = file.name;
-    const bucketPath = `${resolvedArtistId}/${safeClientId}/gallery-healing/${fileName}`;
-
     setUploading(true);
     setUploadErrorMessage(null);
     try {
@@ -65,14 +64,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       await uploadPhoto(base64, { photoType: 'healing', label, dayNumber: dayNum ?? undefined, uploadedBy: 'artist' });
       toast({ title: 'התמונה נשמרה בהצלחה ✨' });
     } catch (err: any) {
-      const { data: { user } } = await supabase.auth.getUser();
       const message = err?.message || 'Unknown upload error';
-      console.error('Single image upload failed', {
-        userId: user?.id || null,
-        fileName,
-        bucketPath,
-        supabaseError: err,
-      });
       setUploadErrorMessage(message);
       toast({ title: `שגיאה בהעלאת התמונה: ${message}`, variant: 'destructive' });
     } finally {
@@ -109,18 +101,87 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     }
     setShowCollage(true);
     setCollageMode(false);
+    setAiAlignedUrl(null);
   };
 
+  const handleAiAlign = useCallback(async () => {
+    if (selectedPhotos.length !== 2 || !resolvedArtistId) return;
+
+    setAiAligning(true);
+    setCollageErrorMessage(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-align', {
+        body: {
+          beforeUrl: selectedPhotos[0]!.public_url,
+          afterUrl: selectedPhotos[1]!.public_url,
+          artistProfileId: resolvedArtistId,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) {
+        if (data.error === 'rate_limit') {
+          toast({ title: 'יותר מדי בקשות, נסי שוב בעוד דקה ⏳', variant: 'destructive' });
+        } else {
+          throw new Error(data.error);
+        }
+        return;
+      }
+
+      if (data?.alignedUrl) {
+        setAiAlignedUrl(data.alignedUrl);
+        toast({ title: 'היישור הושלם בהצלחה! ✨ בדקי את התוצאה' });
+      } else {
+        throw new Error('AI did not return an image');
+      }
+    } catch (err: any) {
+      const message = err?.message || 'שגיאה ביישור AI';
+      setCollageErrorMessage(message);
+      toast({ title: `שגיאה ביישור: ${message}`, variant: 'destructive' });
+    } finally {
+      setAiAligning(false);
+    }
+  }, [selectedPhotos, resolvedArtistId]);
+
   const saveCollageToDevice = useCallback(async () => {
-    if (!collageRef.current || !resolvedArtistId) return;
+    if (!resolvedArtistId) return;
 
     const collageFileName = `collage_${clientName.replace(/\s+/g, '_')}_${format(new Date(), 'yyyyMMdd')}.jpg`;
-    const safeClientId = clientId.replace(/[^a-zA-Z0-9_-]/g, '_');
-    const bucketPath = `${resolvedArtistId}/${safeClientId}/gallery-collage/${collageFileName}`;
 
     setSavingCollage(true);
     setCollageErrorMessage(null);
+
     try {
+      // If AI-aligned image exists, save that directly
+      if (aiAlignedUrl) {
+        await uploadPhoto(aiAlignedUrl, { photoType: 'collage', label: 'קולאז׳ AI לפני ואחרי', uploadedBy: 'artist' });
+
+        // Also trigger download
+        try {
+          const resp = await fetch(aiAlignedUrl);
+          const blob = await resp.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = collageFileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch { /* download is optional */ }
+
+        toast({ title: 'הקולאז׳ נשמר בגלריה בהצלחה! ✨' });
+        setSelectedIds([]);
+        setShowCollage(false);
+        setCollageMode(false);
+        setAiAlignedUrl(null);
+        setSavingCollage(false);
+        return;
+      }
+
+      // Fallback: capture from canvas
+      if (!collageRef.current) { setSavingCollage(false); return; }
+
       const canvas = await html2canvas(collageRef.current, {
         useCORS: true,
         scale: 2,
@@ -129,33 +190,23 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
       canvas.toBlob(async (blob) => {
         if (!blob) {
-          const msg = 'שגיאה ביצירת הקולאז׳';
-          setCollageErrorMessage(msg);
-          toast({ title: msg, variant: 'destructive' });
+          setCollageErrorMessage('שגיאה ביצירת הקולאז׳');
+          toast({ title: 'שגיאה ביצירת הקולאז׳', variant: 'destructive' });
           setSavingCollage(false);
           return;
         }
 
-        // Save collage to shared gallery
         try {
           const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
           await uploadPhoto(dataUrl, { photoType: 'collage', label: 'קולאז׳ לפני ואחרי', uploadedBy: 'artist' });
         } catch (e: any) {
-          const { data: { user } } = await supabase.auth.getUser();
           const message = e?.message || 'Unknown collage upload error';
-          console.error('Collage save to gallery failed', {
-            userId: user?.id || null,
-            fileName: collageFileName,
-            bucketPath,
-            supabaseError: e,
-          });
           setCollageErrorMessage(message);
           toast({ title: `שגיאה בשמירת הקולאז׳: ${message}`, variant: 'destructive' });
           setSavingCollage(false);
           return;
         }
 
-        // Trigger download
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -165,7 +216,6 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        // Success: reset selection so gallery shows cleanly
         toast({ title: 'הקולאז׳ נשמר בגלריה בהצלחה! ✨' });
         setSelectedIds([]);
         setShowCollage(false);
@@ -173,19 +223,12 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         setSavingCollage(false);
       }, 'image/jpeg', 0.92);
     } catch (err: any) {
-      const { data: { user } } = await supabase.auth.getUser();
       const message = err?.message || 'Unknown collage save error';
-      console.error('Collage save failed', {
-        userId: user?.id || null,
-        fileName: collageFileName,
-        bucketPath,
-        supabaseError: err,
-      });
       setCollageErrorMessage(message);
       toast({ title: `שגיאה בשמירה: ${message}`, variant: 'destructive' });
       setSavingCollage(false);
     }
-  }, [clientId, clientName, resolvedArtistId, uploadPhoto]);
+  }, [clientId, clientName, resolvedArtistId, uploadPhoto, aiAlignedUrl]);
 
   const sortedPhotos = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -199,6 +242,27 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
   return (
     <div className="space-y-4">
+      {/* Lightbox modal */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 animate-fade-in"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            onClick={() => setLightboxUrl(null)}
+            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+          <img
+            src={lightboxUrl}
+            alt=""
+            className="max-w-[95vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       {/* Action buttons */}
       <div className="flex items-center justify-center gap-3 flex-wrap">
         <button
@@ -214,7 +278,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
         {sortedPhotos.length >= 2 && (
           <button
-            onClick={() => { setCollageMode(!collageMode); setSelectedIds([]); setShowCollage(false); }}
+            onClick={() => { setCollageMode(!collageMode); setSelectedIds([]); setShowCollage(false); setAiAlignedUrl(null); }}
             className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98]"
             style={{
               background: collageMode ? GOLD_GRADIENT : '#ffffff',
@@ -268,7 +332,13 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
                   borderColor: isSelected ? GOLD : `${GOLD}40`,
                   background: '#ffffff',
                 }}
-                onClick={() => collageMode ? toggleSelect(photo.id) : null}
+                onClick={() => {
+                  if (collageMode) {
+                    toggleSelect(photo.id);
+                  } else {
+                    setLightboxUrl(photo.public_url);
+                  }
+                }}
               >
                 <div className="aspect-square overflow-hidden relative">
                   <img src={photo.public_url} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
@@ -347,46 +417,85 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       {/* Collage preview */}
       {showCollage && selectedPhotos.length === 2 && (
         <div className="space-y-3 animate-fade-up">
-          <div
-            ref={collageRef}
-            className="relative w-full rounded-2xl overflow-hidden shadow-lg border-2"
-            style={{ borderColor: GOLD, background: '#ffffff' }}
-          >
-            <div className="flex" style={{ aspectRatio: '2/1' }}>
-              <div className="w-1/2 relative overflow-hidden">
-                <img src={selectedPhotos[1]!.public_url} alt="After" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                <span className="absolute bottom-2 left-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>
-                  אחרי ✨
-                </span>
-              </div>
-              <div className="w-[2px] flex-shrink-0" style={{ backgroundColor: GOLD }} />
-              <div className="w-1/2 relative overflow-hidden">
-                <img src={selectedPhotos[0]!.public_url} alt="Before" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                <span className="absolute bottom-2 right-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>
-                  לפני
+          {/* AI-aligned result OR manual collage */}
+          {aiAlignedUrl ? (
+            <div className="relative w-full rounded-2xl overflow-hidden shadow-lg border-2" style={{ borderColor: GOLD }}>
+              <img src={aiAlignedUrl} alt="AI aligned collage" className="w-full h-auto" crossOrigin="anonymous" />
+              <div className="absolute top-2 left-2">
+                <span className="text-[9px] font-bold px-2 py-1 rounded-full" style={{ background: GOLD_GRADIENT, color: '#5C4033' }}>
+                  ✨ יושר עם AI
                 </span>
               </div>
             </div>
+          ) : (
+            <div
+              ref={collageRef}
+              className="relative w-full rounded-2xl overflow-hidden shadow-lg border-2"
+              style={{ borderColor: GOLD, background: '#ffffff' }}
+            >
+              <div className="flex" style={{ aspectRatio: '2/1' }}>
+                <div className="w-1/2 relative overflow-hidden">
+                  <img src={selectedPhotos[1]!.public_url} alt="After" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                  <span className="absolute bottom-2 left-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>
+                    אחרי ✨
+                  </span>
+                </div>
+                <div className="w-[2px] flex-shrink-0" style={{ backgroundColor: GOLD }} />
+                <div className="w-1/2 relative overflow-hidden">
+                  <img src={selectedPhotos[0]!.public_url} alt="Before" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                  <span className="absolute bottom-2 right-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>
+                    לפני
+                  </span>
+                </div>
+              </div>
 
-            <div className="px-4 py-3 flex items-center justify-between" style={{ background: '#fefcf7' }}>
-              <div className="flex items-center gap-2">
-                <img src={glowPushLogo} alt="Glow Push" className="h-6 w-auto object-contain" />
+              <div className="px-4 py-3 flex items-center justify-between" style={{ background: '#fefcf7' }}>
+                <div className="flex items-center gap-2">
+                  <img src={glowPushLogo} alt="Glow Push" className="h-6 w-auto object-contain" />
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-serif font-bold" style={{ color: GOLD_DARK }}>{clientName}</p>
+                  <p className="text-[9px] font-light" style={{ color: '#999' }}>
+                    {format(new Date(), 'dd/MM/yyyy')}
+                  </p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-xs font-serif font-bold" style={{ color: GOLD_DARK }}>{clientName}</p>
-                <p className="text-[9px] font-light" style={{ color: '#999' }}>
-                  {format(new Date(), 'dd/MM/yyyy')}
-                </p>
-              </div>
+
+              {/* AI loading overlay */}
+              {aiAligning && (
+                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-3 z-10 rounded-2xl">
+                  <div className="animate-spin w-8 h-8 border-3 rounded-full" style={{ borderColor: GOLD, borderTopColor: 'transparent' }} />
+                  <p className="text-white text-sm font-serif font-bold">מיישר פנים עם AI... ✨</p>
+                </div>
+              )}
             </div>
-          </div>
+          )}
 
-          <div className="flex justify-center gap-3">
+          {/* Action buttons */}
+          <div className="flex justify-center gap-3 flex-wrap">
+            {/* AI Align button */}
+            {!aiAlignedUrl && (
+              <button
+                onClick={handleAiAlign}
+                disabled={aiAligning || savingCollage}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
+                style={{
+                  background: '#ffffff',
+                  border: `2.5px solid ${GOLD}`,
+                  color: GOLD_DARK,
+                }}
+              >
+                <Sparkles className="w-4 h-4" />
+                {aiAligning ? 'מיישר...' : '✨ יישור אוטומטי עם AI'}
+              </button>
+            )}
+
+            {/* Save button */}
             <button
               onClick={saveCollageToDevice}
-              disabled={savingCollage}
+              disabled={savingCollage || aiAligning}
               className="flex items-center gap-2.5 px-7 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
               style={{
                 background: GOLD_GRADIENT,
@@ -400,7 +509,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           </div>
 
           <button
-            onClick={() => { setShowCollage(false); setSelectedIds([]); }}
+            onClick={() => { setShowCollage(false); setSelectedIds([]); setAiAlignedUrl(null); }}
             className="w-full text-center text-xs font-serif py-2 transition-all"
             style={{ color: GOLD_DARK }}
           >
