@@ -5,7 +5,7 @@ import {
   PenLine, Calendar, ChevronRight, User, Sparkles, ArrowUp,
   LifeBuoy, HelpCircle, Eye, Send, Play, Mic,
 } from 'lucide-react';
-import DualPhotoGallery from '@/components/DualPhotoGallery';
+
 import ClientSharedGallery from '@/components/ClientSharedGallery';
 import ClientPhotoTimeline from '@/components/ClientPhotoTimeline';
 import HealingPhotoGallery from '@/components/HealingPhotoGallery';
@@ -386,27 +386,16 @@ const ClientProfile = () => {
           )}
         </SectionCard>
 
-        {/* ── Before & After ── */}
-        <SectionCard
-          icon={<Camera className="w-5 h-5" style={{ color: GOLD }} />}
-          title={lang === 'en' ? 'Visual Documentation' : 'תיעוד ויזואלי'}
-          delay="300"
-        >
-          <DualPhotoGallery
-            clientId={resolvedClientId}
-            artistId={resolvedArtistId}
-          />
-
-          {/* Photo Gallery */}
-          {resolvedClientId && (
-            <div className="mt-6 pt-5" style={{ borderTop: `1px solid ${GOLD}30` }}>
-              <h4 className="text-sm font-serif font-semibold mb-3 text-center" style={{ color: GOLD_DARK }}>
-                📸 גלריית הלקוחה
-              </h4>
-              <ClientPhotoTimeline clientId={resolvedClientId} artistId={resolvedArtistId} />
-            </div>
-          )}
-        </SectionCard>
+        {/* ── Photo Gallery ── */}
+        {resolvedClientId && (
+          <SectionCard
+            icon={<Camera className="w-5 h-5" style={{ color: GOLD }} />}
+            title={lang === 'en' ? 'Client Gallery' : '📸 גלריית הלקוחה'}
+            delay="300"
+          >
+            <ClientPhotoTimeline clientId={resolvedClientId} artistId={resolvedArtistId} />
+          </SectionCard>
+        )}
 
         {/* ── Healing Photo Gallery ── */}
         {resolvedClientId && (
