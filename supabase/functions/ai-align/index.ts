@@ -68,22 +68,28 @@ serve(async (req) => {
         type: "text",
         text: `You are a professional photo alignment AI for permanent makeup (PMU) before & after comparisons.
 
-TASK: Create a perfectly aligned side-by-side comparison from these two photos.
+TASK: Create a perfectly aligned side-by-side comparison from the two DIFFERENT photos provided below.
 
-ALIGNMENT RULES (CRITICAL):
+CRITICAL — IMAGE IDENTITY:
+- The FIRST image provided is the BEFORE photo. The SECOND image provided is the AFTER photo.
+- These are TWO DISTINCT photos taken at different times. They will look similar but have differences (skin texture, color, healing progress, makeup).
+- You MUST use each photo exactly as provided. Do NOT duplicate one photo for both sides.
+- Do NOT replace either photo with a copy of the other.
+
+ALIGNMENT RULES:
 1. FACE DETECTION: Identify the face, eyebrows, eyes, nose, and lips in both photos.
 2. ROTATION: Straighten both images so the face is perfectly level and upright. Match the head tilt angle.
 3. ZOOM & CROP: Scale both photos so the facial features (especially the treatment area — eyebrows or lips) are the EXACT same size in both images.
 4. POSITIONING: Center the face identically in both halves so features line up horizontally across the divider.
-5. IDENTITY: Do NOT alter, replace, or change the person's face. The person MUST remain identical. Do NOT generate a new face.
+5. IDENTITY: Do NOT alter, replace, or change the person's face. The person MUST remain identical in each respective photo. Do NOT generate a new face.
 
 LAYOUT:
-- Place BEFORE image on the RIGHT side, AFTER image on the LEFT side.
+- Place the BEFORE (first) image on the RIGHT side, the AFTER (second) image on the LEFT side.
 - Use a thin elegant gold divider line between them.
 - Add small elegant labels: 'לפני' (Before) on the right, 'אחרי' (After) on the left, at the bottom.
 - Both images must be the same height and width.
 - Use a clean white background.
-${logoB64 ? "- IMPORTANT: Place the provided logo as a semi-transparent watermark in the bottom-right corner of the final collage. Make it about 15% of the collage width with ~40% opacity so it's visible but doesn't obstruct the work." : ""}
+${logoB64 ? "- IMPORTANT: Place the provided logo as a subtle watermark in the bottom-right corner. Make it about 10% of the collage width with 50% opacity (semi-transparent). It must NOT cover or hide the work — just a small professional branding mark." : ""}
 
 OUTPUT: A single high-quality image ready for Instagram/portfolio use. Minimal, luxurious, professional.`,
       },
