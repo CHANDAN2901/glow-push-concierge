@@ -47,6 +47,9 @@ const normalizeImageOrientation = (file: File): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
+// Validate if string looks like a UUID
+const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+
 interface HealingGalleryProps {
   beforeImg?: string;
   afterImg?: string;
@@ -166,6 +169,24 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
   const [editingSrc, setEditingSrc] = useState('');
   const [autoSaved, setAutoSaved] = useState(false);
 
+  // Resolve clientId: if it's a UUID use directly, otherwise look up by name
+  const [resolvedClientId, setResolvedClientId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!clientId) { setResolvedClientId(null); return; }
+    if (isUUID(clientId)) { setResolvedClientId(clientId); return; }
+    // Look up by name
+    const resolve = async () => {
+      const { data } = await supabase
+        .from('clients')
+        .select('id')
+        .ilike('full_name', clientId.trim())
+        .limit(1)
+        .maybeSingle();
+      setResolvedClientId(data?.id || null);
+    };
+    resolve();
+  }, [clientId]);
+
   const hasBefore = !!beforeUrl && beforeUrl !== PLACEHOLDER;
   const hasAfter = !!afterUrl && afterUrl !== PLACEHOLDER;
   const hasBoth = hasBefore && hasAfter;
@@ -222,7 +243,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
       }
 
       const { data, error } = await supabase.functions.invoke('upload-client-photo', {
-        body: { artistProfileId, clientId, category, base64Data: base64, fileName: `${category}-${Date.now()}.${file.name.split('.').pop() || 'jpg'}` },
+        body: { artistProfileId, clientId: resolvedClientId || clientId, category, base64Data: base64, fileName: `${category}-${Date.now()}.${file.name.split('.').pop() || 'jpg'}` },
       });
       if (error) throw new Error(error.message || 'Upload failed');
       if (data?.error) throw new Error(data.error);
@@ -234,7 +255,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
     } finally {
       setUploading(false);
     }
-  }, [artistProfileId, clientId, isHe, toast]);
+  }, [artistProfileId, clientId, resolvedClientId, isHe, toast]);
   const handleUploadBefore = useCallback((f: File) => handleUpload(f, 'before'), [handleUpload]);
   const handleUploadAfter = useCallback((f: File) => handleUpload(f, 'after'), [handleUpload]);
 
@@ -256,7 +277,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
 
   // Auto-save collage when both images are present
   const autoSaveCollage = useCallback(async () => {
-    if (!collageRef.current || !artistProfileId || !clientId || autoSaved) return;
+    if (!collageRef.current || !artistProfileId || !resolvedClientId || autoSaved) return;
     try {
       const clone = collageRef.current.cloneNode(true) as HTMLElement;
       const images = clone.querySelectorAll('img');
@@ -285,7 +306,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
       const base64 = canvas.toDataURL('image/jpeg', 0.85);
       
       const { error } = await supabase.functions.invoke('upload-client-photo', {
-        body: { artistProfileId, clientId, category: 'collage', base64Data: base64, fileName: `collage-${Date.now()}.jpg` },
+        body: { artistProfileId, clientId: resolvedClientId, category: 'collage', base64Data: base64, fileName: `collage-${Date.now()}.jpg` },
       });
       if (!error) {
         setAutoSaved(true);
@@ -294,7 +315,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
     } catch (e) {
       console.error('Auto-save collage failed:', e);
     }
-  }, [artistProfileId, clientId, autoSaved]);
+  }, [artistProfileId, resolvedClientId, autoSaved]);
 
   // Trigger auto-save when both images ready
   const newHasBefore = !!beforeUrl && beforeUrl !== PLACEHOLDER;
@@ -363,7 +384,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
   const handleSaveToGallery = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!collageRef.current || !hasBoth || !artistProfileId || !clientId) return;
+    if (!collageRef.current || !hasBoth || !artistProfileId || !resolvedClientId) return;
     setSavingToGallery(true);
     try {
       const clone = collageRef.current.cloneNode(true) as HTMLElement;
@@ -396,7 +417,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
       const { data, error } = await supabase.functions.invoke('upload-client-photo', {
         body: {
           artistProfileId,
-          clientId: clientId.replace(/[^a-zA-Z0-9_-]/g, '_'),
+          clientId: resolvedClientId,
           category: 'gallery-collage',
           base64Data: base64,
           fileName: `collage-${Date.now()}.jpg`,
@@ -409,7 +430,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
       const { error: insertError } = await supabase
         .from('client_gallery_photos')
         .insert({
-          client_id: clientId,
+          client_id: resolvedClientId,
           artist_id: artistProfileId,
           storage_path: data.storagePath,
           public_url: data.url,
