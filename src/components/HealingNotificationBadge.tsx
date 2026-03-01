@@ -47,7 +47,7 @@ export default function HealingNotificationBadge({ clientName, day, hasAutomatio
         <TooltipTrigger asChild>
           <button
             onClick={(e) => { e.stopPropagation(); onManualSend(); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all active:scale-95 border border-accent/30 hover:bg-accent/10 text-accent-foreground"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 border-2 border-accent bg-accent/5 hover:bg-accent/15 text-foreground"
           >
             <MessageCircle className="w-3 h-3" />
             {isHe ? 'שלחי בוואטסאפ' : 'Send via WhatsApp'}
