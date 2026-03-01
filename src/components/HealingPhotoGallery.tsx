@@ -356,46 +356,60 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     );
   }
 
-  const renderEditControls = (index: number, label: string) => {
-    const isActive = activeEditIndex === index;
+  const renderEditToolbar = () => {
+    const activeIdx = activeEditIndex ?? 0;
+    const t = transforms[activeIdx];
     return (
-      <div className="flex flex-col items-center gap-1 mt-1">
-        <button
-          onClick={() => setActiveEditIndex(isActive ? null : index)}
-          className="text-[10px] font-bold font-serif px-3 py-1 rounded-full transition-all"
-          style={{
-            background: isActive ? GOLD_GRADIENT : '#fff',
-            border: `1.5px solid ${GOLD}`,
-            color: isActive ? '#5C4033' : GOLD_DARK,
-          }}
-        >
-          <Move className="w-3 h-3 inline mr-1" />
-          {isActive ? `עריכת ${label} פעילה` : `ערכי ${label}`}
-        </button>
-        {isActive && (
-          <div className="flex items-center gap-1.5">
-            <button onClick={() => updateTransform(index, { scale: transforms[index].scale + 0.1 })}
-              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}>
-              <ZoomIn className="w-3.5 h-3.5" />
-            </button>
-            <button onClick={() => updateTransform(index, { scale: Math.max(0.3, transforms[index].scale - 0.1) })}
-              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}>
-              <ZoomOut className="w-3.5 h-3.5" />
-            </button>
-            <button onClick={() => updateTransform(index, { rotation: transforms[index].rotation - 1 })}
-              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}
-              title="סיבוב שמאלה 1°">
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
-            <button onClick={() => updateTransform(index, { rotation: transforms[index].rotation + 1 })}
-              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}
-              title="סיבוב ימינה 1°">
-              <RotateCw className="w-3.5 h-3.5" />
-            </button>
-            <button onClick={() => updateTransform(index, defaultTransform())}
-              className="text-[9px] font-bold px-2 py-1 rounded-full border" style={{ borderColor: GOLD, color: GOLD_DARK }}>
-              איפוס
-            </button>
+      <div className="flex flex-col items-center gap-2 mt-2">
+        {/* Tab selector */}
+        <div className="flex rounded-full overflow-hidden border" style={{ borderColor: `${GOLD}66` }}>
+          {(['לפני', 'אחרי'] as const).map((label, i) => {
+            const isActive = activeEditIndex === i;
+            return (
+              <button
+                key={i}
+                onClick={() => setActiveEditIndex(isActive ? null : i)}
+                className="px-5 py-1.5 text-[11px] font-serif font-semibold tracking-wide transition-all"
+                style={{
+                  background: isActive ? GOLD_GRADIENT : 'transparent',
+                  color: isActive ? '#5C4033' : GOLD_DARK,
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Toolbar */}
+        {activeEditIndex !== null && (
+          <div
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full backdrop-blur-sm"
+            style={{ background: 'rgba(255,252,247,0.85)', boxShadow: `0 2px 12px -3px ${GOLD}44, 0 1px 3px rgba(0,0,0,0.06)`, border: `1px solid ${GOLD}33` }}
+          >
+            {[
+              { icon: <ZoomIn className="w-4 h-4" />, action: () => updateTransform(activeIdx, { scale: t.scale + 0.1 }), title: 'זום+' },
+              { icon: <ZoomOut className="w-4 h-4" />, action: () => updateTransform(activeIdx, { scale: Math.max(0.3, t.scale - 0.1) }), title: 'זום-' },
+              null,
+              { icon: <RotateCcw className="w-4 h-4" />, action: () => updateTransform(activeIdx, { rotation: t.rotation - 1 }), title: '↺ 1°' },
+              { icon: <RotateCw className="w-4 h-4" />, action: () => updateTransform(activeIdx, { rotation: t.rotation + 1 }), title: '↻ 1°' },
+              null,
+              { icon: <span className="text-[10px] font-serif font-bold">איפוס</span>, action: () => updateTransform(activeIdx, defaultTransform()), title: 'איפוס' },
+            ].map((item, idx) =>
+              item === null ? (
+                <div key={`sep-${idx}`} className="w-px h-5 mx-0.5" style={{ background: `${GOLD}33` }} />
+              ) : (
+                <button
+                  key={idx}
+                  onClick={item.action}
+                  title={item.title}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                  style={{ color: GOLD_DARK }}
+                >
+                  {item.icon}
+                </button>
+              )
+            )}
           </div>
         )}
       </div>
@@ -559,8 +573,13 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
             <div className="flex" style={{ aspectRatio: '2/1' }}>
               {/* After (left side) */}
               <div
-                className="w-1/2 relative overflow-hidden"
-                style={{ cursor: activeEditIndex === 1 ? 'grab' : 'default', touchAction: 'none' }}
+                className="w-1/2 relative overflow-hidden transition-shadow duration-200"
+                style={{
+                  cursor: activeEditIndex === 1 ? 'grab' : 'pointer',
+                  touchAction: 'none',
+                  boxShadow: activeEditIndex === 1 ? `inset 0 0 0 2.5px ${GOLD}, inset 0 0 20px -6px ${GOLD}55` : 'none',
+                }}
+                onClick={() => { if (activeEditIndex !== 1) setActiveEditIndex(1); }}
                 onPointerDown={(e) => handlePointerDown(e, 1)}
                 onPointerMove={(e) => handlePointerMove(e, 1)}
                 onPointerUp={handlePointerUp}
@@ -583,8 +602,13 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
               {/* Before (right side) */}
               <div
-                className="w-1/2 relative overflow-hidden"
-                style={{ cursor: activeEditIndex === 0 ? 'grab' : 'default', touchAction: 'none' }}
+                className="w-1/2 relative overflow-hidden transition-shadow duration-200"
+                style={{
+                  cursor: activeEditIndex === 0 ? 'grab' : 'pointer',
+                  touchAction: 'none',
+                  boxShadow: activeEditIndex === 0 ? `inset 0 0 0 2.5px ${GOLD}, inset 0 0 20px -6px ${GOLD}55` : 'none',
+                }}
+                onClick={() => { if (activeEditIndex !== 0) setActiveEditIndex(0); }}
                 onPointerDown={(e) => handlePointerDown(e, 0)}
                 onPointerMove={(e) => handlePointerMove(e, 0)}
                 onPointerUp={handlePointerUp}
@@ -616,11 +640,8 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
             </div>
           </div>
 
-          {/* Manual edit controls - RTL: After on left, Before on right */}
-          <div className="flex justify-center gap-6" dir="rtl">
-            {renderEditControls(0, 'לפני')}
-            {renderEditControls(1, 'אחרי')}
-          </div>
+          {/* Floating edit toolbar */}
+          {renderEditToolbar()}
 
           {/* Save button */}
           <div className="flex justify-center">
