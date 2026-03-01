@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Loader2, Download, Pencil, X } from 'lucide-react';
+import { Upload, Loader2, Download, Pencil, X, Wand2, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
 import ImageEditorDialog from './ImageEditorDialog';
@@ -171,6 +171,8 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
   const [editingCategory, setEditingCategory] = useState<'before' | 'after'>('before');
   const [editingSrc, setEditingSrc] = useState('');
   const [autoSaved, setAutoSaved] = useState(false);
+  const [aligning, setAligning] = useState(false);
+  const [alignedImage, setAlignedImage] = useState<string | null>(null);
 
   const clearCollageSelection = useCallback(() => {
     setBeforeUrl('');
@@ -298,7 +300,57 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
     toast({ title: isHe ? 'התמונה עודכנה ✨' : 'Image updated ✨' });
   }, [editingCategory, isHe, toast]);
 
-  // Auto-save collage when both images are present
+  // AI Auto-Align handler
+  const handleAiAlign = useCallback(async () => {
+    if (!beforeUrl || !afterUrl || beforeUrl === PLACEHOLDER || afterUrl === PLACEHOLDER) {
+      toast({ title: isHe ? 'יש להעלות שתי תמונות (לפני ואחרי)' : 'Please upload both Before and After photos', variant: 'destructive' });
+      return;
+    }
+    setAligning(true);
+    setAlignedImage(null);
+    try {
+      const toBase64 = async (src: string): Promise<string> => {
+        if (src.startsWith('data:')) return src;
+        const res = await fetch(src);
+        const blob = await res.blob();
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+      };
+      const [b64Before, b64After] = await Promise.all([toBase64(beforeUrl), toBase64(afterUrl)]);
+
+      const { data, error } = await supabase.functions.invoke('ai-align', {
+        body: {
+          beforeUrl: b64Before,
+          afterUrl: b64After,
+          artistProfileId: artistProfileId || 'general',
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error === 'rate_limit') {
+        toast({ title: isHe ? 'יותר מדי בקשות, נסי שוב בעוד רגע' : 'Rate limit reached, try again shortly', variant: 'destructive' });
+        return;
+      }
+      if (data?.error === 'payment_required') {
+        toast({ title: isHe ? 'נגמרו קרדיטים של AI' : 'AI credits depleted', variant: 'destructive' });
+        return;
+      }
+      if (data?.error) throw new Error(data.error);
+
+      const url = data?.alignedUrl;
+      if (!url) throw new Error('No result from AI');
+      setAlignedImage(url);
+      toast({ title: isHe ? 'היישור הושלם בהצלחה ✨' : 'Alignment complete ✨' });
+    } catch (err: any) {
+      console.error('AI align error:', err);
+      toast({ title: isHe ? 'שגיאה ביישור AI' : 'AI alignment failed', description: err?.message, variant: 'destructive' });
+    } finally {
+      setAligning(false);
+    }
+  }, [beforeUrl, afterUrl, artistProfileId, isHe, toast]);
   const autoSaveCollage = useCallback(async () => {
     if (!collageRef.current || !artistProfileId || autoSaved) return;
     try {
@@ -516,11 +568,39 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
 
       {/* Actions */}
       <div className="px-5 pb-5 pt-3 flex flex-col items-center gap-3">
+        {/* AI Auto-Align Button - always visible */}
+        <button
+          onClick={handleAiAlign}
+          disabled={!hasBoth || aligning}
+          className="relative inline-flex items-center gap-2.5 px-7 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-[0.98] overflow-hidden"
+          style={{
+            background: aligning
+              ? 'linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #B8860B 100%)'
+              : 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
+            color: '#ffffff',
+            boxShadow: hasBoth && !aligning
+              ? '0 0 20px rgba(212, 175, 55, 0.5), 0 0 40px rgba(212, 175, 55, 0.2), 0 4px 14px -2px rgba(212, 175, 55, 0.4)'
+              : '0 2px 8px rgba(0,0,0,0.1)',
+            border: 'none',
+            animation: hasBoth && !aligning ? 'ai-glow-pulse 2s ease-in-out infinite' : 'none',
+          }}
+        >
+          {aligning ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Wand2 className="w-4 h-4" />
+          )}
+          {aligning
+            ? (isHe ? 'מיישר עם AI...' : 'Aligning with AI...')
+            : (isHe ? '✨ יישור אוטומטי עם AI' : '✨ Auto-Align with AI')}
+        </button>
+
         {(hasBefore || hasAfter) && (
           <button
             onClick={() => {
               clearCollageSelection();
               setSavedToGallery(false);
+              setAlignedImage(null);
             }}
             className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all border border-border text-muted-foreground hover:bg-muted/50"
           >
@@ -549,6 +629,54 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
             </button>
           </div>
         )}
+
+        {/* AI Aligned Result Preview */}
+        {alignedImage && (
+          <div className="w-full flex flex-col items-center gap-3 mt-2">
+            <p className="text-xs font-serif font-semibold tracking-widest uppercase text-accent">
+              {isHe ? 'תוצאת יישור AI' : 'AI Aligned Result'}
+            </p>
+            <div className="w-full rounded-2xl overflow-hidden shadow-lg border-2 border-accent/50">
+              <img src={alignedImage} alt="AI Aligned Collage" className="w-full h-auto" />
+            </div>
+            <div className="flex items-center gap-3 flex-wrap justify-center">
+              <button
+                onClick={() => {
+                  setEditingSrc(alignedImage);
+                  setEditingCategory('after');
+                  setEditorOpen(true);
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold font-serif transition-all hover:scale-105 border border-accent/50 text-accent"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                {isHe ? 'עריכה ידנית' : 'Manual Edit'}
+              </button>
+              <button
+                onClick={() => {
+                  if (!alignedImage) return;
+                  const link = document.createElement('a');
+                  link.download = `aligned-collage-${Date.now()}.png`;
+                  link.href = alignedImage;
+                  link.target = '_blank';
+                  link.click();
+                  toast({ title: isHe ? 'הקולאז׳ המיושר נשמר ✨' : 'Aligned collage saved ✨' });
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold font-serif transition-all hover:scale-105 border border-accent/50 text-accent"
+              >
+                <Download className="w-3.5 h-3.5" />
+                {isHe ? 'הורדה' : 'Download'}
+              </button>
+              <button
+                onClick={() => setAlignedImage(null)}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold font-serif transition-all hover:scale-105 border border-destructive/50 text-destructive"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                {isHe ? 'ניקוי' : 'Clear'}
+              </button>
+            </div>
+          </div>
+        )}
+
         {savedToGallery && (
           <p className="text-center text-[10px] text-accent font-medium">
             {isHe ? '✅ הקולאז׳ נשמר בגלריה המשותפת' : '✅ Collage saved to shared gallery'}

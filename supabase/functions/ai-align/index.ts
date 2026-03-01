@@ -23,8 +23,26 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Auto-fetch artist logo from profile if not provided
+    let resolvedLogoUrl = logoUrl || null;
+    if (!resolvedLogoUrl && artistProfileId && artistProfileId !== 'general') {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('logo_url')
+        .eq('id', artistProfileId)
+        .maybeSingle();
+      if (profile?.logo_url) {
+        resolvedLogoUrl = profile.logo_url;
+      }
+    }
+
     // Fetch images and convert to base64
     const fetchImage = async (url: string) => {
+      if (url.startsWith('data:')) return url;
       const resp = await fetch(url);
       if (!resp.ok) throw new Error(`Failed to fetch image: ${url}`);
       const buf = await resp.arrayBuffer();
@@ -36,14 +54,14 @@ serve(async (req) => {
     };
 
     const imagesToFetch = [fetchImage(beforeUrl), fetchImage(afterUrl)];
-    if (logoUrl) imagesToFetch.push(fetchImage(logoUrl));
+    if (resolvedLogoUrl) imagesToFetch.push(fetchImage(resolvedLogoUrl));
 
     const results = await Promise.all(imagesToFetch);
     const beforeB64 = results[0];
     const afterB64 = results[1];
     const logoB64 = results[2] || null;
 
-    console.log("Sending images to AI for face-aligned collage...");
+    console.log("Sending images to AI for face-aligned collage...", { hasLogo: !!logoB64 });
 
     const contentParts: any[] = [
       {
@@ -65,7 +83,7 @@ LAYOUT:
 - Add small elegant labels: 'לפני' (Before) on the right, 'אחרי' (After) on the left, at the bottom.
 - Both images must be the same height and width.
 - Use a clean white background.
-${logoB64 ? "- Place the provided logo as a subtle watermark at the bottom center of the collage." : ""}
+${logoB64 ? "- IMPORTANT: Place the provided logo as a semi-transparent watermark in the bottom-right corner of the final collage. Make it about 15% of the collage width with ~40% opacity so it's visible but doesn't obstruct the work." : ""}
 
 OUTPUT: A single high-quality image ready for Instagram/portfolio use. Minimal, luxurious, professional.`,
       },
@@ -115,10 +133,6 @@ OUTPUT: A single high-quality image ready for Instagram/portfolio use. Minimal, 
     }
 
     // Upload result to storage
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
     const base64Data = generatedImage.includes(",") ? generatedImage.split(",")[1] : generatedImage;
     const binaryStr = atob(base64Data);
     const bytes = new Uint8Array(binaryStr.length);
