@@ -38,6 +38,8 @@ export default function FaqManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFaq, setEditingFaq] = useState<FaqItem | null>(null);
   const [form, setForm] = useState(emptyFaq);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -134,6 +136,40 @@ export default function FaqManager() {
     fetchFaqs();
   };
 
+  const handleDragStart = (index: number) => {
+    setDragIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setOverIndex(index);
+  };
+
+  const handleDrop = async (targetIndex: number) => {
+    if (dragIndex === null || dragIndex === targetIndex) {
+      setDragIndex(null);
+      setOverIndex(null);
+      return;
+    }
+    const reordered = [...faqs];
+    const [moved] = reordered.splice(dragIndex, 1);
+    reordered.splice(targetIndex, 0, moved);
+    setFaqs(reordered);
+    setDragIndex(null);
+    setOverIndex(null);
+
+    const updates = reordered.map((faq, i) =>
+      supabase.from('faqs').update({ sort_order: i }).eq('id', faq.id)
+    );
+    await Promise.all(updates);
+    toast.success('סדר עודכן');
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+    setOverIndex(null);
+  };
+
   if (!isAdmin) return null;
 
   return (
@@ -162,10 +198,19 @@ export default function FaqManager() {
           <p className="text-center text-muted-foreground py-12">אין שאלות עדיין</p>
         ) : (
           <div className="space-y-3">
-            {faqs.map((faq) => (
+            {faqs.map((faq, index) => (
               <Card
                 key={faq.id}
-                className={`p-4 flex items-start gap-4 transition-opacity ${!faq.is_active ? 'opacity-50' : ''}`}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={() => handleDrop(index)}
+                onDragEnd={handleDragEnd}
+                className={`p-4 flex items-start gap-4 transition-all cursor-grab active:cursor-grabbing ${
+                  !faq.is_active ? 'opacity-50' : ''
+                } ${dragIndex === index ? 'opacity-30 scale-95' : ''} ${
+                  overIndex === index && dragIndex !== index ? 'border-primary border-2' : ''
+                }`}
               >
                 <GripVertical className="w-4 h-4 mt-1 text-muted-foreground/40 shrink-0" />
                 <div className="flex-1 min-w-0 space-y-1">
