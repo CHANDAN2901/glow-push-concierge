@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
-import { Download, Camera, Pencil, Save } from 'lucide-react';
+import { Download, Camera, Pencil, Save, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import ImageEditorDialog from './ImageEditorDialog';
-import { addToClientGallery } from './ClientGallery';
+import { useClientGallery } from '@/hooks/useClientGallery';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
@@ -11,18 +11,22 @@ const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 
 
 interface DualPhotoGalleryProps {
   clientId?: string;
+  artistId?: string;
 }
 
-export function DualPhotoGallery({ clientId }: DualPhotoGalleryProps) {
+export function DualPhotoGallery({ clientId, artistId }: DualPhotoGalleryProps) {
   const [before, setBefore] = useState<string | null>(null);
   const [after, setAfter] = useState<string | null>(null);
   const collageRef = useRef<HTMLDivElement>(null);
   const [savingCollage, setSavingCollage] = useState(false);
+  const [savingPhoto, setSavingPhoto] = useState<'before' | 'after' | null>(null);
 
   // Editor state
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<'before' | 'after'>('before');
   const [editingSrc, setEditingSrc] = useState('');
+
+  const { uploadPhoto } = useClientGallery(clientId, artistId);
 
   const bothUploaded = before && after;
 
@@ -58,8 +62,7 @@ export function DualPhotoGallery({ clientId }: DualPhotoGalleryProps) {
     try {
       const canvas = await html2canvas(collageRef.current, { useCORS: true, scale: 2 });
       const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-      addToClientGallery(clientId, dataUrl, 'collage');
-      window.dispatchEvent(new Event('client-gallery-updated'));
+      await uploadPhoto(dataUrl, { photoType: 'collage', label: 'Before & After' });
       toast({ title: 'הקולאז׳ נשמר בגלריה ✨' });
     } catch (err) {
       console.error('Save collage error:', err);
@@ -67,19 +70,26 @@ export function DualPhotoGallery({ clientId }: DualPhotoGalleryProps) {
     } finally {
       setSavingCollage(false);
     }
-  }, [clientId]);
+  }, [clientId, uploadPhoto]);
 
   const savePhotoToGallery = useCallback(async (which: 'before' | 'after') => {
     if (!clientId) return;
     const src = which === 'before' ? before : after;
     if (!src) return;
-    const b64 = await toBase64(src);
-    if (b64) {
-      addToClientGallery(clientId, b64, 'photo');
-      window.dispatchEvent(new Event('client-gallery-updated'));
-      toast({ title: 'התמונה נשמרה בגלריה 📸' });
+    setSavingPhoto(which);
+    try {
+      const b64 = await toBase64(src);
+      if (b64) {
+        await uploadPhoto(b64, { photoType: 'healing', label: which === 'before' ? 'לפני' : 'אחרי' });
+        toast({ title: 'התמונה נשמרה בגלריה 📸' });
+      }
+    } catch (err) {
+      console.error('Save photo error:', err);
+      toast({ title: 'שגיאה בשמירה', variant: 'destructive' });
+    } finally {
+      setSavingPhoto(null);
     }
-  }, [before, after, clientId]);
+  }, [before, after, clientId, uploadPhoto]);
 
   return (
     <div className="space-y-4">
@@ -102,10 +112,11 @@ export function DualPhotoGallery({ clientId }: DualPhotoGalleryProps) {
               {clientId && (
                 <button
                   onClick={(e) => { e.stopPropagation(); savePhotoToGallery('after'); }}
+                  disabled={savingPhoto === 'after'}
                   className="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md z-20"
                   style={{ background: '#ffffff', border: `2px solid ${GOLD}` }}
                 >
-                  <Save className="w-3 h-3" style={{ color: GOLD_DARK }} />
+                  {savingPhoto === 'after' ? <Loader2 className="w-3 h-3 animate-spin" style={{ color: GOLD_DARK }} /> : <Save className="w-3 h-3" style={{ color: GOLD_DARK }} />}
                 </button>
               )}
             </>
@@ -142,10 +153,11 @@ export function DualPhotoGallery({ clientId }: DualPhotoGalleryProps) {
               {clientId && (
                 <button
                   onClick={(e) => { e.stopPropagation(); savePhotoToGallery('before'); }}
+                  disabled={savingPhoto === 'before'}
                   className="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md z-20"
                   style={{ background: '#ffffff', border: `2px solid ${GOLD}` }}
                 >
-                  <Save className="w-3 h-3" style={{ color: GOLD_DARK }} />
+                  {savingPhoto === 'before' ? <Loader2 className="w-3 h-3 animate-spin" style={{ color: GOLD_DARK }} /> : <Save className="w-3 h-3" style={{ color: GOLD_DARK }} />}
                 </button>
               )}
             </>
@@ -201,7 +213,7 @@ export function DualPhotoGallery({ clientId }: DualPhotoGalleryProps) {
                   border: 'none',
                 }}
               >
-                <Save className="w-4 h-4" />
+                {savingCollage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {savingCollage ? 'שומר...' : 'שמור לגלריה 📸'}
               </button>
             </div>
