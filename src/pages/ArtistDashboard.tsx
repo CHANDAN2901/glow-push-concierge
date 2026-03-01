@@ -1556,6 +1556,7 @@ const ArtistDashboard = () => {
                           clientName={client.name}
                           day={client.day}
                           hasAutomation={hasWhatsAppAutomation}
+                          hasTemplate={hasMessageForDay(client.day)}
                           onManualSend={() => sendSmartReminder(client)}
                         />
                       </div>

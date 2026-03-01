@@ -5,19 +5,16 @@ interface Props {
   clientName: string;
   day: number;
   hasAutomation: boolean;
+  hasTemplate?: boolean;
   onManualSend: () => void;
 }
 
-const NOTIFICATION_DAYS = [1, 4, 10];
-
-export default function HealingNotificationBadge({ clientName, day, hasAutomation, onManualSend }: Props) {
+export default function HealingNotificationBadge({ clientName, day, hasAutomation, hasTemplate, onManualSend }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
 
-  // Check if this is a notification day
-  const isNotifDay = NOTIFICATION_DAYS.includes(day);
-
-  if (!isNotifDay) return null;
+  // Only show if there's a matching template for this day
+  if (!hasTemplate) return null;
 
   if (hasAutomation) {
     // Premium: show auto-sent indicator
