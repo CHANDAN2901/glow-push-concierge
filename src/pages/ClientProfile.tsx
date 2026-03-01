@@ -6,8 +6,8 @@ import {
   LifeBuoy, HelpCircle, Eye, Send, Play, Mic,
 } from 'lucide-react';
 import DualPhotoGallery from '@/components/DualPhotoGallery';
-import ClientGallery from '@/components/ClientGallery';
-import ClientPhotoTimeline, { addToGallery } from '@/components/ClientPhotoTimeline';
+import ClientSharedGallery from '@/components/ClientSharedGallery';
+import ClientPhotoTimeline from '@/components/ClientPhotoTimeline';
 import HealingPhotoGallery from '@/components/HealingPhotoGallery';
 import { useI18n } from '@/lib/i18n';
 import { STUDIO_NAME } from '@/lib/branding';
@@ -71,6 +71,9 @@ const ClientProfile = () => {
   const cleanPhone = phone.replace(/[^0-9]/g, '');
   const intlPhone = cleanPhone.startsWith('0') ? `972${cleanPhone.slice(1)}` : cleanPhone;
 
+  const resolvedClientId = client?.id || clientDbId || clientName;
+  const resolvedArtistId = artistId || client?.artist_id || '';
+
   // Fetch client from DB
   useEffect(() => {
     if (!clientDbId && !clientName) return;
@@ -106,12 +109,12 @@ const ClientProfile = () => {
   const healthDeclWhatsAppUrl = useMemo(() => {
     if (!intlPhone) return '#';
     const baseUrl = window.location.origin;
-    const declLink = `${baseUrl}/health-declaration?name=${encodeURIComponent(name)}&client_phone=${encodeURIComponent(phone)}&artist_id=${encodeURIComponent(artistId || client?.artist_id || '')}`;
+    const declLink = `${baseUrl}/health-declaration?name=${encodeURIComponent(name)}&client_phone=${encodeURIComponent(phone)}&artist_id=${encodeURIComponent(resolvedArtistId)}`;
     const message = lang === 'en'
       ? `Hi ${name} 💛\nPlease fill out the health declaration before your appointment 🩺✨\n${declLink}`
       : `היי ${name} 💛\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺✨\n${declLink}`;
     return `https://wa.me/${intlPhone}?text=${encodeURIComponent(message)}`;
-  }, [intlPhone, name, phone, artistId, client?.artist_id, lang]);
+  }, [intlPhone, name, phone, resolvedArtistId, lang]);
 
   // Journey timeline calculation
   const journeyTimeline = useMemo(() => {
@@ -149,7 +152,6 @@ const ClientProfile = () => {
       return;
     }
 
-    // Request mic permission explicitly
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       stream.getTracks().forEach(t => t.stop());
 
@@ -279,8 +281,7 @@ const ClientProfile = () => {
               const baseUrl = window.location.origin;
               const treatmentType = client?.treatment_type || 'eyebrows';
               const startDate = client?.treatment_date || new Date().toISOString().split('T')[0];
-              const resolvedClientId = client?.id || clientDbId;
-              const previewUrl = `${baseUrl}/client?name=${encodeURIComponent(name)}&treatment=${encodeURIComponent(treatmentType)}&start=${startDate}&artist_id=${encodeURIComponent(artistId || client?.artist_id || '')}&client_id=${encodeURIComponent(resolvedClientId)}`;
+              const previewUrl = `${baseUrl}/client?name=${encodeURIComponent(name)}&treatment=${encodeURIComponent(treatmentType)}&start=${startDate}&artist_id=${encodeURIComponent(resolvedArtistId)}&client_id=${encodeURIComponent(resolvedClientId)}`;
               window.open(previewUrl, '_blank');
             }}
             className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:opacity-90 active:scale-[0.97]"
@@ -302,11 +303,7 @@ const ClientProfile = () => {
               <span className="text-xs text-muted-foreground">{lang === 'en' ? 'Loading...' : 'טוען...'}</span>
             ) : (
               <>
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-                  healthSigned
-                    ? 'text-white'
-                    : 'text-white'
-                }`} style={{
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-white`} style={{
                   background: healthSigned ? GOLD_GRADIENT : GOLD,
                 }}>
                   {healthSigned
@@ -320,7 +317,6 @@ const ClientProfile = () => {
             )}
           </div>
 
-          {/* Send health declaration via WhatsApp */}
           {!healthSigned && (
             <a
               href={healthDeclWhatsAppUrl}
@@ -397,44 +393,45 @@ const ClientProfile = () => {
           delay="300"
         >
           <DualPhotoGallery
-            clientId={client?.id || clientDbId || clientName}
+            clientId={resolvedClientId}
+            artistId={resolvedArtistId}
           />
 
           {/* Photo Gallery */}
-          {(client?.id || clientDbId || clientName) && (
+          {resolvedClientId && (
             <div className="mt-6 pt-5" style={{ borderTop: `1px solid ${GOLD}30` }}>
               <h4 className="text-sm font-serif font-semibold mb-3 text-center" style={{ color: GOLD_DARK }}>
                 📸 גלריית הלקוחה
               </h4>
-              <ClientPhotoTimeline clientId={client?.id || clientDbId || clientName} />
+              <ClientPhotoTimeline clientId={resolvedClientId} artistId={resolvedArtistId} />
             </div>
           )}
         </SectionCard>
 
         {/* ── Healing Photo Gallery ── */}
-        {(client?.id || clientDbId || clientName) && (
+        {resolvedClientId && (
           <SectionCard
             icon={<Camera className="w-5 h-5" style={{ color: GOLD }} />}
             title="גלריית תמונות החלמה 🩹"
             delay="350"
           >
             <HealingPhotoGallery
-              clientId={client?.id || clientDbId || clientName}
+              clientId={resolvedClientId}
               clientName={name}
               treatmentDate={client?.treatment_date}
-              artistId={artistId || client?.artist_id}
+              artistId={resolvedArtistId}
             />
           </SectionCard>
         )}
 
-        {/* ── My Gallery ── */}
-        {(client?.id || clientDbId || clientName) && (
+        {/* ── Shared Gallery (from DB) ── */}
+        {resolvedClientId && (
           <SectionCard
             icon={<Camera className="w-5 h-5" style={{ color: GOLD }} />}
             title="הגלריה שלי 🖼️"
             delay="400"
           >
-            <ClientGallery clientId={client?.id || clientDbId || clientName} />
+            <ClientSharedGallery clientId={resolvedClientId} artistId={resolvedArtistId} />
           </SectionCard>
         )}
 

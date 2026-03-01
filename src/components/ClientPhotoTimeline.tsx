@@ -1,101 +1,63 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Camera, X, Calendar as CalendarIcon, Save } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Camera, X, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
+import { useClientGallery } from '@/hooks/useClientGallery';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
-const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)';
-
-export interface GalleryPhoto {
-  id: string;
-  date: string;
-  dataUrl: string;
-  label?: string;
-}
 
 interface ClientPhotoTimelineProps {
   clientId: string;
+  artistId?: string;
 }
 
-const getKey = (clientId: string) => `pmu_gallery_${clientId}`;
-
-/** Load gallery from localStorage */
-export const loadGallery = (clientId: string): GalleryPhoto[] => {
-  try {
-    const saved = localStorage.getItem(getKey(clientId));
-    return saved ? JSON.parse(saved) : [];
-  } catch { return []; }
-};
-
-/** Save a photo to gallery */
-export const addToGallery = (clientId: string, dataUrl: string, label?: string): GalleryPhoto[] => {
-  const photos = loadGallery(clientId);
-  const newPhoto: GalleryPhoto = {
-    id: `${Date.now()}`,
-    date: new Date().toISOString(),
-    dataUrl,
-    label,
-  };
-  const updated = [newPhoto, ...photos];
-  try {
-    localStorage.setItem(getKey(clientId), JSON.stringify(updated));
-  } catch (e) {
-    console.error('Gallery save error:', e);
-  }
-  return updated;
-};
-
-const ClientPhotoTimeline = ({ clientId }: ClientPhotoTimelineProps) => {
-  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
-  const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
+const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) => {
+  const { photos, loading, uploadPhoto, deletePhoto } = useClientGallery(clientId, artistId);
+  const [selectedPhoto, setSelectedPhoto] = useState<typeof photos[0] | null>(null);
+  const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Load from localStorage
-  useEffect(() => {
-    setPhotos(loadGallery(clientId));
-  }, [clientId]);
-
-  // Expose reload for parent
-  const reload = useCallback(() => {
-    setPhotos(loadGallery(clientId));
-  }, [clientId]);
-
-  // Listen for custom gallery update events
-  useEffect(() => {
-    const handler = () => reload();
-    window.addEventListener('gallery-updated', handler);
-    return () => window.removeEventListener('gallery-updated', handler);
-  }, [reload]);
-
-  const persist = (updated: GalleryPhoto[]) => {
-    setPhotos(updated);
+  const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
     try {
-      localStorage.setItem(getKey(clientId), JSON.stringify(updated));
-    } catch (e) {
-      console.error('Gallery save error:', e);
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+      await uploadPhoto(base64, { photoType: 'healing', label: 'תמונת גלריה' });
+      toast({ title: 'התמונה נשמרה בגלריה ✨' });
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast({ title: 'שגיאה בהעלאת התמונה', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+      e.target.value = '';
     }
   };
 
-  const handleAddPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const updated = addToGallery(clientId, reader.result as string);
-      setPhotos(updated);
-      toast({ title: 'התמונה נשמרה בגלריה ✨' });
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+  const removePhoto = async (id: string) => {
+    try {
+      await deletePhoto(id);
+      if (selectedPhoto?.id === id) setSelectedPhoto(null);
+    } catch (err) {
+      console.error('Delete error:', err);
+      toast({ title: 'שגיאה במחיקה', variant: 'destructive' });
+    }
   };
 
-  const removePhoto = (id: string) => {
-    persist(photos.filter(p => p.id !== id));
-    if (selectedPhoto?.id === id) setSelectedPhoto(null);
-  };
+  const sortedPhotos = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  const sortedPhotos = [...photos].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  if (loading) {
+    return (
+      <div className="flex justify-center py-6">
+        <Loader2 className="w-5 h-5 animate-spin" style={{ color: GOLD }} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -103,15 +65,16 @@ const ClientPhotoTimeline = ({ clientId }: ClientPhotoTimelineProps) => {
       <div className="flex justify-center">
         <button
           onClick={() => fileRef.current?.click()}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98]"
+          disabled={uploading}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
           style={{
             background: '#ffffff',
             border: `2.5px solid ${GOLD}`,
             color: GOLD_DARK,
           }}
         >
-          <Camera className="w-4 h-4" />
-          הוסיפי תמונה לגלריה
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+          {uploading ? 'מעלה...' : 'הוסיפי תמונה לגלריה'}
         </button>
         <input
           ref={fileRef}
@@ -138,7 +101,7 @@ const ClientPhotoTimeline = ({ clientId }: ClientPhotoTimelineProps) => {
             >
               <div className="relative aspect-square overflow-hidden">
                 <img
-                  src={photo.dataUrl}
+                  src={photo.public_url}
                   alt={photo.label || ''}
                   className="w-full h-full object-cover"
                 />
@@ -152,7 +115,7 @@ const ClientPhotoTimeline = ({ clientId }: ClientPhotoTimelineProps) => {
                 {idx === 0 && (
                   <span
                     className="absolute top-1.5 right-1.5 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
-                    style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
                   >
                     חדש
                   </span>
@@ -161,7 +124,7 @@ const ClientPhotoTimeline = ({ clientId }: ClientPhotoTimelineProps) => {
               <div className="px-2.5 py-1.5 flex items-center gap-1.5">
                 <CalendarIcon className="w-3 h-3 shrink-0" style={{ color: GOLD_DARK }} />
                 <span className="text-[10px] font-serif font-semibold" style={{ color: '#333' }}>
-                  {format(new Date(photo.date), 'dd/MM/yyyy')}
+                  {format(new Date(photo.created_at), 'dd/MM/yyyy')}
                 </span>
               </div>
               {photo.label && (
@@ -187,13 +150,13 @@ const ClientPhotoTimeline = ({ clientId }: ClientPhotoTimelineProps) => {
             style={{ borderColor: GOLD }}
             onClick={(e) => e.stopPropagation()}
           >
-            <img src={selectedPhoto.dataUrl} alt="" className="w-full" />
+            <img src={selectedPhoto.public_url} alt="" className="w-full" />
             <div className="absolute bottom-0 inset-x-0 px-4 py-3 bg-white/90 backdrop-blur-sm flex items-center justify-between">
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-center gap-1.5">
                   <CalendarIcon className="w-3.5 h-3.5" style={{ color: GOLD_DARK }} />
                   <span className="text-sm font-serif font-semibold" style={{ color: '#333' }}>
-                    {format(new Date(selectedPhoto.date), 'dd/MM/yyyy')}
+                    {format(new Date(selectedPhoto.created_at), 'dd/MM/yyyy')}
                   </span>
                 </div>
                 {selectedPhoto.label && (
