@@ -492,32 +492,35 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     try {
       setSavingCollage(true);
       const canvas = await buildCollageCanvas();
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          toast({ title: 'שגיאה ביצירת התמונה', variant: 'destructive' });
-          return;
-        }
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = `collage-${clientName.replace(/\s+/g, '-')}-${format(new Date(), 'dd-MM-yyyy')}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        // Fallback for mobile: if download doesn't trigger, open in new tab
-        setTimeout(() => {
-          window.open(blobUrl, '_blank');
-        }, 500);
-        toast({ title: 'הקולאז׳ הורד בהצלחה ✅' });
-        // Clean up blob URL after delay
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-      }, 'image/jpeg', 0.95);
+      const fileName = `collage-${clientName.replace(/\s+/g, '-')}-${format(new Date(), 'dd-MM-yyyy')}.jpg`;
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.95));
+      if (!blob) throw new Error('Failed to create image blob');
+
+      const file = new File([blob], fileName, { type: 'image/jpeg' });
+      const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
+
+      if (nav.canShare && nav.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'GlowPush Collage' });
+        toast({ title: 'נפתח חלון שיתוף ✅' });
+        return;
+      }
+
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+      toast({ title: 'הקולאז׳ הורד בהצלחה ✅' });
     } catch (err: any) {
-      toast({ title: `שגיאה בהורדה: ${err?.message || 'Unknown'}`, variant: 'destructive' });
+      if (err?.name === 'AbortError') return;
+      toast({ title: `שגיאה בהורדה/שיתוף: ${err?.message || 'Unknown'}`, variant: 'destructive' });
     } finally {
       setSavingCollage(false);
     }
-  }, [buildCollageCanvas, clientName]);
+  }, [buildCollageCanvas, clientName, toast]);
 
   const sortedPhotos = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -883,7 +886,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
               style={{ background: '#ffffff', border: `2px solid ${GOLD}`, color: GOLD_DARK }}
             >
               <Download className="w-4 h-4" />
-              הורדה למכשיר 📲
+              הורדה / שיתוף
             </button>
           </div>
 
