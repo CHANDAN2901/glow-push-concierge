@@ -1,1 +1,4 @@
 project_id = "ohkvlgghqxxjtwqzwyvs"
+
+[functions.aftercare-cron]
+verify_jwt = false
