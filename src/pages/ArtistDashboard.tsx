@@ -749,20 +749,30 @@ const ArtistDashboard = () => {
   const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !approvedExceptions[c.name]);
 
   const sendSmartReminder = (client: ClientEntry) => {
-    if (!hasMessageForDay(client.day)) {
+    const clientDay = Number(client.day);
+    if (!Number.isFinite(clientDay)) {
       toast({ title: lang === 'en' ? 'Please define text for this day in Push Management' : 'נא להגדיר טקסט ליום זה במסך ניהול פושים', variant: 'destructive' });
       return;
     }
-    const aftercareMsg = getMessageForDay(client.day);
-    const msg = buildWhatsAppText(client.day, client.name, artistName || 'האמנית שלך');
+
+    const dayForTemplate = getMatchingDayValue(clientDay);
+
+    if (!hasMessageForDay(dayForTemplate)) {
+      toast({ title: lang === 'en' ? 'Please define text for this day in Push Management' : 'נא להגדיר טקסט ליום זה במסך ניהול פושים', variant: 'destructive' });
+      return;
+    }
+
+    const aftercareMsg = getMessageForDay(dayForTemplate);
+    const msg = buildWhatsAppText(dayForTemplate, client.name, artistName || 'האמנית שלך');
     if (!msg) return;
+
     const encoded = encodeURIComponent(msg);
     const cleanPhone = client.phone ? formatPhone(client.phone) : '';
     const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
     window.location.href = url;
 
     // Track send
-    const key = `${client.name}-day${aftercareMsg?.day ?? client.day}`;
+    const key = `${client.name}-day${aftercareMsg?.day ?? dayForTemplate}`;
     const now = new Date().toLocaleString('he-IL');
     const updated = { ...waSentLog, [key]: now };
     setWaSentLog(updated);
@@ -1563,7 +1573,8 @@ const ArtistDashboard = () => {
               ];
               const fallbackClients = clients.filter(c => {
                 if (c.pushOptedIn) return false;
-                return dayMessages.some(d => d.day === c.day);
+                const clientDay = Number(c.day);
+                return Number.isFinite(clientDay) && dayMessages.some(d => d.day === clientDay);
               });
               if (fallbackClients.length === 0) return null;
               return (
@@ -1573,14 +1584,16 @@ const ArtistDashboard = () => {
                   </h3>
                   <div className="space-y-2">
                     {fallbackClients.map((client, i) => {
-                      const matchDay = dayMessages.find(d => d.day === client.day);
-                      const hasDbMsg = hasMessageForDay(client.day);
-                      const msg = hasDbMsg ? buildWhatsAppText(client.day, client.name, artistName || 'האמנית שלך') : null;
+                      const clientDay = Number(client.day);
+                      const dayForTemplate = Number.isFinite(clientDay) ? getMatchingDayValue(clientDay) : 1;
+                      const matchDay = dayMessages.find(d => d.day === dayForTemplate);
+                      const hasDbMsg = hasMessageForDay(dayForTemplate);
+                      const msg = hasDbMsg ? buildWhatsAppText(dayForTemplate, client.name, artistName || 'האמנית שלך') : null;
                       const cleanPhone = client.phone ? formatPhone(client.phone) : '';
                       const waUrl = msg && cleanPhone
                         ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
                         : msg ? `https://wa.me/?text=${encodeURIComponent(msg)}` : null;
-                      const sentKey = `${client.name}-day${client.day}`;
+                      const sentKey = `${client.name}-day${dayForTemplate}`;
                       const alreadySent = !!waSentLog[sentKey];
                       return (
                         <div
