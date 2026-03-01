@@ -199,13 +199,25 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
     resolve();
   }, [clientId]);
 
-  // Reset collage slots when client/page context changes
+  // Reset collage slots ONLY when switching to a different client/artist
+  const prevClientRef = useRef(clientId);
+  const prevArtistRef = useRef(artistProfileId);
   useEffect(() => {
-    clearCollageSelection();
-    setSavedToGallery(false);
-    if (beforeImg) setBeforeUrl(beforeImg);
-    if (afterImg) setAfterUrl(afterImg);
-  }, [clientId, artistProfileId, beforeImg, afterImg, clearCollageSelection]);
+    if (prevClientRef.current !== clientId || prevArtistRef.current !== artistProfileId) {
+      clearCollageSelection();
+      setSavedToGallery(false);
+      prevClientRef.current = clientId;
+      prevArtistRef.current = artistProfileId;
+    }
+  }, [clientId, artistProfileId, clearCollageSelection]);
+
+  // Sync initial prop images (only when they first appear, not on every render)
+  useEffect(() => {
+    if (beforeImg && !beforeUrl) setBeforeUrl(beforeImg);
+  }, [beforeImg]);
+  useEffect(() => {
+    if (afterImg && !afterUrl) setAfterUrl(afterImg);
+  }, [afterImg]);
 
   const hasBefore = !!beforeUrl && beforeUrl !== PLACEHOLDER;
   const hasAfter = !!afterUrl && afterUrl !== PLACEHOLDER;
