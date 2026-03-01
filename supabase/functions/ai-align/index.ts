@@ -51,24 +51,28 @@ TASK: Create a perfectly aligned side-by-side comparison from the two DIFFERENT 
 
 CRITICAL — IMAGE IDENTITY:
 - The FIRST image provided is the BEFORE photo. The SECOND image provided is the AFTER photo.
-- These are TWO DISTINCT photos taken at different times. They will look similar but have differences (skin texture, color, healing progress, makeup).
+- These are TWO DISTINCT photos taken at different times. They will look similar but have differences.
 - You MUST use each photo exactly as provided. Do NOT duplicate one photo for both sides.
-- Do NOT replace either photo with a copy of the other.
+
+CRITICAL — ROTATION / ORIENTATION:
+- Do NOT rotate images based on face detection. Face detection rotation is UNRELIABLE and causes upside-down results.
+- Instead, respect the EXIF orientation of each image. If the image appears upright as provided, keep it upright.
+- Only apply minimal straightening (a few degrees at most) to level the eyes horizontally. NEVER flip or rotate 180 degrees.
+- If unsure about orientation, keep the image exactly as provided.
 
 ALIGNMENT RULES:
-1. FACE DETECTION: Identify the face, eyebrows, eyes, nose, and lips in both photos.
-2. ROTATION: Straighten both images so the face is perfectly level and upright. Match the head tilt angle.
-3. ZOOM & CROP: Scale both photos so the facial features (especially the treatment area — eyebrows or lips) are the EXACT same size in both images.
-4. POSITIONING: Center the face identically in both halves so features line up horizontally across the divider.
-5. IDENTITY: Do NOT alter, replace, or change the person's face. The person MUST remain identical in each respective photo. Do NOT generate a new face.
+1. Scale both photos so the facial features are the EXACT same size in both images.
+2. Center the face identically in both halves so features line up horizontally across the divider.
+3. Do NOT alter, replace, or change the person's face.
 
-LAYOUT:
+CRITICAL — LAYOUT AND LABELS:
 - Place the BEFORE (first) image on the RIGHT side, the AFTER (second) image on the LEFT side.
+- LABELS MUST MATCH: Add 'לפני' (Before) label on the RIGHT side (where the BEFORE/first image is), and 'אחרי' (After) label on the LEFT side (where the AFTER/second image is). NEVER swap these labels.
 - Use a thin elegant gold divider line between them.
-- Add small elegant labels: 'לפני' (Before) on the right, 'אחרי' (After) on the left, at the bottom.
+- Labels should be small and elegant, at the bottom of each respective side.
 - Both images must be the same height and width.
 - Use a clean white background.
-${resolvedLogoUrl ? "- IMPORTANT: Place the provided logo as a subtle watermark in the bottom-right corner. Make it about 10% of the collage width with 50% opacity (semi-transparent). It must NOT cover or hide the work — just a small professional branding mark." : ""}
+${resolvedLogoUrl ? "- Place the provided logo as a subtle watermark in the bottom-right corner, about 10% of the collage width with 50% opacity." : ""}
 
 OUTPUT: A single high-quality image ready for Instagram/portfolio use. Minimal, luxurious, professional.`,
       },
