@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, HelpCircle } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Accordion,
   AccordionContent,
@@ -9,7 +11,7 @@ import {
 
 const goldColor = 'hsl(38, 65%, 55%)';
 
-const FAQ_DATA = [
+const FALLBACK_FAQ_HE = [
   {
     q: 'האם הלקוחה צריכה להוריד אפליקציה שתופסת מקום בטלפון?',
     a: 'ממש לא! Glow Push עובדת בטכנולוגיית רשת. הלקוחה מקבלת ממך לינק אישי בוואטסאפ. כשהיא תפתח אותו, המערכת תציע לה לשמור את האפליקציה על מסך הבית כדי לקבל התראות פוש (Push), ללא צורך בהורדה מחנות האפליקציות.',
@@ -48,35 +50,73 @@ const FAQ_DATA = [
   },
 ];
 
+interface FaqItem {
+  q: string;
+  a: string;
+}
+
 export default function FaqPage() {
   const [search, setSearch] = useState('');
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
+  const [dbFaqs, setDbFaqs] = useState<FaqItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
-  const filtered = FAQ_DATA.filter(
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      const { data } = await supabase
+        .from('faqs')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (data && data.length > 0) {
+        setDbFaqs(
+          data.map((f) => ({
+            q: isHe ? f.question_he : (f.question_en || f.question_he),
+            a: isHe ? f.answer_he : (f.answer_en || f.answer_he),
+          }))
+        );
+      }
+      setLoaded(true);
+    };
+    fetchFaqs();
+  }, [isHe]);
+
+  // Use DB FAQs if available, otherwise fallback to hardcoded Hebrew list
+  const faqItems: FaqItem[] = dbFaqs.length > 0 ? dbFaqs : (isHe ? FALLBACK_FAQ_HE : FALLBACK_FAQ_HE);
+
+  const filtered = faqItems.filter(
     (item) =>
-      item.q.includes(search) || item.a.includes(search)
+      item.q.toLowerCase().includes(search.toLowerCase()) ||
+      item.a.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background" dir={isHe ? 'rtl' : 'ltr'}>
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center" style={{ backgroundColor: `${goldColor}15` }}>
             <HelpCircle className="w-7 h-7" style={{ color: goldColor }} />
           </div>
-          <h1 className="text-2xl font-serif font-bold">שאלות ותשובות</h1>
-          <p className="text-sm text-muted-foreground">מצאי תשובות לשאלות הנפוצות ביותר</p>
+          <h1 className="text-2xl font-serif font-bold">
+            {isHe ? 'שאלות ותשובות' : 'Frequently Asked Questions'}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {isHe ? 'מצאי תשובות לשאלות הנפוצות ביותר' : 'Find answers to the most common questions'}
+          </p>
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className={`absolute ${isHe ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="חיפוש שאלה..."
-            className="w-full pr-10 pl-4 py-3 rounded-xl border border-border bg-card text-sm outline-none transition-all focus:ring-1"
+            placeholder={isHe ? 'חיפוש שאלה...' : 'Search questions...'}
+            className={`w-full ${isHe ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-3 rounded-xl border border-border bg-card text-sm outline-none transition-all focus:ring-1`}
             style={{ '--tw-ring-color': goldColor } as React.CSSProperties}
           />
         </div>
@@ -101,7 +141,7 @@ export default function FaqPage() {
 
         {filtered.length === 0 && (
           <p className="text-center text-sm text-muted-foreground py-8">
-            לא נמצאו תוצאות עבור "{search}"
+            {isHe ? `לא נמצאו תוצאות עבור "${search}"` : `No results found for "${search}"`}
           </p>
         )}
       </div>
