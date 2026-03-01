@@ -31,7 +31,7 @@ const emptyFaq: Omit<FaqItem, 'id'> = {
 };
 
 export default function FaqManager() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,12 +42,13 @@ export default function FaqManager() {
   const [overIndex, setOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!isAdmin) {
       navigate('/');
       return;
     }
     fetchFaqs();
-  }, [isAdmin]);
+  }, [isAdmin, authLoading]);
 
   const fetchFaqs = async () => {
     const { data, error } = await supabase
@@ -170,6 +171,7 @@ export default function FaqManager() {
     setOverIndex(null);
   };
 
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">טוען...</p></div>;
   if (!isAdmin) return null;
 
   return (
