@@ -12,7 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Trash2, Save, Loader2, AlertTriangle, Pencil, X, FileText, List } from 'lucide-react';
+import { Plus, Trash2, Save, Loader2, AlertTriangle, Pencil, X, FileText, List, RotateCcw, Undo2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const RISK_OPTIONS = [
   { value: 'red', label: '🔴 קריטי (אדום)', color: '#DC2626' },
@@ -21,6 +31,17 @@ const RISK_OPTIONS = [
 ];
 
 const ICON_OPTIONS = ['🤰', '⚠️', '🏥', '💊', '🩸', '💉', '🧴', '🛡️', '🧬', '👁️', '❓', '🫀', '🦷', '🧠', '💗'];
+
+const DEFAULT_QUESTION_IDS = [
+  '70efd5e5-c63f-4d8c-a807-3c3382364c75',
+  'd13240aa-eaa6-40e5-8f27-4f28116dba69',
+  '53560374-124c-4dbe-bd76-edccaca978ee',
+  '6a94980c-77ce-4727-9104-0bb1d61c0fde',
+  '1a87ec5b-f80d-4b94-9645-e823ab83905f',
+  'afc1ace4-a388-4470-8878-9c05c6da6228',
+  '6c59176c-b868-4d99-af04-5795ba9efee0',
+  'c7e16ab6-2dc6-48b4-9344-bb02311fb717',
+];
 
 export default function HealthQuestionsEditor() {
   const { toast } = useToast();
@@ -34,6 +55,9 @@ export default function HealthQuestionsEditor() {
   const [newRisk, setNewRisk] = useState<'red' | 'yellow' | 'green'>('yellow');
   const [newIcon, setNewIcon] = useState('❓');
   const [newHasDetail, setNewHasDetail] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<HealthQuestion | null>(null);
+  const [restoring, setRestoring] = useState(false);
+  const [showRestoreDialog, setShowRestoreDialog] = useState(false);
 
   useEffect(() => {
     setQuestions(dbQuestions);
@@ -83,6 +107,92 @@ export default function HealthQuestionsEditor() {
     } catch (err: any) {
       toast({ title: 'שגיאה בעדכון', description: err.message, variant: 'destructive' });
       refetch();
+    }
+  };
+
+  const confirmDelete = (q: HealthQuestion) => {
+    setDeleteTarget(q);
+  };
+
+  const executeDelete = async () => {
+    if (!deleteTarget) return;
+    const deletedQuestion = deleteTarget;
+    setDeleteTarget(null);
+    
+    // Optimistically remove from UI
+    setQuestions(prev => prev.filter(q => q.id !== deletedQuestion.id));
+    
+    try {
+      const { error } = await supabase
+        .from('health_questions')
+        .delete()
+        .eq('id', deletedQuestion.id);
+      if (error) throw error;
+      
+      // Show toast with undo option
+      toast({
+        title: 'השאלה נמחקה',
+        description: 'לחצי על \'ביטול\' לשחזור',
+        action: (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1 border-accent/40 text-accent hover:bg-accent/10"
+            onClick={() => restoreQuestion(deletedQuestion)}
+          >
+            <Undo2 className="w-3 h-3" />
+            ביטול
+          </Button>
+        ),
+        duration: 8000,
+      });
+    } catch (err: any) {
+      toast({ title: 'שגיאה במחיקה', description: err.message, variant: 'destructive' });
+      refetch();
+    }
+  };
+
+  const restoreQuestion = async (q: HealthQuestion) => {
+    try {
+      const { error } = await supabase
+        .from('health_questions')
+        .insert({
+          id: q.id,
+          question_he: q.question_he,
+          question_en: q.question_en,
+          risk_level: q.risk_level,
+          icon: q.icon,
+          has_detail_field: q.has_detail_field,
+          detail_placeholder_he: q.detail_placeholder_he,
+          detail_placeholder_en: q.detail_placeholder_en,
+          sort_order: q.sort_order,
+          is_active: q.is_active,
+        });
+      if (error) throw error;
+      await refetch();
+      toast({ title: 'השאלה שוחזרה בהצלחה ✅' });
+    } catch (err: any) {
+      toast({ title: 'שגיאה בשחזור', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  const restoreDefaults = async () => {
+    setShowRestoreDialog(false);
+    setRestoring(true);
+    try {
+      // Re-activate all default questions
+      for (const id of DEFAULT_QUESTION_IDS) {
+        await supabase
+          .from('health_questions')
+          .update({ is_active: true })
+          .eq('id', id);
+      }
+      await refetch();
+      toast({ title: '8 שאלות ברירת המחדל שוחזרו ✅', description: 'כל שאלות ברירת המחדל מסומנות כפעילות.' });
+    } catch (err: any) {
+      toast({ title: 'שגיאה בשחזור ברירת מחדל', description: err.message, variant: 'destructive' });
+    } finally {
+      setRestoring(false);
     }
   };
 
@@ -335,7 +445,7 @@ export default function HealthQuestionsEditor() {
                             <Pencil className="w-3.5 h-3.5 text-accent" />
                           </button>
                           <button
-                            onClick={() => deleteQuestion(q.id)}
+                            onClick={() => confirmDelete(q)}
                             className="p-2 rounded-lg transition-all hover:bg-destructive/10 active:scale-95 border border-transparent hover:border-destructive/20"
                             title="מחיקה"
                           >
@@ -352,6 +462,19 @@ export default function HealthQuestionsEditor() {
         )}
       </div>
 
+      {/* Restore Defaults */}
+      <div className="flex justify-center">
+        <Button
+          variant="outline"
+          onClick={() => setShowRestoreDialog(true)}
+          disabled={restoring}
+          className="gap-2 border-accent/30 text-accent hover:bg-accent/10"
+        >
+          {restoring ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+          שחזור שאלות ברירת מחדל
+        </Button>
+      </div>
+
       {/* Sticky Save Button */}
       <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border pt-4 pb-6 -mx-1 px-1">
         <Button
@@ -365,6 +488,44 @@ export default function HealthQuestionsEditor() {
         </Button>
         <p className="text-xs text-muted-foreground text-center mt-2">השינויים נשמרים אוטומטית בכל עריכה</p>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent dir="rtl" className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>למחוק את השאלה?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.question_he}
+              <br />
+              <span className="text-xs mt-1 block">ניתן יהיה לשחזר באמצעות כפתור ׳ביטול׳ בהודעה שתופיע.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogAction onClick={executeDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              מחיקה
+            </AlertDialogAction>
+            <AlertDialogCancel>ביטול</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Restore Defaults Dialog */}
+      <AlertDialog open={showRestoreDialog} onOpenChange={setShowRestoreDialog}>
+        <AlertDialogContent dir="rtl" className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>שחזור שאלות ברירת מחדל?</AlertDialogTitle>
+            <AlertDialogDescription>
+              8 שאלות ברירת המחדל שהוגדרו על ידי המערכת ישוחזרו כפעילות. שאלות מותאמות אישית שהוספת לא יימחקו.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogAction onClick={restoreDefaults} className="bg-accent text-accent-foreground hover:bg-accent/90">
+              שחזור
+            </AlertDialogAction>
+            <AlertDialogCancel>ביטול</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
