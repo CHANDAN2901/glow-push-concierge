@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, Sparkles } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import html2canvas from 'html2canvas';
@@ -243,14 +244,24 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   return (
     <div className="space-y-4">
       {/* Lightbox modal */}
-      {lightboxUrl && (
+      {lightboxUrl && createPortal(
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 animate-fade-in"
-          onClick={() => setLightboxUrl(null)}
+          className="fixed inset-0 flex items-center justify-center bg-black/90"
+          style={{ zIndex: 99999 }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setLightboxUrl(null);
+          }}
         >
           <button
-            onClick={() => setLightboxUrl(null)}
-            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setLightboxUrl(null);
+            }}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
+            style={{ zIndex: 100000 }}
           >
             <X className="w-6 h-6 text-white" />
           </button>
@@ -258,9 +269,14 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
             src={lightboxUrl}
             alt=""
             className="max-w-[95vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+            style={{ zIndex: 100000 }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           />
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Action buttons */}
