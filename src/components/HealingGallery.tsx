@@ -481,6 +481,9 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
       if (insertError) throw insertError;
 
       setSavedToGallery(true);
+      setBeforeUrl(null);
+      setAfterUrl(null);
+      setAutoSaved(false);
       toast({ title: isHe ? 'הקולאז׳ נשמר בגלריה! 🎉' : 'Collage saved to gallery! 🎉' });
     } catch (e: any) {
       const { data: { user } } = await supabase.auth.getUser();
