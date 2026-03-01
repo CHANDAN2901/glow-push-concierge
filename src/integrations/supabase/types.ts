@@ -205,6 +205,7 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
+          push_opted_in: boolean
           treatment_date: string | null
           treatment_type: string | null
         }
@@ -216,6 +217,7 @@ export type Database = {
           full_name: string
           id?: string
           phone?: string | null
+          push_opted_in?: boolean
           treatment_date?: string | null
           treatment_type?: string | null
         }
@@ -227,6 +229,7 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
+          push_opted_in?: boolean
           treatment_date?: string | null
           treatment_type?: string | null
         }
@@ -774,6 +777,7 @@ export type Database = {
         Row: {
           artist_profile_id: string | null
           auth_key: string
+          client_id: string | null
           client_name: string
           created_at: string
           endpoint: string
@@ -785,6 +789,7 @@ export type Database = {
         Insert: {
           artist_profile_id?: string | null
           auth_key: string
+          client_id?: string | null
           client_name: string
           created_at?: string
           endpoint: string
@@ -796,6 +801,7 @@ export type Database = {
         Update: {
           artist_profile_id?: string | null
           auth_key?: string
+          client_id?: string | null
           client_name?: string
           created_at?: string
           endpoint?: string
@@ -810,6 +816,13 @@ export type Database = {
             columns: ["artist_profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]

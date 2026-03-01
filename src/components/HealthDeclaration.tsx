@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronRight, ChevronLeft, FileText, Check, ArrowLeft, Eraser, Loader2, MapPin, CalendarPlus } from 'lucide-react';
+import { ChevronRight, ChevronLeft, FileText, Check, ArrowLeft, Eraser, Loader2, MapPin, CalendarPlus, Bell } from 'lucide-react';
 import { useHealthQuestions, type HealthQuestion } from '@/hooks/useHealthQuestions';
 import equipmentHeroImg from '@/assets/equipment-hero.jpg';
 import glowpushLogoImg from '@/assets/glowpush-logo.png';
@@ -36,6 +36,7 @@ export interface HealthDeclarationData {
   medicalConsentAt: string;
   signatureDataUrl: string;
   submittedAt: string;
+  pushOptIn?: boolean;
 }
 
 interface Props {
@@ -92,6 +93,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const [legalConsent, setLegalConsent] = useState(existingData?.legalConsent || false);
   const [medicalConsent, setMedicalConsent] = useState(existingData?.medicalConsent || false);
   const [signatureDataUrl, setSignatureDataUrl] = useState(existingData?.signatureDataUrl || '');
+  const [pushOptIn, setPushOptIn] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -225,6 +227,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         medicalConsentAt: medicalConsent ? new Date().toISOString() : '',
         signatureDataUrl,
         submittedAt: new Date().toISOString(),
+        pushOptIn,
       };
       await onComplete(data);
       setShowThankYou(true);
@@ -790,6 +793,41 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                     )}
                   </span>
                 </button>
+
+                {/* Push Recovery Opt-in */}
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={() => setPushOptIn(!pushOptIn)}
+                    className="flex items-start gap-3 w-full text-start px-4 py-3.5 rounded-2xl min-h-[48px] active:scale-[0.98] transition-transform mb-5"
+                    style={{
+                      backgroundColor: pushOptIn ? 'rgba(212,175,55,0.06)' : '#fafaf8',
+                      border: `1px solid ${pushOptIn ? T.gold : T.inputBorder}`,
+                    }}
+                  >
+                    <span
+                      className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5"
+                      style={{
+                        border: `2px solid ${pushOptIn ? T.gold : 'rgba(212,175,55,0.35)'}`,
+                        backgroundColor: pushOptIn ? T.gold : 'transparent',
+                        boxShadow: pushOptIn ? '0 0 10px rgba(212,175,55,0.3)' : 'none',
+                      }}
+                    >
+                      {pushOptIn && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <Bell className="w-3.5 h-3.5" style={{ color: T.gold }} />
+                        <span className="text-sm font-semibold" style={{ color: T.text }}>
+                          {isHe ? 'אשרי קבלת ליווי והסברי החלמה ישירות לנייד' : 'Receive recovery guidance directly on your phone'}
+                        </span>
+                      </div>
+                      <span className="text-xs" style={{ color: T.textMuted }}>
+                        {isHe ? 'תקבלי התראות עם טיפים מותאמים אישית לכל שלב בהחלמה' : "You'll get notifications with tips tailored to each recovery phase"}
+                      </span>
+                    </div>
+                  </button>
+                )}
 
                 {/* Signature Pad */}
                 <div className="space-y-3" ref={sigContainerRef}>
