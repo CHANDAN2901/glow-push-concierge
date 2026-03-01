@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
+import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, RotateCcw, ZoomIn, ZoomOut, HelpCircle } from 'lucide-react';
 import { useGesture } from '@use-gesture/react';
 import { format, differenceInDays } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
@@ -148,6 +148,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   const [uploading, setUploading] = useState(false);
   const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
   const [collageErrorMessage, setCollageErrorMessage] = useState<string | null>(null);
+  const [showHelp, setShowHelp] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -512,7 +513,61 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
   return (
     <div className="space-y-4">
-      {/* Lightbox modal */}
+      {/* Help modal */}
+      {showHelp && createPortal(
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{ zIndex: 99999, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowHelp(false)}
+          role="dialog" aria-modal="true"
+        >
+          <div
+            className="relative w-full max-w-sm rounded-3xl p-6 animate-fade-up"
+            style={{ backgroundColor: '#FFFCF7', boxShadow: `0 20px 60px -10px rgba(0,0,0,0.3), 0 0 0 1px ${GOLD}33` }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowHelp(false)}
+              className="absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ background: `${GOLD}15`, color: GOLD_DARK }}
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="text-center font-serif font-bold text-lg mb-5" style={{ color: GOLD_DARK }}>
+              ✨ איך יוצרים קולאז׳?
+            </h3>
+
+            <ol className="space-y-3 text-sm font-light list-none" dir="rtl" style={{ color: '#5C4033' }}>
+              {[
+                { num: '1', icon: '📸', text: 'העלי תמונות לגלריית הלקוחה.' },
+                { num: '2', icon: '✅', text: 'בחרי שתי תמונות מהגלריה עבור הקולאז׳.' },
+                { num: '3', icon: '🤏', text: 'ערכי את התמונות בעזרת מגע (טאצ\') — השתמשי בשתי אצבעות לזום, הזזה וסיבוב.' },
+                { num: '4', icon: '💾', text: 'לחצי על שמירה כדי לשמור את הקולאז׳ לגלריה (תוכלי גם להוריד אותו לטלפון).' },
+              ].map((step) => (
+                <li key={step.num} className="flex gap-3 items-start">
+                  <span
+                    className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5"
+                    style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+                  >
+                    {step.num}
+                  </span>
+                  <span>{step.icon} {step.text}</span>
+                </li>
+              ))}
+            </ol>
+
+            <button
+              onClick={() => setShowHelp(false)}
+              className="mt-5 w-full py-2.5 rounded-full text-sm font-serif font-bold tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98]"
+              style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+            >
+              הבנתי! 👍
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
       {lightboxUrl && createPortal(
         <div
           className="fixed inset-0 flex items-center justify-center"
@@ -555,18 +610,28 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAddPhoto} />
 
         {sortedPhotos.length >= 2 && (
-          <button
-            onClick={() => { setCollageMode(!collageMode); setSelectedIds([]); setShowCollage(false); }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98]"
-            style={{
-              background: collageMode ? GOLD_GRADIENT : '#ffffff',
-              border: collageMode ? 'none' : `2.5px solid ${GOLD}`,
-              color: collageMode ? '#5C4033' : GOLD_DARK,
-            }}
-          >
-            <Layers className="w-4 h-4" />
-            {collageMode ? 'ביטול בחירה' : 'צור קולאז׳ לפני ואחרי'}
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => { setCollageMode(!collageMode); setSelectedIds([]); setShowCollage(false); }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98]"
+              style={{
+                background: collageMode ? GOLD_GRADIENT : '#ffffff',
+                border: collageMode ? 'none' : `2.5px solid ${GOLD}`,
+                color: collageMode ? '#5C4033' : GOLD_DARK,
+              }}
+            >
+              <Layers className="w-4 h-4" />
+              {collageMode ? 'ביטול בחירה' : 'צור קולאז׳ לפני ואחרי'}
+            </button>
+            <button
+              onClick={() => setShowHelp(true)}
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 flex-shrink-0"
+              style={{ border: `1.5px solid ${GOLD}44`, color: GOLD_DARK }}
+              title="איך יוצרים קולאז׳?"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </button>
+          </div>
         )}
       </div>
 
