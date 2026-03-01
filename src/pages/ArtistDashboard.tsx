@@ -1726,11 +1726,7 @@ const ArtistDashboard = () => {
                   </div>
                 )}
 
-                {/* 4. Before & After Gallery */}
-                <HealingGallery
-                  artistProfileId={userProfileId || undefined}
-                  clientId={selectedClient.dbId || selectedClient.name}
-                />
+                {/* Top collage removed — only manual collage builder below */}
 
                 {/* 5. Shared Healing Photo Gallery */}
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">

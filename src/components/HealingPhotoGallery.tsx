@@ -492,14 +492,26 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     try {
       setSavingCollage(true);
       const canvas = await buildCollageCanvas();
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-      const a = document.createElement('a');
-      a.href = dataUrl;
-      a.download = `collage-${clientName.replace(/\s+/g, '-')}-${format(new Date(), 'dd-MM-yyyy')}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      toast({ title: 'הקולאז׳ הורד בהצלחה ✅' });
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          toast({ title: 'שגיאה ביצירת התמונה', variant: 'destructive' });
+          return;
+        }
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `collage-${clientName.replace(/\s+/g, '-')}-${format(new Date(), 'dd-MM-yyyy')}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // Fallback for mobile: if download doesn't trigger, open in new tab
+        setTimeout(() => {
+          window.open(blobUrl, '_blank');
+        }, 500);
+        toast({ title: 'הקולאז׳ הורד בהצלחה ✅' });
+        // Clean up blob URL after delay
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+      }, 'image/jpeg', 0.95);
     } catch (err: any) {
       toast({ title: `שגיאה בהורדה: ${err?.message || 'Unknown'}`, variant: 'destructive' });
     } finally {
