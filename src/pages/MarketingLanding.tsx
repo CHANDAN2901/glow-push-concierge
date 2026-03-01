@@ -1,11 +1,31 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { supabase } from '@/integrations/supabase/client';
+
+interface FaqItem {
+  id: string;
+  question_he: string;
+  answer_he: string;
+  question_en: string;
+  answer_en: string;
+}
 
 const MarketingLanding = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [faqs, setFaqs] = useState<FaqItem[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('faqs')
+      .select('id, question_he, answer_he, question_en, answer_en')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+      .then(({ data }) => { if (data) setFaqs(data); });
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6 text-center space-y-8" dir="rtl">
@@ -114,35 +134,10 @@ const MarketingLanding = () => {
           שאלות נפוצות
         </h3>
         <Accordion type="single" collapsible className="w-full">
-          {[
-            {
-              q: 'האם אני יכולה לערוך ולשנות את שאלון הצהרת הבריאות?',
-              a: 'בהחלט. המערכת מגיעה עם שאלון מקצועי מקיף לאיפור קבוע (כולל שאלות על רואקוטן, בוטוקס וכו\'), אבל יש לך שליטה מלאה להוסיף, לערוך או למחוק שאלות כדי להתאים אותן בדיוק לקליניקה שלך.',
-            },
-            {
-              q: 'האם השאלון נשלח אוטומטית ללקוחה?',
-              a: 'כן! מיד עם סיום קביעת התור או בלחיצת כפתור, הלקוחה מקבלת הודעה עם לינק אישי למילוי הצהרת הבריאות וחתימה דיגיטלית ישירות מהנייד.',
-            },
-            {
-              q: 'האם המערכת תומכת בשפות נוספות?',
-              a: 'המערכת דו-לשונית מלאה (עברית ואנגלית), כך שגם את וגם הלקוחות שלך יכולות לעבוד בשפה הנוחה לכן ביותר.',
-            },
-            {
-              q: 'האם ניתן לתעד תמונות לפני ואחרי?',
-              a: 'כן, לכל לקוחה יש גלריה פרטית בתיק האישי שלה לתיעוד מקצועי ומעקב החלמה.',
-            },
-            {
-              q: 'האם החתימה הדיגיטלית תקפה משפטית?',
-              a: 'בהחלט. המערכת מייצרת חתימה מאובטחת עם חותמת זמן להגנה מקצועית מלאה.',
-            },
-            {
-              q: 'איך המערכת עוזרת בשימור לקוחות?',
-              a: 'באמצעות ליווי החלמה דיגיטלי אישי ששומר על קשר עם הלקוחה ומוודא שהיא מקבלת את התוצאה המושלמת.',
-            },
-          ].map((item, i) => (
+          {faqs.map((faq) => (
             <AccordionItem
-              key={i}
-              value={`faq-${i}`}
+              key={faq.id}
+              value={faq.id}
               className="border-0 mb-3 rounded-xl overflow-hidden"
               style={{
                 background: 'linear-gradient(135deg, rgba(212,175,55,0.04), rgba(184,134,11,0.06))',
@@ -153,10 +148,10 @@ const MarketingLanding = () => {
                 className="px-5 py-4 text-sm font-medium hover:no-underline text-right [&>svg]:text-[#D4AF37]"
                 style={{ color: '#444' }}
               >
-                {item.q}
+                {faq.question_he}
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-4 text-sm leading-relaxed" style={{ color: '#777' }}>
-                {item.a}
+                {faq.answer_he}
               </AccordionContent>
             </AccordionItem>
           ))}
