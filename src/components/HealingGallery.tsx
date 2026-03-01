@@ -545,7 +545,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
   return (
     <div className="bg-card rounded-2xl border border-border mb-6 shadow-sm animate-fade-up opacity-0 overflow-hidden" style={{ animationDelay: '350ms' }}>
       {/* Collage */}
-      <div ref={collageRef} className="px-5 pt-6 pb-3" style={{ background: '#ffffff' }}>
+      <div ref={collageRef} className="px-5 pt-6 pb-3 relative" style={{ background: '#ffffff' }}>
         <div className={`grid grid-cols-2 gap-4 ${isHe ? 'direction-rtl' : ''}`} dir={isHe ? 'rtl' : 'ltr'}>
           <ImageCard
             label={isHe ? 'לפני' : 'Before'}
@@ -564,6 +564,15 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
             onEdit={hasAfter ? handleEditAfter : undefined}
           />
         </div>
+        {/* AI processing overlay - keeps images visible underneath */}
+        {aligning && (
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 z-10 rounded-2xl">
+            <Loader2 className="w-8 h-8 animate-spin text-accent" />
+            <p className="text-sm font-serif font-semibold text-foreground/80">
+              {isHe ? 'מיישר תמונות עם AI...' : 'Aligning with AI...'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Actions */}
@@ -577,7 +586,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
             background: aligning
               ? 'linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #B8860B 100%)'
               : 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-            color: '#ffffff',
+            color: '#3a2a1a',
             boxShadow: hasBoth && !aligning
               ? '0 0 20px rgba(212, 175, 55, 0.5), 0 0 40px rgba(212, 175, 55, 0.2), 0 4px 14px -2px rgba(212, 175, 55, 0.4)'
               : '0 2px 8px rgba(0,0,0,0.1)',
