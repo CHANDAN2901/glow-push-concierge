@@ -22,6 +22,7 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
   const [photos, setPhotos] = useState<SharedGalleryPhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [newCount, setNewCount] = useState(0);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [resolvedClientId, setResolvedClientId] = useState<string | null>(null);
 
   // Resolve clientId: if it's a UUID use directly, otherwise look up by name
@@ -81,7 +82,8 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
   }, [clientId]);
 
   const fetchPhotos = useCallback(async () => {
-    if (!resolvedClientId) { setPhotos([]); setLoading(false); return; }
+    if (!resolvedClientId) { setPhotos([]); setLoading(false); setFetchError(null); return; }
+    setFetchError(null);
     try {
       const { data, error } = await supabase
         .from('client_gallery_photos')
@@ -93,8 +95,16 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
       const typed = (data || []) as unknown as SharedGalleryPhoto[];
       setPhotos(typed);
       setNewCount(typed.filter(p => !p.seen_by_client && p.uploaded_by === 'artist').length);
-    } catch (e) {
-      console.error('Failed to fetch gallery:', e);
+    } catch (e: any) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const message = e?.message || 'Unknown gallery fetch error';
+      console.error('Gallery fetch failed', {
+        userId: user?.id || null,
+        fileName: null,
+        bucketPath: `client_gallery_photos?client_id=${resolvedClientId}`,
+        supabaseError: e,
+      });
+      setFetchError(message);
     } finally {
       setLoading(false);
     }
@@ -187,36 +197,49 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
 
     const fileName = `${photoType}-${Date.now()}.jpg`;
     const safeClientId = cId.replace(/[^a-zA-Z0-9_-]/g, '_');
-    const { data, error } = await supabase.functions.invoke('upload-client-photo', {
-      body: {
-        artistProfileId: aId,
-        clientId: safeClientId,
-        category: `gallery-${photoType}`,
-        base64Data,
+    const bucketPath = `${aId}/${safeClientId}/gallery-${photoType}/${fileName}`;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('upload-client-photo', {
+        body: {
+          artistProfileId: aId,
+          clientId: safeClientId,
+          category: `gallery-${photoType}`,
+          base64Data,
+          fileName,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const { error: insertError } = await supabase
+        .from('client_gallery_photos')
+        .insert({
+          client_id: cId,
+          artist_id: aId,
+          storage_path: data.storagePath,
+          public_url: data.url,
+          photo_type: photoType,
+          label: label || null,
+          day_number: dayNumber ?? null,
+          uploaded_by: uploadedBy,
+          seen_by_client: uploadedBy === 'client',
+        } as any);
+
+      if (insertError) throw insertError;
+      await fetchPhotos();
+      return data.url;
+    } catch (e: any) {
+      const { data: { user } } = await supabase.auth.getUser();
+      console.error('Client gallery upload failed', {
+        userId: user?.id || null,
         fileName,
-      },
-    });
-
-    if (error) throw new Error(`Upload failed: ${error.message}`);
-    if (data?.error) throw new Error(`Upload failed: ${data.error}`);
-
-    const { error: insertError } = await supabase
-      .from('client_gallery_photos')
-      .insert({
-        client_id: cId,
-        artist_id: aId,
-        storage_path: data.storagePath,
-        public_url: data.url,
-        photo_type: photoType,
-        label: label || null,
-        day_number: dayNumber ?? null,
-        uploaded_by: uploadedBy,
-        seen_by_client: uploadedBy === 'client',
-      } as any);
-
-    if (insertError) throw new Error(`Failed to save photo record: ${insertError.message}`);
-    await fetchPhotos();
-    return data.url;
+        bucketPath,
+        supabaseError: e,
+      });
+      throw new Error(e?.message || 'Upload failed');
+    }
   }, [resolvedClientId, resolvedArtistId, fetchPhotos]);
 
   const deletePhoto = useCallback(async (photoId: string) => {
@@ -241,6 +264,7 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
   return {
     photos,
     loading,
+    fetchError,
     newCount,
     resolvedClientId,
     resolvedArtistId,
