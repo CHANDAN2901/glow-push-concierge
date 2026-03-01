@@ -1,6 +1,6 @@
-import { MessageCircle, Zap } from 'lucide-react';
+import { useState } from 'react';
+import { MessageCircle, Zap, Eye } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Props {
   clientName: string;
@@ -14,51 +14,53 @@ interface Props {
 export default function HealingNotificationBadge({ clientName, day, hasAutomation, hasTemplate, previewText, onManualSend }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
+  const [showPreview, setShowPreview] = useState(false);
 
   if (!hasTemplate) return null;
 
-  const truncated = previewText && previewText.length > 120
-    ? previewText.slice(0, 120) + '…'
+  const truncated = previewText && previewText.length > 200
+    ? previewText.slice(0, 200) + '…'
     : previewText;
 
   if (hasAutomation) {
     return (
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-accent/10 text-accent-foreground">
-              <Zap className="w-3 h-3" />
-              {isHe ? 'נשלח אוטומטית' : 'Auto-sent'}
-            </div>
-          </TooltipTrigger>
-          {truncated && (
-            <TooltipContent side="top" className="max-w-[260px] text-xs whitespace-pre-line text-right" dir={isHe ? 'rtl' : 'ltr'}>
-              {truncated}
-            </TooltipContent>
-          )}
-        </Tooltip>
-      </TooltipProvider>
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-accent/10 text-accent-foreground">
+        <Zap className="w-3 h-3" />
+        {isHe ? 'נשלח אוטומטית' : 'Auto-sent'}
+      </div>
     );
   }
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={(e) => { e.stopPropagation(); onManualSend(); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 border-2 border-accent bg-accent/5 hover:bg-accent/15 text-foreground"
-          >
-            <MessageCircle className="w-3 h-3" />
-            {isHe ? 'שלחי בוואטסאפ' : 'Send via WhatsApp'}
-          </button>
-        </TooltipTrigger>
+    <div className="flex flex-col items-end gap-1.5 relative">
+      <div className="flex items-center gap-1.5">
         {truncated && (
-          <TooltipContent side="top" className="max-w-[260px] text-xs whitespace-pre-line text-right" dir={isHe ? 'rtl' : 'ltr'}>
-            {truncated}
-          </TooltipContent>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowPreview(p => !p); }}
+            className="flex items-center justify-center w-7 h-7 rounded-full border border-border hover:bg-muted transition-colors"
+            aria-label={isHe ? 'תצוגה מקדימה' : 'Preview'}
+          >
+            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
         )}
-      </Tooltip>
-    </TooltipProvider>
+        <button
+          onClick={(e) => { e.stopPropagation(); onManualSend(); }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 border-2 border-accent bg-accent/5 hover:bg-accent/15 text-foreground"
+        >
+          <MessageCircle className="w-3 h-3" />
+          {isHe ? 'שלחי בוואטסאפ' : 'Send via WhatsApp'}
+        </button>
+      </div>
+
+      {showPreview && truncated && (
+        <div
+          onClick={(e) => { e.stopPropagation(); setShowPreview(false); }}
+          className="w-[260px] p-3 rounded-xl border border-border bg-card text-xs whitespace-pre-line shadow-lg text-card-foreground"
+          dir={isHe ? 'rtl' : 'ltr'}
+        >
+          {truncated}
+        </div>
+      )}
+    </div>
   );
 }
