@@ -31,7 +31,7 @@ const emptyFaq: Omit<FaqItem, 'id'> = {
 };
 
 export default function FaqManager() {
-  const { isAdmin, loading: authLoading } = useAuth();
+  const { isAdmin, loading: authLoading, roleLoading } = useAuth();
   const navigate = useNavigate();
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,15 +40,16 @@ export default function FaqManager() {
   const [form, setForm] = useState(emptyFaq);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
+  const canManageFaq = isAdmin && !authLoading && !roleLoading;
 
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || roleLoading) return;
     if (!isAdmin) {
       navigate('/');
       return;
     }
     fetchFaqs();
-  }, [isAdmin, authLoading]);
+  }, [isAdmin, authLoading, roleLoading, navigate]);
 
   const fetchFaqs = async () => {
     const { data, error } = await supabase
@@ -118,7 +119,7 @@ export default function FaqManager() {
     }
 
     setDialogOpen(false);
-    fetchFaqs();
+    await fetchFaqs();
   };
 
   const handleDelete = async (id: string) => {
@@ -129,12 +130,12 @@ export default function FaqManager() {
       return;
     }
     toast.success('שאלה נמחקה');
-    fetchFaqs();
+    await fetchFaqs();
   };
 
   const toggleActive = async (faq: FaqItem) => {
     await supabase.from('faqs').update({ is_active: !faq.is_active }).eq('id', faq.id);
-    fetchFaqs();
+    await fetchFaqs();
   };
 
   const handleDragStart = (index: number) => {
@@ -171,8 +172,8 @@ export default function FaqManager() {
     setOverIndex(null);
   };
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">טוען...</p></div>;
-  if (!isAdmin) return null;
+  if (authLoading || roleLoading) return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">טוען...</p></div>;
+  if (!canManageFaq) return null;
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -187,9 +188,11 @@ export default function FaqManager() {
             <Button variant="outline" size="sm" onClick={() => navigate('/super-admin')}>
               <ArrowRight className="w-4 h-4 ml-1" /> חזרה לניהול
             </Button>
-            <Button onClick={openNew} size="sm">
-              <Plus className="w-4 h-4 ml-1" /> שאלה חדשה
-            </Button>
+            {canManageFaq && (
+              <Button onClick={openNew} size="sm">
+                <Plus className="w-4 h-4 ml-1" /> Add New FAQ
+              </Button>
+            )}
           </div>
         </div>
 
@@ -223,13 +226,22 @@ export default function FaqManager() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Switch checked={faq.is_active} onCheckedChange={() => toggleActive(faq)} />
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(faq)}>
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(faq.id)}>
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
+                  {canManageFaq && (
+                    <>
+                      <Switch checked={faq.is_active} onCheckedChange={() => toggleActive(faq)} />
+                      <Button variant="outline" size="sm" onClick={() => openEdit(faq)}>
+                        <Pencil className="w-4 h-4 ml-1" /> Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                        onClick={() => handleDelete(faq.id)}
+                      >
+                        <Trash2 className="w-4 h-4 ml-1" /> Delete
+                      </Button>
+                    </>
+                  )}
                 </div>
               </Card>
             ))}
