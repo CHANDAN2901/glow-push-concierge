@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, RotateCw, ZoomIn, ZoomOut, Move } from 'lucide-react';
+import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, RotateCcw, RotateCw, ZoomIn, ZoomOut, Move } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
@@ -382,8 +382,14 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
               className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}>
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
-            <button onClick={() => updateTransform(index, { rotation: transforms[index].rotation + 90 })}
-              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}>
+            <button onClick={() => updateTransform(index, { rotation: transforms[index].rotation - 1 })}
+              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}
+              title="סיבוב שמאלה 1°">
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={() => updateTransform(index, { rotation: transforms[index].rotation + 1 })}
+              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}
+              title="סיבוב ימינה 1°">
               <RotateCw className="w-3.5 h-3.5" />
             </button>
             <button onClick={() => updateTransform(index, defaultTransform())}
@@ -610,8 +616,8 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
             </div>
           </div>
 
-          {/* Manual edit controls */}
-          <div className="flex justify-center gap-6">
+          {/* Manual edit controls - RTL: After on left, Before on right */}
+          <div className="flex justify-center gap-6" dir="rtl">
             {renderEditControls(0, 'לפני')}
             {renderEditControls(1, 'אחרי')}
           </div>
