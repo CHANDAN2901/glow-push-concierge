@@ -164,8 +164,6 @@ export function useAftercareTemplates() {
   };
 
   const hasMessageForDay = (clientDay: number): boolean => {
-    if (!isFromDb) return false;
-
     const normalized = normalizeDayValue(clientDay);
     if (normalized === null) return false;
 
