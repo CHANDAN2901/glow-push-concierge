@@ -297,9 +297,8 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       const HALF_W = 600;
       const HALF_H = 600;
       const DIVIDER = 3;
-      const FOOTER_H = 60;
       const CANVAS_W = HALF_W * 2 + DIVIDER;
-      const CANVAS_H = HALF_H + FOOTER_H;
+      const CANVAS_H = HALF_H;
 
       const canvas = document.createElement('canvas');
       canvas.width = CANVAS_W;
@@ -321,7 +320,6 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         ctx.rotate((t.rotation * Math.PI) / 180);
         ctx.scale(t.scale, t.scale);
 
-        // Fill the half while maintaining aspect ratio
         const imgAspect = img.width / img.height;
         const halfAspect = HALF_W / HALF_H;
         let drawW: number, drawH: number;
@@ -349,36 +347,22 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       ctx.fillStyle = 'rgba(255,255,255,0.9)';
       ctx.shadowColor = 'rgba(0,0,0,0.7)';
       ctx.shadowBlur = 4;
-      // "אחרי" on left (after)
       ctx.textAlign = 'left';
       ctx.fillText('אחרי ✨', 16, HALF_H - 16);
-      // "לפני" on right (before)
       ctx.textAlign = 'right';
       ctx.fillText('לפני', CANVAS_W - 16, HALF_H - 16);
       ctx.shadowBlur = 0;
 
-      // Footer
-      ctx.fillStyle = '#fefcf7';
-      ctx.fillRect(0, HALF_H, CANVAS_W, FOOTER_H);
-      ctx.fillStyle = GOLD_DARK;
-      ctx.font = 'bold 18px serif';
-      ctx.textAlign = 'right';
-      ctx.fillText(clientName, CANVAS_W - 20, HALF_H + 30);
-      ctx.font = '14px serif';
-      ctx.fillStyle = '#999';
-      ctx.fillText(format(new Date(), 'dd/MM/yyyy'), CANVAS_W - 20, HALF_H + 50);
-
-      // Logo watermark (artist logo or glowpush)
+      // Centered logo watermark over both images (no footer, no name text)
       const logoToUse = artistLogoUrl || glowPushLogo;
       try {
         const logoImg = await loadImg(logoToUse);
-        const logoH = 36;
-        const logoW = (logoImg.width / logoImg.height) * logoH;
-        ctx.globalAlpha = 0.5;
-        ctx.drawImage(logoImg, 16, HALF_H + (FOOTER_H - logoH) / 2, logoW, logoH);
+        const logoW = CANVAS_W * 0.2;
+        const logoH = (logoImg.height / logoImg.width) * logoW;
+        ctx.globalAlpha = 0.55;
+        ctx.drawImage(logoImg, (CANVAS_W - logoW) / 2, CANVAS_H - logoH - 16, logoW, logoH);
         ctx.globalAlpha = 1;
       } catch {
-        // Logo failed to load - skip watermark
         console.warn('[CollageFlow] Logo watermark failed to load, skipping');
       }
 
@@ -458,8 +442,8 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       loadImg(selectedPhotos[1]!.public_url),
     ]);
 
-    const HALF_W = 600, HALF_H = 600, DIVIDER = 3, FOOTER_H = 60;
-    const CANVAS_W = HALF_W * 2 + DIVIDER, CANVAS_H = HALF_H + FOOTER_H;
+    const HALF_W = 600, HALF_H = 600, DIVIDER = 3;
+    const CANVAS_W = HALF_W * 2 + DIVIDER, CANVAS_H = HALF_H;
     const canvas = document.createElement('canvas');
     canvas.width = CANVAS_W; canvas.height = CANVAS_H;
     const ctx = canvas.getContext('2d')!;
@@ -489,23 +473,19 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     ctx.textAlign = 'right'; ctx.fillText('לפני', CANVAS_W - 16, HALF_H - 16);
     ctx.shadowBlur = 0;
 
-    ctx.fillStyle = '#fefcf7'; ctx.fillRect(0, HALF_H, CANVAS_W, FOOTER_H);
-    ctx.fillStyle = GOLD_DARK; ctx.font = 'bold 18px serif'; ctx.textAlign = 'right';
-    ctx.fillText(clientName, CANVAS_W - 20, HALF_H + 30);
-    ctx.font = '14px serif'; ctx.fillStyle = '#999';
-    ctx.fillText(format(new Date(), 'dd/MM/yyyy'), CANVAS_W - 20, HALF_H + 50);
-
+    // Centered logo watermark at bottom — no footer, no name
     const logoToUse = artistLogoUrl || glowPushLogo;
     try {
       const logoImg = await loadImg(logoToUse);
-      const logoH = 36, logoW = (logoImg.width / logoImg.height) * logoH;
-      ctx.globalAlpha = 0.5;
-      ctx.drawImage(logoImg, 16, HALF_H + (FOOTER_H - logoH) / 2, logoW, logoH);
+      const logoW = CANVAS_W * 0.2;
+      const logoH = (logoImg.height / logoImg.width) * logoW;
+      ctx.globalAlpha = 0.55;
+      ctx.drawImage(logoImg, (CANVAS_W - logoW) / 2, CANVAS_H - logoH - 16, logoW, logoH);
       ctx.globalAlpha = 1;
     } catch { /* skip logo */ }
 
     return canvas;
-  }, [selectedPhotos, transforms, clientName, artistLogoUrl]);
+  }, [selectedPhotos, transforms, artistLogoUrl]);
 
   // Download collage directly to user's device
   const downloadCollageToDevice = useCallback(async () => {
@@ -844,15 +824,9 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
               />
             </div>
 
-            {/* Footer with logo */}
-            <div className="px-4 py-3 flex items-center justify-between" style={{ background: '#fefcf7' }}>
-              <div className="flex items-center gap-2">
-                <img src={artistLogoUrl || glowPushLogo} alt="Logo" className="h-6 w-auto object-contain" style={{ opacity: 0.6 }} crossOrigin="anonymous" />
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-serif font-bold" style={{ color: GOLD_DARK }}>{clientName}</p>
-                <p className="text-[9px] font-light" style={{ color: '#999' }}>{format(new Date(), 'dd/MM/yyyy')}</p>
-              </div>
+            {/* Centered logo watermark overlay */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none" style={{ opacity: 0.55 }}>
+              <img src={artistLogoUrl || glowPushLogo} alt="Logo" className="h-8 w-auto object-contain" crossOrigin="anonymous" />
             </div>
           </div>
 
