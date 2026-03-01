@@ -1190,8 +1190,10 @@ const ArtistDashboard = () => {
               <h1 className="text-2xl font-bold text-foreground tracking-wide mb-1">
                 {(() => {
                   const hour = new Date().getHours();
-                  if (lang === 'en') return hour < 12 ? 'Good Morning! ✨' : hour < 17 ? 'Good Afternoon! ✨' : 'Good Evening! ✨';
-                  return hour < 12 ? 'בוקר טוב, אלופה! ✨' : hour < 17 ? 'צהריים טובים, אלופה! ✨' : 'ערב טוב, אלופה! ✨';
+                  const firstName = artistName ? artistName.split(' ')[0] : '';
+                  if (lang === 'en') return firstName ? `Hi ${firstName} 👋` : (hour < 12 ? 'Good Morning! ✨' : hour < 17 ? 'Good Afternoon! ✨' : 'Good Evening! ✨');
+                  if (firstName) return `היי ${firstName} 👋`;
+                  return hour < 12 ? 'בוקר טוב! ✨' : hour < 17 ? 'צהריים טובים! ✨' : 'ערב טוב! ✨';
                 })()}
               </h1>
               <p className="text-sm text-muted-foreground">
