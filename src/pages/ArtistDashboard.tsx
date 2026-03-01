@@ -2555,7 +2555,6 @@ const ArtistDashboard = () => {
             { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
             { id: 'push' as const, icon: Bell, label: '!push', route: null },
             { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוחות', route: null },
-            { id: 'privacy' as const, icon: FileText, label: lang === 'en' ? 'Privacy Policy' : 'מדיניות פרטיות', route: '/privacy' },
             { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
           ].map((tab) => {
             const isActive = tab.route ? false : activeTab === tab.id;
