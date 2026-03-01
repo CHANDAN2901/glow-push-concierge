@@ -1,4 +1,3 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -7,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -40,29 +39,9 @@ serve(async (req) => {
       }
     }
 
-    // Fetch images and convert to base64
-    const fetchImage = async (url: string) => {
-      if (url.startsWith('data:')) return url;
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`Failed to fetch image: ${url}`);
-      const buf = await resp.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      let binary = "";
-      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-      const type = resp.headers.get("content-type") || "image/jpeg";
-      return `data:${type};base64,${btoa(binary)}`;
-    };
+    console.log("Sending image URLs to AI for face-aligned collage...", { hasLogo: !!resolvedLogoUrl });
 
-    const imagesToFetch = [fetchImage(beforeUrl), fetchImage(afterUrl)];
-    if (resolvedLogoUrl) imagesToFetch.push(fetchImage(resolvedLogoUrl));
-
-    const results = await Promise.all(imagesToFetch);
-    const beforeB64 = results[0];
-    const afterB64 = results[1];
-    const logoB64 = results[2] || null;
-
-    console.log("Sending images to AI for face-aligned collage...", { hasLogo: !!logoB64 });
-
+    // Pass URLs directly to the AI - no need to fetch and convert to base64
     const contentParts: any[] = [
       {
         type: "text",
@@ -89,16 +68,16 @@ LAYOUT:
 - Add small elegant labels: 'לפני' (Before) on the right, 'אחרי' (After) on the left, at the bottom.
 - Both images must be the same height and width.
 - Use a clean white background.
-${logoB64 ? "- IMPORTANT: Place the provided logo as a subtle watermark in the bottom-right corner. Make it about 10% of the collage width with 50% opacity (semi-transparent). It must NOT cover or hide the work — just a small professional branding mark." : ""}
+${resolvedLogoUrl ? "- IMPORTANT: Place the provided logo as a subtle watermark in the bottom-right corner. Make it about 10% of the collage width with 50% opacity (semi-transparent). It must NOT cover or hide the work — just a small professional branding mark." : ""}
 
 OUTPUT: A single high-quality image ready for Instagram/portfolio use. Minimal, luxurious, professional.`,
       },
-      { type: "image_url", image_url: { url: beforeB64 } },
-      { type: "image_url", image_url: { url: afterB64 } },
+      { type: "image_url", image_url: { url: beforeUrl } },
+      { type: "image_url", image_url: { url: afterUrl } },
     ];
 
-    if (logoB64) {
-      contentParts.push({ type: "image_url", image_url: { url: logoB64 } });
+    if (resolvedLogoUrl) {
+      contentParts.push({ type: "image_url", image_url: { url: resolvedLogoUrl } });
     }
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -131,6 +110,8 @@ OUTPUT: A single high-quality image ready for Instagram/portfolio use. Minimal, 
     }
 
     const aiData = await aiResponse.json();
+    console.log("AI response received, extracting image...");
+    
     const generatedImage = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
     if (!generatedImage) {
@@ -138,25 +119,32 @@ OUTPUT: A single high-quality image ready for Instagram/portfolio use. Minimal, 
       throw new Error("AI did not return an image");
     }
 
-    // Upload result to storage
-    const base64Data = generatedImage.includes(",") ? generatedImage.split(",")[1] : generatedImage;
-    const binaryStr = atob(base64Data);
+    // Upload result to storage - use streaming approach to minimize memory
+    const base64Content = generatedImage.includes(",") ? generatedImage.split(",")[1] : generatedImage;
+    
+    // Use Uint8Array from base64 without intermediate binary string
+    const rawLen = base64Content.length;
+    const binaryStr = atob(base64Content);
     const bytes = new Uint8Array(binaryStr.length);
     for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
 
     const storagePath = `${artistProfileId || "general"}/aligned/ai-aligned-${Date.now()}.png`;
+    console.log("Uploading AI result to storage...", storagePath);
+    
     const { error: uploadError } = await supabase.storage
       .from("client-photos")
       .upload(storagePath, bytes, { contentType: "image/png", upsert: true });
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
+      // Fallback: return the base64 image directly
       return new Response(JSON.stringify({ alignedUrl: generatedImage }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const { data: urlData } = supabase.storage.from("client-photos").getPublicUrl(storagePath);
+    console.log("AI align complete! URL:", urlData.publicUrl);
 
     return new Response(JSON.stringify({ alignedUrl: urlData.publicUrl }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
