@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { MessageCircle, Zap, Eye } from 'lucide-react';
+import { MessageCircle, Zap, Eye, X } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 interface Props {
   clientName: string;
@@ -18,10 +19,6 @@ export default function HealingNotificationBadge({ clientName, day, hasAutomatio
 
   if (!hasTemplate) return null;
 
-  const truncated = previewText && previewText.length > 200
-    ? previewText.slice(0, 200) + '…'
-    : previewText;
-
   if (hasAutomation) {
     return (
       <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-accent/10 text-accent-foreground">
@@ -32,11 +29,11 @@ export default function HealingNotificationBadge({ clientName, day, hasAutomatio
   }
 
   return (
-    <div className="flex flex-col items-end gap-1.5 relative">
+    <>
       <div className="flex items-center gap-1.5">
-        {truncated && (
+        {previewText && (
           <button
-            onClick={(e) => { e.stopPropagation(); setShowPreview(p => !p); }}
+            onClick={(e) => { e.stopPropagation(); setShowPreview(true); }}
             className="flex items-center justify-center w-7 h-7 rounded-full border border-border hover:bg-muted transition-colors"
             aria-label={isHe ? 'תצוגה מקדימה' : 'Preview'}
           >
@@ -52,15 +49,34 @@ export default function HealingNotificationBadge({ clientName, day, hasAutomatio
         </button>
       </div>
 
-      {showPreview && truncated && (
-        <div
-          onClick={(e) => { e.stopPropagation(); setShowPreview(false); }}
-          className="w-[260px] p-3 rounded-xl border border-border bg-card text-xs whitespace-pre-line shadow-lg text-card-foreground"
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent
+          className="max-w-sm rounded-2xl border-2 border-accent/40 bg-card p-0 shadow-xl"
           dir={isHe ? 'rtl' : 'ltr'}
         >
-          {truncated}
-        </div>
-      )}
-    </div>
+          <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border/50">
+            <DialogTitle className="text-sm font-bold text-foreground flex items-center gap-2">
+              <MessageCircle className="w-4 h-4 text-accent" />
+              {isHe ? 'תצוגה מקדימה של ההודעה' : 'Message Preview'}
+            </DialogTitle>
+          </div>
+
+          <div className="px-5 py-4">
+            <p className="text-sm leading-relaxed whitespace-pre-line text-foreground">
+              {previewText}
+            </p>
+          </div>
+
+          <div className="px-5 pb-5">
+            <button
+              onClick={() => setShowPreview(false)}
+              className="w-full py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-muted transition-colors text-muted-foreground"
+            >
+              {isHe ? 'סגירה' : 'Close'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
