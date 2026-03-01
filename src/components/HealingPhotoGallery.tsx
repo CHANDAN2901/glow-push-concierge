@@ -1,8 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, Sparkles } from 'lucide-react';
+import { Camera, X, Check, Calendar as CalendarIcon, Layers, Download, RotateCw, ZoomIn, ZoomOut, Move } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
-import html2canvas from 'html2canvas';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +18,15 @@ interface HealingPhotoGalleryProps {
   artistId?: string;
 }
 
+interface ImageTransform {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+  rotation: number;
+}
+
+const defaultTransform = (): ImageTransform => ({ scale: 1, offsetX: 0, offsetY: 0, rotation: 0 });
+
 const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: HealingPhotoGalleryProps) => {
   const { photos, loading, fetchError, uploadPhoto, deletePhoto, resolvedArtistId } = useClientGallery(clientId, artistId);
   const [collageMode, setCollageMode] = useState(false);
@@ -29,20 +37,28 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
   const [collageErrorMessage, setCollageErrorMessage] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
-  const [aiAligning, setAiAligning] = useState(false);
-  const [aiAlignedUrl, setAiAlignedUrl] = useState<string | null>(null);
-  const collageRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Manual edit transforms for before (index 0) and after (index 1)
+  const [transforms, setTransforms] = useState<[ImageTransform, ImageTransform]>([defaultTransform(), defaultTransform()]);
+  const [activeEditIndex, setActiveEditIndex] = useState<number | null>(null);
+
+  // Dragging state
+  const dragRef = useRef<{ startX: number; startY: number; startOffsetX: number; startOffsetY: number } | null>(null);
+
+  // Artist logo URL
+  const [artistLogoUrl, setArtistLogoUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!resolvedArtistId) return;
+    supabase.from('profiles').select('logo_url').eq('id', resolvedArtistId).maybeSingle()
+      .then(({ data }) => { if (data?.logo_url) setArtistLogoUrl(data.logo_url); });
+  }, [resolvedArtistId]);
 
   // Close lightbox on Escape key
   useEffect(() => {
     if (!lightboxUrl) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        setLightboxUrl(null);
-      }
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setLightboxUrl(null); }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -57,7 +73,6 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (!resolvedArtistId) {
       const msg = 'טוען פרטי סטודיו, נסי שוב בעוד רגע';
       setUploadErrorMessage(msg);
@@ -65,7 +80,6 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       e.target.value = '';
       return;
     }
-
     setUploading(true);
     setUploadErrorMessage(null);
     try {
@@ -105,9 +119,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     });
   };
 
-  const selectedPhotos = selectedIds
-    .map(id => photos.find(p => p.id === id))
-    .filter(Boolean);
+  const selectedPhotos = selectedIds.map(id => photos.find(p => p.id === id)).filter(Boolean);
 
   const createCollage = () => {
     if (selectedPhotos.length !== 2) {
@@ -116,50 +128,47 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     }
     setShowCollage(true);
     setCollageMode(false);
-    setAiAlignedUrl(null);
+    setTransforms([defaultTransform(), defaultTransform()]);
+    setActiveEditIndex(null);
   };
 
-  const handleAiAlign = useCallback(async () => {
-    if (selectedPhotos.length !== 2 || !resolvedArtistId) return;
+  // Transform update helpers
+  const updateTransform = (index: number, partial: Partial<ImageTransform>) => {
+    setTransforms(prev => {
+      const next = [...prev] as [ImageTransform, ImageTransform];
+      next[index] = { ...next[index], ...partial };
+      return next;
+    });
+  };
 
-    setAiAligning(true);
-    setCollageErrorMessage(null);
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-align', {
-        body: {
-          beforeUrl: selectedPhotos[0]!.public_url,
-          afterUrl: selectedPhotos[1]!.public_url,
-          artistProfileId: resolvedArtistId,
-        },
-      });
+  // Pointer drag handlers for panning
+  const handlePointerDown = (e: React.PointerEvent, index: number) => {
+    if (activeEditIndex !== index) return;
+    e.preventDefault();
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startOffsetX: transforms[index].offsetX,
+      startOffsetY: transforms[index].offsetY,
+    };
+  };
 
-      if (error) throw error;
-      if (data?.error) {
-        if (data.error === 'rate_limit') {
-          toast({ title: 'יותר מדי בקשות, נסי שוב בעוד דקה ⏳', variant: 'destructive' });
-        } else {
-          throw new Error(data.error);
-        }
-        return;
-      }
+  const handlePointerMove = (e: React.PointerEvent, index: number) => {
+    if (!dragRef.current || activeEditIndex !== index) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    updateTransform(index, {
+      offsetX: dragRef.current.startOffsetX + dx,
+      offsetY: dragRef.current.startOffsetY + dy,
+    });
+  };
 
-      if (data?.alignedUrl) {
-        setAiAlignedUrl(data.alignedUrl);
-        toast({ title: 'היישור הושלם בהצלחה! ✨ בדקי את התוצאה' });
-      } else {
-        throw new Error('AI did not return an image');
-      }
-    } catch (err: any) {
-      const message = err?.message || 'שגיאה ביישור AI';
-      setCollageErrorMessage(message);
-      toast({ title: `שגיאה ביישור: ${message}`, variant: 'destructive' });
-    } finally {
-      setAiAligning(false);
-    }
-  }, [selectedPhotos, resolvedArtistId]);
+  const handlePointerUp = () => { dragRef.current = null; };
 
+  // Render collage to canvas and save
   const saveCollageToDevice = useCallback(async () => {
-    console.log('[CollageFlow] Step 1: Start save. resolvedArtistId=', resolvedArtistId, 'clientId=', clientId);
+    console.log('[CollageFlow] Step 1: Start save. resolvedArtistId=', resolvedArtistId);
     if (!resolvedArtistId) {
       const msg = 'פרופיל האמנית לא נטען עדיין, נסי שוב בעוד רגע';
       setCollageErrorMessage(msg);
@@ -171,96 +180,162 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     setCollageErrorMessage(null);
 
     try {
-      let base64Data: string;
-
-      // Step 2: Get base64 from AI result or canvas
-      if (aiAlignedUrl) {
-        console.log('[CollageFlow] Step 2: Using AI-aligned URL, fetching as base64...');
-        try {
-          const resp = await fetch(aiAlignedUrl);
-          const blob = await resp.blob();
-          base64Data = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-          console.log('[CollageFlow] Step 2: AI image converted to base64, length=', base64Data.length);
-        } catch (fetchErr: any) {
-          throw new Error(`Failed to fetch AI image: ${fetchErr?.message}`);
-        }
-      } else {
-        console.log('[CollageFlow] Step 2: Rendering canvas from collageRef...');
-        if (!collageRef.current) {
-          throw new Error('Collage element not found in DOM');
-        }
-        const canvas = await html2canvas(collageRef.current, {
-          useCORS: true,
-          scale: 2,
-          backgroundColor: '#ffffff',
+      // Step 2: Load both images
+      console.log('[CollageFlow] Step 2: Loading images...');
+      const loadImg = (url: string): Promise<HTMLImageElement> =>
+        new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+          img.src = url;
         });
-        base64Data = canvas.toDataURL('image/jpeg', 0.92);
-        console.log('[CollageFlow] Step 2: Canvas rendered, base64 length=', base64Data.length);
+
+      const [beforeImg, afterImg] = await Promise.all([
+        loadImg(selectedPhotos[0]!.public_url),
+        loadImg(selectedPhotos[1]!.public_url),
+      ]);
+
+      // Step 3: Draw canvas with transforms
+      console.log('[CollageFlow] Step 3: Drawing canvas...');
+      const HALF_W = 600;
+      const HALF_H = 600;
+      const DIVIDER = 3;
+      const FOOTER_H = 60;
+      const CANVAS_W = HALF_W * 2 + DIVIDER;
+      const CANVAS_H = HALF_H + FOOTER_H;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = CANVAS_W;
+      canvas.height = CANVAS_H;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // Draw a single image into a half with transforms applied
+      const drawHalf = (img: HTMLImageElement, t: ImageTransform, xStart: number) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(xStart, 0, HALF_W, HALF_H);
+        ctx.clip();
+
+        const cx = xStart + HALF_W / 2 + t.offsetX;
+        const cy = HALF_H / 2 + t.offsetY;
+        ctx.translate(cx, cy);
+        ctx.rotate((t.rotation * Math.PI) / 180);
+        ctx.scale(t.scale, t.scale);
+
+        // Fill the half while maintaining aspect ratio
+        const imgAspect = img.width / img.height;
+        const halfAspect = HALF_W / HALF_H;
+        let drawW: number, drawH: number;
+        if (imgAspect > halfAspect) {
+          drawH = HALF_H;
+          drawW = HALF_H * imgAspect;
+        } else {
+          drawW = HALF_W;
+          drawH = HALF_W / imgAspect;
+        }
+        ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+        ctx.restore();
+      };
+
+      // RTL layout: After on left, Before on right
+      drawHalf(afterImg, transforms[1], 0);
+      drawHalf(beforeImg, transforms[0], HALF_W + DIVIDER);
+
+      // Gold divider
+      ctx.fillStyle = GOLD;
+      ctx.fillRect(HALF_W, 0, DIVIDER, HALF_H);
+
+      // Labels
+      ctx.font = 'bold 22px serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.shadowColor = 'rgba(0,0,0,0.7)';
+      ctx.shadowBlur = 4;
+      // "אחרי" on left (after)
+      ctx.textAlign = 'left';
+      ctx.fillText('אחרי ✨', 16, HALF_H - 16);
+      // "לפני" on right (before)
+      ctx.textAlign = 'right';
+      ctx.fillText('לפני', CANVAS_W - 16, HALF_H - 16);
+      ctx.shadowBlur = 0;
+
+      // Footer
+      ctx.fillStyle = '#fefcf7';
+      ctx.fillRect(0, HALF_H, CANVAS_W, FOOTER_H);
+      ctx.fillStyle = GOLD_DARK;
+      ctx.font = 'bold 18px serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(clientName, CANVAS_W - 20, HALF_H + 30);
+      ctx.font = '14px serif';
+      ctx.fillStyle = '#999';
+      ctx.fillText(format(new Date(), 'dd/MM/yyyy'), CANVAS_W - 20, HALF_H + 50);
+
+      // Logo watermark (artist logo or glowpush)
+      const logoToUse = artistLogoUrl || glowPushLogo;
+      try {
+        const logoImg = await loadImg(logoToUse);
+        const logoH = 36;
+        const logoW = (logoImg.width / logoImg.height) * logoH;
+        ctx.globalAlpha = 0.5;
+        ctx.drawImage(logoImg, 16, HALF_H + (FOOTER_H - logoH) / 2, logoW, logoH);
+        ctx.globalAlpha = 1;
+      } catch {
+        // Logo failed to load - skip watermark
+        console.warn('[CollageFlow] Logo watermark failed to load, skipping');
       }
 
-      // Step 3: Upload directly to Supabase Storage (no edge function)
-      console.log('[CollageFlow] Step 3: Uploading directly to storage...');
+      console.log('[CollageFlow] Step 3: Canvas drawn successfully');
+
+      // Step 4: Convert canvas to blob and upload directly to storage
+      console.log('[CollageFlow] Step 4: Converting to blob and uploading...');
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Canvas toBlob failed')), 'image/jpeg', 0.92);
+      });
+
       const fileName = `collage-${Date.now()}.jpg`;
       const safeClientId = clientId ? clientId.replace(/[^a-zA-Z0-9_-]/g, '_') : 'general';
       const storagePath = `${resolvedArtistId}/${safeClientId}/gallery-collage/${fileName}`;
 
-      // Convert base64 to Blob for direct upload
-      const base64Content = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
-      const binaryStr = atob(base64Content);
-      const bytes = new Uint8Array(binaryStr.length);
-      for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
-      
-      let contentType = 'image/jpeg';
-      if (base64Data.includes('image/png')) contentType = 'image/png';
-      else if (base64Data.includes('image/webp')) contentType = 'image/webp';
-      const blob = new Blob([bytes], { type: contentType });
-
       const { error: uploadError } = await supabase.storage
         .from('client-photos')
-        .upload(storagePath, blob, { contentType, upsert: true });
+        .upload(storagePath, blob, { contentType: 'image/jpeg', upsert: true });
 
       if (uploadError) {
-        console.error('[CollageFlow] Step 3 FAILED: Storage upload error', uploadError);
+        console.error('[CollageFlow] Step 4 FAILED:', uploadError);
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
       const { data: urlData } = supabase.storage.from('client-photos').getPublicUrl(storagePath);
       const publicUrl = urlData.publicUrl;
-      console.log('[CollageFlow] Step 3: Upload success. URL=', publicUrl, 'storagePath=', storagePath);
+      console.log('[CollageFlow] Step 4: Uploaded. URL=', publicUrl);
 
-      // Step 4: Insert into client_gallery_photos
-      console.log('[CollageFlow] Step 4: Inserting into client_gallery_photos...');
+      // Step 5: Insert into DB
+      console.log('[CollageFlow] Step 5: Inserting into DB...');
       const { error: insertError } = await supabase.from('client_gallery_photos').insert({
         client_id: clientId || null,
         artist_id: resolvedArtistId,
         storage_path: storagePath,
         public_url: publicUrl,
         photo_type: 'collage',
-        label: aiAlignedUrl ? 'קולאז׳ AI לפני ואחרי' : 'קולאז׳ לפני ואחרי',
+        label: 'קולאז׳ לפני ואחרי',
         day_number: null,
         uploaded_by: 'artist',
         seen_by_client: false,
       } as any);
 
       if (insertError) {
-        console.error('[CollageFlow] Step 4 FAILED: DB insert error', insertError);
+        console.error('[CollageFlow] Step 5 FAILED:', insertError);
         throw new Error(`DB insert failed: ${insertError.message}`);
       }
 
-      console.log('[CollageFlow] Step 4: DB insert success!');
-
-      // Step 5: Success! Clear state
-      console.log('[CollageFlow] Step 5: Done! Clearing state...');
-      toast({ title: 'נשמר בהצלחה ✅' });
+      console.log('[CollageFlow] Step 5: Done!');
+      toast({ title: 'הקולאז׳ נשמר בגלריה בהצלחה ✅' });
       setSelectedIds([]);
       setShowCollage(false);
       setCollageMode(false);
-      setAiAlignedUrl(null);
+      setTransforms([defaultTransform(), defaultTransform()]);
     } catch (err: any) {
       const message = err?.message || 'Unknown collage save error';
       console.error('[CollageFlow] FAILED:', message, err);
@@ -269,7 +344,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     } finally {
       setSavingCollage(false);
     }
-  }, [clientId, clientName, resolvedArtistId, aiAlignedUrl]);
+  }, [clientId, clientName, resolvedArtistId, selectedPhotos, transforms, artistLogoUrl]);
 
   const sortedPhotos = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -281,6 +356,46 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     );
   }
 
+  const renderEditControls = (index: number, label: string) => {
+    const isActive = activeEditIndex === index;
+    return (
+      <div className="flex flex-col items-center gap-1 mt-1">
+        <button
+          onClick={() => setActiveEditIndex(isActive ? null : index)}
+          className="text-[10px] font-bold font-serif px-3 py-1 rounded-full transition-all"
+          style={{
+            background: isActive ? GOLD_GRADIENT : '#fff',
+            border: `1.5px solid ${GOLD}`,
+            color: isActive ? '#5C4033' : GOLD_DARK,
+          }}
+        >
+          <Move className="w-3 h-3 inline mr-1" />
+          {isActive ? `עריכת ${label} פעילה` : `ערכי ${label}`}
+        </button>
+        {isActive && (
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => updateTransform(index, { scale: transforms[index].scale + 0.1 })}
+              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}>
+              <ZoomIn className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={() => updateTransform(index, { scale: Math.max(0.3, transforms[index].scale - 0.1) })}
+              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}>
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={() => updateTransform(index, { rotation: transforms[index].rotation + 90 })}
+              className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: GOLD, color: GOLD_DARK }}>
+              <RotateCw className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={() => updateTransform(index, defaultTransform())}
+              className="text-[9px] font-bold px-2 py-1 rounded-full border" style={{ borderColor: GOLD, color: GOLD_DARK }}>
+              איפוס
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       {/* Lightbox modal */}
@@ -288,25 +403,13 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         <div
           className="fixed inset-0 flex items-center justify-center"
           style={{ zIndex: 99999, backgroundColor: 'rgba(0,0,0,0.92)' }}
-          role="dialog"
-          aria-modal="true"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setLightboxUrl(null);
-          }}
+          role="dialog" aria-modal="true"
+          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxUrl(null); }}
           onTouchStart={(e) => e.stopPropagation()}
         >
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setLightboxUrl(null);
-            }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxUrl(null); }}
             onMouseDown={(e) => e.stopPropagation()}
             className="absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center transition-colors"
             style={{ zIndex: 100000, backgroundColor: 'rgba(255,255,255,0.2)' }}
@@ -315,14 +418,9 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
             <X className="w-7 h-7 text-white" />
           </button>
           <img
-            src={lightboxUrl}
-            alt="Enlarged photo"
-            className="rounded-lg"
+            src={lightboxUrl} alt="Enlarged photo" className="rounded-lg"
             style={{ zIndex: 100000, maxWidth: '95vw', maxHeight: '90vh', objectFit: 'contain', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onMouseDown={(e) => e.stopPropagation()}
           />
         </div>,
@@ -344,7 +442,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
         {sortedPhotos.length >= 2 && (
           <button
-            onClick={() => { setCollageMode(!collageMode); setSelectedIds([]); setShowCollage(false); setAiAlignedUrl(null); }}
+            onClick={() => { setCollageMode(!collageMode); setSelectedIds([]); setShowCollage(false); }}
             className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98]"
             style={{
               background: collageMode ? GOLD_GRADIENT : '#ffffff',
@@ -368,7 +466,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         <div className="space-y-1">
           {fetchError && <p className="text-center text-xs text-destructive">{fetchError}</p>}
           {uploadErrorMessage && <p className="text-center text-xs text-destructive">{uploadErrorMessage}</p>}
-          {collageErrorMessage && <p className="text-center text-xs text-destructive">{collageErrorMessage}</p>}
+          {collageErrorMessage && <p className="text-center text-xs text-destructive font-bold">{collageErrorMessage}</p>}
         </div>
       )}
 
@@ -376,40 +474,24 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       {sortedPhotos.length === 0 ? (
         <div className="text-center py-8">
           <Camera className="w-10 h-10 mx-auto mb-3 opacity-30" style={{ color: GOLD_DARK }} />
-          <p className="text-sm font-serif" style={{ color: GOLD_DARK }}>
-            עדיין אין תמונות החלמה 📸
-          </p>
-          <p className="text-xs mt-1 font-light" style={{ color: '#888' }}>
-            הוסיפי תמונות כדי לעקוב אחרי תהליך ההחלמה
-          </p>
+          <p className="text-sm font-serif" style={{ color: GOLD_DARK }}>עדיין אין תמונות החלמה 📸</p>
+          <p className="text-xs mt-1 font-light" style={{ color: '#888' }}>הוסיפי תמונות כדי לעקוב אחרי תהליך ההחלמה</p>
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-2.5" dir="rtl">
           {sortedPhotos.map((photo) => {
             const isSelected = selectedIds.includes(photo.id);
-
             return (
               <div
                 key={photo.id}
                 className={`relative rounded-xl overflow-hidden shadow-sm border transition-all cursor-pointer ${
                   isSelected ? 'ring-2 ring-offset-1 scale-[0.97]' : 'hover:shadow-md hover:scale-[1.02]'
                 }`}
-                style={{
-                  borderColor: isSelected ? GOLD : `${GOLD}40`,
-                  background: '#ffffff',
-                }}
-                onClick={() => {
-                  if (collageMode) {
-                    toggleSelect(photo.id);
-                  } else {
-                    setLightboxUrl(photo.public_url);
-                  }
-                }}
+                style={{ borderColor: isSelected ? GOLD : `${GOLD}40`, background: '#ffffff' }}
+                onClick={() => { collageMode ? toggleSelect(photo.id) : setLightboxUrl(photo.public_url); }}
               >
                 <div className="aspect-square overflow-hidden relative">
                   <img src={photo.public_url} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
-
-                  {/* Selection overlay */}
                   {collageMode && isSelected && (
                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                       <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: GOLD_GRADIENT }}>
@@ -417,8 +499,6 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
                       </div>
                     </div>
                   )}
-
-                  {/* Delete button (not in collage mode) */}
                   {!collageMode && (
                     <button
                       onClick={(e) => { e.stopPropagation(); removePhoto(photo.id); }}
@@ -427,29 +507,15 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
                       <X className="w-2.5 h-2.5" style={{ color: GOLD_DARK }} />
                     </button>
                   )}
-
-                  {/* Day badge */}
                   {photo.day_number !== null && (
-                    <span
-                      className="absolute top-1 right-1 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
-                      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
-                    >
-                      יום {photo.day_number}
-                    </span>
+                    <span className="absolute top-1 right-1 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
+                      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}>יום {photo.day_number}</span>
                   )}
-
-                  {/* Collage badge */}
                   {photo.photo_type === 'collage' && (
-                    <span
-                      className="absolute bottom-1 right-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
-                    >
-                      קולאז׳
-                    </span>
+                    <span className="absolute bottom-1 right-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
+                      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}>קולאז׳</span>
                   )}
                 </div>
-
-                {/* Date label */}
                 <div className="px-1.5 py-1 flex items-center gap-1">
                   <CalendarIcon className="w-2.5 h-2.5 shrink-0" style={{ color: GOLD_DARK }} />
                   <span className="text-[9px] font-serif font-semibold" style={{ color: '#333' }}>
@@ -468,11 +534,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           <button
             onClick={createCollage}
             className="flex items-center gap-2.5 px-7 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98]"
-            style={{
-              background: GOLD_GRADIENT,
-              color: '#5C4033',
-              boxShadow: '0 4px 16px -2px rgba(212,175,55,0.5)',
-            }}
+            style={{ background: GOLD_GRADIENT, color: '#5C4033', boxShadow: '0 4px 16px -2px rgba(212,175,55,0.5)' }}
           >
             <Layers className="w-4 h-4" />
             צור קולאז׳ ✨
@@ -480,94 +542,87 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         </div>
       )}
 
-      {/* Collage preview */}
+      {/* Collage editor with manual controls */}
       {showCollage && selectedPhotos.length === 2 && (
         <div className="space-y-3 animate-fade-up">
-          {/* AI-aligned result OR manual collage */}
-          {aiAlignedUrl ? (
-            <div className="relative w-full rounded-2xl overflow-hidden shadow-lg border-2" style={{ borderColor: GOLD }}>
-              <img src={aiAlignedUrl} alt="AI aligned collage" className="w-full h-auto" crossOrigin="anonymous" />
-              <div className="absolute top-2 left-2">
-                <span className="text-[9px] font-bold px-2 py-1 rounded-full" style={{ background: GOLD_GRADIENT, color: '#5C4033' }}>
-                  ✨ יושר עם AI
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div
-              ref={collageRef}
-              className="relative w-full rounded-2xl overflow-hidden shadow-lg border-2"
-              style={{ borderColor: GOLD, background: '#ffffff' }}
-            >
-              <div className="flex" style={{ aspectRatio: '2/1' }}>
-                <div className="w-1/2 relative overflow-hidden">
-                  <img src={selectedPhotos[1]!.public_url} alt="After" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                  <span className="absolute bottom-2 left-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>
-                    אחרי ✨
-                  </span>
-                </div>
-                <div className="w-[2px] flex-shrink-0" style={{ backgroundColor: GOLD }} />
-                <div className="w-1/2 relative overflow-hidden">
-                  <img src={selectedPhotos[0]!.public_url} alt="Before" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                  <span className="absolute bottom-2 right-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>
-                    לפני
-                  </span>
-                </div>
-              </div>
+          <p className="text-center text-xs font-serif" style={{ color: GOLD_DARK }}>
+            🎨 גררי לזוז, השתמשי בכפתורים לזום וסיבוב
+          </p>
 
-              <div className="px-4 py-3 flex items-center justify-between" style={{ background: '#fefcf7' }}>
-                <div className="flex items-center gap-2">
-                  <img src={glowPushLogo} alt="Glow Push" className="h-6 w-auto object-contain" />
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-serif font-bold" style={{ color: GOLD_DARK }}>{clientName}</p>
-                  <p className="text-[9px] font-light" style={{ color: '#999' }}>
-                    {format(new Date(), 'dd/MM/yyyy')}
-                  </p>
-                </div>
-              </div>
-
-              {/* AI loading overlay */}
-              {aiAligning && (
-                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-3 z-10 rounded-2xl">
-                  <div className="animate-spin w-8 h-8 border-3 rounded-full" style={{ borderColor: GOLD, borderTopColor: 'transparent' }} />
-                  <p className="text-white text-sm font-serif font-bold">מיישר פנים עם AI... ✨</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Action buttons */}
-          <div className="flex justify-center gap-3 flex-wrap">
-            {/* AI Align button */}
-            {!aiAlignedUrl && (
-              <button
-                onClick={handleAiAlign}
-                disabled={aiAligning || savingCollage}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
-                style={{
-                  background: '#ffffff',
-                  border: `2.5px solid ${GOLD}`,
-                  color: GOLD_DARK,
-                }}
+          <div className="relative w-full rounded-2xl overflow-hidden shadow-lg border-2" style={{ borderColor: GOLD, background: '#ffffff' }}>
+            <div className="flex" style={{ aspectRatio: '2/1' }}>
+              {/* After (left side) */}
+              <div
+                className="w-1/2 relative overflow-hidden"
+                style={{ cursor: activeEditIndex === 1 ? 'grab' : 'default', touchAction: 'none' }}
+                onPointerDown={(e) => handlePointerDown(e, 1)}
+                onPointerMove={(e) => handlePointerMove(e, 1)}
+                onPointerUp={handlePointerUp}
               >
-                <Sparkles className="w-4 h-4" />
-                {aiAligning ? 'מיישר...' : '✨ יישור אוטומטי עם AI'}
-              </button>
-            )}
+                <img
+                  src={selectedPhotos[1]!.public_url} alt="After"
+                  className="w-full h-full object-cover"
+                  crossOrigin="anonymous"
+                  draggable={false}
+                  style={{
+                    transform: `translate(${transforms[1].offsetX}px, ${transforms[1].offsetY}px) scale(${transforms[1].scale}) rotate(${transforms[1].rotation}deg)`,
+                    transition: dragRef.current ? 'none' : 'transform 0.15s ease',
+                  }}
+                />
+                <span className="absolute bottom-2 left-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>אחרי ✨</span>
+              </div>
 
-            {/* Save button */}
+              <div className="w-[3px] flex-shrink-0" style={{ backgroundColor: GOLD }} />
+
+              {/* Before (right side) */}
+              <div
+                className="w-1/2 relative overflow-hidden"
+                style={{ cursor: activeEditIndex === 0 ? 'grab' : 'default', touchAction: 'none' }}
+                onPointerDown={(e) => handlePointerDown(e, 0)}
+                onPointerMove={(e) => handlePointerMove(e, 0)}
+                onPointerUp={handlePointerUp}
+              >
+                <img
+                  src={selectedPhotos[0]!.public_url} alt="Before"
+                  className="w-full h-full object-cover"
+                  crossOrigin="anonymous"
+                  draggable={false}
+                  style={{
+                    transform: `translate(${transforms[0].offsetX}px, ${transforms[0].offsetY}px) scale(${transforms[0].scale}) rotate(${transforms[0].rotation}deg)`,
+                    transition: dragRef.current ? 'none' : 'transform 0.15s ease',
+                  }}
+                />
+                <span className="absolute bottom-2 right-2 text-white text-xs font-bold px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(0,0,0,0.5)', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>לפני</span>
+              </div>
+            </div>
+
+            {/* Footer with logo */}
+            <div className="px-4 py-3 flex items-center justify-between" style={{ background: '#fefcf7' }}>
+              <div className="flex items-center gap-2">
+                <img src={artistLogoUrl || glowPushLogo} alt="Logo" className="h-6 w-auto object-contain" style={{ opacity: 0.6 }} crossOrigin="anonymous" />
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-serif font-bold" style={{ color: GOLD_DARK }}>{clientName}</p>
+                <p className="text-[9px] font-light" style={{ color: '#999' }}>{format(new Date(), 'dd/MM/yyyy')}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Manual edit controls */}
+          <div className="flex justify-center gap-6">
+            {renderEditControls(0, 'לפני')}
+            {renderEditControls(1, 'אחרי')}
+          </div>
+
+          {/* Save button */}
+          <div className="flex justify-center">
             <button
               onClick={saveCollageToDevice}
-              disabled={savingCollage || aiAligning}
+              disabled={savingCollage}
               className="flex items-center gap-2.5 px-7 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
-              style={{
-                background: GOLD_GRADIENT,
-                color: '#5C4033',
-                boxShadow: '0 4px 16px -2px rgba(212,175,55,0.5)',
-              }}
+              style={{ background: GOLD_GRADIENT, color: '#5C4033', boxShadow: '0 4px 16px -2px rgba(212,175,55,0.5)' }}
             >
               <Download className="w-4 h-4" />
               {savingCollage ? 'שומר...' : 'שמירת קולאז׳ לגלריה'}
@@ -575,7 +630,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           </div>
 
           <button
-            onClick={() => { setShowCollage(false); setSelectedIds([]); setAiAlignedUrl(null); }}
+            onClick={() => { setShowCollage(false); setSelectedIds([]); setTransforms([defaultTransform(), defaultTransform()]); }}
             className="w-full text-center text-xs font-serif py-2 transition-all"
             style={{ color: GOLD_DARK }}
           >
