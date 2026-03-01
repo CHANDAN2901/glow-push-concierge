@@ -6,12 +6,17 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [roleLoading, setRoleLoading] = useState(true);
 
   useEffect(() => {
-    // Helper to check admin role without blocking auth state
-    const checkAdmin = (userId: string) => {
-      supabase.rpc('has_role', { _user_id: userId, _role: 'admin' as const })
-        .then(({ data }) => setIsAdmin(!!data));
+    let isMounted = true;
+
+    const checkAdmin = async (userId: string) => {
+      setRoleLoading(true);
+      const { data } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' as const });
+      if (!isMounted) return;
+      setIsAdmin(!!data);
+      setRoleLoading(false);
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -20,28 +25,37 @@ export function useAuth() {
         setLoading(false);
 
         if (session?.user) {
-          // Defer Supabase call to avoid deadlock in onAuthStateChange
-          setTimeout(() => checkAdmin(session.user.id), 0);
+          setTimeout(() => {
+            void checkAdmin(session.user.id);
+          }, 0);
         } else {
           setIsAdmin(false);
+          setRoleLoading(false);
         }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
       setUser(session?.user ?? null);
       setLoading(false);
       if (session?.user) {
-        checkAdmin(session.user.id);
+        void checkAdmin(session.user.id);
+      } else {
+        setIsAdmin(false);
+        setRoleLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
-  return { user, loading, isAdmin, signOut };
+  return { user, loading, isAdmin, roleLoading, signOut };
 }
