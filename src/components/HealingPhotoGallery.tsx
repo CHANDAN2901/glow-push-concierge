@@ -651,6 +651,26 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           >
             <X className="w-7 h-7 text-white" />
           </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault(); e.stopPropagation();
+              const a = document.createElement('a');
+              a.href = lightboxUrl!;
+              a.download = `photo-${Date.now()}.jpg`;
+              a.target = '_blank';
+              a.rel = 'noopener noreferrer';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              toast({ title: 'מוריד תמונה... 📥' });
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            className="absolute top-4 left-4 w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+            style={{ zIndex: 100000, backgroundColor: 'rgba(255,255,255,0.2)' }}
+            aria-label="Download"
+          >
+            <Download className="w-6 h-6 text-white" />
+          </button>
           <img
             src={lightboxUrl} alt="Enlarged photo" className="rounded-lg"
             style={{ zIndex: 100000, maxWidth: '95vw', maxHeight: '90vh', objectFit: 'contain', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
