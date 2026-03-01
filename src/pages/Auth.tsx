@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, Building2, ArrowRight, Gift, Check, X, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, Building2, ArrowRight, Gift, Check, X, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import glowpushLogo from '@/assets/glowpush-logo.png';
 
@@ -23,6 +23,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [studioName, setStudioName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Promo / referral state
   const [promoCode, setPromoCode] = useState('');
@@ -320,15 +321,25 @@ const Auth = () => {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} />
                 <Input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="pl-10 h-12 rounded-2xl bg-white text-base"
+                  className="pl-10 pr-10 h-12 rounded-2xl bg-white text-base"
                   style={{ border: '1px solid hsl(38 40% 82%)', color: 'hsl(0 0% 15%)' }}
                   required
                   minLength={6}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-md hover:bg-muted/50 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword
+                    ? <EyeOff className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} />
+                    : <Eye className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} />}
+                </button>
               </div>
             </div>
 
