@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield } from 'lucide-react';
 
@@ -6,6 +7,8 @@ const COOKIE_KEY = 'gp-cookie-consent';
 
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
+  const location = useLocation();
+  const isArtistRoute = location.pathname === '/artist';
 
   useEffect(() => {
     const saved = localStorage.getItem(COOKIE_KEY);
@@ -25,7 +28,7 @@ export default function CookieConsentBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="fixed bottom-0 inset-x-0 z-[9999] px-4 pb-4"
+          className={`fixed inset-x-0 z-[9999] px-4 pb-4 ${isArtistRoute ? 'bottom-20' : 'bottom-0'}`}
         >
           <div
             className="max-w-lg mx-auto rounded-2xl p-5 shadow-lg"

@@ -35,7 +35,12 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
   const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !resolvedArtistId) return;
+    if (!file) return;
+    if (!resolvedArtistId) {
+      toast({ title: 'טוען פרטי סטודיו, נסי שוב בעוד רגע', variant: 'destructive' });
+      e.target.value = '';
+      return;
+    }
     setUploading(true);
     try {
       const reader = new FileReader();
@@ -147,12 +152,12 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       <div className="flex items-center justify-center gap-3 flex-wrap">
         <button
           onClick={() => fileRef.current?.click()}
-          disabled={uploading}
+          disabled={uploading || !resolvedArtistId}
           className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
           style={{ background: '#ffffff', border: `2.5px solid ${GOLD}`, color: GOLD_DARK }}
         >
           <Camera className="w-4 h-4" />
-          {uploading ? 'מעלה...' : 'הוסיפי תמונה'}
+          {uploading ? 'מעלה...' : !resolvedArtistId ? 'טוען פרופיל...' : 'הוסיפי תמונה'}
         </button>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAddPhoto} />
 

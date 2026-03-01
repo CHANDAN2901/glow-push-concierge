@@ -26,21 +26,58 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
 
   // Resolve clientId: if it's a UUID use directly, otherwise look up by name
   useEffect(() => {
-    if (!clientId) { setResolvedClientId(null); return; }
-    if (isUUID(clientId)) {
-      setResolvedClientId(clientId);
-      return;
-    }
-    // Try to find by name
-    supabase
-      .from('clients')
-      .select('id')
-      .eq('full_name', clientId)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        setResolvedClientId(data?.id || null);
-      });
+    let isCancelled = false;
+
+    const resolveClient = async () => {
+      if (!clientId) {
+        setResolvedClientId(null);
+        return;
+      }
+
+      if (isUUID(clientId)) {
+        setResolvedClientId(clientId);
+        return;
+      }
+
+      const normalizedName = clientId.trim();
+      if (!normalizedName) {
+        setResolvedClientId(null);
+        return;
+      }
+
+      const exactMatch = await supabase
+        .from('clients')
+        .select('id')
+        .eq('full_name', normalizedName)
+        .limit(1)
+        .maybeSingle();
+
+      if (isCancelled) return;
+
+      if (exactMatch.data?.id) {
+        setResolvedClientId(exactMatch.data.id);
+        return;
+      }
+
+      const fuzzyMatch = await supabase
+        .from('clients')
+        .select('id')
+        .ilike('full_name', normalizedName)
+        .limit(1)
+        .maybeSingle();
+
+      if (!isCancelled) {
+        setResolvedClientId(fuzzyMatch.data?.id || null);
+      }
+    };
+
+    resolveClient().catch(() => {
+      if (!isCancelled) setResolvedClientId(null);
+    });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [clientId]);
 
   const fetchPhotos = useCallback(async () => {
@@ -113,13 +150,28 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
     }
   }, [resolvedArtistId, photos]);
 
+  // Fallback: derive artist from the client record when auth/profile lookup isn't ready
+  useEffect(() => {
+    if (resolvedArtistId || !resolvedClientId || !isUUID(resolvedClientId)) return;
+
+    supabase
+      .from('clients')
+      .select('artist_id')
+      .eq('id', resolvedClientId)
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.artist_id) setResolvedArtistId(data.artist_id);
+      });
+  }, [resolvedArtistId, resolvedClientId]);
+
   const uploadPhoto = useCallback(async (
     base64Data: string,
     opts: { photoType?: 'healing' | 'collage'; label?: string; dayNumber?: number; uploadedBy?: 'artist' | 'client' } = {}
   ) => {
     const cId = resolvedClientId;
     const aId = resolvedArtistId;
-    if (!cId || !aId) throw new Error('Missing clientId or artistId');
+    if (!cId || !aId) throw new Error('Missing clientId or artistId for gallery upload');
     const { photoType = 'healing', label, dayNumber, uploadedBy = 'artist' } = opts;
 
     const fileName = `${photoType}-${Date.now()}.jpg`;
