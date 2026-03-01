@@ -162,6 +162,9 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
   const [downloading, setDownloading] = useState(false);
   const [savingToGallery, setSavingToGallery] = useState(false);
   const [savedToGallery, setSavedToGallery] = useState(false);
+  const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
+  const [collageErrorMessage, setCollageErrorMessage] = useState<string | null>(null);
+  const [fetchErrorMessage, setFetchErrorMessage] = useState<string | null>(null);
 
   // Editor state
   const [editorOpen, setEditorOpen] = useState(false);
@@ -194,13 +197,17 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
   useEffect(() => {
     if (!artistProfileId || !clientId) return;
     const fetchImages = async () => {
+      setFetchErrorMessage(null);
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('images_metadata')
           .select('storage_path, category')
           .eq('artist_profile_id', artistProfileId)
           .eq('client_id', clientId)
           .in('category', ['before', 'after']);
+
+        if (error) throw error;
+
         if (data && data.length > 0) {
           for (const img of data) {
             const { data: urlData } = supabase.storage
@@ -210,8 +217,16 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
             else if (img.category === 'after' && !afterUrl) setAfterUrl(urlData.publicUrl);
           }
         }
-      } catch (e) {
-        console.error('Failed to fetch images:', e);
+      } catch (e: any) {
+        const { data: { user } } = await supabase.auth.getUser();
+        const message = e?.message || 'Unknown gallery fetch error';
+        console.error('Healing gallery fetch failed', {
+          userId: user?.id || null,
+          fileName: null,
+          bucketPath: `images_metadata?artist_profile_id=${artistProfileId}&client_id=${clientId}`,
+          supabaseError: e,
+        });
+        setFetchErrorMessage(message);
       }
     };
     fetchImages();
@@ -223,16 +238,25 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
 
     // Validate file format
     if (!file.type.startsWith('image/')) {
-      toast({ title: isHe ? 'פורמט לא נתמך. נא להעלות תמונה (JPG, PNG, WEBP)' : 'Unsupported format. Please upload an image (JPG, PNG, WEBP).', variant: 'destructive' });
+      const msg = isHe ? 'פורמט לא נתמך. נא להעלות תמונה (JPG, PNG, WEBP)' : 'Unsupported format. Please upload an image (JPG, PNG, WEBP).';
+      setUploadErrorMessage(msg);
+      toast({ title: msg, variant: 'destructive' });
       return;
     }
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      toast({ title: isHe ? 'הקובץ גדול מדי (מקסימום 10MB)' : 'File too large (max 10MB)', variant: 'destructive' });
+      const msg = isHe ? 'הקובץ גדול מדי (מקסימום 10MB)' : 'File too large (max 10MB)';
+      setUploadErrorMessage(msg);
+      toast({ title: msg, variant: 'destructive' });
       return;
     }
 
+    const fileName = `${category}-${Date.now()}.${file.name.split('.').pop() || 'jpg'}`;
+    const safeClientId = (resolvedClientId || clientId || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const bucketPath = `${artistProfileId || 'unknown-artist'}/${safeClientId || 'unknown-client'}/${category}/${fileName}`;
+
     setUploading(true);
+    setUploadErrorMessage(null);
     try {
       const base64 = await normalizeImageOrientation(file);
 
@@ -243,15 +267,23 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
       }
 
       const { data, error } = await supabase.functions.invoke('upload-client-photo', {
-        body: { artistProfileId, clientId: resolvedClientId || clientId, category, base64Data: base64, fileName: `${category}-${Date.now()}.${file.name.split('.').pop() || 'jpg'}` },
+        body: { artistProfileId, clientId: resolvedClientId || clientId, category, base64Data: base64, fileName },
       });
       if (error) throw new Error(error.message || 'Upload failed');
       if (data?.error) throw new Error(data.error);
       setUrl(data.url);
       toast({ title: isHe ? 'התמונה הועלתה בהצלחה ✨' : 'Photo uploaded successfully ✨' });
     } catch (e: any) {
-      console.error('Upload failed:', e);
-      toast({ title: isHe ? `שגיאה בהעלאה: ${e.message || 'נסי שוב'}` : `Upload failed: ${e.message || 'Please try again'}`, variant: 'destructive' });
+      const { data: { user } } = await supabase.auth.getUser();
+      const message = e?.message || (isHe ? 'נסי שוב' : 'Please try again');
+      console.error('Healing single image upload failed', {
+        userId: user?.id || null,
+        fileName,
+        bucketPath,
+        supabaseError: e,
+      });
+      setUploadErrorMessage(message);
+      toast({ title: isHe ? `שגיאה בהעלאה: ${message}` : `Upload failed: ${message}`, variant: 'destructive' });
     } finally {
       setUploading(false);
     }
@@ -385,7 +417,13 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
     e.preventDefault();
     e.stopPropagation();
     if (!collageRef.current || !hasBoth || !artistProfileId || !resolvedClientId) return;
+
+    const fileName = `collage-${Date.now()}.jpg`;
+    const safeClientId = resolvedClientId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const bucketPath = `${artistProfileId}/${safeClientId}/gallery-collage/${fileName}`;
+
     setSavingToGallery(true);
+    setCollageErrorMessage(null);
     try {
       const clone = collageRef.current.cloneNode(true) as HTMLElement;
       const images = clone.querySelectorAll('img');
@@ -420,7 +458,7 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
           clientId: resolvedClientId,
           category: 'gallery-collage',
           base64Data: base64,
-          fileName: `collage-${Date.now()}.jpg`,
+          fileName,
         },
       });
       if (error) throw error;
@@ -443,9 +481,17 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
 
       setSavedToGallery(true);
       toast({ title: isHe ? 'הקולאז׳ נשמר בגלריה! 🎉' : 'Collage saved to gallery! 🎉' });
-    } catch (e) {
-      console.error('Save to gallery failed:', e);
-      toast({ title: isHe ? 'שגיאה בשמירה לגלריה' : 'Save to gallery failed', variant: 'destructive' });
+    } catch (e: any) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const message = e?.message || (isHe ? 'שגיאה לא ידועה' : 'Unknown save error');
+      console.error('Collage save failed', {
+        userId: user?.id || null,
+        fileName,
+        bucketPath,
+        supabaseError: e,
+      });
+      setCollageErrorMessage(message);
+      toast({ title: isHe ? `שגיאה בשמירה לגלריה: ${message}` : `Save to gallery failed: ${message}`, variant: 'destructive' });
     } finally {
       setSavingToGallery(false);
     }
@@ -501,6 +547,13 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
           <p className="text-center text-[10px] text-accent font-medium">
             {isHe ? '✅ הקולאז׳ נשמר בגלריה המשותפת' : '✅ Collage saved to shared gallery'}
           </p>
+        )}
+        {(fetchErrorMessage || uploadErrorMessage || collageErrorMessage) && (
+          <div className="space-y-1">
+            {fetchErrorMessage && <p className="text-center text-xs text-destructive">{fetchErrorMessage}</p>}
+            {uploadErrorMessage && <p className="text-center text-xs text-destructive">{uploadErrorMessage}</p>}
+            {collageErrorMessage && <p className="text-center text-xs text-destructive">{collageErrorMessage}</p>}
+          </div>
         )}
         <p className="text-center text-[10px] text-muted-foreground tracking-wide">
           {isHe ? 'קולאז׳ מקצועי מוכן לשיתוף' : 'Professional collage ready to share'}

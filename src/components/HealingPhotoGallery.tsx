@@ -4,6 +4,7 @@ import { format, differenceInDays } from 'date-fns';
 import html2canvas from 'html2canvas';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
+import { supabase } from '@/integrations/supabase/client';
 import glowPushLogo from '@/assets/glowpush-logo.png';
 
 const GOLD = '#D4AF37';
@@ -18,12 +19,14 @@ interface HealingPhotoGalleryProps {
 }
 
 const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: HealingPhotoGalleryProps) => {
-  const { photos, loading, uploadPhoto, deletePhoto, resolvedArtistId } = useClientGallery(clientId, artistId);
+  const { photos, loading, fetchError, uploadPhoto, deletePhoto, resolvedArtistId } = useClientGallery(clientId, artistId);
   const [collageMode, setCollageMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showCollage, setShowCollage] = useState(false);
   const [savingCollage, setSavingCollage] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
+  const [collageErrorMessage, setCollageErrorMessage] = useState<string | null>(null);
   const collageRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -36,12 +39,21 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     if (!resolvedArtistId) {
-      toast({ title: 'טוען פרטי סטודיו, נסי שוב בעוד רגע', variant: 'destructive' });
+      const msg = 'טוען פרטי סטודיו, נסי שוב בעוד רגע';
+      setUploadErrorMessage(msg);
+      toast({ title: msg, variant: 'destructive' });
       e.target.value = '';
       return;
     }
+
+    const safeClientId = clientId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fileName = file.name;
+    const bucketPath = `${resolvedArtistId}/${safeClientId}/gallery-healing/${fileName}`;
+
     setUploading(true);
+    setUploadErrorMessage(null);
     try {
       const reader = new FileReader();
       const base64 = await new Promise<string>((resolve) => {
@@ -52,9 +64,17 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       const label = dayNum !== null ? `יום ${dayNum}` : undefined;
       await uploadPhoto(base64, { photoType: 'healing', label, dayNumber: dayNum ?? undefined, uploadedBy: 'artist' });
       toast({ title: 'התמונה נשמרה בהצלחה ✨' });
-    } catch (err) {
-      console.error('Upload error:', err);
-      toast({ title: 'שגיאה בהעלאת התמונה', variant: 'destructive' });
+    } catch (err: any) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const message = err?.message || 'Unknown upload error';
+      console.error('Single image upload failed', {
+        userId: user?.id || null,
+        fileName,
+        bucketPath,
+        supabaseError: err,
+      });
+      setUploadErrorMessage(message);
+      toast({ title: `שגיאה בהעלאת התמונה: ${message}`, variant: 'destructive' });
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -93,7 +113,13 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
   const saveCollageToDevice = useCallback(async () => {
     if (!collageRef.current || !resolvedArtistId) return;
+
+    const collageFileName = `collage_${clientName.replace(/\s+/g, '_')}_${format(new Date(), 'yyyyMMdd')}.jpg`;
+    const safeClientId = clientId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const bucketPath = `${resolvedArtistId}/${safeClientId}/gallery-collage/${collageFileName}`;
+
     setSavingCollage(true);
+    setCollageErrorMessage(null);
     try {
       const canvas = await html2canvas(collageRef.current, {
         useCORS: true,
@@ -103,7 +129,9 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
       canvas.toBlob(async (blob) => {
         if (!blob) {
-          toast({ title: 'שגיאה ביצירת הקולאז׳', variant: 'destructive' });
+          const msg = 'שגיאה ביצירת הקולאז׳';
+          setCollageErrorMessage(msg);
+          toast({ title: msg, variant: 'destructive' });
           setSavingCollage(false);
           return;
         }
@@ -112,15 +140,24 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         try {
           const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
           await uploadPhoto(dataUrl, { photoType: 'collage', label: 'קולאז׳ לפני ואחרי', uploadedBy: 'artist' });
-        } catch (e) {
-          console.error('Collage save to gallery error:', e);
+        } catch (e: any) {
+          const { data: { user } } = await supabase.auth.getUser();
+          const message = e?.message || 'Unknown collage upload error';
+          console.error('Collage save to gallery failed', {
+            userId: user?.id || null,
+            fileName: collageFileName,
+            bucketPath,
+            supabaseError: e,
+          });
+          setCollageErrorMessage(message);
+          toast({ title: `שגיאה בשמירת הקולאז׳: ${message}`, variant: 'destructive' });
         }
 
         // Trigger download
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `collage_${clientName.replace(/\s+/g, '_')}_${format(new Date(), 'yyyyMMdd')}.jpg`;
+        a.download = collageFileName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -129,12 +166,20 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         toast({ title: 'הקולאז׳ נשמר בהצלחה! ✨' });
         setSavingCollage(false);
       }, 'image/jpeg', 0.92);
-    } catch (err) {
-      console.error('Collage save error:', err);
-      toast({ title: 'שגיאה בשמירה', variant: 'destructive' });
+    } catch (err: any) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const message = err?.message || 'Unknown collage save error';
+      console.error('Collage save failed', {
+        userId: user?.id || null,
+        fileName: collageFileName,
+        bucketPath,
+        supabaseError: err,
+      });
+      setCollageErrorMessage(message);
+      toast({ title: `שגיאה בשמירה: ${message}`, variant: 'destructive' });
       setSavingCollage(false);
     }
-  }, [clientName, resolvedArtistId, uploadPhoto]);
+  }, [clientId, clientName, resolvedArtistId, uploadPhoto]);
 
   const sortedPhotos = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -181,6 +226,14 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         <p className="text-center text-xs font-serif" style={{ color: GOLD_DARK }}>
           ✨ בחרי 2 תמונות ליצירת קולאז׳ ({selectedIds.length}/2)
         </p>
+      )}
+
+      {(fetchError || uploadErrorMessage || collageErrorMessage) && (
+        <div className="space-y-1">
+          {fetchError && <p className="text-center text-xs text-destructive">{fetchError}</p>}
+          {uploadErrorMessage && <p className="text-center text-xs text-destructive">{uploadErrorMessage}</p>}
+          {collageErrorMessage && <p className="text-center text-xs text-destructive">{collageErrorMessage}</p>}
+        </div>
       )}
 
       {/* Gallery grid */}
