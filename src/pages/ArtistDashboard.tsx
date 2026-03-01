@@ -312,6 +312,9 @@ const ArtistDashboard = () => {
   const [userProfileId, setUserProfileId] = useState<string | null>(null);
   const [hasWhatsAppAutomation, setHasWhatsAppAutomation] = useState(false);
 
+  // Appointment lookup for dynamic reminders
+  const [appointmentLookup, setAppointmentLookup] = useState<Record<string, { date: string; time: string }>>({});
+
   const fetchProfileId = useCallback(async () => {
     if (!user) return;
     const { data } = await supabase.from('profiles').select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier').eq('user_id', user.id).single() as { data: any; error: any };
@@ -506,6 +509,24 @@ const ArtistDashboard = () => {
     }, 5200);
   };
 
+  // Build dynamic appointment reminder WhatsApp URL
+  const buildReminderWhatsAppUrl = (clientName: string, clientPhone: string): string => {
+    const appt = appointmentLookup[clientName];
+    const cleanP = clientPhone ? formatPhone(clientPhone) : '';
+    const studioLabel = artistName || 'אורית אהרוני';
+    let text: string;
+    if (appt) {
+      const dateFormatted = new Date(appt.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
+      text = `היי ${clientName}, תזכורת מהקליניקה של ${studioLabel} - קבענו לתאריך ${dateFormatted} בשעה ${appt.time}. מחכה לראותך! ✨`;
+    } else {
+      text = lang === 'en'
+        ? `Hi ${clientName}, just a reminder about your upcoming appointment! ✨`
+        : `היי ${clientName}, תזכורת מהקליניקה של ${studioLabel} - מחכה לראותך! ✨`;
+    }
+    return cleanP
+      ? `https://wa.me/${cleanP}?text=${encodeURIComponent(text)}`
+      : `https://wa.me/?text=${encodeURIComponent(text)}`;
+  };
 
   const origin = window.location.origin;
 
@@ -893,6 +914,33 @@ const ArtistDashboard = () => {
   }, [userProfileId]);
 
   useEffect(() => { fetchClients(); }, [fetchClients]);
+
+  // Fetch appointments for dynamic reminder messages
+  const fetchAppointments = useCallback(async () => {
+    if (!userProfileId) return;
+    try {
+      const { data } = await supabase
+        .from('appointments')
+        .select('client_name, date, time')
+        .eq('artist_id', userProfileId)
+        .eq('status', 'scheduled')
+        .order('date', { ascending: true });
+      if (data && data.length > 0) {
+        const lookup: Record<string, { date: string; time: string }> = {};
+        data.forEach(a => {
+          // Keep the nearest future appointment per client
+          if (!lookup[a.client_name]) {
+            lookup[a.client_name] = { date: a.date, time: a.time };
+          }
+        });
+        setAppointmentLookup(lookup);
+      }
+    } catch (err) {
+      console.error('Failed to fetch appointments:', err);
+    }
+  }, [userProfileId]);
+
+  useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
 
   // Persist clients to localStorage whenever they change
   useEffect(() => {
@@ -1354,7 +1402,7 @@ const ArtistDashboard = () => {
                     </div>
                     <div className="flex gap-2 mt-4">
                       <a
-                        href={`https://wa.me/${nextClient.phone ? formatPhone(nextClient.phone) : ''}?text=${encodeURIComponent(lang === 'en' ? `Hi ${nextClient.name}, just a reminder about your appointment today! ✨` : `היי ${nextClient.name}, מזכירה לך את התור שלנו היום! ✨`)}`}
+                        href={buildReminderWhatsAppUrl(nextClient.name, nextClient.phone)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs font-bold transition-all active:scale-[0.97]"
