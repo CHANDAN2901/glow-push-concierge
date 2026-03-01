@@ -185,7 +185,7 @@ const ArtistDashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, isAdmin } = useAuth();
-  const { getMessageForDay, buildWhatsAppText } = useAftercareTemplates();
+  const { getMessageForDay, buildWhatsAppText, hasMessageForDay, getMatchingDayValue } = useAftercareTemplates();
 
   // Trial system — driven by profile created_at from DB
   const [profileCreatedAt, setProfileCreatedAt] = useState<string | null>(null);
@@ -749,15 +749,20 @@ const ArtistDashboard = () => {
   const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !approvedExceptions[c.name]);
 
   const sendSmartReminder = (client: ClientEntry) => {
+    if (!hasMessageForDay(client.day)) {
+      toast({ title: lang === 'en' ? 'Please define text for this day in Push Management' : 'נא להגדיר טקסט ליום זה במסך ניהול פושים', variant: 'destructive' });
+      return;
+    }
     const aftercareMsg = getMessageForDay(client.day);
     const msg = buildWhatsAppText(client.day, client.name, artistName || 'האמנית שלך');
+    if (!msg) return;
     const encoded = encodeURIComponent(msg);
     const cleanPhone = client.phone ? formatPhone(client.phone) : '';
     const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
     window.location.href = url;
 
     // Track send
-    const key = `${client.name}-day${aftercareMsg.day}`;
+    const key = `${client.name}-day${aftercareMsg?.day ?? client.day}`;
     const now = new Date().toLocaleString('he-IL');
     const updated = { ...waSentLog, [key]: now };
     setWaSentLog(updated);
@@ -1569,11 +1574,12 @@ const ArtistDashboard = () => {
                   <div className="space-y-2">
                     {fallbackClients.map((client, i) => {
                       const matchDay = dayMessages.find(d => d.day === client.day);
-                      const msg = buildWhatsAppText(client.day, client.name, artistName || 'האמנית שלך');
+                      const hasDbMsg = hasMessageForDay(client.day);
+                      const msg = hasDbMsg ? buildWhatsAppText(client.day, client.name, artistName || 'האמנית שלך') : null;
                       const cleanPhone = client.phone ? formatPhone(client.phone) : '';
-                      const waUrl = cleanPhone
+                      const waUrl = msg && cleanPhone
                         ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
-                        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+                        : msg ? `https://wa.me/?text=${encodeURIComponent(msg)}` : null;
                       const sentKey = `${client.name}-day${client.day}`;
                       const alreadySent = !!waSentLog[sentKey];
                       return (
@@ -1598,7 +1604,7 @@ const ArtistDashboard = () => {
                             <span className="text-[10px] font-bold px-3 py-1.5 rounded-full" style={{ color: 'hsl(142 76% 36%)', background: 'hsl(142 76% 36% / 0.1)' }}>
                               {lang === 'en' ? '✅ Sent' : '✅ נשלח'}
                             </span>
-                          ) : (
+                          ) : waUrl ? (
                             <a
                               href={waUrl}
                               target="_blank"
@@ -1614,6 +1620,14 @@ const ArtistDashboard = () => {
                               <MessageCircle className="w-3.5 h-3.5" />
                               {lang === 'en' ? 'Send' : 'שלחי'}
                             </a>
+                          ) : (
+                            <button
+                              onClick={() => toast({ title: lang === 'en' ? 'Please define text for this day in Push Management' : 'נא להגדיר טקסט ליום זה במסך ניהול פושים', variant: 'destructive' })}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 bg-muted text-muted-foreground"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5" />
+                              {lang === 'en' ? 'Send' : 'שלחי'}
+                            </button>
                           )}
                         </div>
                       );

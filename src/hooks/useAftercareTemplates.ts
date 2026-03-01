@@ -41,6 +41,7 @@ function getMatchingDay(clientDay: number): number {
 export function useAftercareTemplates() {
   const [messages, setMessages] = useState<AftercareMessage[]>(FALLBACK_MESSAGES);
   const [loading, setLoading] = useState(true);
+  const [isFromDb, setIsFromDb] = useState(false);
 
   useEffect(() => {
     supabase
@@ -62,24 +63,35 @@ export function useAftercareTemplates() {
           };
         });
         setMessages(mapped);
+        setIsFromDb(true);
       });
   }, []);
 
-  const getMessageForDay = (clientDay: number): AftercareMessage => {
+  const getMatchingDayValue = (clientDay: number): number => getMatchingDay(clientDay);
+
+  const getMessageForDay = (clientDay: number): AftercareMessage | null => {
     const targetDay = getMatchingDay(clientDay);
-    return messages.find((m) => m.day === targetDay) || messages[0];
+    return messages.find((m) => m.day === targetDay) || null;
+  };
+
+  const hasMessageForDay = (clientDay: number): boolean => {
+    if (!isFromDb) return false;
+    const targetDay = getMatchingDay(clientDay);
+    const msg = messages.find((m) => m.day === targetDay);
+    return !!msg && msg.template.trim().length > 0;
   };
 
   const buildWhatsAppText = (
     clientDay: number,
     clientName: string,
     artistName: string
-  ): string => {
+  ): string | null => {
     const msg = getMessageForDay(clientDay);
+    if (!msg) return null;
     return msg.template
       .replace(/\[ClientName\]/g, clientName)
       .replace(/\[ArtistName\]/g, artistName);
   };
 
-  return { messages, loading, getMessageForDay, buildWhatsAppText };
+  return { messages, loading, isFromDb, getMessageForDay, getMatchingDayValue, hasMessageForDay, buildWhatsAppText };
 }
