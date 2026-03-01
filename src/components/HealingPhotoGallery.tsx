@@ -34,6 +34,20 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   const collageRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Close lightbox on Escape key
+  useEffect(() => {
+    if (!lightboxUrl) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        setLightboxUrl(null);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [lightboxUrl]);
+
   const getDayLabel = (photoDate: string) => {
     if (!treatmentDate) return null;
     const days = differenceInDays(new Date(photoDate), new Date(treatmentDate));
@@ -63,7 +77,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       const dayNum = getDayLabel(new Date().toISOString());
       const label = dayNum !== null ? `יום ${dayNum}` : undefined;
       await uploadPhoto(base64, { photoType: 'healing', label, dayNumber: dayNum ?? undefined, uploadedBy: 'artist' });
-      toast({ title: 'התמונה נשמרה בהצלחה ✨' });
+      toast({ title: 'נשמר בהצלחה ✅' });
     } catch (err: any) {
       const message = err?.message || 'Unknown upload error';
       setUploadErrorMessage(message);
@@ -246,13 +260,20 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       {/* Lightbox modal */}
       {lightboxUrl && createPortal(
         <div
-          className="fixed inset-0 flex items-center justify-center bg-black/90"
-          style={{ zIndex: 99999 }}
+          className="fixed inset-0 flex items-center justify-center"
+          style={{ zIndex: 99999, backgroundColor: 'rgba(0,0,0,0.92)' }}
+          role="dialog"
+          aria-modal="true"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             setLightboxUrl(null);
           }}
+          onTouchStart={(e) => e.stopPropagation()}
         >
           <button
             onClick={(e) => {
@@ -260,20 +281,23 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
               e.stopPropagation();
               setLightboxUrl(null);
             }}
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
-            style={{ zIndex: 100000 }}
+            onMouseDown={(e) => e.stopPropagation()}
+            className="absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+            style={{ zIndex: 100000, backgroundColor: 'rgba(255,255,255,0.2)' }}
+            aria-label="Close"
           >
-            <X className="w-6 h-6 text-white" />
+            <X className="w-7 h-7 text-white" />
           </button>
           <img
             src={lightboxUrl}
-            alt=""
-            className="max-w-[95vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
-            style={{ zIndex: 100000 }}
+            alt="Enlarged photo"
+            className="rounded-lg"
+            style={{ zIndex: 100000, maxWidth: '95vw', maxHeight: '90vh', objectFit: 'contain', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
             }}
+            onMouseDown={(e) => e.stopPropagation()}
           />
         </div>,
         document.body
