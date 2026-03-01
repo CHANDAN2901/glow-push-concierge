@@ -2549,7 +2549,7 @@ const ArtistDashboard = () => {
           boxShadow: '0 -1px 0 hsl(38 30% 88%), 0 -4px 24px -6px hsla(38, 30%, 60%, 0.1)',
         }}
       >
-        <div className="container mx-auto max-w-lg flex items-center justify-around py-2 px-2">
+        <div className="container mx-auto max-w-lg flex items-start justify-between py-2 px-1 gap-0.5">
           {[
             { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'דשבורד', route: null },
             { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
@@ -2572,7 +2572,7 @@ const ArtistDashboard = () => {
                     setHealingJourneyClient(null);
                   }
                 }}
-                className="relative flex flex-col items-center gap-1.5 min-w-0 transition-all py-1.5 px-2"
+                className="relative flex-1 flex flex-col items-center gap-1 min-w-0 transition-all py-1 px-0.5"
               >
                 {/* "New" badge for Upgrade */}
                 {isUpgrade && (
@@ -2608,7 +2608,7 @@ const ArtistDashboard = () => {
                   />
                 </div>
                 <span
-                  className="text-[10px] tracking-wide truncate font-serif"
+                  className="text-[9px] sm:text-[10px] leading-[1.05] tracking-tight text-center font-serif whitespace-normal max-w-[56px]"
                   style={{
                     color: isUpgrade ? '#B8860B' : isActive ? '#5C4033' : 'hsl(0 0% 50%)',
                     fontWeight: isActive || isUpgrade ? 600 : 300,
