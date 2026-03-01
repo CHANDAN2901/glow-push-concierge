@@ -172,6 +172,17 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
     const cId = resolvedClientId;
     const aId = resolvedArtistId;
     if (!cId || !aId) throw new Error('Missing clientId or artistId for gallery upload');
+
+    // Validate base64 size (~10MB limit for edge function payload)
+    if (base64Data.length > 10 * 1024 * 1024) {
+      throw new Error('File is too large. Please use an image smaller than 10MB.');
+    }
+
+    // Validate it's an image
+    if (base64Data.includes('data:') && !base64Data.startsWith('data:image/')) {
+      throw new Error('Invalid file format. Only images (JPG, PNG, WEBP) are supported.');
+    }
+
     const { photoType = 'healing', label, dayNumber, uploadedBy = 'artist' } = opts;
 
     const fileName = `${photoType}-${Date.now()}.jpg`;
@@ -186,8 +197,8 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
       },
     });
 
-    if (error) throw error;
-    if (data?.error) throw new Error(data.error);
+    if (error) throw new Error(`Upload failed: ${error.message}`);
+    if (data?.error) throw new Error(`Upload failed: ${data.error}`);
 
     const { error: insertError } = await supabase
       .from('client_gallery_photos')
@@ -203,7 +214,7 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
         seen_by_client: uploadedBy === 'client',
       } as any);
 
-    if (insertError) throw insertError;
+    if (insertError) throw new Error(`Failed to save photo record: ${insertError.message}`);
     await fetchPhotos();
     return data.url;
   }, [resolvedClientId, resolvedArtistId, fetchPhotos]);

@@ -90,8 +90,19 @@ const SimpleGallery = () => {
     setPendingFiles([]);
 
     let successCount = 0;
+    let errorCount = 0;
     for (const pending of filesToProcess) {
       try {
+        if (!pending.file.type.startsWith('image/')) {
+          errorCount++;
+          continue;
+        }
+        if (pending.file.size > 5 * 1024 * 1024) {
+          toast({ title: lang === 'en' ? `"${pending.file.name}" is too large (max 5MB)` : `"${pending.file.name}" גדול מדי (מקסימום 5MB)`, variant: 'destructive' });
+          errorCount++;
+          continue;
+        }
+
         const base64 = await resizeToBase64(pending.file);
         const localId = `local-${Date.now()}-${Math.round(Math.random() * 100000)}`;
 
@@ -102,19 +113,28 @@ const SimpleGallery = () => {
           category: 'brows',
           is_public: true,
         }, ...prev]);
-        successCount++;
 
         if (profileId) {
-          supabase.from('portfolio_images').insert({
+          const { error: insertError } = await supabase.from('portfolio_images').insert({
             artist_profile_id: profileId,
             image_url: 'base64',
             base64_data: base64,
             category: 'brows',
             is_public: true,
-          } as any).then(() => {});
+          } as any);
+
+          if (insertError) {
+            console.error('Portfolio insert error:', insertError);
+            toast({ title: lang === 'en' ? `Failed to save "${pending.file.name}"` : `שגיאה בשמירת "${pending.file.name}"`, variant: 'destructive' });
+            setImages(prev => prev.filter(i => i.id !== localId));
+            errorCount++;
+            continue;
+          }
         }
-      } catch {
-        // If resize fails, skip silently
+        successCount++;
+      } catch (err) {
+        console.error('Upload error:', err);
+        errorCount++;
       }
     }
 
@@ -122,6 +142,11 @@ const SimpleGallery = () => {
     if (successCount > 0) {
       toast({ title: lang === 'en' ? `${successCount} photo(s) uploaded! ✅` : `${successCount} תמונות הועלו בהצלחה! ✅` });
     }
+    if (errorCount > 0 && successCount === 0) {
+      toast({ title: lang === 'en' ? 'Upload failed. Check file format and size.' : 'ההעלאה נכשלה. בדקי פורמט וגודל הקובץ.', variant: 'destructive' });
+    }
+    // Refresh from DB to get real IDs
+    fetchImages();
   };
 
   const resizeToBase64 = (file: File): Promise<string> => {

@@ -199,9 +199,20 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
   const handleUpload = useCallback(async (file: File, category: 'before' | 'after') => {
     const setUploading = category === 'before' ? setUploadingBefore : setUploadingAfter;
     const setUrl = category === 'before' ? setBeforeUrl : setAfterUrl;
+
+    // Validate file format
+    if (!file.type.startsWith('image/')) {
+      toast({ title: isHe ? 'פורמט לא נתמך. נא להעלות תמונה (JPG, PNG, WEBP)' : 'Unsupported format. Please upload an image (JPG, PNG, WEBP).', variant: 'destructive' });
+      return;
+    }
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: isHe ? 'הקובץ גדול מדי (מקסימום 10MB)' : 'File too large (max 10MB)', variant: 'destructive' });
+      return;
+    }
+
     setUploading(true);
     try {
-      // Normalize orientation: fix EXIF rotation + force portrait
       const base64 = await normalizeImageOrientation(file);
 
       if (!artistProfileId) {
@@ -213,13 +224,13 @@ const HealingGallery = ({ beforeImg, afterImg, startDate, artistProfileId, clien
       const { data, error } = await supabase.functions.invoke('upload-client-photo', {
         body: { artistProfileId, clientId, category, base64Data: base64, fileName: `${category}-${Date.now()}.${file.name.split('.').pop() || 'jpg'}` },
       });
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Upload failed');
       if (data?.error) throw new Error(data.error);
       setUrl(data.url);
       toast({ title: isHe ? 'התמונה הועלתה בהצלחה ✨' : 'Photo uploaded successfully ✨' });
     } catch (e: any) {
       console.error('Upload failed:', e);
-      toast({ title: isHe ? 'שגיאה בהעלאת התמונה' : 'Upload failed', variant: 'destructive' });
+      toast({ title: isHe ? `שגיאה בהעלאה: ${e.message || 'נסי שוב'}` : `Upload failed: ${e.message || 'Please try again'}`, variant: 'destructive' });
     } finally {
       setUploading(false);
     }
