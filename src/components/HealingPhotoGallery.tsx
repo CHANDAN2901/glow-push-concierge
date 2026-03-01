@@ -203,39 +203,43 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         console.log('[CollageFlow] Step 2: Canvas rendered, base64 length=', base64Data.length);
       }
 
-      // Step 3: Upload to storage via edge function
-      console.log('[CollageFlow] Step 3: Uploading to storage via edge function...');
+      // Step 3: Upload directly to Supabase Storage (no edge function)
+      console.log('[CollageFlow] Step 3: Uploading directly to storage...');
       const fileName = `collage-${Date.now()}.jpg`;
       const safeClientId = clientId ? clientId.replace(/[^a-zA-Z0-9_-]/g, '_') : 'general';
+      const storagePath = `${resolvedArtistId}/${safeClientId}/gallery-collage/${fileName}`;
+
+      // Convert base64 to Blob for direct upload
+      const base64Content = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
+      const binaryStr = atob(base64Content);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
       
-      const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-client-photo', {
-        body: {
-          artistProfileId: resolvedArtistId,
-          clientId: safeClientId,
-          category: 'gallery-collage',
-          base64Data,
-          fileName,
-        },
-      });
+      let contentType = 'image/jpeg';
+      if (base64Data.includes('image/png')) contentType = 'image/png';
+      else if (base64Data.includes('image/webp')) contentType = 'image/webp';
+      const blob = new Blob([bytes], { type: contentType });
+
+      const { error: uploadError } = await supabase.storage
+        .from('client-photos')
+        .upload(storagePath, blob, { contentType, upsert: true });
 
       if (uploadError) {
-        console.error('[CollageFlow] Step 3 FAILED: Edge function error', uploadError);
+        console.error('[CollageFlow] Step 3 FAILED: Storage upload error', uploadError);
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
-      if (uploadData?.error) {
-        console.error('[CollageFlow] Step 3 FAILED: Upload returned error', uploadData.error);
-        throw new Error(`Upload returned error: ${uploadData.error}`);
-      }
 
-      console.log('[CollageFlow] Step 3: Upload success. URL=', uploadData?.url, 'storagePath=', uploadData?.storagePath);
+      const { data: urlData } = supabase.storage.from('client-photos').getPublicUrl(storagePath);
+      const publicUrl = urlData.publicUrl;
+      console.log('[CollageFlow] Step 3: Upload success. URL=', publicUrl, 'storagePath=', storagePath);
 
       // Step 4: Insert into client_gallery_photos
       console.log('[CollageFlow] Step 4: Inserting into client_gallery_photos...');
       const { error: insertError } = await supabase.from('client_gallery_photos').insert({
         client_id: clientId || null,
         artist_id: resolvedArtistId,
-        storage_path: uploadData.storagePath,
-        public_url: uploadData.url,
+        storage_path: storagePath,
+        public_url: publicUrl,
         photo_type: 'collage',
         label: aiAlignedUrl ? 'קולאז׳ AI לפני ואחרי' : 'קולאז׳ לפני ואחרי',
         day_number: null,
