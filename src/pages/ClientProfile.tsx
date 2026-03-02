@@ -75,10 +75,8 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
             endpoint: sub.endpoint,
             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
           },
-          title: '🔔 Test Push — Glow Push',
-          body: lang === 'en'
-            ? `Hi ${clientName}, this is a test notification!`
-            : `היי ${clientName}, זוהי התראת בדיקה! ✨`,
+          title: 'בדיקת מערכת GlowPush 🔔',
+          body: `היי ${clientName}, זו התראת ניסיון מהמערכת! ✨`,
           day: 1,
         },
       });
@@ -110,8 +108,8 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
         <Bell className="w-4 h-4" />
       )}
       {sending
-        ? (lang === 'en' ? 'Sending...' : 'שולח...')
-        : (lang === 'en' ? 'Send Test Push Now' : 'שלחי התראת בדיקה עכשיו')}
+        ? (lang === 'en' ? 'Sending...' : 'שולחת...')
+        : (lang === 'en' ? 'Send Test Notification 🔔' : 'שלחי התראת בדיקה 🔔')}
     </button>
   );
 }
