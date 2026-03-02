@@ -25,6 +25,28 @@ import type { SharedGalleryPhoto } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL, STUDIO_NAME } from '@/lib/branding';
 import oritLogo from '@/assets/glowpush-logo.png';
 
+// --- PWA localStorage keys (outside component to avoid re-creation) ---
+const LS_CLIENT_ID = 'glow-client-id';
+const LS_CLIENT_NAME = 'glow-client-name';
+const LS_START = 'glow-start';
+const LS_TREATMENT = 'glow-treatment';
+const LS_ARTIST_ID = 'glow-artist-id';
+
+// Eagerly persist URL params on module load (before React hydrates) for iOS PWA
+try {
+  const url = new URL(window.location.href);
+  const cid = url.searchParams.get('client_id');
+  const cname = url.searchParams.get('name');
+  const cstart = url.searchParams.get('start');
+  const ctreat = url.searchParams.get('treatment');
+  const cartist = url.searchParams.get('artist_id');
+  if (cid) localStorage.setItem(LS_CLIENT_ID, cid);
+  if (cname) localStorage.setItem(LS_CLIENT_NAME, cname);
+  if (cstart) localStorage.setItem(LS_START, cstart);
+  if (ctreat) localStorage.setItem(LS_TREATMENT, ctreat);
+  if (cartist) localStorage.setItem(LS_ARTIST_ID, cartist);
+} catch (_) { /* SSR-safe */ }
+
 // Metallic Gold accent palette
 const SOFT_GOLD = 'hsl(38 55% 62%)';
 const SOFT_GOLD_LIGHT = 'hsl(40 50% 78%)';
@@ -196,12 +218,7 @@ const ClientHome = () => {
   const [searchParams] = useSearchParams();
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  // --- PWA localStorage persistence for iPhone "Add to Home Screen" ---
-  const LS_CLIENT_ID = 'glow-client-id';
-  const LS_CLIENT_NAME = 'glow-client-name';
-  const LS_START = 'glow-start';
-  const LS_TREATMENT = 'glow-treatment';
-  const LS_ARTIST_ID = 'glow-artist-id';
+  // PWA localStorage keys defined at module level above
 
   const rawClientId = searchParams.get('client_id') || '';
   const paramName = searchParams.get('name');
