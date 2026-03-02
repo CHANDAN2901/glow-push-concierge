@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Camera, X, Calendar as CalendarIcon, Download, Sparkles } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { useClientGallery, type SharedGalleryPhoto } from '@/hooks/useClientGallery';
 import { toast } from '@/hooks/use-toast';
 
@@ -56,6 +56,11 @@ const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) =
     }
   };
 
+  const formatPhotoDate = (raw: string, formatPattern: string) => {
+    const parsed = new Date(raw);
+    return isValid(parsed) ? format(parsed, formatPattern) : '';
+  };
+
   const handleSaveToDevice = async (photo: SharedGalleryPhoto) => {
     try {
       const response = await fetch(photo.public_url);
@@ -63,7 +68,7 @@ const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) =
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `healing-${photo.photo_type}-${format(new Date(photo.created_at), 'yyyyMMdd')}.jpg`;
+      a.download = `healing-${photo.photo_type}-${formatPhotoDate(photo.created_at, 'yyyyMMdd') || 'unknown-date'}.jpg`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -173,7 +178,7 @@ const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) =
                 <div className="px-1.5 py-1 flex items-center gap-1">
                   <CalendarIcon className="w-2.5 h-2.5 shrink-0" style={{ color: GOLD_DARK }} />
                   <span className="text-[9px] font-serif font-semibold" style={{ color: '#333' }}>
-                    {format(new Date(photo.created_at), 'dd/MM/yyyy')}
+                    {formatPhotoDate(photo.created_at, 'dd/MM/yyyy') || '—'}
                   </span>
                 </div>
               </div>
@@ -198,7 +203,7 @@ const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) =
               <div className="flex items-center gap-1.5">
                 <CalendarIcon className="w-3.5 h-3.5" style={{ color: GOLD_DARK }} />
                 <span className="text-sm font-serif font-semibold" style={{ color: '#333' }}>
-                  {format(new Date(selected.created_at), 'dd/MM/yyyy')}
+                  {formatPhotoDate(selected.created_at, 'dd/MM/yyyy') || '—'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
