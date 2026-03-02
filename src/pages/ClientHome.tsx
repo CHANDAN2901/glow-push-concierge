@@ -102,7 +102,9 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
   const handleSubscribe = async () => {
     setStatus('loading');
     // Delete old subscription if exists, then create fresh
-    await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
+    if (clientId) {
+      await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
+    }
     const result = await subscribeToPush({ clientId, clientName, artistProfileId });
     if (result.success) {
       setStatus('subscribed');
@@ -113,7 +115,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
     }
   };
 
-  if (!clientId) return null;
+  if (!clientId && !clientName) return null;
 
   return (
     <button
