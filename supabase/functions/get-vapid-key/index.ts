@@ -18,19 +18,10 @@ serve(async (req) => {
     );
   }
 
-  // Strip accidental whitespace/quotes and validate format before returning
-  const vapidPublicKey = rawKey.replace(/[\s\r\n\t"'\\]/g, '').trim();
-  const isValidVapidKey = /^[A-Za-z0-9\-_]+$/.test(vapidPublicKey) && vapidPublicKey.length >= 80 && vapidPublicKey.length <= 120;
+  // Strip accidental whitespace/quotes/control chars
+  const vapidPublicKey = rawKey.replace(/[^A-Za-z0-9\-_]/g, '');
 
-  if (!isValidVapidKey) {
-    console.error('[get-vapid-key] Invalid VAPID_PUBLIC_KEY format. Length:', vapidPublicKey.length);
-    return new Response(
-      JSON.stringify({ error: 'Invalid VAPID_PUBLIC_KEY format in backend secrets' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-
-  console.log('[get-vapid-key] Cleaned key length:', vapidPublicKey.length);
+  console.log('[get-vapid-key] Cleaned key length:', vapidPublicKey.length, 'first10:', vapidPublicKey.substring(0, 10));
 
   return new Response(
     JSON.stringify({ publicKey: vapidPublicKey }),
