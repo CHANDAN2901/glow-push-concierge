@@ -4,9 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
  * Convert a Base64-URL string to a Uint8Array for applicationServerKey
  */
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = atob(base64);
+  const cleanedString = base64String.trim().replace(/[\s\n]+/g, '');
+  const padding = cleanedString.length % 4;
+  const paddedString = padding !== 0 ? cleanedString + '='.repeat(4 - padding) : cleanedString;
+  const urlSafeString = paddedString.replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(urlSafeString);
   const outputArray = new Uint8Array(rawData.length);
   for (let i = 0; i < rawData.length; i++) {
     outputArray[i] = rawData.charCodeAt(i);
