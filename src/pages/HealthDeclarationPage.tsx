@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import HealthDeclaration from '@/components/HealthDeclaration';
 import type { HealthDeclarationData } from '@/components/HealthDeclaration';
+import { subscribeToPush } from '@/lib/push-utils';
 
 
 const HealthDeclarationPage = () => {
@@ -99,9 +100,15 @@ const HealthDeclarationPage = () => {
       throw new Error(msg);
     }
 
-    // If client opted in for push notifications, request permission and store subscription
+    // If client opted in for push notifications, use the new utility
     if (data.pushOptIn && result?.clientId) {
-      await requestPushSubscription(result.clientId);
+      console.log('[HealthDecl] Client opted in for push, subscribing...');
+      const pushResult = await subscribeToPush({
+        clientId: result.clientId,
+        clientName: data.fullName || clientName,
+        artistProfileId: artistId || undefined,
+      });
+      console.log('[HealthDecl] Push subscription result:', pushResult);
     }
 
     return result;
