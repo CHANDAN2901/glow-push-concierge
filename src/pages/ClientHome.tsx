@@ -54,6 +54,7 @@ function getTimeGreeting(lang: 'en' | 'he', name: string, treatment: string): st
 }
 
 const MILESTONE_DAYS = [7, 14, 21, 30];
+const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
 const LogoBrand = ({ logoUrl }: { logoUrl: string }) => {
   const [imgError, setImgError] = useState(false);
@@ -86,32 +87,74 @@ const goldBtnStyle: React.CSSProperties = {
 function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { clientId: string; clientName: string; artistProfileId: string; lang: 'en' | 'he' }) {
   const { toast } = useToast();
   const [status, setStatus] = useState<'idle' | 'loading' | 'subscribed'>('idle');
+  const validClientId = isUUID(clientId);
 
   useEffect(() => {
-    if (!clientId) return;
-    supabase
-      .from('push_subscriptions')
-      .select('id')
-      .eq('client_id', clientId)
-      .limit(1)
-      .then(({ data }) => {
+    let cancelled = false;
+    if (!validClientId) return;
+
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('push_subscriptions')
+          .select('id')
+          .eq('client_id', clientId)
+          .limit(1);
+
+        if (cancelled) return;
+        if (error) {
+          console.warn('[ClientPushBanner] Failed to check existing subscription:', error.message);
+          return;
+        }
         if (data && data.length > 0) setStatus('subscribed');
-      });
-  }, [clientId]);
+      } catch (err) {
+        if (!cancelled) {
+          console.error('[ClientPushBanner] Unexpected check error:', err);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId, validClientId]);
 
   const handleSubscribe = async () => {
-    setStatus('loading');
-    // Delete old subscription if exists, then create fresh
-    if (clientId) {
-      await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
+    if (!validClientId) {
+      toast({
+        title: lang === 'en' ? 'Missing secure client link' : 'חסר מזהה לקוחה מאובטח בקישור',
+        description: lang === 'en' ? 'Please open the full client link sent by your artist.' : 'פתחי את הקישור המלא שנשלח אלייך מהמאפרת.',
+        variant: 'destructive',
+      });
+      return;
     }
-    const result = await subscribeToPush({ clientId, clientName, artistProfileId });
-    if (result.success) {
-      setStatus('subscribed');
-      toast({ title: lang === 'en' ? 'Notifications enabled! ✅' : 'התראות הופעלו בהצלחה! ✅' });
-    } else {
+
+    setStatus('loading');
+    try {
+      const { error: deleteError } = await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('client_id', clientId);
+
+      if (deleteError) {
+        console.warn('[ClientPushBanner] Could not clear old subscription:', deleteError.message);
+      }
+
+      const result = await subscribeToPush({ clientId, clientName, artistProfileId });
+      if (result.success) {
+        setStatus('subscribed');
+        toast({ title: lang === 'en' ? 'Notifications enabled! ✅' : 'התראות הופעלו בהצלחה! ✅' });
+      } else {
+        setStatus('idle');
+        toast({ title: lang === 'en' ? 'Failed to subscribe' : 'ההרשמה נכשלה', description: result.error, variant: 'destructive' });
+      }
+    } catch (err) {
+      console.error('[ClientPushBanner] Unexpected subscribe error:', err);
       setStatus('idle');
-      toast({ title: lang === 'en' ? 'Failed to subscribe' : 'ההרשמה נכשלה', description: result.error, variant: 'destructive' });
+      toast({
+        title: lang === 'en' ? 'Failed to subscribe' : 'ההרשמה נכשלה',
+        variant: 'destructive',
+      });
     }
   };
 
