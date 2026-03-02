@@ -119,9 +119,9 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
 function SubscribePushButton({ clientId, clientName, artistProfileId, lang }: { clientId: string; clientName: string; artistProfileId: string; lang: string }) {
   const { toast } = useToast();
   const [subscribing, setSubscribing] = useState(false);
-  const [subscribed, setSubscribed] = useState(false);
+  const [hasExistingSub, setHasExistingSub] = useState(false);
 
-  // Check if already subscribed
+  // Check if already subscribed in DB
   useEffect(() => {
     if (!clientId) return;
     supabase
@@ -130,12 +130,18 @@ function SubscribePushButton({ clientId, clientName, artistProfileId, lang }: { 
       .eq('client_id', clientId)
       .limit(1)
       .then(({ data }) => {
-        if (data && data.length > 0) setSubscribed(true);
+        if (data && data.length > 0) setHasExistingSub(true);
       });
   }, [clientId]);
 
   const handleSubscribe = async () => {
     setSubscribing(true);
+
+    // If updating, delete old subscription first so we insert a fresh one
+    if (hasExistingSub) {
+      await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
+    }
+
     const result = await subscribeToPush({
       clientId,
       clientName,
@@ -143,7 +149,7 @@ function SubscribePushButton({ clientId, clientName, artistProfileId, lang }: { 
     });
 
     if (result.success) {
-      setSubscribed(true);
+      setHasExistingSub(true);
       toast({
         title: lang === 'en' ? 'Push subscription saved! ✅' : 'נרשמה לפושים בהצלחה ✅',
       });
@@ -156,30 +162,29 @@ function SubscribePushButton({ clientId, clientName, artistProfileId, lang }: { 
     setSubscribing(false);
   };
 
-  if (subscribed) {
-    return (
-      <div className="flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-medium" style={{ backgroundColor: 'hsl(142 76% 36% / 0.1)', color: 'hsl(142 76% 36%)' }}>
-        <Bell className="w-4 h-4" />
-        {lang === 'en' ? 'Push notifications active ✅' : 'התראות Push פעילות ✅'}
-      </div>
-    );
-  }
+  const buttonLabel = subscribing
+    ? (lang === 'en' ? 'Subscribing...' : 'נרשמת...')
+    : hasExistingSub
+      ? (lang === 'en' ? 'Update Push Connection 🔄' : 'עדכני חיבור להתראות 🔄')
+      : (lang === 'en' ? 'Subscribe to Notifications 🔔' : 'הירשמי לקבלת התראות 🔔');
 
   return (
     <button
       onClick={handleSubscribe}
       disabled={subscribing}
       className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 disabled:opacity-50"
-      style={{ border: `1.5px solid ${GOLD}`, color: GOLD_DARK, backgroundColor: GOLD_BG_LIGHT }}
+      style={{
+        border: `2px solid ${GOLD}`,
+        color: GOLD_DARK,
+        backgroundColor: hasExistingSub ? 'hsl(142 76% 36% / 0.08)' : GOLD_BG_LIGHT,
+      }}
     >
       {subscribing ? (
         <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
       ) : (
         <Bell className="w-4 h-4" />
       )}
-      {subscribing
-        ? (lang === 'en' ? 'Subscribing...' : 'נרשמת...')
-        : (lang === 'en' ? 'Subscribe to Notifications' : 'הירשמי לקבלת התראות')}
+      {buttonLabel}
     </button>
   );
 }
