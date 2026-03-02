@@ -155,8 +155,9 @@ export async function subscribeToPush(opts: {
     console.log('[Push] Clean clientId:', cleanClientId, '(original length:', opts.clientId.length, ')');
 
     // 6. Delete any existing subscription for this client (to avoid duplicates)
-    console.log('[Push] Removing old subscriptions for client...');
-    await supabase.from('push_subscriptions').delete().eq('client_id', cleanClientId);
+    //    Note: RLS now restricts anon DELETE by endpoint match, so we delete by endpoint
+    console.log('[Push] Removing old subscriptions by endpoint...');
+    await supabase.from('push_subscriptions').delete().eq('endpoint', subJson.endpoint!);
 
     // 6. Save to Supabase
     console.log('[Push] Saving subscription to database...');
