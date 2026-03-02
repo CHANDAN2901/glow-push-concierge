@@ -57,6 +57,7 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
         .from('push_subscriptions')
         .select('endpoint, p256dh, auth_key')
         .eq('client_id', clientId)
+        .order('created_at', { ascending: false })
         .limit(1);
 
       if (!subs || subs.length === 0) {

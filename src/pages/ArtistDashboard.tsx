@@ -1858,10 +1858,12 @@ const ArtistDashboard = () => {
                     setSendingTestPush(true);
                     try {
                       const clientId = selectedClient.dbId || selectedClient.name;
+                      console.log('[TestPush] Querying push_subscriptions for client_id:', clientId);
                       const { data: subs, error: subErr } = await supabase
                         .from('push_subscriptions')
                         .select('endpoint, p256dh, auth_key')
                         .eq('client_id', clientId)
+                        .order('created_at', { ascending: false })
                         .limit(1);
                       if (subErr || !subs?.length) {
                         toast({ title: lang === 'en' ? 'No push subscription found for this client' : 'לא נמצא מנוי התראות ללקוחה זו', variant: 'destructive' });
