@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { forwardRef, useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { X, Share, MoreVertical, Bell, Download, Smartphone, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,7 +24,7 @@ const NOTIF_PROMPTED_KEY = 'glow-notif-prompted';
 
 type Step = 'install' | 'notifications' | 'done';
 
-const InstallBanner = () => {
+const InstallBanner = forwardRef<HTMLDivElement>((_, ref) => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const [visible, setVisible] = useState(false);
@@ -225,7 +225,7 @@ const InstallBanner = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center pb-6 px-4" style={{ background: 'hsla(0, 0%, 0%, 0.4)', backdropFilter: 'blur(4px)' }}>
+    <div ref={ref} className="fixed inset-0 z-[100] flex items-end justify-center pb-6 px-4" style={{ background: 'hsla(0, 0%, 0%, 0.4)', backdropFilter: 'blur(4px)' }}>
       <div
         className="w-full max-w-md bg-card border rounded-2xl p-5 shadow-2xl animate-fade-up relative"
         style={{ borderColor: `${goldColor}30` }}
@@ -240,7 +240,7 @@ const InstallBanner = () => {
       </div>
     </div>
   );
-};
+});
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -252,5 +252,7 @@ function urlBase64ToUint8Array(base64String: string) {
   }
   return outputArray;
 }
+
+InstallBanner.displayName = 'InstallBanner';
 
 export default InstallBanner;

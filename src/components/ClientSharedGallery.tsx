@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { forwardRef, useState, useEffect, useRef } from 'react';
 import { Camera, X, Calendar as CalendarIcon, Download, Sparkles } from 'lucide-react';
 import { format, isValid } from 'date-fns';
 import { useClientGallery, type SharedGalleryPhoto } from '@/hooks/useClientGallery';
@@ -13,7 +13,7 @@ interface ClientSharedGalleryProps {
   artistId?: string;
 }
 
-const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) => {
+const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>(({ clientId, artistId }, ref) => {
   const { photos, loading, newCount, markAllSeen, uploadPhoto, resolvedArtistId } = useClientGallery(clientId, artistId);
   const [selected, setSelected] = useState<SharedGalleryPhoto | null>(null);
   const [notifShown, setNotifShown] = useState(false);
@@ -90,7 +90,7 @@ const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) =
   const sorted = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   return (
-    <>
+    <div ref={ref}>
       {/* Upload button */}
       <div className="flex justify-center mb-3">
         <button
@@ -226,8 +226,8 @@ const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) =
           </div>
         </div>
       )}
-    </>
+    </div>
   );
-};
+});
 
 export default ClientSharedGallery;
