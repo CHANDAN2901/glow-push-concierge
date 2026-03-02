@@ -118,7 +118,20 @@ export async function subscribeToPush(opts: {
       return { success: false, error: `שגיאת VAPID: ${vapidErr.message}` };
     }
 
-    // 4. Subscribe to push
+    // 4. Unsubscribe existing push subscription (forces new one with current VAPID key)
+    console.log('[Push] Checking for existing subscription to unsubscribe...');
+    try {
+      const existingSub = await (registration as any).pushManager.getSubscription();
+      if (existingSub) {
+        console.log('[Push] Found existing subscription, unsubscribing...');
+        await existingSub.unsubscribe();
+        console.log('[Push] Old subscription removed');
+      }
+    } catch (unsubErr: any) {
+      console.warn('[Push] Failed to unsubscribe old:', unsubErr.message);
+    }
+
+    // 5. Subscribe to push with current VAPID key
     console.log('[Push] Subscribing to push manager...');
     let subscription: PushSubscription;
     try {
@@ -135,7 +148,7 @@ export async function subscribeToPush(opts: {
         userVisibleOnly: true,
         applicationServerKey,
       });
-      console.log('[Push] Push subscription created:', subscription.endpoint);
+      console.log('[Push] NEW push subscription created:', subscription.endpoint);
     } catch (subErr: any) {
       console.error('[Push] pushManager.subscribe failed:', subErr);
       return { success: false, error: `שגיאת הרשמה: ${subErr.message}` };
