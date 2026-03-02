@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import InstallBanner from '@/components/InstallBanner';
 
 import ClientSharedGallery from '@/components/ClientSharedGallery';
+import ClientMyPhotos from '@/components/ClientMyPhotos';
 import HealingTimelineCarousel from '@/components/HealingTimelineCarousel';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL, STUDIO_NAME } from '@/lib/branding';
@@ -647,9 +648,7 @@ const ClientHome = () => {
           </Accordion>
         </div>
 
-        {/* Simple photo upload is provided by ClientSharedGallery below */}
-
-        {/* Shared Client Gallery */}
+        {/* Shared Client Gallery — all photos */}
         {isUUID(clientId) && (
           <div className="rounded-3xl p-6 mb-6 animate-fade-up" style={{ animationDelay: '380ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>
             <div className="flex items-center gap-3 mb-4">
@@ -663,6 +662,9 @@ const ClientHome = () => {
             <ClientSharedGallery clientId={clientId} artistId={artistProfileId || undefined} />
           </div>
         )}
+
+        {/* My Uploaded Photos — client-only uploads */}
+        {isUUID(clientId) && <ClientMyPhotos clientId={clientId} artistId={artistProfileId || undefined} lang={lang} />}
 
         {/* My Artist Card */}
         <div className="rounded-3xl p-6 mt-6 animate-fade-up" style={{ animationDelay: '500ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>
@@ -720,7 +722,7 @@ const ClientHome = () => {
               )}
               <span>{bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Upload Photo' : 'העלאת תמונה')}</span>
             </button>
-            <input ref={bottomFileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleBottomUpload} />
+            <input ref={bottomFileRef} type="file" accept="image/*" className="hidden" onChange={handleBottomUpload} />
             <a
               href={`https://wa.me/?text=${encodeURIComponent(`היי, אני ביום ${actualDay} ויש לי שאלה דחופה לגבי הטיפול... 🆘`)}`}
               target="_blank"

@@ -102,7 +102,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
           <Camera className="w-4 h-4" />
           {uploading ? 'מעלה...' : 'העלאת תמונה 📸'}
         </button>
-        <input ref={fileRef} type="file" accept="image/jpeg,image/png" className="hidden" onChange={handleUpload} />
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
       </div>
       <p className="text-center text-[11px] font-serif -mt-1 mb-3" style={{ color: '#999' }}>
         צלמי תמונה ברורה של אזור הטיפול
