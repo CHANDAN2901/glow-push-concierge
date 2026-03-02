@@ -16,6 +16,7 @@ import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
 import InstallBanner from '@/components/InstallBanner';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { subscribeToPush } from '@/lib/push-utils';
 
 /* ── theme tokens ── */
 const GOLD = '#D4AF37';
@@ -110,6 +111,75 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
       {sending
         ? (lang === 'en' ? 'Sending...' : 'שולח...')
         : (lang === 'en' ? 'Send Test Push Now' : 'שלחי התראת בדיקה עכשיו')}
+    </button>
+  );
+}
+
+/* ── Subscribe Push Button Component ── */
+function SubscribePushButton({ clientId, clientName, artistProfileId, lang }: { clientId: string; clientName: string; artistProfileId: string; lang: string }) {
+  const { toast } = useToast();
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribed, setSubscribed] = useState(false);
+
+  // Check if already subscribed
+  useEffect(() => {
+    if (!clientId) return;
+    supabase
+      .from('push_subscriptions')
+      .select('id')
+      .eq('client_id', clientId)
+      .limit(1)
+      .then(({ data }) => {
+        if (data && data.length > 0) setSubscribed(true);
+      });
+  }, [clientId]);
+
+  const handleSubscribe = async () => {
+    setSubscribing(true);
+    const result = await subscribeToPush({
+      clientId,
+      clientName,
+      artistProfileId: artistProfileId || undefined,
+    });
+
+    if (result.success) {
+      setSubscribed(true);
+      toast({
+        title: lang === 'en' ? 'Push subscription saved! ✅' : 'נרשמה לפושים בהצלחה ✅',
+      });
+    } else {
+      toast({
+        title: result.error || (lang === 'en' ? 'Subscription failed' : 'ההרשמה נכשלה'),
+        variant: 'destructive',
+      });
+    }
+    setSubscribing(false);
+  };
+
+  if (subscribed) {
+    return (
+      <div className="flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-medium" style={{ backgroundColor: 'hsl(142 76% 36% / 0.1)', color: 'hsl(142 76% 36%)' }}>
+        <Bell className="w-4 h-4" />
+        {lang === 'en' ? 'Push notifications active ✅' : 'התראות Push פעילות ✅'}
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={handleSubscribe}
+      disabled={subscribing}
+      className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 disabled:opacity-50"
+      style={{ border: `1.5px solid ${GOLD}`, color: GOLD_DARK, backgroundColor: GOLD_BG_LIGHT }}
+    >
+      {subscribing ? (
+        <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+      ) : (
+        <Bell className="w-4 h-4" />
+      )}
+      {subscribing
+        ? (lang === 'en' ? 'Subscribing...' : 'נרשמת...')
+        : (lang === 'en' ? 'Subscribe to Notifications' : 'הירשמי לקבלת התראות')}
     </button>
   );
 }
@@ -414,13 +484,16 @@ const ClientProfile = () => {
           )}
         </SectionCard>
 
-        {/* ── Test Push Button (temporary) ── */}
+        {/* ── Push Notifications ── */}
         <SectionCard
           icon={<Bell className="w-5 h-5" style={{ color: GOLD }} />}
-          title={lang === 'en' ? '🔔 Test Push' : '🔔 בדיקת התראה'}
+          title={lang === 'en' ? '🔔 Push Notifications' : '🔔 התראות Push'}
           delay="150"
         >
-          <TestPushButton clientId={resolvedClientId} clientName={name} lang={lang} />
+          <SubscribePushButton clientId={resolvedClientId} clientName={name} artistProfileId={resolvedArtistId} lang={lang} />
+          <div className="mt-3">
+            <TestPushButton clientId={resolvedClientId} clientName={name} lang={lang} />
+          </div>
         </SectionCard>
 
         {/* ── Healing Journey ── */}
