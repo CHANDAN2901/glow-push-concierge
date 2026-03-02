@@ -4,7 +4,8 @@ import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { TreatmentType } from '@/lib/recovery-data';
 import { useHealingPhases } from '@/hooks/useHealingPhases';
-import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, LifeBuoy, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, LifeBuoy, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp, Bell } from 'lucide-react';
+import { subscribeToPush } from '@/lib/push-utils';
 import {
   Accordion,
   AccordionContent,
@@ -80,6 +81,66 @@ const goldBtnStyle: React.CSSProperties = {
   borderRadius: '9999px',
   letterSpacing: '0.02em',
 };
+
+// Push notification subscription banner for clients
+function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { clientId: string; clientName: string; artistProfileId: string; lang: 'en' | 'he' }) {
+  const { toast } = useToast();
+  const [status, setStatus] = useState<'idle' | 'loading' | 'subscribed'>('idle');
+
+  useEffect(() => {
+    if (!clientId) return;
+    supabase
+      .from('push_subscriptions')
+      .select('id')
+      .eq('client_id', clientId)
+      .limit(1)
+      .then(({ data }) => {
+        if (data && data.length > 0) setStatus('subscribed');
+      });
+  }, [clientId]);
+
+  const handleSubscribe = async () => {
+    setStatus('loading');
+    // Delete old subscription if exists, then create fresh
+    await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
+    const result = await subscribeToPush({ clientId, clientName, artistProfileId });
+    if (result.success) {
+      setStatus('subscribed');
+      toast({ title: lang === 'en' ? 'Notifications enabled! ✅' : 'התראות הופעלו בהצלחה! ✅' });
+    } else {
+      setStatus('idle');
+      toast({ title: lang === 'en' ? 'Failed to subscribe' : 'ההרשמה נכשלה', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  if (!clientId) return null;
+
+  return (
+    <button
+      onClick={handleSubscribe}
+      disabled={status === 'loading'}
+      className="w-full rounded-3xl p-5 mb-6 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up opacity-0"
+      style={{
+        animationDelay: '50ms',
+        backgroundColor: status === 'subscribed' ? 'hsl(142 50% 94%)' : 'hsl(0 0% 100%)',
+        border: status === 'subscribed' ? '2px solid hsl(142 60% 50%)' : `2px solid ${SOFT_GOLD}`,
+        color: status === 'subscribed' ? 'hsl(142 60% 30%)' : SOFT_GOLD_DARK,
+        boxShadow: status === 'subscribed' ? '0 2px 12px hsl(142 50% 70% / 0.25)' : `0 2px 16px hsl(38 50% 70% / 0.25)`,
+      }}
+    >
+      {status === 'loading' ? (
+        <span className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
+      ) : (
+        <Bell className="w-5 h-5" />
+      )}
+      {status === 'subscribed'
+        ? (lang === 'en' ? 'Notifications enabled ✅' : 'התראות מופעלות ✅')
+        : status === 'loading'
+          ? (lang === 'en' ? 'Enabling...' : 'מפעילה...')
+          : (lang === 'en' ? 'Enable notifications for recovery updates 🔔' : 'הפעילי התראות לקבלת עדכוני החלמה 🔔')}
+    </button>
+  );
+}
 
 const ClientHome = () => {
   const { toast } = useToast();
@@ -266,6 +327,9 @@ const ClientHome = () => {
       </header>
 
       <div className="pt-28 max-w-md mx-auto px-4">
+        {/* Push Notification Banner */}
+        <ClientPushBanner clientId={clientId} clientName={clientName} artistProfileId={artistProfileId} lang={lang} />
+
         {/* Greeting Card */}
         <div className="relative mb-8 animate-fade-up opacity-0 rounded-3xl overflow-hidden" style={{ backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 4px 24px hsl(350 30% 88% / 0.35)' }}>
           <div className="relative py-10 px-6 text-center">
