@@ -1940,7 +1940,7 @@ const ArtistDashboard = () => {
               <div className="space-y-4">
                 {clients.map((client, i) => {
                   const aftercare = getMessageForDay(client.day);
-                  const sentKey = `${client.name}-day${aftercare.day}`;
+                  const sentKey = `${client.name}-day${aftercare?.day ?? client.day}`;
                   const lastSent = waSentLog[sentKey];
                   const hasFlags = clientHasRedFlags(client.name) && !approvedExceptions[client.name];
                     const isSafe = clientIsSafe(client.name);
