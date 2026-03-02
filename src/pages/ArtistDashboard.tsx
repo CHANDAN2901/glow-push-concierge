@@ -1939,12 +1939,12 @@ const ArtistDashboard = () => {
               </h2>
               <div className="space-y-4">
                 {clients.map((client, i) => {
-                  const aftercare = getMessageForDay(client.day);
-                  const sentKey = `${client.name}-day${aftercare?.day ?? client.day}`;
+                  const aftercare = getMessageForDay(client?.day ?? 0);
+                  const sentKey = `${client.name}-day${aftercare?.day ?? client?.day ?? 0}`;
                   const lastSent = waSentLog[sentKey];
                   const hasFlags = clientHasRedFlags(client.name) && !approvedExceptions[client.name];
                     const isSafe = clientIsSafe(client.name);
-                    const flags = hasFlags ? getRedFlags(getDeclarationData(client.name)!) : [];
+                    const flags = hasFlags ? getRedFlags(getDeclarationData(client.name) as any || {}) : [];
                     return (
                       <div key={i} className={`rounded-3xl overflow-hidden transition-all cursor-pointer bg-white ${hasFlags ? 'border-2 border-destructive/30' : 'border border-border/60'}`}
                         style={{ boxShadow: '0 4px 20px -4px hsla(0, 0%, 0%, 0.08)' }}
