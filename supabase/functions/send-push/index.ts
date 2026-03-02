@@ -26,8 +26,14 @@ serve(async (req) => {
       );
     }
 
-    const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
-    const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
+    const rawPublic = Deno.env.get('VAPID_PUBLIC_KEY') || '';
+    const rawPrivate = Deno.env.get('VAPID_PRIVATE_KEY') || '';
+
+    // Strip any stray quotes, whitespace, or non-base64url characters
+    const vapidPublicKey = rawPublic.replace(/[^A-Za-z0-9\-_]/g, '');
+    const vapidPrivateKey = rawPrivate.replace(/[^A-Za-z0-9\-_]/g, '');
+
+    console.log('[send-push] VAPID public key length:', vapidPublicKey.length, 'private key length:', vapidPrivateKey.length);
 
     if (!vapidPublicKey || !vapidPrivateKey) {
       return new Response(
