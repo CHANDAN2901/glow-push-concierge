@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Camera, Calendar as CalendarIcon } from 'lucide-react';
 import { format, isValid } from 'date-fns';
-import { useClientGallery } from '@/hooks/useClientGallery';
+import type { SharedGalleryPhoto } from '@/hooks/useClientGallery';
 
 const SOFT_GOLD_DARK = 'hsl(38 55% 42%)';
 const CHARCOAL_TEXT = 'hsl(0 0% 20%)';
@@ -10,10 +10,14 @@ interface ClientMyPhotosProps {
   clientId: string;
   artistId?: string;
   lang: string;
+  gallery: {
+    photos: SharedGalleryPhoto[];
+    loading: boolean;
+  };
 }
 
-const ClientMyPhotos = ({ clientId, artistId, lang }: ClientMyPhotosProps) => {
-  const { photos, loading } = useClientGallery(clientId, artistId);
+const ClientMyPhotos = ({ lang, gallery }: ClientMyPhotosProps) => {
+  const { photos, loading } = gallery;
 
   const myPhotos = useMemo(
     () => photos.filter(p => p.uploaded_by === 'client').sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),

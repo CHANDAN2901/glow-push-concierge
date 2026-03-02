@@ -21,6 +21,7 @@ import ClientSharedGallery from '@/components/ClientSharedGallery';
 import ClientMyPhotos from '@/components/ClientMyPhotos';
 import HealingTimelineCarousel from '@/components/HealingTimelineCarousel';
 import { useClientGallery } from '@/hooks/useClientGallery';
+import type { SharedGalleryPhoto } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL, STUDIO_NAME } from '@/lib/branding';
 import oritLogo from '@/assets/glowpush-logo.png';
 
@@ -243,10 +244,13 @@ const ClientHome = () => {
   // clientId already declared above
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useHealingPhases(treatment);
 
+  // Single gallery hook instance — shared across all gallery components
+  const validClientId = isUUID(clientId) ? clientId : undefined;
+  const gallery = useClientGallery(validClientId, artistProfileId || undefined);
+
   // Bottom-nav photo upload
   const bottomFileRef = useRef<HTMLInputElement>(null);
   const [bottomUploading, setBottomUploading] = useState(false);
-  const { uploadPhoto: galleryUpload } = useClientGallery(clientId, artistProfileId || undefined);
 
   const handleBottomUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -258,7 +262,7 @@ const ClientHome = () => {
         reader.onloadend = () => resolve(reader.result as string);
         reader.readAsDataURL(file);
       });
-      await galleryUpload(base64, { photoType: 'healing', uploadedBy: 'client' });
+      await gallery.uploadPhoto(base64, { photoType: 'healing', uploadedBy: 'client' });
       toast({ title: 'התמונה הועלתה בהצלחה! 📸✨' });
     } catch (err) {
       console.error('Bottom upload error:', err);
@@ -267,7 +271,7 @@ const ClientHome = () => {
       setBottomUploading(false);
       e.target.value = '';
     }
-  }, [galleryUpload, toast]);
+  }, [gallery.uploadPhoto, toast]);
 
   const calculatedDay = useMemo(() => {
     if (!startDateParam) return 3;
@@ -649,7 +653,7 @@ const ClientHome = () => {
         </div>
 
         {/* Shared Client Gallery — all photos */}
-        {isUUID(clientId) && (
+        {validClientId && (
           <div className="rounded-3xl p-6 mb-6 animate-fade-up" style={{ animationDelay: '380ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(40 50% 93%)' }}>
@@ -659,12 +663,12 @@ const ClientHome = () => {
                 {lang === 'en' ? 'My Healing Gallery' : 'גלריית ההחלמה שלי'}
               </h2>
             </div>
-            <ClientSharedGallery clientId={clientId} artistId={artistProfileId || undefined} />
+            <ClientSharedGallery clientId={validClientId} artistId={artistProfileId || undefined} gallery={gallery} />
           </div>
         )}
 
         {/* My Uploaded Photos — client-only uploads */}
-        {isUUID(clientId) && <ClientMyPhotos clientId={clientId} artistId={artistProfileId || undefined} lang={lang} />}
+        {validClientId && <ClientMyPhotos clientId={validClientId} artistId={artistProfileId || undefined} lang={lang} gallery={gallery} />}
 
         {/* My Artist Card */}
         <div className="rounded-3xl p-6 mt-6 animate-fade-up" style={{ animationDelay: '500ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>

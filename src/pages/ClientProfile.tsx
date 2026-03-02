@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 import ClientSharedGallery from '@/components/ClientSharedGallery';
+import { useClientGallery } from '@/hooks/useClientGallery';
 import ClientPhotoTimeline from '@/components/ClientPhotoTimeline';
 import HealingPhotoGallery from '@/components/HealingPhotoGallery';
 import { useI18n } from '@/lib/i18n';
@@ -186,6 +187,19 @@ function SubscribePushButton({ clientId, clientName, artistProfileId, lang }: { 
       )}
       {buttonLabel}
     </button>
+  );
+}
+// Wrapper to isolate gallery hook
+function ClientProfileGallerySection({ resolvedClientId, resolvedArtistId }: { resolvedClientId: string; resolvedArtistId: string }) {
+  const gallery = useClientGallery(resolvedClientId, resolvedArtistId);
+  return (
+    <SectionCard
+      icon={<Camera className="w-5 h-5" style={{ color: GOLD }} />}
+      title="הגלריה שלי 🖼️"
+      delay="400"
+    >
+      <ClientSharedGallery clientId={resolvedClientId} artistId={resolvedArtistId} gallery={gallery} />
+    </SectionCard>
   );
 }
 
@@ -576,13 +590,7 @@ const ClientProfile = () => {
 
         {/* ── Shared Gallery (from DB) ── */}
         {resolvedClientId && (
-          <SectionCard
-            icon={<Camera className="w-5 h-5" style={{ color: GOLD }} />}
-            title="הגלריה שלי 🖼️"
-            delay="400"
-          >
-            <ClientSharedGallery clientId={resolvedClientId} artistId={resolvedArtistId} />
-          </SectionCard>
+          <ClientProfileGallerySection resolvedClientId={resolvedClientId} resolvedArtistId={resolvedArtistId} />
         )}
 
         {/* ── Personal Notes ── */}
