@@ -140,9 +140,9 @@ export async function subscribeToPush(opts: {
 
     console.log('[Push] Insert result:', insertData);
 
-    // 7. Mark client as push opted in
+    // 7. Mark client as push opted in via security definer function
     console.log('[Push] Marking client as push opted in...');
-    const { error: updateErr } = await supabase.from('clients').update({ push_opted_in: true }).eq('id', opts.clientId);
+    const { error: updateErr } = await supabase.rpc('mark_client_push_opted_in', { p_client_id: opts.clientId });
     if (updateErr) {
       console.warn('[Push] Failed to update push_opted_in:', updateErr.message);
       // Non-fatal — subscription was saved

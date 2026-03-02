@@ -977,6 +977,10 @@ export type Database = {
         Args: { promo_code_value: string }
         Returns: undefined
       }
+      mark_client_push_opted_in: {
+        Args: { p_client_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
