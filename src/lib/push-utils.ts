@@ -4,12 +4,26 @@ import { supabase } from '@/integrations/supabase/client';
  * Convert a Base64-URL string to a Uint8Array for applicationServerKey
  */
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
+  const sanitized = base64String
+    .replace(/[\s\r\n\t"'\\]/g, '')
+    .trim();
+
+  if (!/^[A-Za-z0-9\-_]+$/.test(sanitized)) {
+    throw new Error('מפתח VAPID מכיל תווים לא חוקיים');
+  }
+
+  const padding = '='.repeat((4 - (sanitized.length % 4)) % 4);
+  const base64 = (sanitized + padding)
     .replace(/\-/g, '+')
     .replace(/_/g, '/');
 
-  const rawData = window.atob(base64);
+  let rawData: string;
+  try {
+    rawData = window.atob(base64);
+  } catch {
+    throw new Error('מפתח VAPID לא תקין (Base64 decode failed)');
+  }
+
   const outputArray = new Uint8Array(rawData.length);
 
   for (let i = 0; i < rawData.length; ++i) {
@@ -17,6 +31,10 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   }
 
   return outputArray;
+}
+
+function isLikelyVapidPublicKey(key: string): boolean {
+  return /^[A-Za-z0-9\-_]+$/.test(key) && key.length >= 80 && key.length <= 120;
 }
 
 /**
@@ -104,7 +122,15 @@ export async function subscribeToPush(opts: {
     console.log('[Push] Subscribing to push manager...');
     let subscription: PushSubscription;
     try {
-      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey.trim());
+      const normalizedVapidKey = vapidPublicKey.trim();
+      if (!isLikelyVapidPublicKey(normalizedVapidKey)) {
+        return {
+          success: false,
+          error: `מפתח VAPID לא תקין בשרת (אורך: ${normalizedVapidKey.length}). יש לעדכן את מפתחות ההתראות ב-Lovable Cloud.`,
+        };
+      }
+
+      const applicationServerKey = urlBase64ToUint8Array(normalizedVapidKey);
       subscription = await (registration as any).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey,
