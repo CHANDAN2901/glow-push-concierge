@@ -232,7 +232,16 @@ const ClientProfile = () => {
   const cleanPhone = phone.replace(/[^0-9]/g, '');
   const intlPhone = cleanPhone.startsWith('0') ? `972${cleanPhone.slice(1)}` : cleanPhone;
 
-  const resolvedClientId = client?.id || clientDbId || clientName;
+  const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+  const rawResolvedClientId = client?.id || clientDbId || clientName;
+  // Sanitize: extract only the UUID portion (first 36 chars) if it starts with a UUID pattern
+  const resolvedClientId = (() => {
+    if (!rawResolvedClientId) return '';
+    if (isUUID(rawResolvedClientId)) return rawResolvedClientId;
+    // Try extracting UUID from beginning of string (handles concatenation bug)
+    const match = rawResolvedClientId.match(/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+    return match ? match[1] : rawResolvedClientId;
+  })();
   const resolvedArtistId = artistId || client?.artist_id || '';
 
   // Fetch client from DB
