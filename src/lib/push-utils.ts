@@ -48,9 +48,14 @@ export async function subscribeToPush(opts: {
 }): Promise<{ success: boolean; error?: string }> {
   try {
     // Check browser support
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      console.error('[Push] Browser does not support push notifications');
-      return { success: false, error: 'הדפדפן לא תומך בהתראות Push' };
+    if (!('serviceWorker' in navigator)) {
+      return { success: false, error: 'הדפדפן לא תומך ב-Service Worker' };
+    }
+    if (!('PushManager' in window)) {
+      return { success: false, error: 'הדפדפן לא תומך ב-PushManager' };
+    }
+    if (!('Notification' in window)) {
+      return { success: false, error: 'הדפדפן לא תומך בהתראות (Notification API missing)' };
     }
 
     // 1. Request permission
@@ -58,57 +63,95 @@ export async function subscribeToPush(opts: {
     const permission = await Notification.requestPermission();
     console.log('[Push] Permission result:', permission);
     if (permission !== 'granted') {
-      return { success: false, error: 'ההרשאה להתראות לא אושרה' };
+      return { success: false, error: `ההרשאה להתראות לא אושרה (status: ${permission})` };
     }
 
     // 2. Register custom SW
-    const registration = await registerCustomSW();
-    console.log('[Push] SW active, ready for subscription');
+    let registration: ServiceWorkerRegistration;
+    try {
+      registration = await registerCustomSW();
+      console.log('[Push] SW active, ready for subscription');
+    } catch (swErr: any) {
+      console.error('[Push] SW registration failed:', swErr);
+      return { success: false, error: `שגיאת Service Worker: ${swErr.message}` };
+    }
 
     // 3. Fetch VAPID public key from edge function
     console.log('[Push] Fetching VAPID public key...');
-    const { data: vapidData, error: vapidError } = await supabase.functions.invoke('get-vapid-key');
-    if (vapidError || !vapidData?.publicKey) {
-      console.error('[Push] Failed to fetch VAPID key:', vapidError);
-      return { success: false, error: 'שגיאה בקבלת מפתח VAPID' };
+    let vapidPublicKey: string;
+    try {
+      const { data: vapidData, error: vapidError } = await supabase.functions.invoke('get-vapid-key');
+      if (vapidError) {
+        console.error('[Push] VAPID fetch error:', vapidError);
+        return { success: false, error: `שגיאת VAPID: ${vapidError.message || JSON.stringify(vapidError)}` };
+      }
+      if (!vapidData?.publicKey) {
+        return { success: false, error: 'מפתח VAPID לא הוחזר מהשרת' };
+      }
+      vapidPublicKey = vapidData.publicKey;
+      console.log('[Push] VAPID public key received, length:', vapidPublicKey.length);
+    } catch (vapidErr: any) {
+      console.error('[Push] VAPID exception:', vapidErr);
+      return { success: false, error: `שגיאת VAPID: ${vapidErr.message}` };
     }
-    console.log('[Push] VAPID public key received');
 
     // 4. Subscribe to push
     console.log('[Push] Subscribing to push manager...');
-    const applicationServerKey = urlBase64ToUint8Array(vapidData.publicKey);
-    const subscription = await (registration as any).pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey,
-    });
-    console.log('[Push] Push subscription created:', subscription.endpoint);
+    let subscription: PushSubscription;
+    try {
+      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
+      subscription = await (registration as any).pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey,
+      });
+      console.log('[Push] Push subscription created:', subscription.endpoint);
+    } catch (subErr: any) {
+      console.error('[Push] pushManager.subscribe failed:', subErr);
+      return { success: false, error: `שגיאת הרשמה: ${subErr.message}` };
+    }
 
     const subJson = subscription.toJSON();
+    if (!subJson.endpoint || !subJson.keys?.p256dh || !subJson.keys?.auth) {
+      return { success: false, error: 'מידע ההרשמה חסר (endpoint/keys)' };
+    }
 
-    // 5. Save to Supabase
+    // 5. Delete any existing subscription for this client (to avoid duplicates)
+    console.log('[Push] Removing old subscriptions for client...');
+    await supabase.from('push_subscriptions').delete().eq('client_id', opts.clientId);
+
+    // 6. Save to Supabase
     console.log('[Push] Saving subscription to database...');
-    const { error: dbError } = await supabase.from('push_subscriptions').insert({
+    const insertPayload = {
       client_name: opts.clientName || 'Unknown',
       endpoint: subJson.endpoint!,
-      p256dh: subJson.keys?.p256dh || '',
-      auth_key: subJson.keys?.auth || '',
+      p256dh: subJson.keys!.p256dh!,
+      auth_key: subJson.keys!.auth!,
       artist_profile_id: opts.artistProfileId || null,
       client_id: opts.clientId,
-    });
+    };
+    console.log('[Push] Insert payload:', JSON.stringify({ ...insertPayload, p256dh: '***', auth_key: '***' }));
+
+    const { data: insertData, error: dbError } = await supabase.from('push_subscriptions').insert(insertPayload).select();
 
     if (dbError) {
       console.error('[Push] Supabase insert error:', dbError);
-      return { success: false, error: `שגיאת שמירה: ${dbError.message}` };
+      return { success: false, error: `שגיאת שמירה בDB: ${dbError.message} (code: ${dbError.code})` };
     }
 
-    // 6. Mark client as push opted in
+    console.log('[Push] Insert result:', insertData);
+
+    // 7. Mark client as push opted in
     console.log('[Push] Marking client as push opted in...');
-    await supabase.from('clients').update({ push_opted_in: true }).eq('id', opts.clientId);
+    const { error: updateErr } = await supabase.from('clients').update({ push_opted_in: true }).eq('id', opts.clientId);
+    if (updateErr) {
+      console.warn('[Push] Failed to update push_opted_in:', updateErr.message);
+      // Non-fatal — subscription was saved
+    }
 
     console.log('[Push] ✅ Push subscription saved successfully!');
     return { success: true };
   } catch (err: any) {
     console.error('[Push] Subscription flow error:', err);
-    return { success: false, error: err.message || 'שגיאה לא ידועה' };
+    return { success: false, error: `שגיאה כללית: ${err.message || 'שגיאה לא ידועה'}` };
   }
 }
