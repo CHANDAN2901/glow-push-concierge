@@ -19,6 +19,7 @@ import InstallBanner from '@/components/InstallBanner';
 
 import ClientSharedGallery from '@/components/ClientSharedGallery';
 import HealingTimelineCarousel from '@/components/HealingTimelineCarousel';
+import { useClientGallery } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL, STUDIO_NAME } from '@/lib/branding';
 import oritLogo from '@/assets/glowpush-logo.png';
 
@@ -240,6 +241,32 @@ const ClientHome = () => {
   const artistProfileId = searchParams.get('artist_id') || '';
   // clientId already declared above
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useHealingPhases(treatment);
+
+  // Bottom-nav photo upload
+  const bottomFileRef = useRef<HTMLInputElement>(null);
+  const [bottomUploading, setBottomUploading] = useState(false);
+  const { uploadPhoto: galleryUpload } = useClientGallery(clientId, artistProfileId || undefined);
+
+  const handleBottomUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBottomUploading(true);
+    try {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+      await galleryUpload(base64, { photoType: 'healing', uploadedBy: 'client' });
+      toast({ title: 'התמונה הועלתה בהצלחה! 📸✨' });
+    } catch (err) {
+      console.error('Bottom upload error:', err);
+      toast({ title: 'שגיאה בהעלאת התמונה', variant: 'destructive' });
+    } finally {
+      setBottomUploading(false);
+      e.target.value = '';
+    }
+  }, [galleryUpload, toast]);
 
   const calculatedDay = useMemo(() => {
     if (!startDateParam) return 3;
@@ -680,16 +707,20 @@ const ClientHome = () => {
               <Heart className="w-5 h-5" strokeWidth={1.5} style={{ color: 'hsl(38 55% 62%)' }} />
               <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה שלי'}</span>
             </a>
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(`היי! אני ביום ${actualDay} להחלמה. שולחת לך תמונת מצב... 📸`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center justify-center gap-1.5 py-2.5 text-xs font-serif tracking-wide transition-all hover:opacity-90 active:scale-[0.97]"
+            <button
+              onClick={() => bottomFileRef.current?.click()}
+              disabled={bottomUploading}
+              className="flex flex-col items-center justify-center gap-1.5 py-2.5 text-xs font-serif tracking-wide transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50"
               style={goldBtnStyle}
             >
-              <Camera className="w-5 h-5" strokeWidth={1.5} />
-              <span>{lang === 'en' ? 'Upload Photo' : 'העלאת תמונה'}</span>
-            </a>
+              {bottomUploading ? (
+                <span className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                <Camera className="w-5 h-5" strokeWidth={1.5} />
+              )}
+              <span>{bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Upload Photo' : 'העלאת תמונה')}</span>
+            </button>
+            <input ref={bottomFileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleBottomUpload} />
             <a
               href={`https://wa.me/?text=${encodeURIComponent(`היי, אני ביום ${actualDay} ויש לי שאלה דחופה לגבי הטיפול... 🆘`)}`}
               target="_blank"
