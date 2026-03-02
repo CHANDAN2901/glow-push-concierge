@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Camera, X, Calendar as CalendarIcon, Download, Sparkles, Upload } from 'lucide-react';
+import { Camera, X, Calendar as CalendarIcon, Download, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { useClientGallery, type SharedGalleryPhoto } from '@/hooks/useClientGallery';
 import { toast } from '@/hooks/use-toast';
@@ -94,11 +94,14 @@ const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) =
           className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
           style={{ background: '#ffffff', border: `2.5px solid ${GOLD}`, color: GOLD_DARK }}
         >
-          <Upload className="w-4 h-4" />
-          {uploading ? 'מעלה...' : 'העלי תמונה 📸'}
+          <Camera className="w-4 h-4" />
+          {uploading ? 'מעלה...' : 'העלאת תמונה 📸'}
         </button>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+        <input ref={fileRef} type="file" accept="image/jpeg,image/png" className="hidden" onChange={handleUpload} />
       </div>
+      <p className="text-center text-[11px] font-serif -mt-1 mb-3" style={{ color: '#999' }}>
+        צלמי תמונה ברורה של אזור הטיפול
+      </p>
 
       {/* New badge */}
       {newCount > 0 && (
@@ -155,15 +158,6 @@ const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) =
                     </span>
                   )}
 
-                  {/* Collage badge */}
-                  {photo.photo_type === 'collage' && (
-                    <span
-                      className="absolute bottom-1 right-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
-                    >
-                      קולאז׳
-                    </span>
-                  )}
 
                   {/* Client upload badge */}
                   {photo.uploaded_by === 'client' && (
@@ -206,10 +200,6 @@ const ClientSharedGallery = ({ clientId, artistId }: ClientSharedGalleryProps) =
                 <span className="text-sm font-serif font-semibold" style={{ color: '#333' }}>
                   {format(new Date(selected.created_at), 'dd/MM/yyyy')}
                 </span>
-                {selected.photo_type === 'collage' && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full mr-2"
-                    style={{ background: GOLD_GRADIENT, color: '#5C4033' }}>קולאז׳</span>
-                )}
               </div>
               <div className="flex items-center gap-2">
                 <button
