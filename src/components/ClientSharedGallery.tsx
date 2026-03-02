@@ -1,7 +1,7 @@
 import { forwardRef, useState, useEffect, useRef } from 'react';
 import { Camera, X, Calendar as CalendarIcon, Download, Sparkles } from 'lucide-react';
 import { format, isValid } from 'date-fns';
-import { useClientGallery, type SharedGalleryPhoto } from '@/hooks/useClientGallery';
+import type { SharedGalleryPhoto } from '@/hooks/useClientGallery';
 import { toast } from '@/hooks/use-toast';
 
 const GOLD = '#D4AF37';
@@ -11,10 +11,18 @@ const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 
 interface ClientSharedGalleryProps {
   clientId: string;
   artistId?: string;
+  gallery: {
+    photos: SharedGalleryPhoto[];
+    loading: boolean;
+    newCount: number;
+    markAllSeen: () => Promise<void>;
+    uploadPhoto: (base64Data: string, opts?: { photoType?: 'healing' | 'collage'; label?: string; dayNumber?: number; uploadedBy?: 'artist' | 'client' }) => Promise<string>;
+    resolvedArtistId: string | null;
+  };
 }
 
-const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>(({ clientId, artistId }, ref) => {
-  const { photos, loading, newCount, markAllSeen, uploadPhoto, resolvedArtistId } = useClientGallery(clientId, artistId);
+const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>(({ gallery }, ref) => {
+  const { photos, loading, newCount, markAllSeen, uploadPhoto, resolvedArtistId } = gallery;
   const [selected, setSelected] = useState<SharedGalleryPhoto | null>(null);
   const [notifShown, setNotifShown] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -33,7 +41,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
     if (newCount > 0 && photos.length > 0) {
       markAllSeen();
     }
-  }, [photos.length]);
+  }, [photos.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -162,7 +170,6 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                       יום {photo.day_number}
                     </span>
                   )}
-
 
                   {/* Client upload badge */}
                   {photo.uploaded_by === 'client' && (
