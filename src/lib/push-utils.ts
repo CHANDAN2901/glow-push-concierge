@@ -171,14 +171,16 @@ export async function subscribeToPush(opts: {
     };
     console.log('[Push] Insert payload:', JSON.stringify({ ...insertPayload, p256dh: '***', auth_key: '***' }));
 
-    const { data: insertData, error: dbError } = await supabase.from('push_subscriptions').insert(insertPayload).select();
+    const { error: dbError } = await supabase
+      .from('push_subscriptions')
+      .insert(insertPayload);
 
     if (dbError) {
       console.error('[Push] Supabase insert error:', dbError);
       return { success: false, error: `שגיאת שמירה בDB: ${dbError.message} (code: ${dbError.code})` };
     }
 
-    console.log('[Push] Insert result:', insertData);
+    console.log('[Push] Insert completed successfully');
 
     // 8. Mark client as push opted in via security definer function
     console.log('[Push] Marking client as push opted in...');
