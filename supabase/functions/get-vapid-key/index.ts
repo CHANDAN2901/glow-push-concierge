@@ -10,13 +10,17 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
-  const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
-  if (!vapidPublicKey) {
+  const rawKey = Deno.env.get('VAPID_PUBLIC_KEY');
+  if (!rawKey) {
     return new Response(
       JSON.stringify({ error: 'VAPID_PUBLIC_KEY not configured' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
+
+  // Strip any accidental quotes, whitespace, or newlines from the stored secret
+  const vapidPublicKey = rawKey.replace(/['"\\]/g, '').trim();
+  console.log('[get-vapid-key] Cleaned key length:', vapidPublicKey.length);
 
   return new Response(
     JSON.stringify({ publicKey: vapidPublicKey }),
