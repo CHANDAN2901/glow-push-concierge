@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
+        importScripts: ['/custom-sw.js'],
       },
       manifest: {
         name: "Glow Push",
