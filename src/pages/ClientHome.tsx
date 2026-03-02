@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
+import { supabase } from '@/integrations/supabase/client';
 import { TreatmentType } from '@/lib/recovery-data';
 import { useHealingPhases } from '@/hooks/useHealingPhases';
 import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, LifeBuoy, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp } from 'lucide-react';
@@ -86,7 +87,27 @@ const ClientHome = () => {
   const [searchParams] = useSearchParams();
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  const clientName = searchParams.get('name') || (lang === 'en' ? 'Client' : 'לקוחה');
+  const paramName = searchParams.get('name');
+  const fallbackName = lang === 'en' ? 'Client' : 'לקוחה';
+  const clientId = searchParams.get('client_id') || '';
+  const [dbClientName, setDbClientName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!clientId) return;
+    supabase
+      .from('clients')
+      .select('full_name')
+      .eq('id', clientId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.full_name) {
+          // Use first name only
+          setDbClientName(data.full_name.split(' ')[0]);
+        }
+      });
+  }, [clientId]);
+
+  const clientName = paramName || dbClientName || fallbackName;
   const startDateParam = searchParams.get('start');
   const treatment: TreatmentType = searchParams.get('treatment') === 'lips' ? 'lips' : 'eyebrows';
   const beforeImg = searchParams.get('before') || '';
@@ -95,7 +116,7 @@ const ClientHome = () => {
   const artistName = searchParams.get('artist') || '';
   const artistPhone = searchParams.get('phone') || '';
   const artistProfileId = searchParams.get('artist_id') || '';
-  const clientId = searchParams.get('client_id') || '';
+  // clientId already declared above
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useHealingPhases(treatment);
 
   const calculatedDay = useMemo(() => {
