@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
+import { useI18n } from '@/lib/i18n';
+import { Globe } from 'lucide-react';
 
 interface FaqItem {
   id: string;
@@ -16,6 +18,8 @@ interface FaqItem {
 const MarketingLanding = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { lang, setLang } = useI18n();
+  const isHe = lang === 'he';
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
 
   useEffect(() => {
@@ -28,7 +32,18 @@ const MarketingLanding = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6 text-center space-y-8" dir="rtl">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6 text-center space-y-8" dir={isHe ? 'rtl' : 'ltr'}>
+      {/* Language toggle */}
+      <div className="fixed top-4 left-4 z-50">
+        <button
+          onClick={() => setLang(isHe ? 'en' : 'he')}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-white/80 backdrop-blur-sm transition-all hover:opacity-80 active:scale-95"
+          style={{ color: 'hsl(30 10% 45%)', border: '1px solid hsl(38 30% 82%)' }}
+        >
+          <Globe className="w-3.5 h-3.5" />
+          {isHe ? 'EN' : 'HE'}
+        </button>
+      </div>
       {/* Logo Section */}
       <div className="space-y-2">
         <h1

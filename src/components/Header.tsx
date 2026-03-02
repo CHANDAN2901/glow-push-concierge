@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Globe } from 'lucide-react';
 
 /** 
  * Maps route paths to screen titles (Hebrew + English).
@@ -25,7 +25,7 @@ const ROUTE_TITLES: Record<string, { he: string; en: string }> = {
 const HIDDEN_ROUTES = ['/', '/artist', '/client', '/health-declaration', '/client-form', '/declaration', '/marketing', '/home'];
 
 const Header = () => {
-  const { lang } = useI18n();
+  const { lang, setLang } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -69,8 +69,15 @@ const Header = () => {
           </h1>
         )}
 
-        {/* Left side (RTL): spacer to balance layout */}
-        <div className="w-[100px]" />
+        {/* Left side (RTL): language toggle */}
+        <button
+          onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all hover:opacity-80 active:scale-95"
+          style={{ color: 'hsl(30 10% 45%)', border: '1px solid hsl(38 30% 82%)' }}
+        >
+          <Globe className="w-3.5 h-3.5" />
+          {lang === 'he' ? 'EN' : 'HE'}
+        </button>
       </div>
     </header>
   );
