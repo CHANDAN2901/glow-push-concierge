@@ -82,11 +82,16 @@ serve(async (req) => {
 
     // Build encrypted payload with VAPID signing
     console.log('[send-push] Building encrypted push payload...');
-    const pushRequest = await buildPushPayload(message, pushSubscription, vapid);
+    const pushPayload = await buildPushPayload(message, pushSubscription, vapid);
+    console.log('[send-push] Payload keys:', Object.keys(pushPayload));
 
-    // Send to push service
+    // buildPushPayload returns {headers, body} init — use with fetch(endpoint, init)
     console.log('[send-push] Sending to push endpoint:', subscription.endpoint);
-    const response = await fetch(pushRequest);
+    const response = await fetch(subscription.endpoint, {
+      method: 'POST',
+      headers: pushPayload.headers,
+      body: pushPayload.body,
+    });
 
     if (!response.ok) {
       const text = await response.text();
