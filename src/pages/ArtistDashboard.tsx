@@ -916,7 +916,7 @@ const ArtistDashboard = () => {
             phone: c.phone || '',
             day: daysSince,
             treatment: c.treatment_type || '',
-            link: `${origin}/client?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}`,
+            link: `${origin}/client?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}&start=${c.treatment_date || new Date(c.created_at).toISOString().split('T')[0]}&client_id=${encodeURIComponent(c.id)}&artist_id=${encodeURIComponent(userProfileId)}`,
             beforeImg: '',
             afterImg: '',
             pushOptedIn: c.push_opted_in || false,
@@ -2273,7 +2273,7 @@ const ArtistDashboard = () => {
                   <button
                     onClick={() => {
                       try {
-                        const link = `${origin}/client?name=${encodeURIComponent(healingJourneyClient?.name ?? '')}&treatment=${encodeURIComponent(healingJourneyClient?.treatment ?? '')}&start=${new Date().toISOString().split('T')[0]}`;
+                        const link = `${origin}/client?name=${encodeURIComponent(healingJourneyClient?.name ?? '')}&treatment=${encodeURIComponent(healingJourneyClient?.treatment ?? '')}&start=${new Date().toISOString().split('T')[0]}&client_id=${encodeURIComponent((healingJourneyClient as any)?.dbId ?? '')}&artist_id=${encodeURIComponent(userProfileId || '')}`;
                         openWhatsApp(healingJourneyClient?.phone ?? '', healingJourneyClient?.name ?? '', link);
                         toast({ title: isHe ? '✨ מסע ההחלמה הופעל בהצלחה! ההודעות מתוזמנות.' : '✨ Healing journey activated! Messages are scheduled.' });
                       } catch (err) {
