@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface DispatchPrefill {
   name?: string;
@@ -71,19 +72,40 @@ const NewClientDispatch = ({
     return norm.length >= 7 && sentNorm.length >= 7 && (sentNorm.endsWith(norm) || norm.endsWith(sentNorm));
   });
 
-  const buildLink = () => {
+  const buildLink = (clientId?: string) => {
     if (!name || !treatment) return '';
     const params = new URLSearchParams({
       name,
       treatment,
       start: new Date().toISOString().split('T')[0],
     });
+    if (clientId) params.set('client_id', clientId);
     if (artistProfileId) params.set('artist_id', artistProfileId);
     if (logoUrl && !logoUrl.includes('svg+xml') && logoUrl.length < 2000) params.set('logo', logoUrl);
     if (artistName) params.set('artist', artistName);
     if (artistPhone) params.set('phone', formatPhone(artistPhone));
     if (phone.trim()) params.set('client_phone', phone.trim());
     return `${origin}/health-declaration?${params.toString()}`;
+  };
+
+  /** Insert client to DB and return the new ID */
+  const ensureClientInDb = async (): Promise<string | undefined> => {
+    if (!artistProfileId) return undefined;
+    try {
+      const treatLabel = treatmentOptions.find(o => o.value === treatment);
+      const { data, error } = await supabase.from('clients').insert({
+        artist_id: artistProfileId,
+        full_name: name,
+        phone: phone || null,
+        treatment_type: treatLabel ? (lang === 'en' ? treatLabel.en : treatLabel.he) : treatment,
+        treatment_date: new Date().toISOString().split('T')[0],
+      }).select('id').single();
+      if (error) throw error;
+      return data?.id;
+    } catch (err) {
+      console.error('Failed to save client to DB:', err);
+      return undefined;
+    }
   };
 
   const isValid = name.trim().length >= 2 && !!treatment;
@@ -109,7 +131,8 @@ const NewClientDispatch = ({
   const handleSendWhatsApp = async () => {
     if (!isValid) return;
     if (isDuplicate && !duplicateAck) return;
-    const link = buildLink();
+    const clientId = await ensureClientInDb();
+    const link = buildLink(clientId);
     const msg = buildMessage(link);
 
     // Try native Web Share API first
@@ -137,9 +160,9 @@ const NewClientDispatch = ({
     markDispatched(link);
   };
 
-  const handleFillHere = () => {
+  const handleFillHere = async () => {
     if (!isValid) return;
-    // Save client first, then navigate
+    await ensureClientInDb();
     const treatLabel = treatmentOptions.find(o => o.value === treatment);
     onClientCreated({
       name,
@@ -154,8 +177,12 @@ const NewClientDispatch = ({
   const handleCopyLink = async () => {
     if (!isValid) return;
     if (isDuplicate && !duplicateAck) return;
-    const link = generatedLink || buildLink();
-    if (!generatedLink) markDispatched(link);
+    let link = generatedLink;
+    if (!link) {
+      const clientId = await ensureClientInDb();
+      link = buildLink(clientId);
+      markDispatched(link);
+    }
     await navigator.clipboard.writeText(link);
     setCopied(true);
     toast({ title: lang === 'en' ? 'Link copied!' : 'הקישור הועתק!' });
@@ -278,8 +305,9 @@ const NewClientDispatch = ({
 
           {/* Save Client Only */}
           <div className="pt-2">
-            <button onClick={() => {
+            <button onClick={async () => {
               if (!isValid) return;
+              await ensureClientInDb();
               const treatLabel = treatmentOptions.find(o => o.value === treatment);
               onClientCreated({
                 name,

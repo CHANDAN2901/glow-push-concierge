@@ -3019,32 +3019,8 @@ const ArtistDashboard = () => {
         sentPhones={clients.map(c => c.phone).filter(Boolean)}
         prefill={dispatchPrefill}
         onClientCreated={async ({ name, phone, treatment, link }) => {
-          // Insert into DB first, then refresh
-          if (userProfileId) {
-            try {
-              const { error } = await supabase.from('clients').insert({
-                artist_id: userProfileId,
-                full_name: name,
-                phone: phone || null,
-                treatment_type: treatment || null,
-                treatment_date: new Date().toISOString().split('T')[0],
-              });
-              if (error) throw error;
-              await fetchClients();
-            } catch (err) {
-              console.error('Failed to save client to DB:', err);
-              // Fallback to local state
-              setClients(prev => [
-                { name, phone, day: 0, treatment, link, beforeImg: '', afterImg: '' },
-                ...prev,
-              ]);
-            }
-          } else {
-            setClients(prev => [
-              { name, phone, day: 0, treatment, link, beforeImg: '', afterImg: '' },
-              ...prev,
-            ]);
-          }
+          // Client is already saved to DB by NewClientDispatch, just refresh the list
+          await fetchClients();
         }}
         onFillHere={(cName, cTreatment) => {
           setClientName(cName);
