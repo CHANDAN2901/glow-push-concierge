@@ -73,7 +73,7 @@ const statusBadge = (status: string) => (
 /* ── component ── */
 const SuperAdmin = () => {
   const { toast } = useToast();
-  const { isAdmin, loading } = useAuth();
+  const { isAdmin, loading, roleLoading } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState<AdminView>('dashboard');
   const [trialDays, setTrialDays] = useState('14');
@@ -100,7 +100,15 @@ const SuperAdmin = () => {
   ]);
   const [newQuestion, setNewQuestion] = useState('');
 
-  if (!loading && !isAdmin) {
+  if (loading || roleLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-accent border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
     navigate('/');
     return null;
   }
