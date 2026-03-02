@@ -192,13 +192,35 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
 
 const ClientHome = () => {
   const { toast } = useToast();
-  const { t, lang } = useI18n();
+  const { t, lang, setLang } = useI18n();
   const [searchParams] = useSearchParams();
   const timelineRef = useRef<HTMLDivElement>(null);
 
+  // --- PWA localStorage persistence for iPhone "Add to Home Screen" ---
+  const LS_CLIENT_ID = 'glow-client-id';
+  const LS_CLIENT_NAME = 'glow-client-name';
+  const LS_START = 'glow-start';
+  const LS_TREATMENT = 'glow-treatment';
+  const LS_ARTIST_ID = 'glow-artist-id';
+
+  const rawClientId = searchParams.get('client_id') || '';
   const paramName = searchParams.get('name');
+
+  // Save to localStorage when URL params are present
+  useEffect(() => {
+    if (rawClientId) localStorage.setItem(LS_CLIENT_ID, rawClientId);
+    if (paramName) localStorage.setItem(LS_CLIENT_NAME, paramName);
+    const s = searchParams.get('start');
+    if (s) localStorage.setItem(LS_START, s);
+    const t = searchParams.get('treatment');
+    if (t) localStorage.setItem(LS_TREATMENT, t);
+    const a = searchParams.get('artist_id');
+    if (a) localStorage.setItem(LS_ARTIST_ID, a);
+  }, [rawClientId, paramName, searchParams]);
+
+  // Restore from localStorage if URL params missing (PWA mode)
+  const clientId = rawClientId || localStorage.getItem(LS_CLIENT_ID) || '';
   const fallbackName = lang === 'en' ? 'Client' : 'לקוחה';
-  const clientId = searchParams.get('client_id') || '';
   const [dbClientName, setDbClientName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -232,15 +254,16 @@ const ClientHome = () => {
     };
   }, [clientId]);
 
-  const clientName = paramName || dbClientName || fallbackName;
-  const startDateParam = searchParams.get('start');
-  const treatment: TreatmentType = searchParams.get('treatment') === 'lips' ? 'lips' : 'eyebrows';
+  const clientName = paramName || dbClientName || localStorage.getItem(LS_CLIENT_NAME) || fallbackName;
+  const startDateParam = searchParams.get('start') || localStorage.getItem(LS_START) || '';
+  const treatmentParam = searchParams.get('treatment') || localStorage.getItem(LS_TREATMENT) || '';
+  const treatment: TreatmentType = treatmentParam === 'lips' ? 'lips' : 'eyebrows';
   const beforeImg = searchParams.get('before') || '';
   const afterImg = searchParams.get('after') || '';
   const logoUrl = searchParams.get('logo') || STUDIO_LOGO_URL || '';
   const artistName = searchParams.get('artist') || '';
   const artistPhone = searchParams.get('phone') || '';
-  const artistProfileId = searchParams.get('artist_id') || '';
+  const artistProfileId = searchParams.get('artist_id') || localStorage.getItem(LS_ARTIST_ID) || '';
   // clientId already declared above
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useHealingPhases(treatment);
 
@@ -700,6 +723,17 @@ const ClientHome = () => {
               {lang === 'en' ? 'Schedule Touch-up 🗓️' : 'קביעת טאץ׳ אפ 🗓️'}
             </span>
           </a>
+        </div>
+
+        {/* Language toggle */}
+        <div className="flex justify-center pb-24 pt-4">
+          <button
+            onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
+            className="text-xs px-3 py-1.5 rounded-full border transition-all hover:opacity-80"
+            style={{ borderColor: 'hsl(38 30% 80%)', color: 'hsl(30 10% 50%)' }}
+          >
+            {lang === 'he' ? 'EN 🌐' : 'HE 🌐'}
+          </button>
         </div>
 
         {/* Bottom Nav */}
