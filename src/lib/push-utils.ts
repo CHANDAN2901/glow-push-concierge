@@ -146,9 +146,14 @@ export async function subscribeToPush(opts: {
       return { success: false, error: 'מידע ההרשמה חסר (endpoint/keys)' };
     }
 
-    // 5. Delete any existing subscription for this client (to avoid duplicates)
+    // 5. Sanitize clientId — extract UUID only (guard against concatenation bugs)
+    const uuidMatch = opts.clientId.match(/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+    const cleanClientId = uuidMatch ? uuidMatch[1] : opts.clientId;
+    console.log('[Push] Clean clientId:', cleanClientId, '(original length:', opts.clientId.length, ')');
+
+    // 6. Delete any existing subscription for this client (to avoid duplicates)
     console.log('[Push] Removing old subscriptions for client...');
-    await supabase.from('push_subscriptions').delete().eq('client_id', opts.clientId);
+    await supabase.from('push_subscriptions').delete().eq('client_id', cleanClientId);
 
     // 6. Save to Supabase
     console.log('[Push] Saving subscription to database...');
@@ -158,7 +163,7 @@ export async function subscribeToPush(opts: {
       p256dh: subJson.keys!.p256dh!,
       auth_key: subJson.keys!.auth!,
       artist_profile_id: opts.artistProfileId || null,
-      client_id: opts.clientId,
+      client_id: cleanClientId,
     };
     console.log('[Push] Insert payload:', JSON.stringify({ ...insertPayload, p256dh: '***', auth_key: '***' }));
 
@@ -171,9 +176,9 @@ export async function subscribeToPush(opts: {
 
     console.log('[Push] Insert result:', insertData);
 
-    // 7. Mark client as push opted in via security definer function
+    // 8. Mark client as push opted in via security definer function
     console.log('[Push] Marking client as push opted in...');
-    const { error: updateErr } = await supabase.rpc('mark_client_push_opted_in', { p_client_id: opts.clientId });
+    const { error: updateErr } = await supabase.rpc('mark_client_push_opted_in', { p_client_id: cleanClientId });
     if (updateErr) {
       console.warn('[Push] Failed to update push_opted_in:', updateErr.message);
       // Non-fatal — subscription was saved
