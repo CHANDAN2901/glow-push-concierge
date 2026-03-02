@@ -164,7 +164,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
     <button
       onClick={handleSubscribe}
       disabled={status === 'loading'}
-      className="w-full rounded-3xl p-5 mb-6 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up opacity-0"
+      className="w-full rounded-3xl p-5 mb-6 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up"
       style={{
         animationDelay: '50ms',
         backgroundColor: status === 'subscribed' ? 'hsl(142 50% 94%)' : 'hsl(0 0% 100%)',
@@ -199,18 +199,34 @@ const ClientHome = () => {
   const [dbClientName, setDbClientName] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!clientId) return;
-    supabase
-      .from('clients')
-      .select('full_name')
-      .eq('id', clientId)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.full_name) {
-          // Use first name only
-          setDbClientName(data.full_name.split(' ')[0]);
+    let cancelled = false;
+
+    if (!isUUID(clientId)) {
+      setDbClientName(null);
+      return;
+    }
+
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('clients')
+          .select('full_name')
+          .eq('id', clientId)
+          .maybeSingle();
+
+        if (cancelled || error || !data?.full_name) return;
+        setDbClientName(data.full_name.split(' ')[0]);
+      } catch (err) {
+        if (!cancelled) {
+          console.error('[ClientHome] Failed to load client name:', err);
+          setDbClientName(null);
         }
-      });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [clientId]);
 
   const clientName = paramName || dbClientName || fallbackName;
@@ -227,7 +243,10 @@ const ClientHome = () => {
 
   const calculatedDay = useMemo(() => {
     if (!startDateParam) return 3;
+
     const start = new Date(startDateParam);
+    if (Number.isNaN(start.getTime())) return 3;
+
     const today = new Date();
     const diff = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
     return Math.max(1, Math.min(30, diff + 1));
@@ -236,8 +255,11 @@ const ClientHome = () => {
   const actualDay = calculatedDay;
   // Support deep-link from push notification: ?day=X
   const pushDay = searchParams.get('day');
-  const initialDay = pushDay ? Math.max(1, Math.min(30, parseInt(pushDay) || calculatedDay)) : calculatedDay;
-  const [viewingDay, setViewingDay] = useState(initialDay);
+  const parsedPushDay = pushDay ? Number.parseInt(pushDay, 10) : Number.NaN;
+  const safeInitialDay = Number.isFinite(parsedPushDay)
+    ? Math.max(1, Math.min(30, parsedPushDay))
+    : calculatedDay;
+  const [viewingDay, setViewingDay] = useState(safeInitialDay);
   const isPreviewing = viewingDay !== actualDay;
 
   const doneKey = `pmu-done-day-${viewingDay}`;
@@ -376,7 +398,7 @@ const ClientHome = () => {
         <ClientPushBanner clientId={clientId} clientName={clientName} artistProfileId={artistProfileId} lang={lang} />
 
         {/* Greeting Card */}
-        <div className="relative mb-8 animate-fade-up opacity-0 rounded-3xl overflow-hidden" style={{ backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 4px 24px hsl(350 30% 88% / 0.35)' }}>
+        <div className="relative mb-8 animate-fade-up rounded-3xl overflow-hidden" style={{ backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 4px 24px hsl(350 30% 88% / 0.35)' }}>
           <div className="relative py-10 px-6 text-center">
             <h1 className="tracking-wide mb-5" style={{ color: CHARCOAL_TEXT, fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: '28px', letterSpacing: '0.05em', lineHeight: 1.5 }}>
               {getTimeGreeting(lang, clientName, treatment)}
@@ -407,7 +429,7 @@ const ClientHome = () => {
         </div>
 
         {/* Day Counter with Circular Progress */}
-        <div className="rounded-3xl p-8 mb-6 animate-fade-up opacity-0 delay-100" style={{ backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>
+        <div className="rounded-3xl p-8 mb-6 animate-fade-up delay-100" style={{ backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>
           {isPreviewing && (
             <div className="text-center mb-3">
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-light" style={{ background: 'hsl(40 50% 92%)', color: SOFT_GOLD_DARK }}>
@@ -491,7 +513,7 @@ const ClientHome = () => {
 
         {/* Refer a Friend Widget */}
         <div
-          className="rounded-3xl p-8 mb-6 animate-fade-up opacity-0 overflow-hidden relative text-center"
+          className="rounded-3xl p-8 mb-6 animate-fade-up overflow-hidden relative text-center"
           style={{ animationDelay: '350ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}
           dir={lang === 'he' ? 'rtl' : 'ltr'}
         >
@@ -534,7 +556,7 @@ const ClientHome = () => {
         {/* FAQ */}
         <div id="faq" className="scroll-mt-20" />
         <div
-          className="rounded-3xl p-6 mb-6 animate-fade-up opacity-0"
+          className="rounded-3xl p-6 mb-6 animate-fade-up"
           style={{ animationDelay: '400ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}
           dir={lang === 'he' ? 'rtl' : 'ltr'}
         >
@@ -601,8 +623,8 @@ const ClientHome = () => {
         {/* Simple photo upload is provided by ClientSharedGallery below */}
 
         {/* Shared Client Gallery */}
-        {(clientId || clientName) && (
-          <div className="rounded-3xl p-6 mb-6 animate-fade-up opacity-0" style={{ animationDelay: '380ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>
+        {isUUID(clientId) && (
+          <div className="rounded-3xl p-6 mb-6 animate-fade-up" style={{ animationDelay: '380ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(40 50% 93%)' }}>
                 <Camera className="w-5 h-5" style={{ color: SOFT_GOLD_DARK }} />
@@ -611,12 +633,12 @@ const ClientHome = () => {
                 {lang === 'en' ? 'My Healing Gallery' : 'גלריית ההחלמה שלי'}
               </h2>
             </div>
-            <ClientSharedGallery clientId={clientId || clientName} artistId={artistProfileId || undefined} />
+            <ClientSharedGallery clientId={clientId} artistId={artistProfileId || undefined} />
           </div>
         )}
 
         {/* My Artist Card */}
-        <div className="rounded-3xl p-6 mt-6 animate-fade-up opacity-0" style={{ animationDelay: '500ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>
+        <div className="rounded-3xl p-6 mt-6 animate-fade-up" style={{ animationDelay: '500ms', backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)', border: '1px solid hsl(350 30% 92%)' }}>
           <div className="flex items-center gap-4 mb-5">
             <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: 'hsl(40 50% 93%)' }}>
               👩‍🎨
