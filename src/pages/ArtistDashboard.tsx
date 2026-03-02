@@ -247,12 +247,16 @@ const ArtistDashboard = () => {
   const [activeTab, setActiveTabInternal] = useState<'home' | 'clients' | 'calendar' | 'upgrades' | 'messages' | 'digital-card' | 'profile' | 'healing' | 'bonuses' | 'push'>(activeTabParam || 'home');
   const selectedClientParam = searchParams.get('client');
 
+  // Use a ref to avoid searchParams in callback dependencies (prevents re-render loops)
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
+
   // Wrap setActiveTab to sync URL
   const setActiveTab = useCallback((tab: 'home' | 'clients' | 'calendar' | 'upgrades' | 'messages' | 'digital-card' | 'profile' | 'healing' | 'bonuses' | 'push') => {
     setActiveTabInternal(tab);
     // Haptic feedback on tab switch
     if (navigator.vibrate) navigator.vibrate(50);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParamsRef.current);
     params.set('tab', tab);
     params.delete('client');
     setSearchParams(params, { replace: true });
@@ -261,7 +265,7 @@ const ArtistDashboard = () => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
     }
-  }, [searchParams, setSearchParams]);
+  }, [setSearchParams]);
 
   const [selectedClient, setSelectedClientInternal] = useState<ClientEntry | null>(null);
 
@@ -269,7 +273,7 @@ const ArtistDashboard = () => {
   const setSelectedClient = useCallback((clientOrUpdater: ClientEntry | null | ((prev: ClientEntry | null) => ClientEntry | null)) => {
     setSelectedClientInternal(prev => {
       const newVal = typeof clientOrUpdater === 'function' ? clientOrUpdater(prev) : clientOrUpdater;
-      const params = new URLSearchParams(searchParams);
+      const params = new URLSearchParams(searchParamsRef.current);
       if (newVal) {
         params.set('tab', 'clients');
         params.set('client', newVal.dbId || newVal.name);
@@ -279,7 +283,7 @@ const ArtistDashboard = () => {
       setSearchParams(params, { replace: true });
       return newVal;
     });
-  }, [searchParams, setSearchParams]);
+  }, [setSearchParams]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -374,6 +378,12 @@ const ArtistDashboard = () => {
 
   useEffect(() => { fetchDbDeclarations(); }, [fetchDbDeclarations]);
 
+  // Use refs for toast/lang so the realtime channel doesn't re-subscribe on every lang/toast change
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
+  const langRef = useRef(lang);
+  langRef.current = lang;
+
   // Realtime subscription: auto-refresh when a new health declaration is inserted
   useEffect(() => {
     if (!userProfileId) return;
@@ -385,9 +395,8 @@ const ArtistDashboard = () => {
         (payload) => {
           console.log('New health declaration received:', payload);
           fetchDbDeclarations().then(() => {
-            // Show toast notification
-            toast({
-              title: lang === 'en'
+            toastRef.current({
+              title: langRef.current === 'en'
                 ? '✨ New health declaration received!'
                 : '✨ התקבלה הצהרת בריאות חדשה!',
             });
@@ -396,7 +405,7 @@ const ArtistDashboard = () => {
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [userProfileId, fetchDbDeclarations, toast, lang]);
+  }, [userProfileId, fetchDbDeclarations]);
 
   const isMasterUser = userTier === 'master';
 
