@@ -563,7 +563,7 @@ const ClientHome = () => {
               style={goldBtnStyle}
             >
               <Camera className="w-5 h-5" strokeWidth={1.5} />
-              <span>{lang === 'en' ? 'Send Photo' : 'שלחי תמונה'}</span>
+              <span>{lang === 'en' ? 'Upload Photo' : 'העלאת תמונה'}</span>
             </a>
             <a
               href={`https://wa.me/?text=${encodeURIComponent(`היי, אני ביום ${actualDay} ויש לי שאלה דחופה לגבי הטיפול... 🆘`)}`}
