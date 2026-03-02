@@ -215,6 +215,7 @@ const ArtistDashboard = () => {
     if (TRIAL_FEATURES.includes(featureId) && trialActive) return true;
     return false;
   };
+  const [sendingTestPush, setSendingTestPush] = useState(false);
   const [dismissedTouchup, setDismissedTouchup] = useState(() => !!localStorage.getItem('gp-dismiss-touchup'));
   const [medicalForm, setMedicalForm] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -1848,6 +1849,53 @@ const ArtistDashboard = () => {
                 >
                   {lang === 'en' ? 'Preview Health Form' : 'תצוגה מקדימה של הטופס'}
                   <Eye className="w-3.5 h-3.5" />
+                </button>
+
+                {/* === Send Test Push Notification === */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setSendingTestPush(true);
+                    try {
+                      const clientId = selectedClient.dbId || selectedClient.name;
+                      const { data: subs, error: subErr } = await supabase
+                        .from('push_subscriptions')
+                        .select('endpoint, p256dh, auth_key')
+                        .eq('client_id', clientId)
+                        .limit(1);
+                      if (subErr || !subs?.length) {
+                        toast({ title: lang === 'en' ? 'No push subscription found for this client' : 'לא נמצא מנוי התראות ללקוחה זו', variant: 'destructive' });
+                        setSendingTestPush(false);
+                        return;
+                      }
+                      const sub = subs[0];
+                      const { error } = await supabase.functions.invoke('send-push', {
+                        body: {
+                          subscription: {
+                            endpoint: sub.endpoint,
+                            keys: { p256dh: sub.p256dh, auth: sub.auth_key },
+                          },
+                          title: 'בדיקת מערכת GlowPush 🔔',
+                          body: `היי ${selectedClient.name}, זו התראת ניסיון מהמערכת! ✨`,
+                          day: 1,
+                        },
+                      });
+                      if (error) throw error;
+                      toast({ title: lang === 'en' ? 'Test notification sent! ✅' : 'התראת בדיקה נשלחה בהצלחה! ✅' });
+                    } catch (err: any) {
+                      toast({ title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה', description: err?.message, variant: 'destructive' });
+                    } finally {
+                      setSendingTestPush(false);
+                    }
+                  }}
+                  disabled={sendingTestPush}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide text-white transition-all active:scale-[0.97] disabled:opacity-60"
+                  style={{ background: '#2563eb', boxShadow: '0 4px 20px rgba(37,99,235,0.35)' }}
+                >
+                  <Bell className="w-5 h-5" />
+                  {sendingTestPush
+                    ? (lang === 'en' ? 'Sending...' : 'שולחת...')
+                    : (lang === 'en' ? 'Send Test Notification 🔔' : 'שלחי התראת בדיקה 🔔')}
                 </button>
 
                 {/* 3. AI Voice Treatment Record */}
