@@ -38,22 +38,12 @@ function isLikelyVapidPublicKey(key: string): boolean {
 }
 
 /**
- * Register the custom service worker for push notifications
+ * Get the active service worker registration (VitePWA registers /sw.js which imports /custom-sw.js)
  */
-async function registerCustomSW(): Promise<ServiceWorkerRegistration> {
-  console.log('[Push] Registering custom service worker...');
-  const reg = await navigator.serviceWorker.register('/custom-sw.js');
-  console.log('[Push] Custom SW registered, scope:', reg.scope);
-  // Wait for it to be active
-  if (!reg.active) {
-    await new Promise<void>((resolve) => {
-      const sw = reg.installing || reg.waiting;
-      if (!sw) { resolve(); return; }
-      sw.addEventListener('statechange', () => {
-        if (sw.state === 'activated') resolve();
-      });
-    });
-  }
+async function getActiveSWRegistration(): Promise<ServiceWorkerRegistration> {
+  console.log('[Push] Getting active service worker registration...');
+  const reg = await navigator.serviceWorker.ready;
+  console.log('[Push] SW ready, scope:', reg.scope);
   return reg;
 }
 
@@ -92,7 +82,7 @@ export async function subscribeToPush(opts: {
     // 2. Register custom SW
     let registration: ServiceWorkerRegistration;
     try {
-      registration = await registerCustomSW();
+      registration = await getActiveSWRegistration();
       console.log('[Push] SW active, ready for subscription');
     } catch (swErr: any) {
       console.error('[Push] SW registration failed:', swErr);
