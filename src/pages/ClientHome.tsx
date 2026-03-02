@@ -16,7 +16,7 @@ import CircularProgress from '@/components/CircularProgress';
 import confetti from 'canvas-confetti';
 import { useToast } from '@/hooks/use-toast';
 import InstallBanner from '@/components/InstallBanner';
-import HealingGallery from '@/components/HealingGallery';
+
 import ClientSharedGallery from '@/components/ClientSharedGallery';
 import HealingTimelineCarousel from '@/components/HealingTimelineCarousel';
 import { STUDIO_LOGO_URL, STUDIO_NAME } from '@/lib/branding';
@@ -553,13 +553,7 @@ const ClientHome = () => {
           </Accordion>
         </div>
 
-        {/* Healing Gallery */}
-        <HealingGallery
-          beforeImg={beforeImg}
-          afterImg={afterImg}
-          startDate={startDateParam || undefined}
-          artistProfileId={artistProfileId}
-        />
+        {/* Simple photo upload is provided by ClientSharedGallery below */}
 
         {/* Shared Client Gallery */}
         {(clientId || clientName) && (
