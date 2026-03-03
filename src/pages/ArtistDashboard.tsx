@@ -1871,7 +1871,7 @@ const ArtistDashboard = () => {
                         return;
                       }
                       const sub = subs[0];
-                      const { error } = await supabase.functions.invoke('send-push', {
+                      const { data: pushResult, error } = await supabase.functions.invoke('send-push', {
                         body: {
                           subscription: {
                             endpoint: sub.endpoint,
@@ -1882,6 +1882,21 @@ const ArtistDashboard = () => {
                           day: 1,
                         },
                       });
+                      console.log('[TestPush] Result:', pushResult, 'Error:', error);
+                      // Handle expired/unsubscribed push subscriptions (410)
+                      if (pushResult?.status === 410 || pushResult?.details?.includes('expired')) {
+                        // Clean up stale subscription
+                        await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+                        toast({ 
+                          title: lang === 'en' ? 'Subscription expired' : 'המנוי פג תוקף',
+                          description: lang === 'en' 
+                            ? 'The client needs to re-open their recovery link to re-subscribe.' 
+                            : 'הלקוחה צריכה לפתוח מחדש את הקישור כדי להירשם שוב להתראות.',
+                          variant: 'destructive' 
+                        });
+                        setSendingTestPush(false);
+                        return;
+                      }
                       if (error) throw error;
                       toast({ title: lang === 'en' ? 'Test notification sent! ✅' : 'התראת בדיקה נשלחה בהצלחה! ✅' });
                     } catch (err: any) {
