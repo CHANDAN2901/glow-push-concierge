@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { RotateCw, ZoomIn, Sun, Contrast, PenTool, Undo2, Check, X, Sparkles, Droplets } from 'lucide-react';
+import { RotateCw, ZoomIn, Sun, Contrast, PenTool, Undo2, Check, X, Sparkles, Droplets, Download } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 
 interface ImageEditorDialogProps {
@@ -252,10 +252,10 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
     setDrawPaths(prev => prev.slice(0, -1));
   };
 
-  const handleSave = () => {
+  const getMergedCanvas = () => {
     const canvas = canvasRef.current;
     const drawCanvas = drawCanvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return null;
 
     const mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = W;
@@ -265,9 +265,38 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
     if (drawCanvas) {
       ctx.drawImage(drawCanvas, 0, 0);
     }
+    return mergedCanvas;
+  };
 
+  const handleSave = () => {
+    const mergedCanvas = getMergedCanvas();
+    if (!mergedCanvas) return;
     const dataUrl = mergedCanvas.toDataURL('image/jpeg', 0.92);
     onSave(dataUrl);
+  };
+
+  const handleDownload = async () => {
+    const mergedCanvas = getMergedCanvas();
+    if (!mergedCanvas) return;
+    const blob = await new Promise<Blob | null>((resolve) =>
+      mergedCanvas.toBlob(resolve, 'image/jpeg', 0.95)
+    );
+    if (!blob) return;
+    const fileName = `edited-photo-${Date.now()}.jpg`;
+    const file = new File([blob], fileName, { type: 'image/jpeg' });
+    const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
+    if (nav.canShare && nav.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Edited Photo' });
+    } else {
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    }
   };
 
   const drawColors = [GOLD, '#EF4444', '#3B82F6', '#10B981', '#000000'];
@@ -516,13 +545,23 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
             {isHe ? 'ביטול' : 'Cancel'}
           </Button>
           <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownload}
+            className="gap-1 rounded-xl px-4"
+            style={{ borderColor: GOLD, color: GOLD_DARK }}
+          >
+            <Download className="w-3.5 h-3.5" />
+            {isHe ? 'הורדה' : 'Download'}
+          </Button>
+          <Button
             size="sm"
             onClick={handleSave}
             className="gap-1 rounded-xl px-5 font-bold border-0"
             style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
           >
             <Check className="w-3.5 h-3.5" />
-            {isHe ? 'שמור שינויים' : 'Save Changes'}
+            {isHe ? 'שמירה' : 'Save'}
           </Button>
         </div>
       </DialogContent>
