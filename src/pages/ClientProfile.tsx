@@ -63,6 +63,9 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
       if (!subs || subs.length === 0) {
         toast({
           title: lang === 'en' ? 'No push subscription found for this client' : 'לא נמצא מנוי Push ללקוחה זו',
+          description: lang === 'en'
+            ? 'The client needs to open the recovery link and enable notifications first.'
+            : 'הלקוחה צריכה לפתוח את קישור ההחלמה ולהפעיל התראות.',
           variant: 'destructive',
         });
         setSending(false);
@@ -84,14 +87,22 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
 
       console.log('[TestPush] Result:', pushResult, 'Error:', error);
 
-      // Handle expired subscription (410)
-      if (pushResult?.status === 410 || pushResult?.details?.includes('expired')) {
-        await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+      // Parse error response — supabase.functions.invoke may put non-2xx body in error or data
+      const responseBody = pushResult || (error && typeof error === 'object' ? error : null);
+      const isExpired =
+        responseBody?.status === 410 ||
+        responseBody?.details?.includes?.('expired') ||
+        responseBody?.details?.includes?.('unsubscribed') ||
+        (error?.message && error.message.includes('non-2xx'));
+
+      if (isExpired || responseBody?.error === 'Push delivery failed') {
+        // Clean up expired/invalid subscriptions for this client
+        await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
         toast({
           title: lang === 'en' ? 'Subscription expired' : 'המנוי פג תוקף',
           description: lang === 'en' 
-            ? 'Client needs to re-open recovery link to re-subscribe.' 
-            : 'הלקוחה צריכה לפתוח מחדש את הקישור כדי להירשם שוב.',
+            ? 'Client needs to re-open recovery link and enable notifications again.' 
+            : 'הלקוחה צריכה לפתוח מחדש את קישור ההחלמה ולהפעיל התראות מחדש.',
           variant: 'destructive',
         });
         setSending(false);
@@ -104,10 +115,24 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
       });
     } catch (err: any) {
       console.error('[TestPush] Failed:', err, JSON.stringify(err));
-      toast({
-        title: lang === 'en' ? 'Push failed: ' + (err?.message || 'Unknown error') : 'שליחה נכשלה: ' + (err?.message || 'שגיאה'),
-        variant: 'destructive',
-      });
+      // Check if the error message indicates an expired sub
+      const errMsg = err?.message || '';
+      if (errMsg.includes('non-2xx') || errMsg.includes('502') || errMsg.includes('410')) {
+        await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
+        toast({
+          title: lang === 'en' ? 'Subscription expired' : 'המנוי פג תוקף',
+          description: lang === 'en'
+            ? 'Client needs to re-open recovery link and enable notifications again.'
+            : 'הלקוחה צריכה לפתוח מחדש את קישור ההחלמה ולהפעיל התראות מחדש.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: lang === 'en' ? 'Push failed' : 'שליחה נכשלה',
+          description: errMsg || (lang === 'en' ? 'Unknown error' : 'שגיאה לא ידועה'),
+          variant: 'destructive',
+        });
+      }
     }
     setSending(false);
   };
