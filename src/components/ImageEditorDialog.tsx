@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { RotateCw, ZoomIn, Sun, Contrast, PenTool, Undo2, Check, X } from 'lucide-react';
+import { RotateCw, ZoomIn, Sun, Contrast, PenTool, Undo2, Check, X, Sparkles, Droplets } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 
 interface ImageEditorDialogProps {
@@ -16,6 +16,67 @@ const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
 const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)';
 
+/* ── pixel-level retouch helpers ── */
+
+/** Gentle skin smoothing: blends each pixel with a small-radius average, preserving edges. */
+function applySkinSmoothing(imageData: ImageData, amount: number) {
+  if (amount <= 0) return;
+  const { width, height, data } = imageData;
+  const src = new Uint8ClampedArray(data); // copy
+  const radius = Math.max(1, Math.round(amount * 3)); // 0-1 → 1-3px radius
+  const threshold = 18 + amount * 12; // edge-preserve threshold
+
+  for (let y = radius; y < height - radius; y++) {
+    for (let x = radius; x < width - radius; x++) {
+      const idx = (y * width + x) * 4;
+      let rSum = 0, gSum = 0, bSum = 0, count = 0;
+
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          const nIdx = ((y + dy) * width + (x + dx)) * 4;
+          const diff = Math.abs(src[nIdx] - src[idx]) + Math.abs(src[nIdx + 1] - src[idx + 1]) + Math.abs(src[nIdx + 2] - src[idx + 2]);
+          // Only blend similar-color neighbours (edge preservation)
+          if (diff < threshold) {
+            rSum += src[nIdx];
+            gSum += src[nIdx + 1];
+            bSum += src[nIdx + 2];
+            count++;
+          }
+        }
+      }
+
+      if (count > 0) {
+        const blend = amount * 0.6; // max 60% blend to keep texture
+        data[idx]     = src[idx]     + (rSum / count - src[idx])     * blend;
+        data[idx + 1] = src[idx + 1] + (gSum / count - src[idx + 1]) * blend;
+        data[idx + 2] = src[idx + 2] + (bSum / count - src[idx + 2]) * blend;
+      }
+    }
+  }
+}
+
+/** Targeted redness reduction: desaturates only reddish pixels. */
+function applyRednessReduction(imageData: ImageData, amount: number) {
+  if (amount <= 0) return;
+  const { data } = imageData;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    // Detect reddish skin tones: red channel dominant, not too dark/bright
+    const isReddish = r > 80 && r > g * 1.15 && r > b * 1.2 && r < 245;
+    if (!isReddish) continue;
+
+    // How "red" is this pixel (0-1)
+    const redness = Math.min(1, ((r - g) + (r - b)) / 200);
+    const reduction = redness * amount * 0.45; // subtle cap
+
+    // Shift red channel down, nudge green up slightly for even tone
+    data[i]     = r - r * reduction * 0.35;
+    data[i + 1] = g + (r - g) * reduction * 0.12;
+    // Blue stays mostly untouched
+  }
+}
+
 const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialogProps) => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
@@ -27,6 +88,8 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
   const [zoom, setZoom] = useState(1);
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
+  const [skinSmooth, setSkinSmooth] = useState(0);
+  const [rednessReduce, setRednessReduce] = useState(0);
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -55,27 +118,29 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
       setZoom(1);
       setBrightness(100);
       setContrast(100);
+      setSkinSmooth(0);
+      setRednessReduce(0);
       setOffsetX(0);
       setOffsetY(0);
       setDrawPaths([]);
       setCurrentPath([]);
       setDrawingMode(false);
-      drawCanvas(img, 0, 1, 0, 0, 100, 100);
+      drawCanvas(img, 0, 1, 0, 0, 100, 100, 0, 0);
     };
     img.src = imageSrc;
   }, [imageSrc]);
 
   // Redraw on param change
   useEffect(() => {
-    if (imgRef.current) drawCanvas(imgRef.current, baseRotation + rotation, zoom, offsetX, offsetY, brightness, contrast);
-  }, [rotation, baseRotation, zoom, offsetX, offsetY, brightness, contrast]);
+    if (imgRef.current) drawCanvas(imgRef.current, baseRotation + rotation, zoom, offsetX, offsetY, brightness, contrast, skinSmooth, rednessReduce);
+  }, [rotation, baseRotation, zoom, offsetX, offsetY, brightness, contrast, skinSmooth, rednessReduce]);
 
   // Redraw drawing overlay
   useEffect(() => {
     redrawDrawingLayer();
   }, [drawPaths, currentPath]);
 
-  const drawCanvas = (img: HTMLImageElement, rot: number, zm: number, ox: number, oy: number, br: number, ct: number) => {
+  const drawCanvas = (img: HTMLImageElement, rot: number, zm: number, ox: number, oy: number, br: number, ct: number, smooth: number, redness: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     canvas.width = W;
@@ -99,6 +164,14 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
     ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
     ctx.restore();
     ctx.filter = 'none';
+
+    // Apply pixel-level retouching
+    if (smooth > 0 || redness > 0) {
+      const imageData = ctx.getImageData(0, 0, W, H);
+      if (smooth > 0) applySkinSmoothing(imageData, smooth);
+      if (redness > 0) applyRednessReduction(imageData, redness);
+      ctx.putImageData(imageData, 0, 0);
+    }
   };
 
   const redrawDrawingLayer = () => {
@@ -184,7 +257,6 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
     const drawCanvas = drawCanvasRef.current;
     if (!canvas) return;
 
-    // Merge drawing onto main canvas
     const mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = W;
     mergedCanvas.height = H;
@@ -199,6 +271,8 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
   };
 
   const drawColors = [GOLD, '#EF4444', '#3B82F6', '#10B981', '#000000'];
+
+  const hasRetouch = skinSmooth > 0 || rednessReduce > 0;
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -296,6 +370,67 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
               ))}
             </div>
           )}
+
+          {/* ── Retouch Section ── */}
+          <div className="rounded-xl p-3 space-y-2.5" style={{ backgroundColor: '#faf8f2', border: `1px solid ${GOLD}30` }}>
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" style={{ color: GOLD_DARK }} />
+              <span className="text-[11px] font-semibold tracking-wide" style={{ color: GOLD_DARK }}>
+                {isHe ? 'ריטאצ׳ עדין' : 'Subtle Retouch'}
+              </span>
+              {hasRetouch && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${GOLD}20`, color: GOLD_DARK }}>
+                  {isHe ? 'פעיל' : 'Active'}
+                </span>
+              )}
+            </div>
+
+            {/* Skin Smoothing */}
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
+              <div className="flex-1 space-y-0.5">
+                <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>
+                  {isHe ? 'החלקת עור' : 'Skin Smoothing'}
+                </span>
+                <Slider
+                  value={[skinSmooth]}
+                  onValueChange={([v]) => setSkinSmooth(v)}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  className="flex-1"
+                />
+              </div>
+              <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>
+                {Math.round(skinSmooth * 100)}%
+              </span>
+            </div>
+
+            {/* Redness Reduction */}
+            <div className="flex items-center gap-3">
+              <Droplets className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
+              <div className="flex-1 space-y-0.5">
+                <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>
+                  {isHe ? 'הפחתת אדמומיות' : 'Redness Reduction'}
+                </span>
+                <Slider
+                  value={[rednessReduce]}
+                  onValueChange={([v]) => setRednessReduce(v)}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  className="flex-1"
+                />
+              </div>
+              <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>
+                {Math.round(rednessReduce * 100)}%
+              </span>
+            </div>
+
+            <p className="text-[9px] text-center" style={{ color: `${GOLD_DARK}99` }}>
+              {isHe ? 'שומר על מרקם טבעי · מראה אדיטוריאלי מקצועי' : 'Preserves natural texture · Professional editorial look'}
+            </p>
+          </div>
 
           {/* Fine Rotation */}
           <div className="flex items-center gap-3">
