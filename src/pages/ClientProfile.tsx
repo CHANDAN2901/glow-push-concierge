@@ -70,7 +70,7 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
       }
 
       const sub = subs[0];
-      const { error } = await supabase.functions.invoke('send-push', {
+      const { data: pushResult, error } = await supabase.functions.invoke('send-push', {
         body: {
           subscription: {
             endpoint: sub.endpoint,
@@ -82,12 +82,28 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
         },
       });
 
+      console.log('[TestPush] Result:', pushResult, 'Error:', error);
+
+      // Handle expired subscription (410)
+      if (pushResult?.status === 410 || pushResult?.details?.includes('expired')) {
+        await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+        toast({
+          title: lang === 'en' ? 'Subscription expired' : 'המנוי פג תוקף',
+          description: lang === 'en' 
+            ? 'Client needs to re-open recovery link to re-subscribe.' 
+            : 'הלקוחה צריכה לפתוח מחדש את הקישור כדי להירשם שוב.',
+          variant: 'destructive',
+        });
+        setSending(false);
+        return;
+      }
+
       if (error) throw error;
       toast({
         title: lang === 'en' ? 'Test push sent! ✅' : 'התראת בדיקה נשלחה! ✅',
       });
     } catch (err: any) {
-      console.error('Test push failed:', err);
+      console.error('[TestPush] Failed:', err, JSON.stringify(err));
       toast({
         title: lang === 'en' ? 'Push failed: ' + (err?.message || 'Unknown error') : 'שליחה נכשלה: ' + (err?.message || 'שגיאה'),
         variant: 'destructive',
