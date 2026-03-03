@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { Globe } from 'lucide-react';
+import heroLogo from '@/assets/glowpush-hero-logo.png';
 
 interface FaqItem {
   id: string;
@@ -45,21 +46,15 @@ const MarketingLanding = () => {
         </button>
       </div>
       {/* Logo Section */}
-      <div className="space-y-2">
-        <h1
-          className="text-5xl italic"
-          style={{
-            fontFamily: "'Dancing Script', cursive",
-            background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            filter: 'drop-shadow(0 2px 4px rgba(184, 134, 11, 0.3))',
-          }}
-        >
-          Glow Push
-        </h1>
+      <div className="space-y-3">
+        <img
+          src={heroLogo}
+          alt="Glow Push"
+          className="object-contain mx-auto"
+          style={{ maxHeight: '90px', filter: 'drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
+        />
         <p className="text-lg tracking-[0.25em] uppercase" style={{ color: '#999' }}>
-          העוזרת הדיגיטלית הצמודה לאמני איפור קבוע
+          {isHe ? 'העוזרת הדיגיטלית הצמודה לאמני איפור קבוע' : 'The Digital Assistant for PMU Artists'}
         </p>
       </div>
 

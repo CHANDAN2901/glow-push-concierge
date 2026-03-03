@@ -24,6 +24,7 @@ import { useClientGallery } from '@/hooks/useClientGallery';
 import type { SharedGalleryPhoto } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL, STUDIO_NAME } from '@/lib/branding';
 import oritLogo from '@/assets/glowpush-logo.png';
+import heroLogo from '@/assets/glowpush-hero-logo.png';
 
 // --- PWA localStorage keys (outside component to avoid re-creation) ---
 const LS_CLIENT_ID = 'glow-client-id';
@@ -82,19 +83,16 @@ const MILESTONE_DAYS = [7, 14, 21, 30];
 const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
 const LogoBrand = ({ logoUrl, lang, setLang }: { logoUrl: string; lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void }) => {
-  const [imgError, setImgError] = useState(false);
-  const src = logoUrl && !imgError ? logoUrl : oritLogo;
   return (
-    <div className="flex items-center justify-between px-4 pt-4 pb-3">
+    <div className="flex items-center justify-between px-4 pt-3 pb-2">
       {/* Spacer for balance */}
       <div className="w-14" />
-      {/* Centered logo */}
+      {/* Centered hero logo */}
       <img
-        src={src}
+        src={heroLogo}
         alt="Glow Push"
         className="object-contain"
-        style={{ maxHeight: '70px', filter: 'drop-shadow(0 2px 6px rgba(212,175,55,0.25))' }}
-        onError={() => setImgError(true)}
+        style={{ maxHeight: '56px', filter: 'drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
       />
       {/* Language toggle */}
       <button
