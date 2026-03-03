@@ -435,22 +435,11 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
               <p className="text-xs mt-2 font-medium text-accent animate-pulse">
                 {lang === 'en' ? '✨ AI is listening...' : '✨ ה-AI מקשיב לך...'}
               </p>
+              <p className="text-[11px] mt-3 text-muted-foreground">
+                {lang === 'en' ? 'Tap the stop button when done' : 'לחצי על עצור כשסיימת'}
+              </p>
             </div>
 
-            {(transcription || interimTranscription) && (
-              <div className="w-full rounded-xl px-4 py-3 bg-muted/50 border border-accent/20" dir={lang === 'he' ? 'rtl' : 'ltr'}>
-                {transcription && (
-                  <p className="text-xs leading-relaxed text-foreground">
-                    {transcription}
-                  </p>
-                )}
-                {interimTranscription && (
-                  <p className="text-xs leading-relaxed text-muted-foreground italic mt-1">
-                    {interimTranscription}
-                  </p>
-                )}
-              </div>
-            )}
           </div>
         )}
 
@@ -489,16 +478,6 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
             </div>
           </div>
 
-          {transcription && (
-            <div className="px-6 py-3">
-              <p className="text-[11px] uppercase tracking-[0.15em] font-medium mb-1.5 text-muted-foreground">
-                {lang === 'en' ? 'Transcription' : 'תמלול'}
-              </p>
-              <p className="text-xs leading-relaxed rounded-lg px-4 py-3 bg-muted/50 text-muted-foreground border border-border" dir={lang === 'he' ? 'rtl' : 'ltr'}>
-                {transcription}
-              </p>
-            </div>
-          )}
 
           <div className="px-6 py-4 space-y-5">
             {structuredFields.map((field) => {
