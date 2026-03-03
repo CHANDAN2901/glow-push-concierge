@@ -51,7 +51,7 @@ const MarketingLanding = () => {
           src={heroLogo}
           alt="Glow Push"
           className="object-contain mx-auto"
-          style={{ maxHeight: '90px', filter: 'drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
+          style={{ maxHeight: '108px', filter: 'drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
         />
         <p className="text-lg tracking-[0.25em] uppercase" style={{ color: '#999' }}>
           {isHe ? 'העוזרת הדיגיטלית הצמודה לאמני איפור קבוע' : 'The Digital Assistant for PMU Artists'}
