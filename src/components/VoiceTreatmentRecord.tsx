@@ -34,6 +34,8 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const accumulatedTextRef = useRef('');
+  const finalResultsByIndexRef = useRef<Record<number, string>>({});
+  const interimResultsByIndexRef = useRef<Record<number, string>>({});
   const isRecordingRef = useRef(false);
   const isStartingRef = useRef(false);
   const sessionIdRef = useRef(0);
@@ -93,29 +95,52 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     recognition.interimResults = true;
     recognitionRef.current = recognition;
     accumulatedTextRef.current = '';
+    finalResultsByIndexRef.current = {};
+    interimResultsByIndexRef.current = {};
 
     recognition.onresult = (event: any) => {
       if (sessionId !== sessionIdRef.current || recognitionRef.current !== recognition) return;
 
-      let finalText = '';
-      let interimText = '';
-
-      for (let i = 0; i < event.results.length; i++) {
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         const transcript = (result[0]?.transcript || '').trim();
-        if (!transcript) continue;
 
         if (result.isFinal) {
-          finalText += transcript + ' ';
-        } else {
-          interimText += transcript + ' ';
+          if (transcript) {
+            finalResultsByIndexRef.current[i] = transcript;
+          }
+          delete interimResultsByIndexRef.current[i];
+          continue;
+        }
+
+        if (!(i in finalResultsByIndexRef.current)) {
+          if (transcript) {
+            interimResultsByIndexRef.current[i] = transcript;
+          } else {
+            delete interimResultsByIndexRef.current[i];
+          }
         }
       }
 
-      const cleanFinal = finalText.trim();
-      accumulatedTextRef.current = cleanFinal;
-      setTranscription(cleanFinal);
-      setInterimTranscription(interimText.trim());
+      const finalText = Object.keys(finalResultsByIndexRef.current)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map((index) => finalResultsByIndexRef.current[index])
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      const interimText = Object.keys(interimResultsByIndexRef.current)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map((index) => interimResultsByIndexRef.current[index])
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      accumulatedTextRef.current = finalText;
+      setTranscription(finalText);
+      setInterimTranscription(interimText);
     };
 
     recognition.onerror = (event: any) => {
@@ -180,6 +205,7 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     }
 
     setInterimTranscription('');
+    interimResultsByIndexRef.current = {};
 
     // Use only final (isFinal) text for processing
     const spokenText = accumulatedTextRef.current.trim();
@@ -268,6 +294,8 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     isStartingRef.current = false;
     sessionIdRef.current += 1;
     accumulatedTextRef.current = '';
+    finalResultsByIndexRef.current = {};
+    interimResultsByIndexRef.current = {};
     setMode('idle');
     setRawText('');
     setStructured(null);
