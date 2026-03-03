@@ -773,10 +773,10 @@ const ArtistDashboard = () => {
       if (saved) return JSON.parse(saved);
     } catch {}
     return [
-      { name: 'דנה אברהם', phone: '0501234567', day: 1, treatment: lang === 'en' ? 'Lip Blush' : 'שפתיים', link: `${origin}/client?name=${encodeURIComponent('Dana Avraham')}&treatment=lips&start=2026-02-14`, beforeImg: '', afterImg: '' },
-      { name: 'מאיה לוי', phone: '0529876543', day: 5, treatment: lang === 'en' ? 'Brows' : 'גבות', link: `${origin}/client?name=${encodeURIComponent('Maya Levi')}&treatment=eyebrows&start=2026-02-10`, beforeImg: '', afterImg: '' },
-      { name: 'נועה שפירא', phone: '0541112233', day: 28, treatment: lang === 'en' ? 'Brows' : 'גבות', link: `${origin}/client?name=${encodeURIComponent('Noa Shapira')}&treatment=eyebrows&start=2026-01-18`, beforeImg: '', afterImg: '' },
-      { name: 'שירה כהן', phone: '0521234567', day: 365, treatment: lang === 'en' ? 'Brows' : 'גבות', link: `${origin}/client?name=${encodeURIComponent('Shira Cohen')}&treatment=eyebrows&start=2025-02-22`, beforeImg: '', afterImg: '' },
+      { name: 'דנה אברהם', phone: '0501234567', day: 1, treatment: lang === 'en' ? 'Lip Blush' : 'שפתיים', link: `${origin}/c/demo1?name=${encodeURIComponent('Dana Avraham')}&treatment=lips&start=2026-02-14`, beforeImg: '', afterImg: '' },
+      { name: 'מאיה לוי', phone: '0529876543', day: 5, treatment: lang === 'en' ? 'Brows' : 'גבות', link: `${origin}/c/demo2?name=${encodeURIComponent('Maya Levi')}&treatment=eyebrows&start=2026-02-10`, beforeImg: '', afterImg: '' },
+      { name: 'נועה שפירא', phone: '0541112233', day: 28, treatment: lang === 'en' ? 'Brows' : 'גבות', link: `${origin}/c/demo3?name=${encodeURIComponent('Noa Shapira')}&treatment=eyebrows&start=2026-01-18`, beforeImg: '', afterImg: '' },
+      { name: 'שירה כהן', phone: '0521234567', day: 365, treatment: lang === 'en' ? 'Brows' : 'גבות', link: `${origin}/c/demo4?name=${encodeURIComponent('Shira Cohen')}&treatment=eyebrows&start=2025-02-22`, beforeImg: '', afterImg: '' },
     ];
   });
 
@@ -829,7 +829,7 @@ const ArtistDashboard = () => {
       if (artistName) params.set('artist', artistName);
       if (artistPhone) params.set('phone', formatPhone(artistPhone));
       if (shopProducts.length > 0) params.set('shop', encodeShopForUrl(shopProducts));
-      return `${origin}/client?${params.toString()}`;
+      return `${origin}/c/new?${params.toString()}`;
     } catch { return ''; }
   };
 
@@ -943,7 +943,7 @@ const ArtistDashboard = () => {
             email: c.email || '',
             day: daysSince,
             treatment: c.treatment_type || '',
-            link: `${origin}/client?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}&start=${c.treatment_date || new Date(c.created_at).toISOString().split('T')[0]}&client_id=${encodeURIComponent(c.id)}&artist_id=${encodeURIComponent(userProfileId)}`,
+            link: `${origin}/c/${encodeURIComponent(c.id)}?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}&start=${c.treatment_date || new Date(c.created_at).toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId)}`,
             beforeImg: '',
             afterImg: '',
             pushOptedIn: c.push_opted_in || false,
@@ -2523,7 +2523,7 @@ const ArtistDashboard = () => {
                   <button
                     onClick={() => {
                       try {
-                        const link = `${origin}/client?name=${encodeURIComponent(healingJourneyClient?.name ?? '')}&treatment=${encodeURIComponent(healingJourneyClient?.treatment ?? '')}&start=${new Date().toISOString().split('T')[0]}&client_id=${encodeURIComponent((healingJourneyClient as any)?.dbId ?? '')}&artist_id=${encodeURIComponent(userProfileId || '')}`;
+                        const link = `${origin}/c/${encodeURIComponent((healingJourneyClient as any)?.dbId ?? '')}?name=${encodeURIComponent(healingJourneyClient?.name ?? '')}&treatment=${encodeURIComponent(healingJourneyClient?.treatment ?? '')}&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`;
                         openWhatsApp(healingJourneyClient?.phone ?? '', healingJourneyClient?.name ?? '', link);
                         toast({ title: isHe ? '✨ מסע ההחלמה הופעל בהצלחה! ההודעות מתוזמנות.' : '✨ Healing journey activated! Messages are scheduled.' });
                       } catch (err) {
@@ -2659,7 +2659,7 @@ const ArtistDashboard = () => {
                 phone: apt.clientPhone,
                 day: 1,
                 treatment: apt.treatmentType === 'eyebrows' ? (lang === 'en' ? 'Brows' : 'גבות') : (lang === 'en' ? 'Lips' : 'שפתיים'),
-                link: `${origin}/client?name=${encodeURIComponent(apt.clientName)}&treatment=${apt.treatmentType}&start=${apt.date}`,
+                link: `${origin}/c/new?name=${encodeURIComponent(apt.clientName)}&treatment=${apt.treatmentType}&start=${apt.date}`,
                 beforeImg: '',
                 afterImg: '',
               };
@@ -2825,7 +2825,7 @@ const ArtistDashboard = () => {
             <button
               onClick={() => {
                 const baseUrl = window.location.origin;
-                const previewUrl = `${baseUrl}/client?name=${encodeURIComponent('דנה לדוגמה')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`;
+                const previewUrl = `${baseUrl}/c/demo?name=${encodeURIComponent('דנה לדוגמה')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`;
                 window.open(previewUrl, '_blank');
               }}
               className="w-full bg-card rounded-3xl border border-accent/20 p-5 shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)] flex items-center gap-4 text-start transition-all hover:shadow-lg active:scale-[0.98]"

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { TreatmentType } from '@/lib/recovery-data';
@@ -53,16 +53,18 @@ const getStoredClientIdentity = () => {
 // Eagerly capture URL identity on module load (before React hydrates) for iOS Home Screen launches
 try {
   const url = new URL(window.location.href);
-  const cid = url.searchParams.get('client_id') || url.searchParams.get('clientId');
+  // Support path-based routing: /c/:clientId
+  const pathMatch = url.pathname.match(/^\/c\/([0-9a-f-]{36})$/i);
+  const cid = pathMatch?.[1] || url.searchParams.get('client_id') || url.searchParams.get('clientId');
   const cname = url.searchParams.get('name') || url.searchParams.get('clientName');
   const cstart = url.searchParams.get('start');
   const ctreat = url.searchParams.get('treatment');
   const cartist = url.searchParams.get('artist_id');
 
-  // Exact required behavior: persist only when both id + name exist in URL
-  if (cid && cname) {
+  // Exact required behavior: persist when id exists in URL
+  if (cid) {
     localStorage.setItem(LS_CLIENT_ID, cid);
-    localStorage.setItem(LS_CLIENT_NAME, cname);
+    if (cname) localStorage.setItem(LS_CLIENT_NAME, cname);
   }
 
   if (cstart) localStorage.setItem(LS_START, cstart);
@@ -239,19 +241,44 @@ const ClientHome = () => {
   const { toast } = useToast();
   const { t, lang, setLang } = useI18n();
   const [searchParams] = useSearchParams();
+  const { clientId: pathClientId } = useParams<{ clientId?: string }>();
+  const navigate = useNavigate();
   const timelineRef = useRef<HTMLDivElement>(null);
 
   // PWA localStorage keys defined at module level above
 
-  const urlClientId = searchParams.get('client_id') || searchParams.get('clientId') || '';
+  // Path param takes priority, then query param, then empty
+  const urlClientId = pathClientId || searchParams.get('client_id') || searchParams.get('clientId') || '';
   const urlClientName = searchParams.get('name') || searchParams.get('clientName') || '';
   const fallbackName = 'לקוחה';
+
+  // Auto-redirect: if on /client with no identity in URL but localStorage has one, redirect to /c/:id
+  useEffect(() => {
+    if (!pathClientId && !searchParams.get('client_id') && !searchParams.get('clientId')) {
+      const { storedId } = getStoredClientIdentity();
+      if (storedId && isUUID(storedId)) {
+        // Preserve any other search params
+        const storedName = localStorage.getItem(LS_CLIENT_NAME) || '';
+        const storedStart = localStorage.getItem(LS_START) || '';
+        const storedTreatment = localStorage.getItem(LS_TREATMENT) || '';
+        const storedArtist = localStorage.getItem(LS_ARTIST_ID) || '';
+        const params = new URLSearchParams();
+        if (storedName) params.set('name', storedName);
+        if (storedStart) params.set('start', storedStart);
+        if (storedTreatment) params.set('treatment', storedTreatment);
+        if (storedArtist) params.set('artist_id', storedArtist);
+        const qs = params.toString();
+        navigate(`/c/${storedId}${qs ? '?' + qs : ''}`, { replace: true });
+        return;
+      }
+    }
+  }, [pathClientId, searchParams, navigate]);
 
   // Exact launch-blocker flow:
   // 1) If URL has id+name -> save immediately and use URL identity.
   // 2) If URL is missing identity -> restore from localStorage.
   const [identity, setIdentity] = useState<{ clientId: string; clientName: string; source: 'url' | 'storage' | 'empty' }>(() => {
-    if (urlClientId && urlClientName) {
+    if (urlClientId) {
       return { clientId: urlClientId, clientName: urlClientName, source: 'url' };
     }
 
@@ -264,9 +291,9 @@ const ClientHome = () => {
   });
 
   useEffect(() => {
-    if (urlClientId && urlClientName) {
+    if (urlClientId) {
       localStorage.setItem(LS_CLIENT_ID, urlClientId);
-      localStorage.setItem(LS_CLIENT_NAME, urlClientName);
+      if (urlClientName) localStorage.setItem(LS_CLIENT_NAME, urlClientName);
       setIdentity({ clientId: urlClientId, clientName: urlClientName, source: 'url' });
       console.log('[ClientHome][identity] loaded from URL', { clientId: urlClientId, clientName: urlClientName });
     } else {
@@ -282,8 +309,8 @@ const ClientHome = () => {
 
     const s = searchParams.get('start');
     if (s) localStorage.setItem(LS_START, s);
-    const t = searchParams.get('treatment');
-    if (t) localStorage.setItem(LS_TREATMENT, t);
+    const tt = searchParams.get('treatment');
+    if (tt) localStorage.setItem(LS_TREATMENT, tt);
     const a = searchParams.get('artist_id');
     if (a) localStorage.setItem(LS_ARTIST_ID, a);
   }, [urlClientId, urlClientName, searchParams]);

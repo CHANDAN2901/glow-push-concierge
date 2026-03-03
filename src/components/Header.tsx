@@ -29,7 +29,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (HIDDEN_ROUTES.includes(location.pathname)) return null;
+  if (HIDDEN_ROUTES.includes(location.pathname) || location.pathname.startsWith('/c/')) return null;
 
   const titleObj = ROUTE_TITLES[location.pathname];
   const title = titleObj ? (lang === 'he' ? titleObj.he : titleObj.en) : '';

@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => ({
         background_color: "#1a1a1a",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/client",
+        start_url: ".",
         scope: "/",
         categories: ["health", "beauty"],
         icons: [

@@ -493,7 +493,7 @@ const ClientProfile = () => {
               const baseUrl = window.location.origin;
               const treatmentType = client?.treatment_type || 'eyebrows';
               const startDate = client?.treatment_date || new Date().toISOString().split('T')[0];
-              const previewUrl = `${baseUrl}/client?name=${encodeURIComponent(name)}&treatment=${encodeURIComponent(treatmentType)}&start=${startDate}&artist_id=${encodeURIComponent(resolvedArtistId)}&client_id=${encodeURIComponent(resolvedClientId)}`;
+              const previewUrl = `${baseUrl}/c/${encodeURIComponent(resolvedClientId)}?name=${encodeURIComponent(name)}&treatment=${encodeURIComponent(treatmentType)}&start=${startDate}&artist_id=${encodeURIComponent(resolvedArtistId)}`;
               window.open(previewUrl, '_blank');
             }}
             className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:opacity-90 active:scale-[0.97]"
