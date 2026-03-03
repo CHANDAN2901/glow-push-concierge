@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, User, Building2, ArrowRight, Gift, Check, X, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import glowpushLogo from '@/assets/glowpush-logo.png';
+import PostSignupInstallPrompt from '@/components/PostSignupInstallPrompt';
 
 type PromoStatus = 'idle' | 'checking' | 'valid_referral' | 'valid_academy' | 'invalid';
 
@@ -24,6 +25,7 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [studioName, setStudioName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
 
   // Promo / referral state
   const [promoCode, setPromoCode] = useState('');
@@ -182,6 +184,9 @@ const Auth = () => {
             ? (lang === 'en' ? 'Your signup benefit has been activated!' : 'הטבת ההצטרפות שלך הופעלה!')
             : (lang === 'en' ? 'We sent a confirmation link to your email.' : 'שלחנו לך קישור אישור למייל.'),
         });
+
+        // Show install prompt after signup
+        setTimeout(() => setShowInstallPrompt(true), 1500);
       }
     } catch (err: any) {
       toast({
@@ -447,6 +452,11 @@ const Auth = () => {
           </Link>
         </div>
       </div>
+
+      <PostSignupInstallPrompt
+        open={showInstallPrompt}
+        onClose={() => setShowInstallPrompt(false)}
+      />
     </div>
   );
 };
