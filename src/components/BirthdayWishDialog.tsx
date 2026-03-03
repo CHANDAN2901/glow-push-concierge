@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Gift, MessageCircle, Bell, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Gift, MessageCircle, Bell, Sparkles, Pencil } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ interface BirthdayWishDialogProps {
   clientPhone: string;
   clientDbId?: string;
   artistName: string;
+  customTemplate?: string;
 }
 
 const GIFT_PRESETS = [
@@ -26,6 +27,8 @@ const GIFT_PRESETS = [
   '50 ₪ הנחה',
   'טיפול מיני במתנה',
 ];
+
+const DEFAULT_TEMPLATE = 'היי [CLIENT], מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: [GIFT] על הטיפול הבא שלך. נשיקות, [ARTIST] 💕';
 
 const formatPhone = (raw: string): string => {
   const digits = raw.replace(/[^0-9]/g, '');
@@ -41,6 +44,7 @@ export default function BirthdayWishDialog({
   clientPhone,
   clientDbId,
   artistName,
+  customTemplate,
 }: BirthdayWishDialogProps) {
   const { toast } = useToast();
   const [selectedGift, setSelectedGift] = useState('');
@@ -49,8 +53,13 @@ export default function BirthdayWishDialog({
 
   const gift = customGift.trim() || selectedGift;
 
-  const buildMessage = () =>
-    `היי ${clientName}, מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: ${gift} על הטיפול הבא שלך. נשיקות, ${artistName || 'האמנית שלך'} 💕`;
+  const buildMessage = () => {
+    const template = customTemplate || DEFAULT_TEMPLATE;
+    return template
+      .replace(/\[CLIENT\]/g, clientName)
+      .replace(/\[GIFT\]/g, gift)
+      .replace(/\[ARTIST\]/g, artistName || 'האמנית שלך');
+  };
 
   const handleWhatsApp = () => {
     if (!gift) {
