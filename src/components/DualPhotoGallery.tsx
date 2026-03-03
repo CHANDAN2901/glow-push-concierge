@@ -1,9 +1,8 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useGesture } from '@use-gesture/react';
 import html2canvas from 'html2canvas';
-import { Camera, Pencil, Save, Loader2, RotateCcw, ZoomIn, ZoomOut, Move, Download } from 'lucide-react';
+import { Camera, Save, Loader2, RotateCcw, ZoomIn, ZoomOut, Move, Download, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import ImageEditorDialog from './ImageEditorDialog';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL } from '@/lib/branding';
 
@@ -15,11 +14,12 @@ interface Transform {
   x: number;
   y: number;
   scale: number;
+  rotation: number;
 }
 
-const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1 };
+const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1, rotation: 0 };
 
-/** A single gesturable photo frame within the collage */
+/** A single gesturable photo frame with drag, pinch-to-zoom, and rotation */
 function GestureFrame({
   src,
   label,
@@ -33,30 +33,36 @@ function GestureFrame({
 }) {
   const imgRef = useRef<HTMLDivElement>(null);
   const [transform, setTransform] = useState<Transform>({ ...DEFAULT_TRANSFORM });
-  // Memo refs to avoid stale closures in gesture handler
   const transformRef = useRef(transform);
   transformRef.current = transform;
+
+  const applyDom = (t: Transform) => {
+    if (imgRef.current) {
+      imgRef.current.style.transform = `translate3d(${t.x}px, ${t.y}px, 0) scale(${t.scale}) rotate(${t.rotation}deg)`;
+    }
+  };
 
   const bind = useGesture(
     {
       onDrag: ({ offset: [ox, oy], event }) => {
         event.preventDefault();
-        // Direct DOM update for 60fps
-        if (imgRef.current) {
-          imgRef.current.style.transform = `translate3d(${ox}px, ${oy}px, 0) scale(${transformRef.current.scale})`;
-        }
-        transformRef.current = { ...transformRef.current, x: ox, y: oy };
+        const next = { ...transformRef.current, x: ox, y: oy };
+        transformRef.current = next;
+        applyDom(next);
       },
       onDragEnd: () => {
         setTransform({ ...transformRef.current });
       },
-      onPinch: ({ offset: [s], event }) => {
+      onPinch: ({ offset: [s], movement: [, angleDelta], memo, first, event }) => {
         event.preventDefault();
-        const clamped = Math.min(Math.max(s, 0.5), 4);
-        if (imgRef.current) {
-          imgRef.current.style.transform = `translate3d(${transformRef.current.x}px, ${transformRef.current.y}px, 0) scale(${clamped})`;
+        if (first) {
+          memo = { startRotation: transformRef.current.rotation };
         }
-        transformRef.current = { ...transformRef.current, scale: clamped };
+        const clamped = Math.min(Math.max(s, 0.3), 5);
+        const next = { ...transformRef.current, scale: clamped, rotation: memo.startRotation + angleDelta };
+        transformRef.current = next;
+        applyDom(next);
+        return memo;
       },
       onPinchEnd: () => {
         setTransform({ ...transformRef.current });
@@ -69,19 +75,19 @@ function GestureFrame({
       },
       pinch: {
         from: () => [transformRef.current.scale, 0],
-        scaleBounds: { min: 0.5, max: 4 },
+        scaleBounds: { min: 0.3, max: 5 },
       },
     }
   );
+
+  const isModified = transform.x !== 0 || transform.y !== 0 || transform.scale !== 1 || transform.rotation !== 0;
 
   const resetTransform = (e: React.MouseEvent) => {
     e.stopPropagation();
     const reset = { ...DEFAULT_TRANSFORM };
     setTransform(reset);
     transformRef.current = reset;
-    if (imgRef.current) {
-      imgRef.current.style.transform = `translate3d(0px, 0px, 0) scale(1)`;
-    }
+    applyDom(reset);
   };
 
   return (
@@ -97,7 +103,7 @@ function GestureFrame({
         {...bind()}
         className="w-full h-full touch-none will-change-transform"
         style={{
-          transform: `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${transform.scale})`,
+          transform: `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${transform.scale}) rotate(${transform.rotation}deg)`,
           cursor: 'grab',
         }}
       >
@@ -119,7 +125,7 @@ function GestureFrame({
         {label}
       </span>
       {/* Reset button */}
-      {(transform.x !== 0 || transform.y !== 0 || transform.scale !== 1) && (
+      {isModified && (
         <button
           onClick={resetTransform}
           className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center z-20 transition-all hover:scale-110"
@@ -143,45 +149,13 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
   const [after, setAfter] = useState<string | null>(null);
   const collageRef = useRef<HTMLDivElement>(null);
   const [savingCollage, setSavingCollage] = useState(false);
-  const [savingPhoto, setSavingPhoto] = useState<'before' | 'after' | null>(null);
   const [activeFrame, setActiveFrame] = useState<'before' | 'after' | null>(null);
-
-  // Editor state
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<'before' | 'after'>('before');
-  const [editingSrc, setEditingSrc] = useState('');
 
   const { uploadPhoto } = useClientGallery(clientId, artistId);
 
   const resolvedLogo = logoUrl || STUDIO_LOGO_URL;
 
   const bothUploaded = before && after;
-
-  const openEditor = (category: 'before' | 'after') => {
-    const src = category === 'before' ? before : after;
-    if (!src) return;
-    setEditingCategory(category);
-    setEditingSrc(src);
-    setEditorOpen(true);
-  };
-
-  const handleEditorSave = (editedBase64: string) => {
-    if (editingCategory === 'before') setBefore(editedBase64);
-    else setAfter(editedBase64);
-    setEditorOpen(false);
-  };
-
-  const toBase64 = async (src: string | null): Promise<string | null> => {
-    if (!src) return null;
-    if (src.startsWith('data:')) return src;
-    const res = await fetch(src);
-    const blob = await res.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.readAsDataURL(blob);
-    });
-  };
 
   const addWatermark = useCallback((canvas: HTMLCanvasElement): Promise<HTMLCanvasElement> => {
     return new Promise((resolve) => {
@@ -207,12 +181,18 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     });
   }, [resolvedLogo]);
 
+  const renderCollageToCanvas = useCallback(async () => {
+    if (!collageRef.current) throw new Error('No collage ref');
+    let canvas = await html2canvas(collageRef.current, { useCORS: true, scale: 2 });
+    canvas = await addWatermark(canvas);
+    return canvas;
+  }, [addWatermark]);
+
   const saveCollageToGallery = useCallback(async () => {
     if (!collageRef.current || !clientId) return;
     setSavingCollage(true);
     try {
-      let canvas = await html2canvas(collageRef.current, { useCORS: true, scale: 2 });
-      canvas = await addWatermark(canvas);
+      const canvas = await renderCollageToCanvas();
       const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
       await uploadPhoto(dataUrl, { photoType: 'collage', label: 'Before & After' });
       toast({ title: 'הקולאז׳ נשמר בגלריה ✨' });
@@ -222,46 +202,47 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     } finally {
       setSavingCollage(false);
     }
-  }, [clientId, uploadPhoto, addWatermark]);
+  }, [clientId, uploadPhoto, renderCollageToCanvas]);
 
   const downloadCollage = useCallback(async () => {
     if (!collageRef.current) return;
     setSavingCollage(true);
     try {
-      let canvas = await html2canvas(collageRef.current, { useCORS: true, scale: 2 });
-      canvas = await addWatermark(canvas);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-      const link = document.createElement('a');
-      link.download = `before-after-${Date.now()}.jpg`;
-      link.href = dataUrl;
-      link.click();
+      const canvas = await renderCollageToCanvas();
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, 'image/jpeg', 0.95)
+      );
+      if (!blob) throw new Error('Failed to create image');
+
+      const fileName = `before-after-${Date.now()}.jpg`;
+
+      // Try Web Share API first (works on mobile)
+      const file = new File([blob], fileName, { type: 'image/jpeg' });
+      const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
+      if (nav.canShare && nav.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Before & After Collage' });
+        toast({ title: 'נפתח חלון שיתוף ✅' });
+        return;
+      }
+
+      // Fallback: blob download
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
       toast({ title: 'הקולאז׳ הורד בהצלחה 📥' });
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return;
       console.error('Download collage error:', err);
       toast({ title: 'שגיאה בהורדה', variant: 'destructive' });
     } finally {
       setSavingCollage(false);
     }
-  }, [addWatermark]);
-
-  const savePhotoToGallery = useCallback(async (which: 'before' | 'after') => {
-    if (!clientId) return;
-    const src = which === 'before' ? before : after;
-    if (!src) return;
-    setSavingPhoto(which);
-    try {
-      const b64 = await toBase64(src);
-      if (b64) {
-        await uploadPhoto(b64, { photoType: 'healing', label: which === 'before' ? 'לפני' : 'אחרי' });
-        toast({ title: 'התמונה נשמרה בגלריה 📸' });
-      }
-    } catch (err) {
-      console.error('Save photo error:', err);
-      toast({ title: 'שגיאה בשמירה', variant: 'destructive' });
-    } finally {
-      setSavingPhoto(null);
-    }
-  }, [before, after, clientId, uploadPhoto]);
+  }, [renderCollageToCanvas]);
 
   return (
     <div className="space-y-4">
@@ -275,22 +256,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             <>
               <img src={after} alt="After" className="w-full h-full object-cover pointer-events-none" />
               <button
-                onClick={(e) => { e.stopPropagation(); openEditor('after'); }}
-                className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 z-20"
-                style={{ background: GOLD_GRADIENT }}
+                onClick={(e) => { e.stopPropagation(); setAfter(null); }}
+                className="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md bg-white/80 hover:bg-white z-20"
               >
-                <Pencil className="w-3.5 h-3.5" style={{ color: '#5C4033' }} />
+                <X className="w-3.5 h-3.5" style={{ color: GOLD_DARK }} />
               </button>
-              {clientId && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); savePhotoToGallery('after'); }}
-                  disabled={savingPhoto === 'after'}
-                  className="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md z-20"
-                  style={{ background: '#ffffff', border: `2px solid ${GOLD}` }}
-                >
-                  {savingPhoto === 'after' ? <Loader2 className="w-3 h-3 animate-spin" style={{ color: GOLD_DARK }} /> : <Save className="w-3 h-3" style={{ color: GOLD_DARK }} />}
-                </button>
-              )}
             </>
           ) : (
             <>
@@ -316,22 +286,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             <>
               <img src={before} alt="Before" className="w-full h-full object-cover pointer-events-none" />
               <button
-                onClick={(e) => { e.stopPropagation(); openEditor('before'); }}
-                className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 z-20"
-                style={{ background: GOLD_GRADIENT }}
+                onClick={(e) => { e.stopPropagation(); setBefore(null); }}
+                className="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md bg-white/80 hover:bg-white z-20"
               >
-                <Pencil className="w-3.5 h-3.5" style={{ color: '#5C4033' }} />
+                <X className="w-3.5 h-3.5" style={{ color: GOLD_DARK }} />
               </button>
-              {clientId && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); savePhotoToGallery('before'); }}
-                  disabled={savingPhoto === 'before'}
-                  className="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md z-20"
-                  style={{ background: '#ffffff', border: `2px solid ${GOLD}` }}
-                >
-                  {savingPhoto === 'before' ? <Loader2 className="w-3 h-3 animate-spin" style={{ color: GOLD_DARK }} /> : <Save className="w-3 h-3" style={{ color: GOLD_DARK }} />}
-                </button>
-              )}
             </>
           ) : (
             <>
@@ -357,7 +316,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           <div className="flex items-center justify-center gap-3 text-[10px] font-medium" style={{ color: GOLD_DARK }}>
             <span className="flex items-center gap-1"><Move className="w-3 h-3" /> גררי</span>
             <span className="flex items-center gap-1"><ZoomIn className="w-3 h-3" /> צבטי לזום</span>
-            <span>הקישי לבחירה</span>
+            <span>🤏 סיבוב</span>
           </div>
 
           <div
@@ -401,7 +360,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
               }}
             >
               <Download className="w-4 h-4" />
-              הורדה 📥
+              הורדה / שיתוף 📥
             </button>
             {clientId && (
               <button
@@ -422,14 +381,6 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           </div>
         </div>
       )}
-
-      {/* Image Editor */}
-      <ImageEditorDialog
-        open={editorOpen}
-        onClose={() => setEditorOpen(false)}
-        imageSrc={editingSrc}
-        onSave={handleEditorSave}
-      />
     </div>
   );
 }
