@@ -59,6 +59,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { supabase } from '@/integrations/supabase/client';
+import { extractEdgeFunctionError, isPushSubscriptionExpired } from '@/lib/edge-function-errors';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -1908,26 +1909,50 @@ const ArtistDashboard = () => {
                           day: 1,
                         },
                       });
-                      console.log('[TestPush] Result:', pushResult, 'Error:', error);
-                      // Handle expired/unsubscribed push subscriptions (410)
-                      if (pushResult?.status === 410 || pushResult?.details?.includes('expired')) {
-                        // Clean up stale subscription
-                        await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
-                        toast({ 
-                          title: lang === 'en' ? 'Subscription expired' : 'המנוי פג תוקף',
-                          description: lang === 'en' 
-                            ? 'The client needs to re-open their recovery link to re-subscribe.' 
-                            : 'הלקוחה צריכה לפתוח מחדש את הקישור כדי להירשם שוב להתראות.',
-                          variant: 'destructive' 
+
+                      if (error) {
+                        const details = await extractEdgeFunctionError(error);
+                        console.error('[TestPush] Edge function error details:', details);
+
+                        if (isPushSubscriptionExpired(details)) {
+                          await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+                          toast({
+                            title: lang === 'en' ? 'Subscription expired' : 'המנוי פג תוקף',
+                            description: lang === 'en'
+                              ? 'The client needs to re-open their recovery link to re-subscribe.'
+                              : 'הלקוחה צריכה לפתוח מחדש את הקישור כדי להירשם שוב להתראות.',
+                            variant: 'destructive'
+                          });
+                          return;
+                        }
+
+                        toast({
+                          title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה',
+                          description: details.message,
+                          variant: 'destructive'
                         });
-                        setSendingTestPush(false);
                         return;
                       }
-                      if (error) throw error;
+
+                      if (pushResult && typeof pushResult === 'object' && 'success' in pushResult && !pushResult.success) {
+                        const providerMessage = (pushResult as any).error || (lang === 'en' ? 'Push delivery failed' : 'שליחת ההתראה נכשלה');
+                        toast({
+                          title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה',
+                          description: providerMessage,
+                          variant: 'destructive'
+                        });
+                        return;
+                      }
+
                       toast({ title: lang === 'en' ? 'Test notification sent! ✅' : 'התראת בדיקה נשלחה בהצלחה! ✅' });
                     } catch (err: any) {
-                      console.error('[TestPush] Failed:', err, JSON.stringify(err));
-                      toast({ title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה', description: err?.message || JSON.stringify(err), variant: 'destructive' });
+                      const details = await extractEdgeFunctionError(err);
+                      console.error('[TestPush] Failed:', details);
+                      toast({
+                        title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה',
+                        description: details.message,
+                        variant: 'destructive'
+                      });
                     } finally {
                       setSendingTestPush(false);
                     }
