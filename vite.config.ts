@@ -36,6 +36,11 @@ export default defineConfig(({ mode }) => ({
         icons: [
           {
             src: "/app-icon.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "/app-icon.png",
             sizes: "512x512",
             type: "image/png",
           },
