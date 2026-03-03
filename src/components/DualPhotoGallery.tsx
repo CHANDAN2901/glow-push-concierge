@@ -14,10 +14,9 @@ interface Transform {
   x: number; y: number; scale: number; rotation: number;
 }
 
-// Half-frame is 1:2 (width:height), so full 360° rotation needs ~2x minimum cover scale.
-const MIN_GESTURE_SCALE = 2.05;
+const MIN_GESTURE_SCALE = 0.5;
 const MAX_GESTURE_SCALE = 8;
-const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: MIN_GESTURE_SCALE, rotation: 0 };
+const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1.5, rotation: 0 };
 
 /* ── pixel-level retouch helpers ── */
 const clampByte = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
@@ -186,11 +185,13 @@ function applyRednessReduction(imageData: ImageData, amount: number) {
 }
 
 /** A single collage half — shows upload prompt when empty, gesture-enabled image when filled */
-function CollageHalf({ src, label, onClear, onFileSelect }: {
+function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
   src: string | null;
   label: string;
   onClear: () => void;
   onFileSelect: (file: File) => void;
+  active: boolean;
+  onSelect: () => void;
 }) {
   const innerRef = useRef<HTMLDivElement>(null);
   const tRef = useRef<Transform>({ ...DEFAULT_TRANSFORM });
@@ -206,13 +207,13 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
   const bind = useGesture(
     {
       onDrag: ({ offset: [ox, oy], event }) => {
-        if (!src) return;
+        if (!src || !active) return;
         event.preventDefault();
         tRef.current = { ...tRef.current, x: ox, y: oy };
         apply();
       },
       onPinch: ({ offset: [s], da: [, angle], memo, first, event }) => {
-        if (!src) return;
+        if (!src || !active) return;
         event.preventDefault();
         if (first) memo = { startAngle: angle, startRotation: tRef.current.rotation };
         const angleDelta = angle - (memo?.startAngle ?? 0);
@@ -241,7 +242,22 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
   };
 
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ touchAction: 'none' }} data-gesture-frame>
+    <div
+      className="absolute inset-0 overflow-hidden"
+      style={{ touchAction: 'none' }}
+      data-gesture-frame
+      onClick={() => { if (src) onSelect(); }}
+    >
+      {/* Active selection glow indicator */}
+      {src && active && (
+        <div
+          className="absolute inset-0 z-30 pointer-events-none"
+          style={{
+            border: `2px solid ${GOLD}`,
+            boxShadow: `inset 0 0 14px rgba(212, 175, 55, 0.35), 0 0 8px rgba(212, 175, 55, 0.25)`,
+          }}
+        />
+      )}
       {src ? (
         <>
           <div
@@ -251,7 +267,7 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
             className="absolute will-change-transform"
             style={{
               touchAction: 'none',
-              cursor: 'grab',
+              cursor: active ? 'grab' : 'pointer',
               transformOrigin: 'center center',
               top: '-50%', left: '-50%', width: '200%', height: '200%',
               transform: `translate3d(${tRef.current.x}px, ${tRef.current.y}px, 0) scale(${tRef.current.scale}) rotate(${tRef.current.rotation}deg)`,
@@ -259,16 +275,14 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
           >
             <img src={src} alt="" className="w-full h-full object-cover object-center pointer-events-none select-none" draggable={false} />
           </div>
-          {/* Clear button */}
           <button
             onClick={(e) => { e.stopPropagation(); onClear(); }}
             className="absolute top-2 left-2 w-6 h-6 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm z-20 hover:bg-black/70 transition-all"
           >
             <X className="w-3 h-3 text-white" />
           </button>
-          {/* Re-upload */}
           <button
-            onClick={() => inputRef.current?.click()}
+            onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
             className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm z-20 hover:bg-black/70 transition-all"
           >
             <Camera className="w-3 h-3 text-white" />
@@ -300,9 +314,17 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
   const [after, setAfter] = useState<string | null>(null);
   const [skinSmooth, setSkinSmooth] = useState(0);
   const [rednessReduce, setRednessReduce] = useState(0);
+  const [activeHalf, setActiveHalf] = useState<'before' | 'after'>('before');
   const collageRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
+
+  // Per-side retouch state
+  const [retouchBefore, setRetouchBefore] = useState({ smooth: 0, redness: 0 });
+  const [retouchAfter, setRetouchAfter] = useState({ smooth: 0, redness: 0 });
+
+  const activeRetouch = activeHalf === 'before' ? retouchBefore : retouchAfter;
+  const setActiveRetouch = activeHalf === 'before' ? setRetouchBefore : setRetouchAfter;
 
   const { uploadPhoto } = useClientGallery(clientId, artistId);
   const resolvedLogo = logoUrl || STUDIO_LOGO_URL;
@@ -311,6 +333,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
   const setFile = (which: 'before' | 'after') => (file: File) => {
     const url = URL.createObjectURL(file);
     which === 'before' ? setBefore(url) : setAfter(url);
+    setActiveHalf(which);
   };
 
   /** Render clean 1080×1080 canvas */
@@ -378,11 +401,18 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     drawCover(beforeImg, 0, HALF - DIVIDER_W / 2, SIZE, beforeDom);
     drawCover(afterImg, HALF + DIVIDER_W / 2, HALF - DIVIDER_W / 2, SIZE, afterDom);
 
-    if (skinSmooth > 0 || rednessReduce > 0) {
-      const imageData = ctx.getImageData(0, 0, SIZE, SIZE);
-      if (skinSmooth > 0) applySkinSmoothing(imageData, skinSmooth);
-      if (rednessReduce > 0) applyRednessReduction(imageData, rednessReduce);
-      ctx.putImageData(imageData, 0, 0);
+    // Apply per-side retouch
+    if (retouchBefore.smooth > 0 || retouchBefore.redness > 0) {
+      const leftData = ctx.getImageData(0, 0, HALF, SIZE);
+      if (retouchBefore.smooth > 0) applySkinSmoothing(leftData, retouchBefore.smooth);
+      if (retouchBefore.redness > 0) applyRednessReduction(leftData, retouchBefore.redness);
+      ctx.putImageData(leftData, 0, 0);
+    }
+    if (retouchAfter.smooth > 0 || retouchAfter.redness > 0) {
+      const rightData = ctx.getImageData(HALF, 0, HALF, SIZE);
+      if (retouchAfter.smooth > 0) applySkinSmoothing(rightData, retouchAfter.smooth);
+      if (retouchAfter.redness > 0) applyRednessReduction(rightData, retouchAfter.redness);
+      ctx.putImageData(rightData, HALF, 0);
     }
 
     // Gold divider
@@ -413,7 +443,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     }
 
     return canvas;
-  }, [before, after, resolvedLogo, skinSmooth, rednessReduce]);
+  }, [before, after, resolvedLogo, retouchBefore, retouchAfter]);
 
   const handleSave = useCallback(async () => {
     if (!clientId) { toast({ title: 'לא ניתן לשמור ללא תיק לקוחה', variant: 'destructive' }); return; }
@@ -452,13 +482,13 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     } finally { setDownloading(false); }
   }, [renderToCanvas, before, after]);
 
-  const hasRetouch = skinSmooth > 0 || rednessReduce > 0;
+  const hasRetouch = activeRetouch.smooth > 0 || activeRetouch.redness > 0;
 
   return (
     <div className="space-y-4">
       {/* Hint */}
       <p className="text-center text-[10px] font-serif" style={{ color: GOLD_DARK }}>
-        לחצי על כל צד כדי להעלות תמונה · ☝️ גררי להזזה · 🤏 צבטי לזום
+        👆 לחצי על צד כדי לבחור אותו · ☝️ גררי להזזה · 🤏 צבטי לזום
       </p>
 
       {/* Single unified collage frame — always visible */}
@@ -469,11 +499,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       >
         {/* BEFORE half (left) */}
         <div className="absolute inset-y-0 left-0 w-1/2">
-          <CollageHalf src={before} label="לפני" onClear={() => setBefore(null)} onFileSelect={setFile('before')} />
+          <CollageHalf src={before} label="לפני" onClear={() => setBefore(null)} onFileSelect={setFile('before')} active={activeHalf === 'before'} onSelect={() => setActiveHalf('before')} />
         </div>
         {/* AFTER half (right) */}
         <div className="absolute inset-y-0 right-0 w-1/2">
-          <CollageHalf src={after} label="אחרי ✨" onClear={() => setAfter(null)} onFileSelect={setFile('after')} />
+          <CollageHalf src={after} label="אחרי ✨" onClear={() => setAfter(null)} onFileSelect={setFile('after')} active={activeHalf === 'after'} onSelect={() => setActiveHalf('after')} />
         </div>
         {/* Gold divider */}
         <div className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 z-10 pointer-events-none" style={{ backgroundColor: GOLD }} />
@@ -495,25 +525,28 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         <div className="flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5" style={{ color: GOLD_DARK }} />
           <span className="text-[11px] font-semibold tracking-wide" style={{ color: GOLD_DARK }}>ריטאצ׳ עדין</span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${GOLD}20`, color: GOLD_DARK }}>
+            {activeHalf === 'before' ? 'לפני' : 'אחרי ✨'}
+          </span>
           {hasRetouch && (
-            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${GOLD}20`, color: GOLD_DARK }}>פעיל</span>
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${GOLD}40`, color: GOLD_DARK }}>פעיל</span>
           )}
         </div>
         <div className="flex items-center gap-3">
           <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
           <div className="flex-1 space-y-0.5">
             <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>החלקת עור</span>
-            <Slider value={[skinSmooth]} onValueChange={([v]) => setSkinSmooth(v)} min={0} max={1} step={0.05} />
+            <Slider value={[activeRetouch.smooth]} onValueChange={([v]) => setActiveRetouch(prev => ({ ...prev, smooth: v }))} min={0} max={1} step={0.05} />
           </div>
-          <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>{Math.round(skinSmooth * 100)}%</span>
+          <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>{Math.round(activeRetouch.smooth * 100)}%</span>
         </div>
         <div className="flex items-center gap-3">
           <Droplets className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
           <div className="flex-1 space-y-0.5">
             <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>הפחתת אדמומיות</span>
-            <Slider value={[rednessReduce]} onValueChange={([v]) => setRednessReduce(v)} min={0} max={1} step={0.05} />
+            <Slider value={[activeRetouch.redness]} onValueChange={([v]) => setActiveRetouch(prev => ({ ...prev, redness: v }))} min={0} max={1} step={0.05} />
           </div>
-          <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>{Math.round(rednessReduce * 100)}%</span>
+          <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>{Math.round(activeRetouch.redness * 100)}%</span>
         </div>
       </div>
 
