@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { extractEdgeFunctionError } from '@/lib/edge-function-errors';
 
 interface BirthdayWishDialogProps {
   open: boolean;
@@ -109,7 +110,7 @@ export default function BirthdayWishDialog({
         return;
       }
       const sub = subs[0];
-      const { error } = await supabase.functions.invoke('send-push', {
+      const { data, error } = await supabase.functions.invoke('send-push', {
         body: {
           subscription: {
             endpoint: sub.endpoint,
@@ -120,11 +121,17 @@ export default function BirthdayWishDialog({
           day: 0,
         },
       });
-      if (error) throw error;
+      if (error) {
+        const details = await extractEdgeFunctionError(error);
+        throw new Error(details.message);
+      }
+      if (data && typeof data === 'object' && 'success' in data && !data.success) {
+        throw new Error((data as any).error || 'Push delivery failed');
+      }
       toast({ title: 'התראת יום הולדת נשלחה! 🎂✅' });
       onOpenChange(false);
     } catch (err: any) {
-      toast({ title: 'שליחת ההתראה נכשלה', description: err?.message, variant: 'destructive' });
+      toast({ title: 'שליחת ההתראה נכשלה', description: err?.message || 'שגיאה לא ידועה', variant: 'destructive' });
     } finally {
       setSendingPush(false);
     }

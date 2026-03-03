@@ -20,6 +20,33 @@ function uint8ArrayToBase64url(arr: Uint8Array): string {
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
+function summarizeSubscription(subscription: any) {
+  const endpoint = subscription?.endpoint ?? '';
+  const endpointHost = typeof endpoint === 'string' && endpoint
+    ? (() => {
+        try {
+          return new URL(endpoint).host;
+        } catch {
+          return 'invalid-endpoint';
+        }
+      })()
+    : 'missing';
+
+  return {
+    endpointHost,
+    endpointLength: typeof endpoint === 'string' ? endpoint.length : 0,
+    p256dhLength: typeof subscription?.keys?.p256dh === 'string' ? subscription.keys.p256dh.length : 0,
+    authLength: typeof subscription?.keys?.auth === 'string' ? subscription.keys.auth.length : 0,
+  };
+}
+
+function classifyProviderFailure(status: number, bodyText: string): 'subscription_expired' | 'provider_error' {
+  if (status === 404 || status === 410) return 'subscription_expired';
+  if (/expired|unsubscribed|not.?registered|gone/i.test(bodyText)) return 'subscription_expired';
+  return 'provider_error';
+}
+
+
 /**
  * Import VAPID keys as CryptoKey for signing.
  * Public key (65 bytes uncompressed) is used to extract x,y for JWK.
@@ -177,11 +204,25 @@ serve(async (req) => {
   }
 
   try {
-    const { subscription, title, body: msgBody, icon, url, day } = await req.json();
-
-    if (!subscription?.endpoint) {
+    const requestBody = await req.json().catch(() => null);
+    if (!requestBody) {
       return new Response(
-        JSON.stringify({ error: 'Missing subscription data' }),
+        JSON.stringify({ error: 'Invalid JSON body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { subscription, title, body: msgBody, icon, url, day } = requestBody;
+    const subscriptionSummary = summarizeSubscription(subscription);
+    console.log('[send-push] Request summary:', JSON.stringify(subscriptionSummary));
+
+    if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
+      console.error('[send-push] Invalid subscription object:', JSON.stringify(subscriptionSummary));
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid subscription object. Required: endpoint, keys.p256dh, keys.auth',
+          subscription: subscriptionSummary,
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -191,11 +232,23 @@ serve(async (req) => {
     const vapidPublicKey = rawPublic.replace(/[^A-Za-z0-9\-_]/g, '');
     const vapidPrivateKey = rawPrivate.replace(/[^A-Za-z0-9\-_]/g, '');
 
-    console.log('[send-push] VAPID pub length:', vapidPublicKey.length, 'priv length:', vapidPrivateKey.length);
+    console.log('[send-push] VAPID key summary:', JSON.stringify({
+      hasPublic: !!rawPublic,
+      hasPrivate: !!rawPrivate,
+      rawPublicLength: rawPublic.length,
+      rawPrivateLength: rawPrivate.length,
+      sanitizedPublicLength: vapidPublicKey.length,
+      sanitizedPrivateLength: vapidPrivateKey.length,
+    }));
 
     if (!vapidPublicKey || !vapidPrivateKey) {
+      console.error('[send-push] Missing VAPID keys');
       return new Response(
-        JSON.stringify({ error: 'VAPID keys not configured' }),
+        JSON.stringify({
+          error: 'VAPID keys not configured',
+          hasPublicKey: !!rawPublic,
+          hasPrivateKey: !!rawPrivate,
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -211,36 +264,42 @@ serve(async (req) => {
       data: { url: targetUrl, day: day || null },
     });
 
-    // 1. Import VAPID signing key
     console.log('[send-push] Importing VAPID keys...');
     let signingKey: CryptoKey;
     try {
       signingKey = await importVapidKeys(vapidPublicKey, vapidPrivateKey);
       console.log('[send-push] ✅ VAPID keys imported');
     } catch (keyErr: any) {
-      console.error('[send-push] VAPID key import failed:', keyErr.message);
+      console.error('[send-push] VAPID key import failed:', keyErr?.message);
       return new Response(
-        JSON.stringify({ error: `VAPID key import failed: ${keyErr.message}` }),
+        JSON.stringify({ error: `VAPID key import failed: ${keyErr?.message || 'Unknown error'}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 2. Encrypt payload
     console.log('[send-push] Encrypting payload...');
-    const { body: pushBody } = await encryptPayload(
-      subscription.keys.p256dh,
-      subscription.keys.auth,
-      new TextEncoder().encode(notificationPayload)
-    );
+    let pushBody: Uint8Array;
+    try {
+      const encrypted = await encryptPayload(
+        subscription.keys.p256dh,
+        subscription.keys.auth,
+        new TextEncoder().encode(notificationPayload)
+      );
+      pushBody = encrypted.body;
+    } catch (encryptErr: any) {
+      console.error('[send-push] Payload encryption failed:', encryptErr?.message, JSON.stringify(subscriptionSummary));
+      return new Response(
+        JSON.stringify({ error: `Push payload encryption failed: ${encryptErr?.message || 'Unknown error'}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    // 3. Create VAPID JWT
     const endpoint = new URL(subscription.endpoint);
     const audience = `${endpoint.protocol}//${endpoint.host}`;
     const expiration = Math.floor(Date.now() / 1000) + 12 * 3600;
     const jwt = await createVapidJwt(audience, 'mailto:push@glowpush.app', signingKey, expiration);
 
-    // 4. Send
-    console.log('[send-push] Sending to:', subscription.endpoint);
+    console.log('[send-push] Sending to host:', endpoint.host);
     const response = await fetch(subscription.endpoint, {
       method: 'POST',
       headers: {
@@ -254,23 +313,60 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      console.error('[send-push] Push failed:', response.status, text);
+      const providerText = await response.text();
+      const providerBody = (() => {
+        try {
+          return JSON.parse(providerText);
+        } catch {
+          return providerText;
+        }
+      })();
+      const failureReason = classifyProviderFailure(response.status, providerText);
+
+      console.error('[send-push] Provider error details:', JSON.stringify({
+        failureReason,
+        providerStatus: response.status,
+        providerStatusText: response.statusText,
+        endpointHost: endpoint.host,
+        endpointLength: subscription.endpoint.length,
+        providerResponse: providerBody,
+        responseHeaders: {
+          contentType: response.headers.get('content-type'),
+          wwwAuthenticate: response.headers.get('www-authenticate'),
+        },
+      }));
+
       return new Response(
-        JSON.stringify({ error: 'Push delivery failed', status: response.status, details: text }),
-        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          error: failureReason === 'subscription_expired'
+            ? 'Push subscription expired or unsubscribed'
+            : 'Push delivery failed',
+          failure_reason: failureReason,
+          provider_status: response.status,
+          provider_status_text: response.statusText,
+          provider_response: providerBody,
+        }),
+        {
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
       );
     }
 
     console.log('[send-push] ✅ Push delivered successfully');
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ success: true, provider_status: response.status }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error: any) {
-    console.error('[send-push] Error:', error.message, error.stack);
+    console.error('[send-push] Unhandled error:', JSON.stringify({
+      name: error?.name,
+      message: error?.message,
+      stack: error?.stack,
+    }));
+
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error?.message || 'Unknown server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
