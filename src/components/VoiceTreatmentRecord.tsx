@@ -134,24 +134,28 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
 
         if (result.isFinal) {
           const normalized = normalizeTranscriptSegment(transcript);
-          const accumulatedNormalized = normalizeTranscriptSegment(accumulatedTextRef.current);
+
+          // Multi-layer duplicate detection
           const isDuplicate =
             !normalized ||
             normalized === lastFinalNormalizedRef.current ||
             recentFinalsRef.current.includes(normalized) ||
-            accumulatedNormalized.endsWith(normalized);
+            normalizeTranscriptSegment(accumulatedTextRef.current).endsWith(normalized) ||
+            normalizeTranscriptSegment(accumulatedTextRef.current).includes(normalized);
 
           if (!isDuplicate) {
             accumulatedTextRef.current = (accumulatedTextRef.current + ' ' + transcript).trim();
             lastFinalNormalizedRef.current = normalized;
-            recentFinalsRef.current = [...recentFinalsRef.current.slice(-24), normalized];
+            recentFinalsRef.current = [...recentFinalsRef.current.slice(-30), normalized];
           }
         } else {
-          interimText += transcript + ' ';
+          interimText = transcript; // Use ONLY the latest interim, don't accumulate
         }
       }
 
-      const display = (accumulatedTextRef.current + ' ' + interimText).trim();
+      const display = interimText
+        ? (accumulatedTextRef.current + ' ' + interimText).trim()
+        : accumulatedTextRef.current;
       setTranscription(deduplicateTranscript(display));
     };
 
