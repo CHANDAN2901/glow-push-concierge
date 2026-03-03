@@ -2043,6 +2043,7 @@ const ArtistDashboard = () => {
                     <DualPhotoGallery
                       clientId={selectedClient.dbId}
                       artistId={userProfileId || undefined}
+                      logoUrl={logoUrl}
                     />
                   </div>
                 </div>
