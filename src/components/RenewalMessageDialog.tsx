@@ -18,6 +18,7 @@ interface RenewalMessageDialogProps {
   clientDbId?: string;
   treatmentType: string;
   artistName: string;
+  customTemplate?: string;
 }
 
 const formatPhone = (raw: string): string => {
@@ -31,20 +32,26 @@ export function isRenewalDue(treatmentType: string, daysSinceTreatment: number):
   const t = (treatmentType || '').toLowerCase();
   const isLips = t.includes('שפתיי') || t.includes('lip');
   const isBrows = t.includes('גבות') || t.includes('brow') || t.includes('eyebrow');
-  if (isLips) return daysSinceTreatment >= 180; // 6 months
-  if (isBrows) return daysSinceTreatment >= 365; // 12 months
-  // Default: 12 months for unknown
+  if (isLips) return daysSinceTreatment >= 180;
+  if (isBrows) return daysSinceTreatment >= 365;
   return daysSinceTreatment >= 365;
 }
 
-function buildRenewalMessage(clientName: string, treatmentType: string, artistName: string): string {
+const DEFAULT_LIPS_TEMPLATE = 'היי [CLIENT], עברו כבר כמה חודשים מאז שעיצבנו לך את השפתיים! 💋✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
+const DEFAULT_BROWS_TEMPLATE = 'היי [CLIENT], עברה כמעט שנה מאז שעיצבנו לך את הגבות! ✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
+
+function buildRenewalMessage(clientName: string, treatmentType: string, artistName: string, customTemplate?: string): string {
+  if (customTemplate) {
+    return customTemplate
+      .replace(/\[CLIENT\]/g, clientName)
+      .replace(/\[ARTIST\]/g, artistName);
+  }
   const t = (treatmentType || '').toLowerCase();
   const isLips = t.includes('שפתיי') || t.includes('lip');
-
-  if (isLips) {
-    return `היי ${clientName}, עברו כבר כמה חודשים מאז שעיצבנו לך את השפתיים! 💋✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, ${artistName}`;
-  }
-  return `היי ${clientName}, עברה כמעט שנה מאז שעיצבנו לך את הגבות! ✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, ${artistName}`;
+  const template = isLips ? DEFAULT_LIPS_TEMPLATE : DEFAULT_BROWS_TEMPLATE;
+  return template
+    .replace(/\[CLIENT\]/g, clientName)
+    .replace(/\[ARTIST\]/g, artistName);
 }
 
 export default function RenewalMessageDialog({
@@ -55,11 +62,12 @@ export default function RenewalMessageDialog({
   clientDbId,
   treatmentType,
   artistName,
+  customTemplate,
 }: RenewalMessageDialogProps) {
   const { toast } = useToast();
   const [sendingPush, setSendingPush] = useState(false);
 
-  const message = buildRenewalMessage(clientName, treatmentType, artistName || 'האמנית שלך');
+  const message = buildRenewalMessage(clientName, treatmentType, artistName || 'האמנית שלך', customTemplate);
 
   const handleWhatsApp = () => {
     const cleanPhone = clientPhone ? formatPhone(clientPhone) : '';

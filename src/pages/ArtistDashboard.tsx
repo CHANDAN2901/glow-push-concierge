@@ -35,6 +35,7 @@ import OnboardingChecklist from '@/components/OnboardingChecklist';
 import EmptyClientState from '@/components/EmptyClientState';
 import ClientImportDialog from '@/components/ClientImportDialog';
 import BirthdayWishDialog from '@/components/BirthdayWishDialog';
+import MessageTemplateSettings from '@/components/MessageTemplateSettings';
 import RenewalMessageDialog, { isRenewalDue } from '@/components/RenewalMessageDialog';
 import HelpTooltip from '@/components/HelpTooltip';
 import WelcomeTour from '@/components/WelcomeTour';
@@ -65,6 +66,7 @@ interface ClientEntry {
   dbId?: string;
   name: string;
   phone: string;
+  email?: string;
   day: number;
   treatment: string;
   link: string;
@@ -566,14 +568,23 @@ const ArtistDashboard = () => {
   const [viewDeclarationFor, setViewDeclarationFor] = useState<string | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeFeatureId, setUpgradeFeatureId] = useState('');
-  // Edit client modal
+   // Edit client modal
   const [editingClient, setEditingClient] = useState<ClientEntry | null>(null);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editBirthDate, setEditBirthDate] = useState('');
   const [editTreatment, setEditTreatment] = useState('');
   const [showFormPreview, setShowFormPreview] = useState(false);
   const [showDigitalCardPreview, setShowDigitalCardPreview] = useState(false);
   const [savingClient, setSavingClient] = useState(false);
+  // Edit treatment note modal
+  const [editingNote, setEditingNote] = useState<{ clientName: string; note: TreatmentNote } | null>(null);
+  const [editNoteArea, setEditNoteArea] = useState('');
+  const [editNotePigment, setEditNotePigment] = useState('');
+  const [editNoteNeedle, setEditNoteNeedle] = useState('');
+  const [editNoteClinical, setEditNoteClinical] = useState('');
+  const [editNoteRaw, setEditNoteRaw] = useState('');
   const [showHelpCenter, setShowHelpCenter] = useState(false);
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
@@ -587,6 +598,7 @@ const ArtistDashboard = () => {
   const [clientListFilter, setClientListFilter] = useState<'all' | 'birthdays' | 'renewal'>('all');
   const [birthdayWishClient, setBirthdayWishClient] = useState<ClientEntry | null>(null);
   const [renewalClient, setRenewalClient] = useState<ClientEntry | null>(null);
+  const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string }>({});
 
   // Check if first-time user (no onboarding done)
   useEffect(() => {
@@ -698,6 +710,8 @@ const ArtistDashboard = () => {
     setEditingClient(client);
     setEditName(client.name);
     setEditPhone(client.phone);
+    setEditEmail(client.email || '');
+    setEditBirthDate(client.birthDate || '');
     setEditTreatment(client.treatment);
   };
 
@@ -712,6 +726,8 @@ const ArtistDashboard = () => {
           .update({
             full_name: editName.trim(),
             phone: editPhone.trim(),
+            email: editEmail.trim() || null,
+            birth_date: editBirthDate || null,
             treatment_type: editTreatment.trim(),
           })
           .eq('id', editingClient.dbId);
@@ -720,7 +736,7 @@ const ArtistDashboard = () => {
       // Update local state
       setClients(prev => prev.map(c =>
         (c.dbId && c.dbId === editingClient.dbId) || c.name === editingClient.name
-          ? { ...c, name: editName.trim(), phone: editPhone.trim(), treatment: editTreatment.trim() }
+          ? { ...c, name: editName.trim(), phone: editPhone.trim(), email: editEmail.trim(), treatment: editTreatment.trim(), birthDate: editBirthDate || null }
           : c
       ));
       if (selectedClient?.name === editingClient.name || (selectedClient?.dbId && selectedClient.dbId === editingClient.dbId)) {
@@ -911,7 +927,7 @@ const ArtistDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('clients')
-        .select('id, full_name, phone, treatment_type, treatment_date, created_at, push_opted_in, birth_date')
+        .select('id, full_name, phone, email, treatment_type, treatment_date, created_at, push_opted_in, birth_date')
         .eq('artist_id', userProfileId)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -923,6 +939,7 @@ const ArtistDashboard = () => {
             dbId: c.id,
             name: c.full_name,
             phone: c.phone || '',
+            email: c.email || '',
             day: daysSince,
             treatment: c.treatment_type || '',
             link: `${origin}/client?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}&start=${c.treatment_date || new Date(c.created_at).toISOString().split('T')[0]}&client_id=${encodeURIComponent(c.id)}&artist_id=${encodeURIComponent(userProfileId)}`,
@@ -1947,7 +1964,28 @@ const ArtistDashboard = () => {
                     <div className="divide-y divide-border">
                       {treatmentNotes[selectedClient.name].map((note) => (
                         <div key={note.id} className="px-5 py-3.5">
-                          <p className="text-[10px] font-medium mb-1.5 text-muted-foreground">{note.date}</p>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <p className="text-[10px] font-medium text-muted-foreground">{note.date}</p>
+                            <button
+                              onClick={() => {
+                                setEditingNote({ clientName: selectedClient.name, note });
+                                if (note.structured) {
+                                  setEditNoteArea(note.structured.treatmentArea || '');
+                                  setEditNotePigment(note.structured.pigmentFormula || '');
+                                  setEditNoteNeedle(note.structured.needleType || '');
+                                  setEditNoteClinical(note.structured.clinicalNotes || '');
+                                  setEditNoteRaw('');
+                                } else {
+                                  setEditNoteArea(''); setEditNotePigment(''); setEditNoteNeedle(''); setEditNoteClinical('');
+                                  setEditNoteRaw(note.rawText);
+                                }
+                              }}
+                              className="w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-accent/20"
+                              style={{ color: 'hsl(38 55% 62%)' }}
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                          </div>
                           {note.structured ? (
                             <div className="space-y-1 text-xs text-foreground">
                               {note.structured.treatmentArea && <p><span className="font-semibold">🎯 {lang === 'en' ? 'Area' : 'אזור'}:</span> {note.structured.treatmentArea}</p>}
@@ -2027,25 +2065,35 @@ const ArtistDashboard = () => {
 
             <div className="p-1">
               {/* Filter tabs */}
-              <div className="flex items-center gap-2.5 mb-4 flex-wrap">
-                <button
-                  onClick={() => setClientListFilter('all')}
-                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${clientListFilter === 'all' ? 'border-2 border-accent bg-accent/10 text-accent shadow-sm' : 'border border-border bg-background text-foreground/70 hover:border-accent/40'}`}
-                >
-                  {lang === 'en' ? 'All Clients' : 'כל הלקוחות'}
-                </button>
-                <button
-                  onClick={() => setClientListFilter('birthdays')}
-                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-1.5 ${clientListFilter === 'birthdays' ? 'border-2 border-accent bg-accent/10 text-accent shadow-sm' : 'border border-border bg-background text-foreground/70 hover:border-accent/40'}`}
-                >
-                  🎂 {lang === 'en' ? 'Birthdays' : 'ימי הולדת'}
-                </button>
-                <button
-                  onClick={() => setClientListFilter('renewal')}
-                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-1.5 ${clientListFilter === 'renewal' ? 'border-2 border-accent bg-accent/10 text-accent shadow-sm' : 'border border-border bg-background text-foreground/70 hover:border-accent/40'}`}
-                >
-                  🔄 {lang === 'en' ? 'Renewal Due' : 'לחידוש טיפול'}
-                </button>
+              <div className="flex items-center gap-3 mb-5 flex-wrap">
+                {([
+                  { key: 'all' as const, label: lang === 'en' ? 'All Clients' : 'כל הלקוחות', icon: '' },
+                  { key: 'birthdays' as const, label: lang === 'en' ? 'Birthdays' : 'ימי הולדת', icon: '🎂' },
+                  { key: 'renewal' as const, label: lang === 'en' ? 'Renewal Due' : 'לחידוש טיפול', icon: '🔄' },
+                ] as const).map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setClientListFilter(tab.key)}
+                    className={`px-6 py-3 rounded-full text-base font-black tracking-wide transition-all flex items-center gap-2 active:scale-95 ${
+                      clientListFilter === tab.key
+                        ? 'shadow-lg'
+                        : 'hover:shadow-md'
+                    }`}
+                    style={clientListFilter === tab.key ? {
+                      background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%)',
+                      color: '#3E2723',
+                      border: '2px solid #D4AF37',
+                      boxShadow: '0 4px 16px rgba(212,175,55,0.4), inset 0 1px 2px rgba(255,255,255,0.4)',
+                    } : {
+                      background: 'linear-gradient(135deg, #FDF6E3 0%, #F5EDDA 100%)',
+                      color: '#5C4033',
+                      border: '2px solid hsl(38 55% 62% / 0.3)',
+                    }}
+                  >
+                    {tab.icon && <span className="text-lg">{tab.icon}</span>}
+                    {tab.label}
+                  </button>
+                ))}
               </div>
 
               {(() => {
@@ -2879,6 +2927,17 @@ const ArtistDashboard = () => {
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
 
+                {/* Message Template Settings */}
+                {userProfileId && (
+                  <div className="py-3">
+                    <MessageTemplateSettings
+                      artistProfileId={userProfileId}
+                      lang={lang}
+                      onTemplatesLoaded={setCustomTemplates}
+                    />
+                  </div>
+                )}
+
                 {/* Delete Account */}
                 <button
                   onClick={() => setShowDeleteAccountConfirm(true)}
@@ -3063,9 +3122,12 @@ const ArtistDashboard = () => {
 
       {/* Edit Client Modal */}
       <Dialog open={!!editingClient} onOpenChange={(open) => { if (!open) setEditingClient(null); }}>
-        <DialogContent className="max-w-sm" dir={lang === 'he' ? 'rtl' : 'ltr'}>
+        <DialogContent className="max-w-sm rounded-3xl" dir={lang === 'he' ? 'rtl' : 'ltr'}>
           <DialogHeader>
-            <DialogTitle className="font-serif">{lang === 'en' ? 'Edit Client' : 'עריכת פרטי לקוחה'}</DialogTitle>
+            <DialogTitle className="font-serif flex items-center gap-2">
+              <Pencil className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} />
+              {lang === 'en' ? 'Edit Client' : 'עריכת פרטי לקוחה'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
@@ -3075,6 +3137,14 @@ const ArtistDashboard = () => {
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">{lang === 'en' ? 'Phone' : 'טלפון'}</Label>
               <Input value={editPhone} onChange={e => setEditPhone(e.target.value)} dir="ltr" inputMode="tel" maxLength={20} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">{lang === 'en' ? 'Email' : 'אימייל'}</Label>
+              <Input value={editEmail} onChange={e => setEditEmail(e.target.value)} dir="ltr" inputMode="email" type="email" maxLength={255} placeholder="example@email.com" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">{lang === 'en' ? 'Birth Date' : 'תאריך לידה'}</Label>
+              <Input value={editBirthDate} onChange={e => setEditBirthDate(e.target.value)} type="date" dir="ltr" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">{lang === 'en' ? 'Treatment / Notes' : 'סוג טיפול / הערות'}</Label>
@@ -3088,6 +3158,78 @@ const ArtistDashboard = () => {
               {savingClient
                 ? (lang === 'en' ? 'Saving...' : 'שומר...')
                 : (lang === 'en' ? 'Save Changes' : 'שמור שינויים')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Treatment Note Modal */}
+      <Dialog open={!!editingNote} onOpenChange={(open) => { if (!open) setEditingNote(null); }}>
+        <DialogContent className="max-w-sm rounded-3xl" dir={lang === 'he' ? 'rtl' : 'ltr'}>
+          <DialogHeader>
+            <DialogTitle className="font-serif flex items-center gap-2">
+              <Pencil className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} />
+              {lang === 'en' ? 'Edit Treatment Record' : 'עריכת תיעוד טיפול'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            {editingNote?.note.structured ? (
+              <>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium">🎯 {lang === 'en' ? 'Treatment Area' : 'אזור טיפול'}</Label>
+                  <Input value={editNoteArea} onChange={e => setEditNoteArea(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium">💧 {lang === 'en' ? 'Pigment Formula' : 'פיגמנט'}</Label>
+                  <Input value={editNotePigment} onChange={e => setEditNotePigment(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium">🔬 {lang === 'en' ? 'Needle Type' : 'סוג מחט'}</Label>
+                  <Input value={editNoteNeedle} onChange={e => setEditNoteNeedle(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium">📝 {lang === 'en' ? 'Clinical Notes' : 'הערות קליניות'}</Label>
+                  <textarea
+                    value={editNoteClinical}
+                    onChange={e => setEditNoteClinical(e.target.value)}
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    rows={3}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">{lang === 'en' ? 'Treatment Notes' : 'הערות טיפול'}</Label>
+                <textarea
+                  value={editNoteRaw}
+                  onChange={e => setEditNoteRaw(e.target.value)}
+                  className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  rows={4}
+                />
+              </div>
+            )}
+            <Button
+              onClick={() => {
+                if (!editingNote) return;
+                setTreatmentNotes(prev => {
+                  const notes = prev[editingNote.clientName] || [];
+                  const updated = notes.map(n => {
+                    if (n.id !== editingNote.note.id) return n;
+                    if (n.structured) {
+                      return { ...n, structured: { treatmentArea: editNoteArea, pigmentFormula: editNotePigment, needleType: editNoteNeedle, clinicalNotes: editNoteClinical } };
+                    }
+                    return { ...n, rawText: editNoteRaw };
+                  });
+                  const result = { ...prev, [editingNote.clientName]: updated };
+                  localStorage.setItem('gp-treatment-notes', JSON.stringify(result));
+                  return result;
+                });
+                setEditingNote(null);
+                toast({ title: lang === 'en' ? 'Treatment record updated ✅' : 'תיעוד הטיפול עודכן ✅' });
+              }}
+              className="w-full btn-gold-cta"
+            >
+              {lang === 'en' ? 'Save Changes' : 'שמור שינויים'}
             </Button>
           </div>
         </DialogContent>
@@ -3200,6 +3342,7 @@ const ArtistDashboard = () => {
         clientPhone={birthdayWishClient?.phone || ''}
         clientDbId={birthdayWishClient?.dbId}
         artistName={artistName || 'האמנית שלך'}
+        customTemplate={customTemplates.birthday}
       />
 
       {/* Renewal Message Dialog */}
@@ -3211,6 +3354,7 @@ const ArtistDashboard = () => {
         clientDbId={renewalClient?.dbId}
         treatmentType={renewalClient?.treatment || ''}
         artistName={artistName || 'האמנית שלך'}
+        customTemplate={customTemplates.renewal}
       />
 
       {/* New Client Dispatch Center */}
