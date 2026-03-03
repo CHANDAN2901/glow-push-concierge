@@ -35,6 +35,7 @@ import OnboardingChecklist from '@/components/OnboardingChecklist';
 import EmptyClientState from '@/components/EmptyClientState';
 import ClientImportDialog from '@/components/ClientImportDialog';
 import BirthdayWishDialog from '@/components/BirthdayWishDialog';
+import RenewalMessageDialog, { isRenewalDue } from '@/components/RenewalMessageDialog';
 import HelpTooltip from '@/components/HelpTooltip';
 import WelcomeTour from '@/components/WelcomeTour';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
@@ -583,8 +584,9 @@ const ArtistDashboard = () => {
   const [deletingClient, setDeletingClient] = useState<ClientEntry | null>(null);
   const [deleteAlsoAppointments, setDeleteAlsoAppointments] = useState(false);
   const [removeClientFromCalendar, setRemoveClientFromCalendar] = useState<string | null>(null);
-  const [birthdayFilter, setBirthdayFilter] = useState(false);
+  const [clientListFilter, setClientListFilter] = useState<'all' | 'birthdays' | 'renewal'>('all');
   const [birthdayWishClient, setBirthdayWishClient] = useState<ClientEntry | null>(null);
+  const [renewalClient, setRenewalClient] = useState<ClientEntry | null>(null);
 
   // Check if first-time user (no onboarding done)
   useEffect(() => {
@@ -2025,27 +2027,31 @@ const ArtistDashboard = () => {
 
             <div className="p-1">
               {/* Filter tabs */}
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
                 <button
-                  onClick={() => setBirthdayFilter(false)}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${!birthdayFilter ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
+                  onClick={() => setClientListFilter('all')}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${clientListFilter === 'all' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
                 >
                   {lang === 'en' ? 'All Clients' : 'כל הלקוחות'}
                 </button>
                 <button
-                  onClick={() => setBirthdayFilter(true)}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${birthdayFilter ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
+                  onClick={() => setClientListFilter('birthdays')}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${clientListFilter === 'birthdays' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
                 >
                   🎂 {lang === 'en' ? 'Birthdays' : 'ימי הולדת'}
+                </button>
+                <button
+                  onClick={() => setClientListFilter('renewal')}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${clientListFilter === 'renewal' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
+                >
+                  🔄 {lang === 'en' ? 'Renewal Due' : 'לחידוש טיפול'}
                 </button>
               </div>
 
               {(() => {
                 const now = new Date();
                 const currentMonth = now.getMonth() + 1;
-                const currentDay = now.getDate();
 
-                // Helper: check if birthday is this week (next 7 days)
                 const isBirthdayThisWeek = (bd: string | null | undefined) => {
                   if (!bd) return false;
                   const m = parseInt(bd.slice(5, 7));
@@ -2063,26 +2069,27 @@ const ArtistDashboard = () => {
                   return parseInt(bd.slice(5, 7)) === currentMonth;
                 };
 
-                const filteredClients = birthdayFilter
+                const filteredClients = clientListFilter === 'birthdays'
                   ? clients
                       .filter(c => isBirthdayThisMonth(c.birthDate))
-                      .sort((a, b) => {
-                        const dayA = parseInt(a.birthDate?.slice(8, 10) || '0');
-                        const dayB = parseInt(b.birthDate?.slice(8, 10) || '0');
-                        return dayA - dayB;
-                      })
+                      .sort((a, b) => parseInt(a.birthDate?.slice(8, 10) || '0') - parseInt(b.birthDate?.slice(8, 10) || '0'))
+                  : clientListFilter === 'renewal'
+                  ? clients.filter(c => isRenewalDue(c.treatment, c.day))
                   : clients;
 
-                if (birthdayFilter && filteredClients.length === 0) {
+                if (clientListFilter !== 'all' && filteredClients.length === 0) {
+                  const emptyIcon = clientListFilter === 'birthdays' ? '🎂' : '🔄';
+                  const emptyTitle = clientListFilter === 'birthdays'
+                    ? (lang === 'en' ? 'No birthdays this month' : 'אין ימי הולדת החודש')
+                    : (lang === 'en' ? 'No renewal needed' : 'אין לקוחות לחידוש כרגע');
+                  const emptyDesc = clientListFilter === 'birthdays'
+                    ? (lang === 'en' ? 'Add birth dates to client profiles to see them here' : 'הוסיפי תאריכי לידה ללקוחות כדי לראות אותן כאן')
+                    : (lang === 'en' ? 'Clients needing renewal will appear here automatically' : 'לקוחות שעבר מספיק זמן מהטיפול יופיעו כאן אוטומטית');
                   return (
                     <div className="text-center py-12">
-                      <span className="text-4xl mb-3 block">🎂</span>
-                      <p className="text-sm text-muted-foreground">
-                        {lang === 'en' ? 'No birthdays this month' : 'אין ימי הולדת החודש'}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {lang === 'en' ? 'Add birth dates to client profiles to see them here' : 'הוסיפי תאריכי לידה ללקוחות כדי לראות אותן כאן'}
-                      </p>
+                      <span className="text-4xl mb-3 block">{emptyIcon}</span>
+                      <p className="text-sm text-muted-foreground">{emptyTitle}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{emptyDesc}</p>
                     </div>
                   );
                 }
@@ -2095,6 +2102,7 @@ const ArtistDashboard = () => {
                   const lastSent = waSentLog[sentKey];
                   const hasFlags = clientHasRedFlags(client.name) && !approvedExceptions[client.name];
                   const birthdayWeek = isBirthdayThisWeek(client.birthDate);
+                  const needsRenewal = isRenewalDue(client.treatment, client.day);
                     const isSafe = clientIsSafe(client.name);
                     const flags = hasFlags ? getRedFlags(getDeclarationData(client.name) as any || {}) : [];
                     return (
@@ -2116,6 +2124,7 @@ const ArtistDashboard = () => {
                                   <div>
                                     <p className={`font-bold text-sm ${hasFlags ? 'text-destructive' : 'text-foreground'}`}>
                                       {birthdayWeek && <span className="ml-1">🎂</span>}
+                                      {needsRenewal && <span className="ml-1">🔄</span>}
                                       {client.name}
                                       {hasSignedDeclaration(client.name) ? (
                                         <CheckCircle className="w-3.5 h-3.5 inline-block mr-1.5 text-green-500" />
@@ -2261,6 +2270,17 @@ const ArtistDashboard = () => {
                             style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#5C4033', border: 'none', boxShadow: '0 2px 8px rgba(255,165,0,0.3)' }}
                           >
                             🎂 {lang === 'en' ? 'Send Birthday Wish' : 'שלחי ברכת יום הולדת'}
+                          </button>
+                        )}
+                        {/* Renewal Button */}
+                        {needsRenewal && (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setRenewalClient(client); }}
+                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
+                            style={{ background: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)', border: '2px solid hsl(38 55% 62%)' }}
+                          >
+                            🔄 {lang === 'en' ? 'Send Renewal Message' : 'שלחי הודעת חידוש'}
                           </button>
                         )}
                         <button
@@ -3179,6 +3199,17 @@ const ArtistDashboard = () => {
         clientName={birthdayWishClient?.name || ''}
         clientPhone={birthdayWishClient?.phone || ''}
         clientDbId={birthdayWishClient?.dbId}
+        artistName={artistName || 'האמנית שלך'}
+      />
+
+      {/* Renewal Message Dialog */}
+      <RenewalMessageDialog
+        open={!!renewalClient}
+        onOpenChange={(open) => { if (!open) setRenewalClient(null); }}
+        clientName={renewalClient?.name || ''}
+        clientPhone={renewalClient?.phone || ''}
+        clientDbId={renewalClient?.dbId}
+        treatmentType={renewalClient?.treatment || ''}
         artistName={artistName || 'האמנית שלך'}
       />
 
