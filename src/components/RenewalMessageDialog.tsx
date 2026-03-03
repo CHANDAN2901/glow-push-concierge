@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageCircle, Bell, RefreshCw } from 'lucide-react';
 import {
   Dialog,
@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -67,13 +68,21 @@ export default function RenewalMessageDialog({
   const { toast } = useToast();
   const [sendingPush, setSendingPush] = useState(false);
 
-  const message = buildRenewalMessage(clientName, treatmentType, artistName || 'האמנית שלך', customTemplate);
+  const baseMessage = buildRenewalMessage(clientName, treatmentType, artistName || 'האמנית שלך', customTemplate);
+  const [editedMessage, setEditedMessage] = useState('');
+
+  useEffect(() => {
+    setEditedMessage(baseMessage);
+  }, [baseMessage]);
+
+  const getFinalMessage = () => editedMessage.trim() || baseMessage;
 
   const handleWhatsApp = () => {
+    const msg = getFinalMessage();
     const cleanPhone = clientPhone ? formatPhone(clientPhone) : '';
     const url = cleanPhone
-      ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
-      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+      ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
     toast({ title: 'וואטסאפ נפתח! 🔄' });
     onOpenChange(false);
@@ -104,7 +113,7 @@ export default function RenewalMessageDialog({
             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
           },
           title: '✨ הגיע הזמן לרענון!',
-          body: `היי ${clientName}, מחכה לך הנחת לקוחה חוזרת 💕`,
+          body: getFinalMessage().substring(0, 200),
           day: 0,
         },
       });
@@ -129,12 +138,15 @@ export default function RenewalMessageDialog({
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
-          {/* Message preview */}
+          {/* Editable message */}
           <div className="rounded-2xl p-3 bg-accent/10 border border-accent/30">
-            <p className="text-[10px] font-semibold text-accent mb-1">תצוגה מקדימה:</p>
-            <p className="text-xs text-foreground whitespace-pre-line leading-relaxed">
-              {message}
-            </p>
+            <p className="text-[10px] font-semibold text-accent mb-1.5">עריכת ההודעה:</p>
+            <Textarea
+              value={editedMessage}
+              onChange={(e) => setEditedMessage(e.target.value)}
+              dir="rtl"
+              className="text-xs leading-relaxed min-h-[100px] rounded-xl border-accent/30 bg-background/80 focus-visible:ring-accent/40"
+            />
           </div>
 
           {/* Actions */}

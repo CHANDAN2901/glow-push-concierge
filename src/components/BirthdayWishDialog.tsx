@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Gift, MessageCircle, Bell, Sparkles, Pencil } from 'lucide-react';
+import { Gift, MessageCircle, Bell, Sparkles } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,7 @@ export default function BirthdayWishDialog({
   const [selectedGift, setSelectedGift] = useState('');
   const [customGift, setCustomGift] = useState('');
   const [sendingPush, setSendingPush] = useState(false);
+  const [editedMessage, setEditedMessage] = useState('');
 
   const gift = customGift.trim() || selectedGift;
 
@@ -61,12 +63,21 @@ export default function BirthdayWishDialog({
       .replace(/\[ARTIST\]/g, artistName || 'האמנית שלך');
   };
 
+  // Auto-fill editable message when gift changes
+  useEffect(() => {
+    if (gift) {
+      setEditedMessage(buildMessage());
+    }
+  }, [gift, clientName, artistName, customTemplate]);
+
+  const getFinalMessage = () => editedMessage.trim() || buildMessage();
+
   const handleWhatsApp = () => {
     if (!gift) {
       toast({ title: 'בחרי הטבה לפני השליחה', variant: 'destructive' });
       return;
     }
-    const msg = buildMessage();
+    const msg = getFinalMessage();
     const cleanPhone = clientPhone ? formatPhone(clientPhone) : '';
     const url = cleanPhone
       ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
@@ -105,7 +116,7 @@ export default function BirthdayWishDialog({
             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
           },
           title: `🎂 יום הולדת שמח, ${clientName}!`,
-          body: `מחכה לך הטבה מפנקת: ${gift} 🎉`,
+          body: getFinalMessage().substring(0, 200),
           day: 0,
         },
       });
@@ -163,16 +174,19 @@ export default function BirthdayWishDialog({
             />
           </div>
 
-          {/* Message preview */}
+          {/* Editable message */}
           {gift && (
             <div className="rounded-2xl p-3 bg-accent/10 border border-accent/30">
-              <p className="text-[10px] font-semibold text-accent mb-1 flex items-center gap-1">
+              <p className="text-[10px] font-semibold text-accent mb-1.5 flex items-center gap-1">
                 <Sparkles className="w-3 h-3" />
-                תצוגה מקדימה:
+                עריכת ההודעה:
               </p>
-              <p className="text-xs text-foreground whitespace-pre-line leading-relaxed">
-                {buildMessage()}
-              </p>
+              <Textarea
+                value={editedMessage}
+                onChange={(e) => setEditedMessage(e.target.value)}
+                dir="rtl"
+                className="text-xs leading-relaxed min-h-[100px] rounded-xl border-accent/30 bg-background/80 focus-visible:ring-accent/40"
+              />
             </div>
           )}
 
