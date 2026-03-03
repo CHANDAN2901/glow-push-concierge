@@ -8,6 +8,7 @@ import {
 
 import ClientSharedGallery from '@/components/ClientSharedGallery';
 import { useClientGallery } from '@/hooks/useClientGallery';
+import { DualPhotoGallery } from '@/components/DualPhotoGallery';
 import ClientPhotoTimeline from '@/components/ClientPhotoTimeline';
 import HealingPhotoGallery from '@/components/HealingPhotoGallery';
 import { useI18n } from '@/lib/i18n';
@@ -609,6 +610,17 @@ const ClientProfile = () => {
             </div>
           )}
         </SectionCard>
+
+        {/* ── Before & After Collage ── */}
+        {resolvedClientId && (
+          <SectionCard
+            icon={<Sparkles className="w-5 h-5" style={{ color: GOLD }} />}
+            title="קולאז׳ לפני / אחרי ✨"
+            delay="280"
+          >
+            <DualPhotoGallery clientId={resolvedClientId} artistId={resolvedArtistId} />
+          </SectionCard>
+        )}
 
         {/* ── Photo Gallery ── */}
         {resolvedClientId && (
