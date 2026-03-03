@@ -5,6 +5,7 @@ import { Camera, Pencil, Save, Loader2, RotateCcw, ZoomIn, ZoomOut, Move, Downlo
 import { toast } from '@/hooks/use-toast';
 import ImageEditorDialog from './ImageEditorDialog';
 import { useClientGallery } from '@/hooks/useClientGallery';
+import { STUDIO_LOGO_URL } from '@/lib/branding';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
@@ -134,9 +135,10 @@ function GestureFrame({
 interface DualPhotoGalleryProps {
   clientId?: string;
   artistId?: string;
+  logoUrl?: string;
 }
 
-export function DualPhotoGallery({ clientId, artistId }: DualPhotoGalleryProps) {
+export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalleryProps) {
   const [before, setBefore] = useState<string | null>(null);
   const [after, setAfter] = useState<string | null>(null);
   const collageRef = useRef<HTMLDivElement>(null);
@@ -150,6 +152,8 @@ export function DualPhotoGallery({ clientId, artistId }: DualPhotoGalleryProps) 
   const [editingSrc, setEditingSrc] = useState('');
 
   const { uploadPhoto } = useClientGallery(clientId, artistId);
+
+  const resolvedLogo = logoUrl || STUDIO_LOGO_URL;
 
   const bothUploaded = before && after;
 
@@ -179,11 +183,36 @@ export function DualPhotoGallery({ clientId, artistId }: DualPhotoGalleryProps) 
     });
   };
 
+  const addWatermark = useCallback((canvas: HTMLCanvasElement): Promise<HTMLCanvasElement> => {
+    return new Promise((resolve) => {
+      if (!resolvedLogo) { resolve(canvas); return; }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { resolve(canvas); return; }
+      const logo = new Image();
+      logo.crossOrigin = 'anonymous';
+      logo.onload = () => {
+        const maxH = canvas.height * 0.12;
+        const ratio = logo.width / logo.height;
+        const h = maxH;
+        const w = h * ratio;
+        const x = canvas.width - w - 20;
+        const y = canvas.height - h - 20;
+        ctx.globalAlpha = 0.45;
+        ctx.drawImage(logo, x, y, w, h);
+        ctx.globalAlpha = 1;
+        resolve(canvas);
+      };
+      logo.onerror = () => resolve(canvas);
+      logo.src = resolvedLogo;
+    });
+  }, [resolvedLogo]);
+
   const saveCollageToGallery = useCallback(async () => {
     if (!collageRef.current || !clientId) return;
     setSavingCollage(true);
     try {
-      const canvas = await html2canvas(collageRef.current, { useCORS: true, scale: 2 });
+      let canvas = await html2canvas(collageRef.current, { useCORS: true, scale: 2 });
+      canvas = await addWatermark(canvas);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
       await uploadPhoto(dataUrl, { photoType: 'collage', label: 'Before & After' });
       toast({ title: 'הקולאז׳ נשמר בגלריה ✨' });
@@ -193,13 +222,14 @@ export function DualPhotoGallery({ clientId, artistId }: DualPhotoGalleryProps) 
     } finally {
       setSavingCollage(false);
     }
-  }, [clientId, uploadPhoto]);
+  }, [clientId, uploadPhoto, addWatermark]);
 
   const downloadCollage = useCallback(async () => {
     if (!collageRef.current) return;
     setSavingCollage(true);
     try {
-      const canvas = await html2canvas(collageRef.current, { useCORS: true, scale: 2 });
+      let canvas = await html2canvas(collageRef.current, { useCORS: true, scale: 2 });
+      canvas = await addWatermark(canvas);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
       const link = document.createElement('a');
       link.download = `before-after-${Date.now()}.jpg`;
@@ -212,7 +242,7 @@ export function DualPhotoGallery({ clientId, artistId }: DualPhotoGalleryProps) 
     } finally {
       setSavingCollage(false);
     }
-  }, []);
+  }, [addWatermark]);
 
   const savePhotoToGallery = useCallback(async (which: 'before' | 'after') => {
     if (!clientId) return;
