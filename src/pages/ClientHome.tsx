@@ -36,13 +36,21 @@ const LS_ARTIST_ID = 'glow-artist-id';
 // Eagerly persist URL params on module load (before React hydrates) for iOS PWA
 try {
   const url = new URL(window.location.href);
-  const cid = url.searchParams.get('client_id');
-  const cname = url.searchParams.get('name');
+  const cid = url.searchParams.get('client_id') || url.searchParams.get('clientId');
+  const cname = url.searchParams.get('name') || url.searchParams.get('clientName');
   const cstart = url.searchParams.get('start');
   const ctreat = url.searchParams.get('treatment');
   const cartist = url.searchParams.get('artist_id');
-  if (cid) localStorage.setItem(LS_CLIENT_ID, cid);
-  if (cname) localStorage.setItem(LS_CLIENT_NAME, cname);
+
+  // Capture and save immediately if secure client link params exist
+  if (cid && cname) {
+    localStorage.setItem(LS_CLIENT_ID, cid);
+    localStorage.setItem(LS_CLIENT_NAME, cname);
+  } else {
+    if (cid) localStorage.setItem(LS_CLIENT_ID, cid);
+    if (cname) localStorage.setItem(LS_CLIENT_NAME, cname);
+  }
+
   if (cstart) localStorage.setItem(LS_START, cstart);
   if (ctreat) localStorage.setItem(LS_TREATMENT, ctreat);
   if (cartist) localStorage.setItem(LS_ARTIST_ID, cartist);
@@ -57,25 +65,17 @@ const POWDER_PINK_CARD = 'hsl(350 40% 90%)';
 const CHARCOAL_TEXT = 'hsl(30 15% 22%)';
 const CHARCOAL_LIGHT = 'hsl(30 10% 38%)';
 
-// Time-based greeting
-function getTimeGreeting(lang: 'en' | 'he', name: string, treatment: string): string {
+// Time-based greeting (forced Hebrew for client recovery flow consistency)
+function getTimeGreeting(name: string, treatment: string): string {
   const hour = new Date().getHours();
-  const bodyPart = treatment === 'lips'
-    ? (lang === 'en' ? 'lips' : 'שפתיים')
-    : (lang === 'en' ? 'brows' : 'גבות');
+  const bodyPart = treatment === 'lips' ? 'שפתיים' : 'גבות';
 
   if (hour < 12) {
-    return lang === 'en'
-      ? `Good morning ${name}, how do your ${bodyPart} feel today? ☀️`
-      : `בוקר טוב ${name}, איך ה${bodyPart} מרגישות היום? ☀️`;
+    return `בוקר טוב ${name}, איך ה${bodyPart} מרגישות היום? ☀️`;
   } else if (hour < 18) {
-    return lang === 'en'
-      ? `Good afternoon ${name}, hope your ${bodyPart} are healing beautifully! 🌸`
-      : `צהריים טובים ${name}, מקווה שה${bodyPart} מחלימות יפה! 🌸`;
+    return `צהריים טובים ${name}, מקווה שה${bodyPart} מחלימות יפה! 🌸`;
   } else {
-    return lang === 'en'
-      ? `Good evening ${name}, time for your evening ${bodyPart} care! 🌙`
-      : `ערב טוב ${name}, הגיע הזמן לטיפול ערב ב${bodyPart}! 🌙`;
+    return `ערב טוב ${name}, הגיע הזמן לטיפול ערב ב${bodyPart}! 🌙`;
   }
 }
 
@@ -229,13 +229,19 @@ const ClientHome = () => {
 
   // PWA localStorage keys defined at module level above
 
-  const rawClientId = searchParams.get('client_id') || '';
-  const paramName = searchParams.get('name');
+  const rawClientId = searchParams.get('client_id') || searchParams.get('clientId') || '';
+  const paramName = searchParams.get('name') || searchParams.get('clientName');
 
-  // Save to localStorage when URL params are present
+  // Capture and save: URL identity params are persisted immediately
   useEffect(() => {
-    if (rawClientId) localStorage.setItem(LS_CLIENT_ID, rawClientId);
-    if (paramName) localStorage.setItem(LS_CLIENT_NAME, paramName);
+    if (rawClientId && paramName) {
+      localStorage.setItem(LS_CLIENT_ID, rawClientId);
+      localStorage.setItem(LS_CLIENT_NAME, paramName);
+    } else {
+      if (rawClientId) localStorage.setItem(LS_CLIENT_ID, rawClientId);
+      if (paramName) localStorage.setItem(LS_CLIENT_NAME, paramName);
+    }
+
     const s = searchParams.get('start');
     if (s) localStorage.setItem(LS_START, s);
     const t = searchParams.get('treatment');
@@ -244,9 +250,9 @@ const ClientHome = () => {
     if (a) localStorage.setItem(LS_ARTIST_ID, a);
   }, [rawClientId, paramName, searchParams]);
 
-  // Restore from localStorage if URL params missing (PWA mode)
+  // Auto-restore from localStorage when URL params are missing (PWA home-screen launch)
   const clientId = rawClientId || localStorage.getItem(LS_CLIENT_ID) || '';
-  const fallbackName = lang === 'en' ? 'Client' : 'לקוחה';
+  const fallbackName = 'לקוחה';
   const [dbClientName, setDbClientName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -482,7 +488,7 @@ const ClientHome = () => {
         <div className="relative mb-8 animate-fade-up rounded-3xl overflow-hidden" style={{ backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 4px 24px hsl(350 30% 88% / 0.35)' }}>
           <div className="relative py-10 px-6 text-center">
             <h1 className="tracking-wide mb-5" style={{ color: CHARCOAL_TEXT, fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: '28px', letterSpacing: '0.05em', lineHeight: 1.5 }}>
-              {getTimeGreeting(lang, clientName, treatment)}
+              {getTimeGreeting(clientName, treatment)}
             </h1>
             <p className="leading-relaxed mb-6 font-light" style={{ color: CHARCOAL_LIGHT, fontSize: '15px' }}>
               {lang === 'en'
