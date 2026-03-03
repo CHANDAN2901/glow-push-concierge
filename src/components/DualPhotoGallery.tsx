@@ -14,9 +14,10 @@ interface Transform {
   x: number; y: number; scale: number; rotation: number;
 }
 
-const MIN_GESTURE_SCALE = 0.5;
+const MIN_GESTURE_SCALE = 0.1;
 const MAX_GESTURE_SCALE = 8;
-const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1.5, rotation: 0 };
+const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1, rotation: 0 };
+const COLLAGE_HALF_ASPECT = 0.5; // width/height for each half window
 
 /* ── pixel-level retouch helpers ── */
 const clampByte = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
@@ -196,6 +197,8 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
   const innerRef = useRef<HTMLDivElement>(null);
   const tRef = useRef<Transform>({ ...DEFAULT_TRANSFORM });
   const inputRef = useRef<HTMLInputElement>(null);
+  const [imgAspect, setImgAspect] = useState<number | null>(null);
+  const coverByHeight = (imgAspect ?? COLLAGE_HALF_ASPECT) > COLLAGE_HALF_ASPECT;
 
   const apply = () => {
     if (innerRef.current) {
@@ -232,6 +235,7 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       tRef.current = { ...DEFAULT_TRANSFORM };
+      setImgAspect(null);
       if (innerRef.current) {
         const t = tRef.current;
         innerRef.current.style.transform = `translate3d(${t.x}px, ${t.y}px, 0) scale(${t.scale}) rotate(${t.rotation}deg)`;
@@ -264,16 +268,31 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
             ref={innerRef}
             data-gesture-inner
             {...bind()}
-            className="absolute will-change-transform"
+            className="absolute inset-0 flex items-center justify-center will-change-transform"
             style={{
               touchAction: 'none',
               cursor: active ? 'grab' : 'pointer',
               transformOrigin: 'center center',
-              top: '-50%', left: '-50%', width: '200%', height: '200%',
               transform: `translate3d(${tRef.current.x}px, ${tRef.current.y}px, 0) scale(${tRef.current.scale}) rotate(${tRef.current.rotation}deg)`,
             }}
           >
-            <img src={src} alt="" className="w-full h-full object-cover object-center pointer-events-none select-none" draggable={false} />
+            <img
+              src={src}
+              alt=""
+              onLoad={(e) => {
+                const w = e.currentTarget.naturalWidth || 1;
+                const h = e.currentTarget.naturalHeight || 1;
+                setImgAspect(w / h);
+              }}
+              className="pointer-events-none select-none"
+              style={{
+                width: coverByHeight ? 'auto' : '100%',
+                height: coverByHeight ? '100%' : 'auto',
+                maxWidth: 'none',
+                maxHeight: 'none',
+              }}
+              draggable={false}
+            />
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); onClear(); }}
