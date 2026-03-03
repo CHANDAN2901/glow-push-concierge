@@ -1074,18 +1074,32 @@ const ArtistDashboard = () => {
 
           {/* Left Side: + Add, Preview, Language */}
           <div className="flex items-center gap-2.5 z-20">
-            {(subScreen || selectedClient) ? (
-              <button
-                onClick={() => {
-                  if (selectedClient) { setSelectedClient(null); }
-                  else if (subScreen) { setSubScreen(null); }
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm"
-                style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))', color: '#fff', border: '1px solid hsl(38 40% 50%)' }}
-              >
-                <span>{lang === 'en' ? 'Back' : 'חזרה'}</span>
-                <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-              </button>
+          {(subScreen || selectedClient) ? (
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => {
+                    if (selectedClient) { setSelectedClient(null); }
+                    else if (subScreen) { setSubScreen(null); }
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm"
+                  style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))', color: '#fff', border: '1px solid hsl(38 40% 50%)' }}
+                >
+                  <span>{lang === 'en' ? 'Back' : 'חזרה'}</span>
+                  <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
+                </button>
+                {/* Language toggle – always visible */}
+                <button
+                  onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95"
+                  style={{
+                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+                    color: '#5C4033',
+                    boxShadow: '0 2px 10px rgba(212,175,55,0.4)',
+                  }}
+                >
+                  {lang === 'he' ? 'EN' : 'עב'}
+                </button>
+              </div>
             ) : (
               <>
                 <button
@@ -1106,10 +1120,15 @@ const ArtistDashboard = () => {
                 >
                   <Eye className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} strokeWidth={1.8} />
                 </button>
+                {/* Language toggle – gold circle badge */}
                 <button
                   onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-                  className="px-1.5 py-0.5 text-[11px] font-bold tracking-wide transition-all active:scale-95"
-                  style={{ color: 'hsl(38 55% 62%)' }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95"
+                  style={{
+                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+                    color: '#5C4033',
+                    boxShadow: '0 2px 10px rgba(212,175,55,0.4)',
+                  }}
                 >
                   {lang === 'he' ? 'EN' : 'עב'}
                 </button>
