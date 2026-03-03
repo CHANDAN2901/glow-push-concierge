@@ -1,9 +1,10 @@
 import { useState, useRef, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
-import { Camera, Download, Loader2, X } from 'lucide-react';
+import { Camera, Download, Loader2, X, Save, Sparkles, Droplets } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL } from '@/lib/branding';
+import { Slider } from '@/components/ui/slider';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
@@ -18,14 +19,57 @@ interface Transform {
 
 const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1, rotation: 0 };
 
-/** Touch-gesturable photo half — drag to pan, pinch to zoom. No visible controls in the frame. */
-function GestureFrame({ src, onTap }: { src: string; onTap: () => void }) {
-  const imgRef = useRef<HTMLDivElement>(null);
+/* ── pixel-level retouch helpers ── */
+function applySkinSmoothing(imageData: ImageData, amount: number) {
+  if (amount <= 0) return;
+  const { width, height, data } = imageData;
+  const src = new Uint8ClampedArray(data);
+  const radius = Math.max(1, Math.round(amount * 3));
+  const threshold = 18 + amount * 12;
+  for (let y = radius; y < height - radius; y++) {
+    for (let x = radius; x < width - radius; x++) {
+      const idx = (y * width + x) * 4;
+      let rSum = 0, gSum = 0, bSum = 0, count = 0;
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          const nIdx = ((y + dy) * width + (x + dx)) * 4;
+          const diff = Math.abs(src[nIdx] - src[idx]) + Math.abs(src[nIdx + 1] - src[idx + 1]) + Math.abs(src[nIdx + 2] - src[idx + 2]);
+          if (diff < threshold) { rSum += src[nIdx]; gSum += src[nIdx + 1]; bSum += src[nIdx + 2]; count++; }
+        }
+      }
+      if (count > 0) {
+        const blend = amount * 0.6;
+        data[idx] = src[idx] + (rSum / count - src[idx]) * blend;
+        data[idx + 1] = src[idx + 1] + (gSum / count - src[idx + 1]) * blend;
+        data[idx + 2] = src[idx + 2] + (bSum / count - src[idx + 2]) * blend;
+      }
+    }
+  }
+}
+
+function applyRednessReduction(imageData: ImageData, amount: number) {
+  if (amount <= 0) return;
+  const { data } = imageData;
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    const isReddish = r > 80 && r > g * 1.15 && r > b * 1.2 && r < 245;
+    if (!isReddish) continue;
+    const redness = Math.min(1, ((r - g) + (r - b)) / 200);
+    const reduction = redness * amount * 0.45;
+    data[i] = r - r * reduction * 0.35;
+    data[i + 1] = g + (r - g) * reduction * 0.12;
+  }
+}
+
+/** Inner gesture frame — drag to pan, pinch to zoom/rotate */
+function GestureFrameInner({ src }: { src: string }) {
+  const innerRef = useRef<HTMLDivElement>(null);
   const tRef = useRef<Transform>({ ...DEFAULT_TRANSFORM });
 
-  const apply = (t: Transform) => {
-    if (imgRef.current) {
-      imgRef.current.style.transform = `translate3d(${t.x}px, ${t.y}px, 0) scale(${t.scale})`;
+  const apply = () => {
+    if (innerRef.current) {
+      const t = tRef.current;
+      innerRef.current.style.transform = `translate3d(${t.x}px, ${t.y}px, 0) scale(${t.scale}) rotate(${t.rotation}deg)`;
     }
   };
 
@@ -34,13 +78,16 @@ function GestureFrame({ src, onTap }: { src: string; onTap: () => void }) {
       onDrag: ({ offset: [ox, oy], event }) => {
         event.preventDefault();
         tRef.current = { ...tRef.current, x: ox, y: oy };
-        apply(tRef.current);
+        apply();
       },
-      onPinch: ({ offset: [s], event }) => {
+      onPinch: ({ offset: [s], da: [, angle], memo, first, event }) => {
         event.preventDefault();
+        if (first) memo = { startAngle: angle, startRotation: tRef.current.rotation };
+        const angleDelta = angle - (memo?.startAngle ?? 0);
         const clamped = Math.min(Math.max(s, 0.3), 5);
-        tRef.current = { ...tRef.current, scale: clamped };
-        apply(tRef.current);
+        tRef.current = { ...tRef.current, scale: clamped, rotation: (memo?.startRotation ?? 0) + angleDelta };
+        apply();
+        return memo;
       },
     },
     {
@@ -50,12 +97,13 @@ function GestureFrame({ src, onTap }: { src: string; onTap: () => void }) {
   );
 
   return (
-    <div className="absolute inset-0 overflow-hidden touch-none" onClick={onTap}>
+    <div className="absolute inset-0 overflow-hidden touch-none">
       <div
-        ref={imgRef}
+        ref={innerRef}
+        data-gesture-inner
         {...bind()}
         className="w-full h-full touch-none will-change-transform"
-        style={{ transform: `translate3d(0px, 0px, 0) scale(1)`, cursor: 'grab' }}
+        style={{ cursor: 'grab' }}
       >
         <img
           src={src}
@@ -77,14 +125,18 @@ interface DualPhotoGalleryProps {
 export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalleryProps) {
   const [before, setBefore] = useState<string | null>(null);
   const [after, setAfter] = useState<string | null>(null);
+  const [skinSmooth, setSkinSmooth] = useState(0);
+  const [rednessReduce, setRednessReduce] = useState(0);
   const collageRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const { uploadPhoto } = useClientGallery(clientId, artistId);
   const resolvedLogo = logoUrl || STUDIO_LOGO_URL;
   const bothUploaded = before && after;
+  const hasRetouch = skinSmooth > 0 || rednessReduce > 0;
 
-  /** Render the collage to a high-res square canvas (1080×1080) */
+  /** Render the collage to a high-res square canvas (1080×1080) — 100% clean output */
   const renderToCanvas = useCallback(async (): Promise<HTMLCanvasElement> => {
     const SIZE = 1080;
     const HALF = SIZE / 2;
@@ -102,11 +154,9 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         img.crossOrigin = 'anonymous';
         img.onload = () => resolve(img);
         img.onerror = () => reject(new Error('Image load failed'));
-        // For blob URLs we don't need crossOrigin but it doesn't hurt
         img.src = url;
       });
 
-    // Helper: draw image cover-fit into a rect, respecting the on-screen transform
     const drawCover = (
       img: HTMLImageElement,
       xStart: number,
@@ -119,7 +169,6 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       ctx.rect(xStart, 0, width, height);
       ctx.clip();
 
-      // Parse the live DOM transform to replicate user adjustments
       let tx = 0, ty = 0, sc = 1, rot = 0;
       if (domEl) {
         const raw = domEl.style.transform;
@@ -131,7 +180,6 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         if (rotM) { rot = parseFloat(rotM[1]); }
       }
 
-      // The preview frame is square; map preview coords → canvas coords
       const previewFrame = collageRef.current;
       const previewHalf = previewFrame ? previewFrame.clientWidth / 2 : HALF;
       const ratio = width / previewHalf;
@@ -151,20 +199,22 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       ctx.restore();
     };
 
-    // Load images
-    const [beforeImg, afterImg] = await Promise.all([
-      loadImg(before!),
-      loadImg(after!),
-    ]);
+    const [beforeImg, afterImg] = await Promise.all([loadImg(before!), loadImg(after!)]);
 
-    // Get DOM refs for transforms
     const frames = collageRef.current?.querySelectorAll<HTMLDivElement>('[data-gesture-frame]');
     const beforeDom = frames?.[0]?.querySelector<HTMLDivElement>('[data-gesture-inner]') || null;
     const afterDom = frames?.[1]?.querySelector<HTMLDivElement>('[data-gesture-inner]') || null;
 
-    // Draw: Before on left, After on right (RTL visual)
     drawCover(beforeImg, 0, HALF - DIVIDER_W / 2, SIZE, beforeDom);
     drawCover(afterImg, HALF + DIVIDER_W / 2, HALF - DIVIDER_W / 2, SIZE, afterDom);
+
+    // Apply retouch to final canvas
+    if (skinSmooth > 0 || rednessReduce > 0) {
+      const imageData = ctx.getImageData(0, 0, SIZE, SIZE);
+      if (skinSmooth > 0) applySkinSmoothing(imageData, skinSmooth);
+      if (rednessReduce > 0) applyRednessReduction(imageData, rednessReduce);
+      ctx.putImageData(imageData, 0, 0);
+    }
 
     // Gold divider
     ctx.fillStyle = GOLD;
@@ -181,24 +231,44 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     ctx.fillText('אחרי ✨', SIZE - 20, SIZE - 24);
     ctx.shadowBlur = 0;
 
-    // Logo watermark (centered, bottom)
+    // Logo watermark
     if (resolvedLogo) {
       try {
         const logoImg = await loadImg(resolvedLogo);
         const logoW = SIZE * 0.18;
         const logoH = (logoImg.height / logoImg.width) * logoW;
         ctx.globalAlpha = 0.45;
-        ctx.drawImage(logoImg, (SIZE - logoW) / 2, SIZE - logoH - 50, logoW, logoH);
+        ctx.drawImage(logoImg, SIZE - logoW - 20, SIZE - logoH - 50, logoW, logoH);
         ctx.globalAlpha = 1;
       } catch { /* skip */ }
     }
 
     return canvas;
-  }, [before, after, resolvedLogo]);
+  }, [before, after, resolvedLogo, skinSmooth, rednessReduce]);
 
-  /** Download + save to gallery in one action */
-  const handleSaveAndDownload = useCallback(async () => {
+  /** Save to client file (gallery) */
+  const handleSave = useCallback(async () => {
+    if (!clientId) {
+      toast({ title: 'לא ניתן לשמור ללא תיק לקוחה', variant: 'destructive' });
+      return;
+    }
     setSaving(true);
+    try {
+      const canvas = await renderToCanvas();
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      await uploadPhoto(dataUrl, { photoType: 'collage', label: 'Before & After' });
+      toast({ title: 'נשמר בתיק הלקוחה ✅' });
+    } catch (err: any) {
+      console.error('Save error:', err);
+      toast({ title: 'שגיאה בשמירה', description: err?.message || '', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  }, [renderToCanvas, clientId, uploadPhoto]);
+
+  /** Download — always forces a real file download, never share menu */
+  const handleDownload = useCallback(async () => {
+    setDownloading(true);
     try {
       const canvas = await renderToCanvas();
       const blob = await new Promise<Blob | null>((resolve) =>
@@ -207,42 +277,22 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       if (!blob) throw new Error('Failed to create image');
 
       const fileName = `collage-${Date.now()}.jpg`;
-
-      // Save to gallery if clientId exists
-      if (clientId) {
-        try {
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-          await uploadPhoto(dataUrl, { photoType: 'collage', label: 'Before & After' });
-        } catch (e) {
-          console.warn('Gallery save failed, continuing with download', e);
-        }
-      }
-
-      // Download via Web Share API (mobile) or blob link (desktop)
-      const file = new File([blob], fileName, { type: 'image/jpeg' });
-      const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
-      if (nav.canShare && nav.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Before & After' });
-        toast({ title: 'נפתח חלון שיתוף ✅' });
-      } else {
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
-        toast({ title: 'הקולאז׳ נשמר בהצלחה ✨' });
-      }
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+      toast({ title: 'הקולאז׳ הורד בהצלחה 📥' });
     } catch (err: any) {
-      if (err?.name === 'AbortError') return;
-      console.error('Save/download error:', err);
-      toast({ title: 'שגיאה בשמירה', variant: 'destructive' });
+      console.error('Download error:', err);
+      toast({ title: 'שגיאה בהורדה', variant: 'destructive' });
     } finally {
-      setSaving(false);
+      setDownloading(false);
     }
-  }, [renderToCanvas, clientId, uploadPhoto]);
+  }, [renderToCanvas]);
 
   return (
     <div className="space-y-5">
@@ -321,80 +371,76 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             </span>
           </div>
 
-          {/* Single action button */}
-          <div className="flex justify-center">
+          {/* ── Retouch Section ── */}
+          <div className="rounded-xl p-3 space-y-2.5" style={{ backgroundColor: '#faf8f2', border: `1px solid ${GOLD}30` }}>
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" style={{ color: GOLD_DARK }} />
+              <span className="text-[11px] font-semibold tracking-wide" style={{ color: GOLD_DARK }}>
+                ריטאצ׳ עדין
+              </span>
+              {hasRetouch && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${GOLD}20`, color: GOLD_DARK }}>
+                  פעיל
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
+              <div className="flex-1 space-y-0.5">
+                <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>החלקת עור</span>
+                <Slider value={[skinSmooth]} onValueChange={([v]) => setSkinSmooth(v)} min={0} max={1} step={0.05} />
+              </div>
+              <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>{Math.round(skinSmooth * 100)}%</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Droplets className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
+              <div className="flex-1 space-y-0.5">
+                <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>הפחתת אדמומיות</span>
+                <Slider value={[rednessReduce]} onValueChange={([v]) => setRednessReduce(v)} min={0} max={1} step={0.05} />
+              </div>
+              <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>{Math.round(rednessReduce * 100)}%</span>
+            </div>
+
+            <p className="text-[9px] text-center" style={{ color: `${GOLD_DARK}99` }}>
+              שומר על מרקם טבעי · מראה אדיטוריאלי מקצועי
+            </p>
+          </div>
+
+          {/* Two separate action buttons */}
+          <div className="flex gap-3 justify-center">
             <button
-              onClick={handleSaveAndDownload}
+              onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
+              className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
               style={{
                 background: GOLD_GRADIENT,
                 color: '#5C4033',
-                boxShadow: '0 4px 20px -4px rgba(212, 175, 55, 0.5), 0 2px 8px -2px rgba(0,0,0,0.12)',
+                boxShadow: '0 4px 20px -4px rgba(212, 175, 55, 0.5)',
                 border: 'none',
               }}
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              {saving ? 'שומר...' : 'שמירה והורדה 📥'}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? 'שומר...' : 'שמור לתיק לקוחה'}
+            </button>
+
+            <button
+              onClick={handleDownload}
+              disabled={downloading}
+              className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
+              style={{
+                background: 'transparent',
+                color: GOLD_DARK,
+                border: `2px solid ${GOLD}`,
+              }}
+            >
+              {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {downloading ? 'מוריד...' : 'הורדה לגלריה'}
             </button>
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-/** Inner gesture frame — clean, no overlays */
-function GestureFrameInner({ src }: { src: string }) {
-  const innerRef = useRef<HTMLDivElement>(null);
-  const tRef = useRef<Transform>({ ...DEFAULT_TRANSFORM });
-
-  const apply = () => {
-    if (innerRef.current) {
-      const t = tRef.current;
-      innerRef.current.style.transform = `translate3d(${t.x}px, ${t.y}px, 0) scale(${t.scale}) rotate(${t.rotation}deg)`;
-    }
-  };
-
-  const bind = useGesture(
-    {
-      onDrag: ({ offset: [ox, oy], event }) => {
-        event.preventDefault();
-        tRef.current = { ...tRef.current, x: ox, y: oy };
-        apply();
-      },
-      onPinch: ({ offset: [s], da: [, angle], memo, first, event }) => {
-        event.preventDefault();
-        if (first) memo = { startAngle: angle, startRotation: tRef.current.rotation };
-        const angleDelta = angle - (memo?.startAngle ?? 0);
-        const clamped = Math.min(Math.max(s, 0.3), 5);
-        tRef.current = { ...tRef.current, scale: clamped, rotation: (memo?.startRotation ?? 0) + angleDelta };
-        apply();
-        return memo;
-      },
-    },
-    {
-      drag: { from: () => [tRef.current.x, tRef.current.y], filterTaps: true },
-      pinch: { from: () => [tRef.current.scale, 0], scaleBounds: { min: 0.3, max: 5 } },
-    }
-  );
-
-  return (
-    <div className="absolute inset-0 overflow-hidden touch-none">
-      <div
-        ref={innerRef}
-        data-gesture-inner
-        {...bind()}
-        className="w-full h-full touch-none will-change-transform"
-        style={{ cursor: 'grab' }}
-      >
-        <img
-          src={src}
-          alt=""
-          className="w-full h-full object-cover object-center pointer-events-none select-none"
-          draggable={false}
-        />
-      </div>
     </div>
   );
 }
