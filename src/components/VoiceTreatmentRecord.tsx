@@ -16,33 +16,7 @@ interface VoiceTreatmentRecordProps {
   onSave?: (text: string, structured?: StructuredNotes) => void;
 }
 
-/** Remove repeated words/phrases from speech recognition output */
-function deduplicateTranscript(text: string): string {
-  if (!text) return text;
-  const words = text.split(/\s+/);
-  const cleaned: string[] = [];
-  for (let i = 0; i < words.length; i++) {
-    // Check for repeated sequences of 1-4 words
-    let isDup = false;
-    for (let len = 1; len <= 4 && len <= cleaned.length; len++) {
-      const recent = cleaned.slice(-len).join(' ');
-      const current = words.slice(i, i + len).join(' ');
-      if (recent === current && i + len <= words.length) {
-        isDup = true;
-        i += len - 1; // skip the duplicate sequence
-        break;
-      }
-    }
-    if (!isDup) cleaned.push(words[i]);
-  }
-  return cleaned.join(' ');
-}
 
-const normalizeTranscriptSegment = (text: string) =>
-  text
-    .replace(/[.,!?;:״“”'`~\-]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
 
 const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecordProps) => {
   const { toast } = useToast();
@@ -52,6 +26,7 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
   const [rawText, setRawText] = useState('');
   const [structured, setStructured] = useState<StructuredNotes | null>(null);
   const [transcription, setTranscription] = useState('');
+  const [interimTranscription, setInterimTranscription] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editFields, setEditFields] = useState<StructuredNotes | null>(null);
   const [timer, setTimer] = useState(0);
@@ -59,8 +34,6 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const accumulatedTextRef = useRef('');
-  const lastFinalNormalizedRef = useRef('');
-  const recentFinalsRef = useRef<string[]>([]);
   const isRecordingRef = useRef(false);
   const isStartingRef = useRef(false);
   const sessionIdRef = useRef(0);
@@ -120,19 +93,18 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     recognition.interimResults = true;
     recognitionRef.current = recognition;
     accumulatedTextRef.current = '';
-    lastFinalNormalizedRef.current = '';
-    recentFinalsRef.current = [];
 
     recognition.onresult = (event: any) => {
       if (sessionId !== sessionIdRef.current || recognitionRef.current !== recognition) return;
 
-      // Build the full transcript from ALL results (replacing, not appending)
       let finalText = '';
       let interimText = '';
+
       for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         const transcript = (result[0]?.transcript || '').trim();
         if (!transcript) continue;
+
         if (result.isFinal) {
           finalText += transcript + ' ';
         } else {
@@ -140,10 +112,10 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
         }
       }
 
-      // Replace accumulated text entirely with the clean joined finals
-      accumulatedTextRef.current = finalText.trim();
-      const display = (finalText + interimText).trim();
-      setTranscription(display);
+      const cleanFinal = finalText.trim();
+      accumulatedTextRef.current = cleanFinal;
+      setTranscription(cleanFinal);
+      setInterimTranscription(interimText.trim());
     };
 
     recognition.onerror = (event: any) => {
@@ -183,6 +155,7 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
 
     setMode('recording');
     setTranscription('');
+    setInterimTranscription('');
     setTimer(0);
     timerRef.current = setInterval(() => setTimer(prev => prev + 1), 1000);
   };
@@ -206,8 +179,10 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
       try { recognition.stop(); } catch {}
     }
 
-    // Use accumulated text for processing
-    const spokenText = deduplicateTranscript(accumulatedTextRef.current.trim());
+    setInterimTranscription('');
+
+    // Use only final (isFinal) text for processing
+    const spokenText = accumulatedTextRef.current.trim();
     if (!spokenText) {
       toast({
         title: lang === 'en' ? 'No speech detected' : 'לא זוהה דיבור',
@@ -266,6 +241,7 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
         return;
       }
       setTranscription(text);
+      setInterimTranscription('');
       setStructured(data as StructuredNotes);
       setEditFields(data as StructuredNotes);
       setMode('result');
@@ -292,12 +268,11 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     isStartingRef.current = false;
     sessionIdRef.current += 1;
     accumulatedTextRef.current = '';
-    lastFinalNormalizedRef.current = '';
-    recentFinalsRef.current = [];
     setMode('idle');
     setRawText('');
     setStructured(null);
     setTranscription('');
+    setInterimTranscription('');
     setIsEditing(false);
     setEditFields(null);
     setShowTextInput(false);
@@ -433,6 +408,21 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
                 {lang === 'en' ? '✨ AI is listening...' : '✨ ה-AI מקשיב לך...'}
               </p>
             </div>
+
+            {(transcription || interimTranscription) && (
+              <div className="w-full rounded-xl px-4 py-3 bg-muted/50 border border-accent/20" dir={lang === 'he' ? 'rtl' : 'ltr'}>
+                {transcription && (
+                  <p className="text-xs leading-relaxed text-foreground">
+                    {transcription}
+                  </p>
+                )}
+                {interimTranscription && (
+                  <p className="text-xs leading-relaxed text-muted-foreground italic mt-1">
+                    {interimTranscription}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
 
