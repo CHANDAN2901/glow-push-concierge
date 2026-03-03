@@ -5,6 +5,39 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+/** Remove repeated sentences/phrases from raw dictation text */
+function deduplicateText(text: string): string {
+  if (!text) return "";
+  // Split into sentences
+  const sentences = text.split(/[.!?،,؛]\s*|\n+/).map(s => s.trim()).filter(Boolean);
+  const seen = new Set<string>();
+  const unique: string[] = [];
+  for (const s of sentences) {
+    const key = s.replace(/[^\p{L}\p{N}]+/gu, '').toLowerCase();
+    if (key && !seen.has(key)) {
+      seen.add(key);
+      unique.push(s);
+    }
+  }
+  // Also remove consecutive duplicate words
+  const words = unique.join('. ').split(/\s+/);
+  const cleaned: string[] = [];
+  let lastWord = '';
+  let count = 0;
+  for (const w of words) {
+    const norm = w.replace(/[^\p{L}\p{N}]+/gu, '').toLowerCase();
+    if (norm === lastWord && norm) {
+      count++;
+      if (count > 2) continue;
+    } else {
+      lastWord = norm;
+      count = 1;
+    }
+    cleaned.push(w);
+  }
+  return cleaned.join(' ').trim();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -22,19 +55,34 @@ serve(async (req) => {
       });
     }
 
-    const systemPrompt = `You are a professional medical-beauty treatment documentation assistant. 
+    // Pre-clean the text before sending to AI
+    const cleanedText = deduplicateText(rawText);
+
+    const notMentioned = lang === 'he' ? 'לא צוין' : 'Not mentioned';
+
+    const systemPrompt = `You are a professional medical-beauty treatment documentation assistant.
 You receive raw dictated notes from a PMU (Permanent Makeup) artist and must extract structured data.
 
-ALWAYS respond with a valid JSON object with these exact fields (use the language of the input text for values):
+IMPORTANT INSTRUCTIONS:
+1. CLEAN the input first: Remove any duplicated or repeated sentences/words. The input comes from speech recognition and may contain repetitions.
+
+2. INFER the treatment area from context clues:
+   - Words like "פאודר", "powder", "מיקרובליידינג", "microblading", "גבות", "brows", "ombre" → treatment area is "גבות" (Brows)
+   - Words like "שפתיים", "lips", "lip liner", "lip contour", "lip blush", "קונטור שפתיים" → treatment area is "שפתיים" (Lips)
+   - Words like "אייליינר", "eyeliner", "עיניים" → treatment area is "אייליינר" (Eyeliner)
+   - If ambiguous, make your best guess based on the full context. Only use "${notMentioned}" if truly impossible to determine.
+
+3. ALWAYS respond with a valid JSON object with these exact fields (use the language of the input text for values):
 {
-  "treatmentArea": "the body area treated (e.g. גבות, שפתיים, אייליינר / Brows, Lips, Eyeliner)",
+  "treatmentArea": "the body area treated",
   "pigmentFormula": "pigment colors and mixing ratios used",
   "needleType": "needle type, size, or configuration used",
-  "clinicalNotes": "any other clinical observations: skin condition, bleeding, sensitivity, healing expectations, aftercare notes"
+  "clinicalNotes": "any other clinical observations: skin condition, bleeding, sensitivity, healing expectations, aftercare notes, technique used"
 }
 
-If a field is not mentioned in the notes, use "${lang === 'he' ? 'לא צוין' : 'Not mentioned'}" as the value.
-Do NOT add any text outside the JSON object. Return ONLY the JSON.`;
+4. For clinicalNotes, include any technique details (powder, ombre, microblading, etc.) and general observations.
+5. If a field is not mentioned in the notes, use "${notMentioned}" as the value.
+6. Do NOT add any text outside the JSON object. Return ONLY the JSON.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -44,9 +92,10 @@ Do NOT add any text outside the JSON object. Return ONLY the JSON.`;
       },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
+        temperature: 0,
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: rawText },
+          { role: "user", content: cleanedText },
         ],
       }),
     });
@@ -85,6 +134,13 @@ Do NOT add any text outside the JSON object. Return ONLY the JSON.`;
     let structured;
     try {
       structured = JSON.parse(jsonStr);
+      // Validate required keys exist
+      const requiredKeys = ['treatmentArea', 'pigmentFormula', 'needleType', 'clinicalNotes'];
+      for (const key of requiredKeys) {
+        if (!structured[key]) {
+          structured[key] = notMentioned;
+        }
+      }
     } catch {
       // Fallback: return raw content if JSON parsing fails
       structured = {
