@@ -1419,118 +1419,44 @@ const ArtistDashboard = () => {
               ))}
             </div>
 
-            {/* ── "Next Up" Focus Area ── */}
+            {/* (merged into appointments carousel below) */}
+
+            {/* ── Today's Appointments Carousel ── */}
             {(() => {
-              const nextClient = clients.find(c => c.day === 0 || c.day === 1);
-              if (!nextClient) return null;
+              const todayClients = clients.filter(c => c.day === 0 || c.day === 1);
+              if (todayClients.length === 0) return null;
               return (
                 <div className="animate-fade-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
                   <h3 className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground mb-3">
-                    {lang === 'en' ? 'Your Next Appointment' : 'התור הבא שלך'}
+                    {lang === 'en' ? 'Your Appointments Today' : 'התורים שלך היום'}
                   </h3>
-                  <div
-                    className="rounded-2xl p-5"
-                    style={{
-                      background: 'linear-gradient(135deg, hsl(38 55% 62% / 0.08), hsl(40 50% 72% / 0.15))',
-                      border: '1.5px solid hsl(var(--gold) / 0.3)',
-                      boxShadow: '0 6px 32px hsla(38, 55%, 62%, 0.08)',
-                    }}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg text-white shrink-0"
-                        style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))' }}
-                      >
-                        {nextClient.name.charAt(0)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-base text-foreground truncate">{nextClient.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{nextClient.treatment}</p>
-                        {hasSignedDeclaration(nextClient.name) && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold mt-1" style={{ color: '#22c55e' }}>
-                            <CheckCircle className="w-3 h-3" /> {lang === 'en' ? 'Health form signed' : 'הצהרת בריאות חתומה'}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      <a
-                        href={buildReminderWhatsAppUrl(nextClient.name, nextClient.phone)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs font-bold transition-all active:scale-[0.97]"
-                        style={{ background: '#ffffff', border: '2px solid #D4AF37', color: '#333333', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.2)' }}
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                        {lang === 'en' ? 'Send Reminder' : 'שליחת תזכורת'}
-                      </a>
-                      <button
-                        onClick={() => {
-                          setActiveTab('healing');
-                          setSubScreen(null);
-                          setHealingJourneyClient({ ...nextClient, day: 0 });
-                        }}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs font-bold transition-all active:scale-[0.97]"
-                        style={{ background: '#ffffff', border: '2px solid #D4AF37', color: '#333333', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.2)' }}
-                      >
-                        <Sparkles className="w-4 h-4" />
-                        {lang === 'en' ? 'Start Journey' : 'התחלת מסע'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* ── Today's Appointments ── */}
-            {(() => {
-              const todayClients = clients.filter(c => c.day === 0 || c.day === 1);
-              if (todayClients.length <= 1) return null; // Already shown in "Next Up"
-              return (
-                <div className="animate-fade-up" style={{ animationDelay: '0.3s', opacity: 0 }}>
-                  <h3 className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground mb-3">
-                    {lang === 'en' ? "Today's Appointments" : 'תורים נוספים היום'}
-                  </h3>
-                  <div className="space-y-3">
-                    {todayClients.slice(1).map((client, i) => {
+                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
+                    {todayClients.map((client, i) => {
                       const signed = hasSignedDeclaration(client.name);
                       return (
                         <div
                           key={i}
-                          className="rounded-2xl p-4"
+                          className="flex-shrink-0 w-36 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all hover:shadow-md cursor-pointer active:scale-95"
                           style={{
-                            background: 'rgba(255,255,255,0.55)',
-                            backdropFilter: 'blur(12px)',
-                            border: '1px solid hsl(var(--gold) / 0.2)',
-                            boxShadow: '0 4px 16px hsla(0, 0%, 0%, 0.04)',
+                            background: 'linear-gradient(135deg, hsl(40 45% 97%), hsl(38 40% 93%))',
+                            border: '1px solid hsl(38 30% 82%)',
+                            boxShadow: '0 4px 16px hsla(38, 55%, 62%, 0.1)',
                           }}
+                          onClick={() => { setSelectedClient(client); setActiveTab('clients'); }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0"
-                              style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))' }}
-                            >
-                              {client.name.charAt(0)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className="font-bold text-sm text-foreground truncate">{client.name}</p>
-                                {signed && <CheckCircle className="w-3.5 h-3.5 text-accent shrink-0" />}
-                              </div>
-                              <p className="text-xs text-muted-foreground">{client.treatment}</p>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setActiveTab('healing');
-                                setSubScreen(null);
-                                setHealingJourneyClient({ ...client, day: 0 });
-                              }}
-                              className="px-4 py-2 rounded-full text-[10px] font-bold tracking-wide transition-all active:scale-[0.98] text-white"
-                              style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))', border: '1px solid hsl(38 40% 50%)' }}
-                            >
-                              {lang === 'en' ? 'Start' : 'התחלה'}
-                            </button>
+                          <div
+                            className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg"
+                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                          >
+                            {client.name.charAt(0)}
                           </div>
+                          <p className="text-xs font-semibold text-foreground truncate w-full text-center">{client.name}</p>
+                          <p className="text-[10px] text-muted-foreground truncate w-full text-center">{client.treatment}</p>
+                          {signed && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: 'hsl(142 76% 36%)' }}>
+                              <CheckCircle className="w-3 h-3" /> {lang === 'en' ? 'Signed' : 'חתום'}
+                            </span>
+                          )}
                         </div>
                       );
                     })}
