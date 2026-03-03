@@ -13,48 +13,173 @@ const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 
 interface Transform {
   x: number; y: number; scale: number; rotation: number;
 }
-// Scale up ~1.42x (√2) by default so rotation never reveals black corners
-const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1.42, rotation: 0 };
+
+// Half-frame is 1:2 (width:height), so full 360° rotation needs ~2x minimum cover scale.
+const MIN_GESTURE_SCALE = 2.05;
+const MAX_GESTURE_SCALE = 8;
+const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: MIN_GESTURE_SCALE, rotation: 0 };
 
 /* ── pixel-level retouch helpers ── */
+const clampByte = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
+const luma = (r: number, g: number, b: number) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+function isLikelySkinTone(r: number, g: number, b: number) {
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  return r > 35 && g > 20 && b > 15 && max - min > 12 && r >= g && r > b;
+}
+
+function hueDistance(a: number, b: number) {
+  const d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
+}
+
+function hueDelta(from: number, to: number) {
+  return ((to - from + 540) % 360) - 180;
+}
+
+function rgbToHsl(r: number, g: number, b: number) {
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  const d = max - min;
+  let h = 0;
+  const l = (max + min) / 2;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+
+  if (d !== 0) {
+    if (max === rn) h = ((gn - bn) / d) % 6;
+    else if (max === gn) h = (bn - rn) / d + 2;
+    else h = (rn - gn) / d + 4;
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+
+  return { h, s, l };
+}
+
+function hslToRgb(h: number, s: number, l: number) {
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const hp = h / 60;
+  const x = c * (1 - Math.abs((hp % 2) - 1));
+  let r1 = 0, g1 = 0, b1 = 0;
+
+  if (hp >= 0 && hp < 1) [r1, g1, b1] = [c, x, 0];
+  else if (hp < 2) [r1, g1, b1] = [x, c, 0];
+  else if (hp < 3) [r1, g1, b1] = [0, c, x];
+  else if (hp < 4) [r1, g1, b1] = [0, x, c];
+  else if (hp < 5) [r1, g1, b1] = [x, 0, c];
+  else [r1, g1, b1] = [c, 0, x];
+
+  const m = l - c / 2;
+  return {
+    r: clampByte((r1 + m) * 255),
+    g: clampByte((g1 + m) * 255),
+    b: clampByte((b1 + m) * 255),
+  };
+}
+
+function createIntegralChannel(data: Uint8ClampedArray, width: number, height: number, channelOffset: number) {
+  const stride = width + 1;
+  const integral = new Float32Array((width + 1) * (height + 1));
+
+  for (let y = 1; y <= height; y++) {
+    let rowSum = 0;
+    for (let x = 1; x <= width; x++) {
+      const srcIdx = (((y - 1) * width + (x - 1)) * 4) + channelOffset;
+      rowSum += data[srcIdx];
+      integral[y * stride + x] = integral[(y - 1) * stride + x] + rowSum;
+    }
+  }
+
+  return integral;
+}
+
+function boxBlurFromIntegral(integral: Float32Array, width: number, height: number, x: number, y: number, radius: number) {
+  const stride = width + 1;
+  const x1 = Math.max(0, x - radius);
+  const y1 = Math.max(0, y - radius);
+  const x2 = Math.min(width - 1, x + radius);
+  const y2 = Math.min(height - 1, y + radius);
+
+  const a = integral[y1 * stride + x1];
+  const b = integral[y1 * stride + (x2 + 1)];
+  const c = integral[(y2 + 1) * stride + x1];
+  const d = integral[(y2 + 1) * stride + (x2 + 1)];
+  const area = (x2 - x1 + 1) * (y2 - y1 + 1);
+
+  return (d - b - c + a) / area;
+}
+
 function applySkinSmoothing(imageData: ImageData, amount: number) {
   if (amount <= 0) return;
+
   const { width, height, data } = imageData;
   const src = new Uint8ClampedArray(data);
-  const radius = Math.max(2, Math.round(amount * 12));
-  const threshold = 30 + amount * 50;
-  for (let y = radius; y < height - radius; y++) {
-    for (let x = radius; x < width - radius; x++) {
+
+  // Edge-aware "smart blur" (integral-image accelerated)
+  const radius = Math.max(2, Math.round(2 + amount * 8));
+  const blendBase = 0.2 + amount * 0.75;
+  const edgeThreshold = Math.max(8, 22 - amount * 10);
+
+  const intR = createIntegralChannel(src, width, height, 0);
+  const intG = createIntegralChannel(src, width, height, 1);
+  const intB = createIntegralChannel(src, width, height, 2);
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
       const idx = (y * width + x) * 4;
-      let rSum = 0, gSum = 0, bSum = 0, count = 0;
-      for (let dy = -radius; dy <= radius; dy++) {
-        for (let dx = -radius; dx <= radius; dx++) {
-          const nIdx = ((y + dy) * width + (x + dx)) * 4;
-          const diff = Math.abs(src[nIdx] - src[idx]) + Math.abs(src[nIdx + 1] - src[idx + 1]) + Math.abs(src[nIdx + 2] - src[idx + 2]);
-          if (diff < threshold) { rSum += src[nIdx]; gSum += src[nIdx + 1]; bSum += src[nIdx + 2]; count++; }
-        }
-      }
-      if (count > 0) {
-        const blend = Math.min(1, amount * 2.4);
-        data[idx] = src[idx] + (rSum / count - src[idx]) * blend;
-        data[idx + 1] = src[idx + 1] + (gSum / count - src[idx + 1]) * blend;
-        data[idx + 2] = src[idx + 2] + (bSum / count - src[idx + 2]) * blend;
-      }
+      const r = src[idx];
+      const g = src[idx + 1];
+      const b = src[idx + 2];
+      if (!isLikelySkinTone(r, g, b)) continue;
+
+      const br = boxBlurFromIntegral(intR, width, height, x, y, radius);
+      const bg = boxBlurFromIntegral(intG, width, height, x, y, radius);
+      const bb = boxBlurFromIntegral(intB, width, height, x, y, radius);
+
+      const edgeDelta = Math.abs(luma(r, g, b) - luma(br, bg, bb));
+      const edgeProtect = Math.max(0, 1 - edgeDelta / edgeThreshold);
+      const blend = blendBase * edgeProtect;
+      if (blend <= 0.01) continue;
+
+      data[idx] = clampByte(r + (br - r) * blend);
+      data[idx + 1] = clampByte(g + (bg - g) * blend);
+      data[idx + 2] = clampByte(b + (bb - b) * blend);
     }
   }
 }
 
 function applyRednessReduction(imageData: ImageData, amount: number) {
   if (amount <= 0) return;
+
   const { data } = imageData;
+
   for (let i = 0; i < data.length; i += 4) {
-    const r = data[i], g = data[i + 1], b = data[i + 2];
-    const isReddish = r > 60 && r > g * 1.08 && r > b * 1.1 && r < 250;
-    if (!isReddish) continue;
-    const redness = Math.min(1, ((r - g) + (r - b)) / 120);
-    const reduction = redness * amount * 1.8;
-    data[i] = Math.max(0, r - r * reduction * 0.55);
-    data[i + 1] = Math.min(255, g + (r - g) * reduction * 0.35);
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    if (!isLikelySkinTone(r, g, b)) continue;
+
+    const { h, s, l } = rgbToHsl(r, g, b);
+
+    // Target only red-ish skin tones (no global tinting)
+    const redWeight = Math.max(0, 1 - hueDistance(h, 8) / 55);
+    const satWeight = Math.max(0, Math.min(1, (s - 0.08) / 0.5));
+    const lightWeight = Math.max(0, 1 - Math.abs(l - 0.62) / 0.55);
+    const strength = amount * redWeight * satWeight * lightWeight;
+    if (strength <= 0.01) continue;
+
+    const targetHue = 20; // slightly warm, avoids cyan/green cast
+    const nextHue = (h + hueDelta(h, targetHue) * Math.min(0.45, strength * 0.5) + 360) % 360;
+    const nextSat = Math.max(0, s * (1 - Math.min(0.8, strength * 0.9)));
+
+    const next = hslToRgb(nextHue, nextSat, l);
+    data[i] = next.r;
+    data[i + 1] = next.g;
+    data[i + 2] = next.b;
   }
 }
 
@@ -89,7 +214,7 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
         event.preventDefault();
         if (first) memo = { startAngle: angle, startRotation: tRef.current.rotation };
         const angleDelta = angle - (memo?.startAngle ?? 0);
-        const clamped = Math.min(Math.max(s, 1), 6);
+        const clamped = Math.min(Math.max(s, MIN_GESTURE_SCALE), MAX_GESTURE_SCALE);
         tRef.current = { ...tRef.current, scale: clamped, rotation: (memo?.startRotation ?? 0) + angleDelta };
         apply();
         return memo;
@@ -97,14 +222,17 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
     },
     {
       drag: { from: () => [tRef.current.x, tRef.current.y], filterTaps: true },
-      pinch: { from: () => [tRef.current.scale, 0], scaleBounds: { min: 1, max: 6 } },
+      pinch: { from: () => [tRef.current.scale, 0], scaleBounds: { min: MIN_GESTURE_SCALE, max: MAX_GESTURE_SCALE } },
     }
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       tRef.current = { ...DEFAULT_TRANSFORM };
-      if (innerRef.current) innerRef.current.style.transform = '';
+      if (innerRef.current) {
+        const t = tRef.current;
+        innerRef.current.style.transform = `translate3d(${t.x}px, ${t.y}px, 0) scale(${t.scale}) rotate(${t.rotation}deg)`;
+      }
       onFileSelect(e.target.files[0]);
     }
     e.target.value = '';
@@ -118,8 +246,12 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
             ref={innerRef}
             data-gesture-inner
             {...bind()}
-            className="w-full h-full touch-none will-change-transform"
-            style={{ cursor: 'grab' }}
+            className="absolute inset-0 touch-none will-change-transform"
+            style={{
+              cursor: 'grab',
+              transformOrigin: 'center center',
+              transform: `translate3d(${tRef.current.x}px, ${tRef.current.y}px, 0) scale(${tRef.current.scale}) rotate(${tRef.current.rotation}deg)`,
+            }}
           >
             <img src={src} alt="" className="w-full h-full object-cover object-center pointer-events-none select-none" draggable={false} />
           </div>
