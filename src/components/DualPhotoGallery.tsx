@@ -13,15 +13,16 @@ const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 
 interface Transform {
   x: number; y: number; scale: number; rotation: number;
 }
-const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1, rotation: 0 };
+// Scale up ~1.42x (√2) by default so rotation never reveals black corners
+const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1.42, rotation: 0 };
 
 /* ── pixel-level retouch helpers ── */
 function applySkinSmoothing(imageData: ImageData, amount: number) {
   if (amount <= 0) return;
   const { width, height, data } = imageData;
   const src = new Uint8ClampedArray(data);
-  const radius = Math.max(1, Math.round(amount * 3));
-  const threshold = 18 + amount * 12;
+  const radius = Math.max(2, Math.round(amount * 12));
+  const threshold = 30 + amount * 50;
   for (let y = radius; y < height - radius; y++) {
     for (let x = radius; x < width - radius; x++) {
       const idx = (y * width + x) * 4;
@@ -34,7 +35,7 @@ function applySkinSmoothing(imageData: ImageData, amount: number) {
         }
       }
       if (count > 0) {
-        const blend = amount * 0.6;
+        const blend = Math.min(1, amount * 2.4);
         data[idx] = src[idx] + (rSum / count - src[idx]) * blend;
         data[idx + 1] = src[idx + 1] + (gSum / count - src[idx + 1]) * blend;
         data[idx + 2] = src[idx + 2] + (bSum / count - src[idx + 2]) * blend;
@@ -48,12 +49,12 @@ function applyRednessReduction(imageData: ImageData, amount: number) {
   const { data } = imageData;
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i], g = data[i + 1], b = data[i + 2];
-    const isReddish = r > 80 && r > g * 1.15 && r > b * 1.2 && r < 245;
+    const isReddish = r > 60 && r > g * 1.08 && r > b * 1.1 && r < 250;
     if (!isReddish) continue;
-    const redness = Math.min(1, ((r - g) + (r - b)) / 200);
-    const reduction = redness * amount * 0.45;
-    data[i] = r - r * reduction * 0.35;
-    data[i + 1] = g + (r - g) * reduction * 0.12;
+    const redness = Math.min(1, ((r - g) + (r - b)) / 120);
+    const reduction = redness * amount * 1.8;
+    data[i] = Math.max(0, r - r * reduction * 0.55);
+    data[i + 1] = Math.min(255, g + (r - g) * reduction * 0.35);
   }
 }
 
@@ -88,7 +89,7 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
         event.preventDefault();
         if (first) memo = { startAngle: angle, startRotation: tRef.current.rotation };
         const angleDelta = angle - (memo?.startAngle ?? 0);
-        const clamped = Math.min(Math.max(s, 0.3), 5);
+        const clamped = Math.min(Math.max(s, 1), 6);
         tRef.current = { ...tRef.current, scale: clamped, rotation: (memo?.startRotation ?? 0) + angleDelta };
         apply();
         return memo;
@@ -96,7 +97,7 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
     },
     {
       drag: { from: () => [tRef.current.x, tRef.current.y], filterTaps: true },
-      pinch: { from: () => [tRef.current.scale, 0], scaleBounds: { min: 0.3, max: 5 } },
+      pinch: { from: () => [tRef.current.scale, 0], scaleBounds: { min: 1, max: 6 } },
     }
   );
 
