@@ -1885,7 +1885,8 @@ const ArtistDashboard = () => {
                       if (error) throw error;
                       toast({ title: lang === 'en' ? 'Test notification sent! ✅' : 'התראת בדיקה נשלחה בהצלחה! ✅' });
                     } catch (err: any) {
-                      toast({ title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה', description: err?.message, variant: 'destructive' });
+                      console.error('[TestPush] Failed:', err, JSON.stringify(err));
+                      toast({ title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה', description: err?.message || JSON.stringify(err), variant: 'destructive' });
                     } finally {
                       setSendingTestPush(false);
                     }
