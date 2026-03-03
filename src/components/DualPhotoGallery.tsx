@@ -13,9 +13,10 @@ interface Transform {
   x: number;
   y: number;
   scale: number;
+  rotation: number;
 }
 
-const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1 };
+const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1, rotation: 0 };
 
 /** Touch-gesturable photo half — drag to pan, pinch to zoom. No visible controls in the frame. */
 function GestureFrame({ src, onTap }: { src: string; onTap: () => void }) {
@@ -119,13 +120,15 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       ctx.clip();
 
       // Parse the live DOM transform to replicate user adjustments
-      let tx = 0, ty = 0, sc = 1;
+      let tx = 0, ty = 0, sc = 1, rot = 0;
       if (domEl) {
         const raw = domEl.style.transform;
         const t3d = raw.match(/translate3d\(([-\d.]+)px,\s*([-\d.]+)px/);
         const scM = raw.match(/scale\(([-\d.]+)\)/);
+        const rotM = raw.match(/rotate\(([-\d.]+)deg\)/);
         if (t3d) { tx = parseFloat(t3d[1]); ty = parseFloat(t3d[2]); }
         if (scM) { sc = parseFloat(scM[1]); }
+        if (rotM) { rot = parseFloat(rotM[1]); }
       }
 
       // The preview frame is square; map preview coords → canvas coords
@@ -137,6 +140,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       const cy = height / 2 + ty * ratio;
       ctx.translate(cx, cy);
       ctx.scale(sc, sc);
+      ctx.rotate((rot * Math.PI) / 180);
 
       const imgAspect = img.width / img.height;
       const frameAspect = width / height;
@@ -347,7 +351,8 @@ function GestureFrameInner({ src }: { src: string }) {
 
   const apply = () => {
     if (innerRef.current) {
-      innerRef.current.style.transform = `translate3d(${tRef.current.x}px, ${tRef.current.y}px, 0) scale(${tRef.current.scale})`;
+      const t = tRef.current;
+      innerRef.current.style.transform = `translate3d(${t.x}px, ${t.y}px, 0) scale(${t.scale}) rotate(${t.rotation}deg)`;
     }
   };
 
@@ -358,10 +363,14 @@ function GestureFrameInner({ src }: { src: string }) {
         tRef.current = { ...tRef.current, x: ox, y: oy };
         apply();
       },
-      onPinch: ({ offset: [s], event }) => {
+      onPinch: ({ offset: [s], da: [, angle], memo, first, event }) => {
         event.preventDefault();
-        tRef.current = { ...tRef.current, scale: Math.min(Math.max(s, 0.3), 5) };
+        if (first) memo = { startAngle: angle, startRotation: tRef.current.rotation };
+        const angleDelta = angle - (memo?.startAngle ?? 0);
+        const clamped = Math.min(Math.max(s, 0.3), 5);
+        tRef.current = { ...tRef.current, scale: clamped, rotation: (memo?.startRotation ?? 0) + angleDelta };
         apply();
+        return memo;
       },
     },
     {
