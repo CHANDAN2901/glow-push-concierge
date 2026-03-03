@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
-import { ChevronRight, Globe } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 /** 
  * Maps route paths to screen titles (Hebrew + English).
@@ -72,11 +72,14 @@ const Header = () => {
         {/* Left side (RTL): language toggle */}
         <button
           onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all hover:opacity-80 active:scale-95"
-          style={{ color: 'hsl(30 10% 45%)', border: '1px solid hsl(38 30% 82%)' }}
+          className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95"
+          style={{
+            background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+            color: '#5C4033',
+            boxShadow: '0 2px 10px rgba(212,175,55,0.4)',
+          }}
         >
-          <Globe className="w-3.5 h-3.5" />
-          {lang === 'he' ? 'EN' : 'HE'}
+          {lang === 'he' ? 'EN' : 'עב'}
         </button>
       </div>
     </header>

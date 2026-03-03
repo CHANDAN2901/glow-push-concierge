@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
-import { Globe } from 'lucide-react';
+
 import heroLogo from '@/assets/glowpush-hero-logo.png';
 
 interface FaqItem {
@@ -34,15 +34,18 @@ const MarketingLanding = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6 text-center space-y-8" dir={isHe ? 'rtl' : 'ltr'}>
-      {/* Language toggle */}
+      {/* Language toggle – gold circle badge */}
       <div className="fixed top-4 left-4 z-50">
         <button
           onClick={() => setLang(isHe ? 'en' : 'he')}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-white/80 backdrop-blur-sm transition-all hover:opacity-80 active:scale-95"
-          style={{ color: 'hsl(30 10% 45%)', border: '1px solid hsl(38 30% 82%)' }}
+          className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg"
+          style={{
+            background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+            color: '#5C4033',
+            boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
+          }}
         >
-          <Globe className="w-3.5 h-3.5" />
-          {isHe ? 'EN' : 'HE'}
+          {isHe ? 'EN' : 'עב'}
         </button>
       </div>
       {/* Logo Section */}
@@ -70,32 +73,46 @@ const MarketingLanding = () => {
         }}
       >
         <h2 className="text-2xl font-medium text-center" style={{ color: '#333', lineHeight: '2.2' }}>
-          מסע החלמה חכם ללקוחות האיפור הקבוע שלך –{' '}
-          <br />
-          <span className="font-bold">לקחת אותן יד ביד עד לתוצאה המושלמת.</span>
+          {isHe ? (
+            <>מסע החלמה חכם ללקוחות האיפור הקבוע שלך –{' '}<br /><span className="font-bold">לקחת אותן יד ביד עד לתוצאה המושלמת.</span></>
+          ) : (
+            <>A smart healing journey for your PMU clients –{' '}<br /><span className="font-bold">guiding them hand-in-hand to the perfect result.</span></>
+          )}
         </h2>
       </div>
 
       {/* Description Text */}
       <div className="max-w-sm space-y-4">
         <p className="text-sm leading-relaxed" style={{ color: '#888' }}>
-          <span className="font-bold" style={{ color: '#666' }}>Glow Push</span> המערכת המקצועית הראשונה ששולחת אוטומטית תזכורות, הנחיות טיפול ושלבי קילוף ישירות לוואטסאפ של הלקוחה – ממש כאילו את איתה 24/7.
+          <span className="font-bold" style={{ color: '#666' }}>Glow Push</span>{' '}
+          {isHe
+            ? 'המערכת המקצועית הראשונה ששולחת אוטומטית תזכורות, הנחיות טיפול ושלבי קילוף ישירות לוואטסאפ של הלקוחה – ממש כאילו את איתה 24/7.'
+            : 'The first professional system that automatically sends reminders, care instructions and peeling stages directly to your client\'s WhatsApp — as if you\'re with her 24/7.'}
         </p>
         <p className="text-xs" style={{ color: '#aaa' }}>
-          בנוסף: הצהרות בריאות דיגיטליות מותאמות לתקנון, כרטיס ביקור יוקרתי, וגלריית עבודות חכמה.
+          {isHe
+            ? 'בנוסף: הצהרות בריאות דיגיטליות מותאמות לתקנון, כרטיס ביקור יוקרתי, וגלריית עבודות חכמה.'
+            : 'Plus: digital health declarations, a luxury digital business card, and a smart portfolio gallery.'}
         </p>
       </div>
 
       {/* Features List – Asymmetrical Gold Lines */}
       <div className="max-w-md w-full space-y-8">
-        {[
+        {(isHe ? [
           'כרטיס דיגיטלי מהמם',
           'הצהרת בריאות מעוצבת',
           'סיכום טיפול ותיעוד ב-AI',
           'גלריה לפני ואחרי אצל כל לקוחה',
           'יומן תזכורות וימי הולדת',
           'ליווי החלמה אוטומטי',
-        ].map((item, i) => (
+        ] : [
+          'Stunning Digital Card',
+          'Styled Health Declaration',
+          'AI Treatment Summary & Documentation',
+          'Before & After Gallery per Client',
+          'Reminders & Birthday Calendar',
+          'Automated Healing Journey',
+        ]).map((item, i) => (
           <div key={i} className="group flex flex-col items-center gap-2 cursor-default">
             {/* Top line – short, from right */}
             <div className="w-full flex justify-end">
@@ -126,7 +143,9 @@ const MarketingLanding = () => {
           className="text-sm leading-relaxed pt-6 text-center font-medium"
           style={{ color: '#888' }}
         >
-          הכל כדי שנוכל לתת פוש לעסק, דברים שאין לנו זמן בשבילם והם הכי חשובים למיתוג יוקרה ושימור.
+          {isHe
+            ? 'הכל כדי שנוכל לתת פוש לעסק, דברים שאין לנו זמן בשבילם והם הכי חשובים למיתוג יוקרה ושימור.'
+            : 'Everything to give your business a push — the things you don\'t have time for that matter most for premium branding and client retention.'}
         </p>
       </div>
 
@@ -141,7 +160,7 @@ const MarketingLanding = () => {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          שאלות נפוצות
+          {isHe ? 'שאלות נפוצות' : 'FAQ'}
         </h3>
         <Accordion type="single" collapsible className="w-full">
           {faqs.map((faq) => (
@@ -158,10 +177,10 @@ const MarketingLanding = () => {
                 className="px-5 py-4 text-sm font-medium hover:no-underline text-right [&>svg]:text-[#D4AF37]"
                 style={{ color: '#444' }}
               >
-                {faq.question_he}
+                {isHe ? faq.question_he : faq.question_en}
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-4 text-sm leading-relaxed" style={{ color: '#777' }}>
-                {faq.answer_he}
+                {isHe ? faq.answer_he : faq.answer_en}
               </AccordionContent>
             </AccordionItem>
           ))}
@@ -178,7 +197,9 @@ const MarketingLanding = () => {
           boxShadow: '0 4px 16px rgba(212, 175, 55, 0.35)',
         }}
       >
-        {user ? 'לקליניקה שלי →' : 'התנסות בחינם ללא התחייבות ←'}
+        {user
+          ? (isHe ? 'לקליניקה שלי →' : 'My Clinic →')
+          : (isHe ? 'התנסות בחינם ללא התחייבות ←' : 'Try Free — No Commitment ←')}
       </Button>
     </div>
   );
