@@ -119,10 +119,11 @@ function applySkinSmoothing(imageData: ImageData, amount: number) {
   const { width, height, data } = imageData;
   const src = new Uint8ClampedArray(data);
 
-  // Edge-aware "smart blur" (integral-image accelerated)
-  const radius = Math.max(2, Math.round(2 + amount * 8));
-  const blendBase = 0.2 + amount * 0.75;
-  const edgeThreshold = Math.max(8, 22 - amount * 10);
+  // Edge-aware "smart blur" (integral-image accelerated) — CRANKED UP
+  const boosted = amount * 4; // 4x internal multiplier so 100% is extremely strong
+  const radius = Math.max(3, Math.round(3 + boosted * 12));
+  const blendBase = Math.min(1, 0.3 + boosted * 0.7);
+  const edgeThreshold = Math.max(4, 30 - boosted * 6);
 
   const intR = createIntegralChannel(src, width, height, 0);
   const intG = createIntegralChannel(src, width, height, 1);
@@ -165,16 +166,17 @@ function applyRednessReduction(imageData: ImageData, amount: number) {
 
     const { h, s, l } = rgbToHsl(r, g, b);
 
-    // Target only red-ish skin tones (no global tinting)
-    const redWeight = Math.max(0, 1 - hueDistance(h, 8) / 55);
-    const satWeight = Math.max(0, Math.min(1, (s - 0.08) / 0.5));
-    const lightWeight = Math.max(0, 1 - Math.abs(l - 0.62) / 0.55);
-    const strength = amount * redWeight * satWeight * lightWeight;
+    // Target red-ish skin tones — CRANKED UP 4x
+    const boosted = amount * 4;
+    const redWeight = Math.max(0, 1 - hueDistance(h, 10) / 70);
+    const satWeight = Math.max(0, Math.min(1, (s - 0.04) / 0.4));
+    const lightWeight = Math.max(0, 1 - Math.abs(l - 0.55) / 0.6);
+    const strength = boosted * redWeight * satWeight * lightWeight;
     if (strength <= 0.01) continue;
 
-    const targetHue = 20; // slightly warm, avoids cyan/green cast
-    const nextHue = (h + hueDelta(h, targetHue) * Math.min(0.45, strength * 0.5) + 360) % 360;
-    const nextSat = Math.max(0, s * (1 - Math.min(0.8, strength * 0.9)));
+    const targetHue = 28; // warm peach, avoids cyan/green cast
+    const nextHue = (h + hueDelta(h, targetHue) * Math.min(1, strength * 0.6) + 360) % 360;
+    const nextSat = Math.max(0, s * (1 - Math.min(0.95, strength * 0.8)));
 
     const next = hslToRgb(nextHue, nextSat, l);
     data[i] = next.r;
@@ -239,17 +241,19 @@ function CollageHalf({ src, label, onClear, onFileSelect }: {
   };
 
   return (
-    <div className="absolute inset-0 overflow-hidden touch-none" data-gesture-frame>
+    <div className="absolute inset-0 overflow-hidden" style={{ touchAction: 'none' }} data-gesture-frame>
       {src ? (
         <>
           <div
             ref={innerRef}
             data-gesture-inner
             {...bind()}
-            className="absolute inset-0 touch-none will-change-transform"
+            className="absolute will-change-transform"
             style={{
+              touchAction: 'none',
               cursor: 'grab',
               transformOrigin: 'center center',
+              top: '-50%', left: '-50%', width: '200%', height: '200%',
               transform: `translate3d(${tRef.current.x}px, ${tRef.current.y}px, 0) scale(${tRef.current.scale}) rotate(${tRef.current.rotation}deg)`,
             }}
           >
