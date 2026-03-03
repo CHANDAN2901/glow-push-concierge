@@ -26,14 +26,31 @@ import { STUDIO_LOGO_URL, STUDIO_NAME } from '@/lib/branding';
 import oritLogo from '@/assets/glowpush-logo.png';
 import heroLogo from '@/assets/glowpush-hero-logo.png';
 
-// --- PWA localStorage keys (outside component to avoid re-creation) ---
-const LS_CLIENT_ID = 'glow-client-id';
-const LS_CLIENT_NAME = 'glow-client-name';
+// --- Client identity localStorage keys (exact launch-blocker keys) ---
+const LS_CLIENT_ID = 'glowpush_client_id';
+const LS_CLIENT_NAME = 'glowpush_client_name';
+const LEGACY_LS_CLIENT_ID = 'glow-client-id';
+const LEGACY_LS_CLIENT_NAME = 'glow-client-name';
 const LS_START = 'glow-start';
 const LS_TREATMENT = 'glow-treatment';
 const LS_ARTIST_ID = 'glow-artist-id';
 
-// Eagerly persist URL params on module load (before React hydrates) for iOS PWA
+const getStoredClientIdentity = () => {
+  try {
+    const storedId = localStorage.getItem(LS_CLIENT_ID) || localStorage.getItem(LEGACY_LS_CLIENT_ID) || '';
+    const storedName = localStorage.getItem(LS_CLIENT_NAME) || localStorage.getItem(LEGACY_LS_CLIENT_NAME) || '';
+
+    // Migrate legacy keys to the required glowpush_* keys
+    if (storedId && !localStorage.getItem(LS_CLIENT_ID)) localStorage.setItem(LS_CLIENT_ID, storedId);
+    if (storedName && !localStorage.getItem(LS_CLIENT_NAME)) localStorage.setItem(LS_CLIENT_NAME, storedName);
+
+    return { storedId, storedName };
+  } catch {
+    return { storedId: '', storedName: '' };
+  }
+};
+
+// Eagerly capture URL identity on module load (before React hydrates) for iOS Home Screen launches
 try {
   const url = new URL(window.location.href);
   const cid = url.searchParams.get('client_id') || url.searchParams.get('clientId');
@@ -42,13 +59,10 @@ try {
   const ctreat = url.searchParams.get('treatment');
   const cartist = url.searchParams.get('artist_id');
 
-  // Capture and save immediately if secure client link params exist
+  // Exact required behavior: persist only when both id + name exist in URL
   if (cid && cname) {
     localStorage.setItem(LS_CLIENT_ID, cid);
     localStorage.setItem(LS_CLIENT_NAME, cname);
-  } else {
-    if (cid) localStorage.setItem(LS_CLIENT_ID, cid);
-    if (cname) localStorage.setItem(LS_CLIENT_NAME, cname);
   }
 
   if (cstart) localStorage.setItem(LS_START, cstart);
@@ -229,17 +243,41 @@ const ClientHome = () => {
 
   // PWA localStorage keys defined at module level above
 
-  const rawClientId = searchParams.get('client_id') || searchParams.get('clientId') || '';
-  const paramName = searchParams.get('name') || searchParams.get('clientName');
+  const urlClientId = searchParams.get('client_id') || searchParams.get('clientId') || '';
+  const urlClientName = searchParams.get('name') || searchParams.get('clientName') || '';
+  const fallbackName = 'לקוחה';
 
-  // Capture and save: URL identity params are persisted immediately
+  // Exact launch-blocker flow:
+  // 1) If URL has id+name -> save immediately and use URL identity.
+  // 2) If URL is missing identity -> restore from localStorage.
+  const [identity, setIdentity] = useState<{ clientId: string; clientName: string; source: 'url' | 'storage' | 'empty' }>(() => {
+    if (urlClientId && urlClientName) {
+      return { clientId: urlClientId, clientName: urlClientName, source: 'url' };
+    }
+
+    const { storedId, storedName } = getStoredClientIdentity();
+    if (storedId) {
+      return { clientId: storedId, clientName: storedName, source: 'storage' };
+    }
+
+    return { clientId: '', clientName: '', source: 'empty' };
+  });
+
   useEffect(() => {
-    if (rawClientId && paramName) {
-      localStorage.setItem(LS_CLIENT_ID, rawClientId);
-      localStorage.setItem(LS_CLIENT_NAME, paramName);
+    if (urlClientId && urlClientName) {
+      localStorage.setItem(LS_CLIENT_ID, urlClientId);
+      localStorage.setItem(LS_CLIENT_NAME, urlClientName);
+      setIdentity({ clientId: urlClientId, clientName: urlClientName, source: 'url' });
+      console.log('[ClientHome][identity] loaded from URL', { clientId: urlClientId, clientName: urlClientName });
     } else {
-      if (rawClientId) localStorage.setItem(LS_CLIENT_ID, rawClientId);
-      if (paramName) localStorage.setItem(LS_CLIENT_NAME, paramName);
+      const { storedId, storedName } = getStoredClientIdentity();
+      if (storedId) {
+        setIdentity({ clientId: storedId, clientName: storedName, source: 'storage' });
+        console.log('[ClientHome][identity] restored from localStorage', { clientId: storedId, clientName: storedName || fallbackName });
+      } else {
+        setIdentity({ clientId: '', clientName: '', source: 'empty' });
+        console.log('[ClientHome][identity] no URL params and no saved client identity');
+      }
     }
 
     const s = searchParams.get('start');
@@ -248,11 +286,9 @@ const ClientHome = () => {
     if (t) localStorage.setItem(LS_TREATMENT, t);
     const a = searchParams.get('artist_id');
     if (a) localStorage.setItem(LS_ARTIST_ID, a);
-  }, [rawClientId, paramName, searchParams]);
+  }, [urlClientId, urlClientName, searchParams]);
 
-  // Auto-restore from localStorage when URL params are missing (PWA home-screen launch)
-  const clientId = rawClientId || localStorage.getItem(LS_CLIENT_ID) || '';
-  const fallbackName = 'לקוחה';
+  const clientId = identity.clientId;
   const [dbClientName, setDbClientName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -286,7 +322,7 @@ const ClientHome = () => {
     };
   }, [clientId]);
 
-  const clientName = paramName || dbClientName || localStorage.getItem(LS_CLIENT_NAME) || fallbackName;
+  const clientName = urlClientName || identity.clientName || dbClientName || fallbackName;
   const startDateParam = searchParams.get('start') || localStorage.getItem(LS_START) || '';
   const treatmentParam = searchParams.get('treatment') || localStorage.getItem(LS_TREATMENT) || '';
   const treatment: TreatmentType = treatmentParam === 'lips' ? 'lips' : 'eyebrows';
@@ -490,6 +526,9 @@ const ClientHome = () => {
             <h1 className="tracking-wide mb-5" style={{ color: CHARCOAL_TEXT, fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: '28px', letterSpacing: '0.05em', lineHeight: 1.5 }}>
               {getTimeGreeting(clientName, treatment)}
             </h1>
+            <span className="sr-only" data-client-identity-source={identity.source}>
+              {`client-identity-source:${identity.source}|client-id:${clientId || 'none'}|client-name:${clientName || 'none'}`}
+            </span>
             <p className="leading-relaxed mb-6 font-light" style={{ color: CHARCOAL_LIGHT, fontSize: '15px' }}>
               {lang === 'en'
                 ? 'Here you can follow every step of the process, get daily instructions, and see how your perfect result takes shape. I\'m with you all the way! ✍️👄'
