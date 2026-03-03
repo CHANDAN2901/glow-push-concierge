@@ -83,6 +83,8 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
     }
   }, [resolvedClientId]);
 
+  useEffect(() => { fetchPhotos(); }, [fetchPhotos]);
+
   // Realtime subscription — strictly scoped to client_id
   useEffect(() => {
     if (!resolvedClientId) return;
