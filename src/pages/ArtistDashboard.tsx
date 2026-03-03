@@ -33,6 +33,7 @@ import HealingNotificationBadge from '@/components/HealingNotificationBadge';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import OnboardingChecklist from '@/components/OnboardingChecklist';
 import EmptyClientState from '@/components/EmptyClientState';
+import ClientImportDialog from '@/components/ClientImportDialog';
 import HelpTooltip from '@/components/HelpTooltip';
 import WelcomeTour from '@/components/WelcomeTour';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
@@ -221,6 +222,7 @@ const ArtistDashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [clientPreviewOpen, setClientPreviewOpen] = useState(false);
   const [dispatchOpen, setDispatchOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [dispatchPrefill, setDispatchPrefill] = useState<{ name?: string; phone?: string; treatment?: string } | null>(null);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
@@ -1986,7 +1988,7 @@ const ArtistDashboard = () => {
               /* ── Client List (only when no client selected) ── */
               <>
                 {/* Add Client Button */}
-                <div className="mb-6">
+                <div className="mb-6 space-y-3">
                   <button
                     onClick={() => { if (navigator.vibrate) navigator.vibrate(50); setDispatchPrefill(null); setDispatchOpen(true); }}
                     className="w-full rounded-full py-4 text-base font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
@@ -1994,6 +1996,14 @@ const ArtistDashboard = () => {
                   >
                     <Plus className="w-5 h-5" strokeWidth={3} />
                     {lang === 'en' ? 'Add New Client' : 'הוספי לקוחה חדשה'}
+                  </button>
+                  <button
+                    onClick={() => setImportOpen(true)}
+                    className="w-full rounded-full py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                    style={{ background: '#ffffff', border: '1.5px solid hsl(38 55% 62%)', color: 'hsl(38 40% 45%)', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.1)' }}
+                  >
+                    <Upload className="w-4 h-4" />
+                    {lang === 'en' ? 'Import Clients (CSV)' : 'ייבוא לקוחות (CSV)'}
                   </button>
                 </div>
 
@@ -3071,6 +3081,15 @@ const ArtistDashboard = () => {
             currentTier={userTier}
           />
         )}
+
+      {/* Client Import Dialog */}
+      <ClientImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        artistProfileId={userProfileId || ''}
+        lang={lang}
+        onImportComplete={() => fetchClients()}
+      />
 
       {/* New Client Dispatch Center */}
       <NewClientDispatch
