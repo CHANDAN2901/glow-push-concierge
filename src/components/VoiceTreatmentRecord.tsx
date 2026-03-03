@@ -126,37 +126,24 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     recognition.onresult = (event: any) => {
       if (sessionId !== sessionIdRef.current || recognitionRef.current !== recognition) return;
 
+      // Build the full transcript from ALL results (replacing, not appending)
+      let finalText = '';
       let interimText = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         const transcript = (result[0]?.transcript || '').trim();
         if (!transcript) continue;
-
         if (result.isFinal) {
-          const normalized = normalizeTranscriptSegment(transcript);
-
-          // Multi-layer duplicate detection
-          const isDuplicate =
-            !normalized ||
-            normalized === lastFinalNormalizedRef.current ||
-            recentFinalsRef.current.includes(normalized) ||
-            normalizeTranscriptSegment(accumulatedTextRef.current).endsWith(normalized) ||
-            normalizeTranscriptSegment(accumulatedTextRef.current).includes(normalized);
-
-          if (!isDuplicate) {
-            accumulatedTextRef.current = (accumulatedTextRef.current + ' ' + transcript).trim();
-            lastFinalNormalizedRef.current = normalized;
-            recentFinalsRef.current = [...recentFinalsRef.current.slice(-30), normalized];
-          }
+          finalText += transcript + ' ';
         } else {
-          interimText = transcript; // Use ONLY the latest interim, don't accumulate
+          interimText += transcript + ' ';
         }
       }
 
-      const display = interimText
-        ? (accumulatedTextRef.current + ' ' + interimText).trim()
-        : accumulatedTextRef.current;
-      setTranscription(deduplicateTranscript(display));
+      // Replace accumulated text entirely with the clean joined finals
+      accumulatedTextRef.current = finalText.trim();
+      const display = (finalText + interimText).trim();
+      setTranscription(display);
     };
 
     recognition.onerror = (event: any) => {
