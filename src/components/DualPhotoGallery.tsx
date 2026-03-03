@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
 import html2canvas from 'html2canvas';
-import { Camera, Pencil, Save, Loader2, RotateCcw, ZoomIn, ZoomOut, Move } from 'lucide-react';
+import { Camera, Pencil, Save, Loader2, RotateCcw, ZoomIn, ZoomOut, Move, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import ImageEditorDialog from './ImageEditorDialog';
 import { useClientGallery } from '@/hooks/useClientGallery';
@@ -195,6 +195,25 @@ export function DualPhotoGallery({ clientId, artistId }: DualPhotoGalleryProps) 
     }
   }, [clientId, uploadPhoto]);
 
+  const downloadCollage = useCallback(async () => {
+    if (!collageRef.current) return;
+    setSavingCollage(true);
+    try {
+      const canvas = await html2canvas(collageRef.current, { useCORS: true, scale: 2 });
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      const link = document.createElement('a');
+      link.download = `before-after-${Date.now()}.jpg`;
+      link.href = dataUrl;
+      link.click();
+      toast({ title: 'הקולאז׳ הורד בהצלחה 📥' });
+    } catch (err) {
+      console.error('Download collage error:', err);
+      toast({ title: 'שגיאה בהורדה', variant: 'destructive' });
+    } finally {
+      setSavingCollage(false);
+    }
+  }, []);
+
   const savePhotoToGallery = useCallback(async (which: 'before' | 'after') => {
     if (!clientId) return;
     const src = which === 'before' ? before : after;
@@ -338,13 +357,27 @@ export function DualPhotoGallery({ clientId, artistId }: DualPhotoGalleryProps) 
             <div className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 z-10" style={{ backgroundColor: GOLD }} />
           </div>
 
-          {/* Save collage to gallery */}
-          {clientId && (
-            <div className="flex justify-center">
+          {/* Action buttons */}
+          <div className="flex justify-center gap-3">
+            <button
+              onClick={downloadCollage}
+              disabled={savingCollage}
+              className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
+              style={{
+                background: '#fff',
+                color: GOLD_DARK,
+                boxShadow: `0 2px 10px -2px rgba(212, 175, 55, 0.4)`,
+                border: `2px solid ${GOLD}`,
+              }}
+            >
+              <Download className="w-4 h-4" />
+              הורדה 📥
+            </button>
+            {clientId && (
               <button
                 onClick={saveCollageToGallery}
                 disabled={savingCollage}
-                className="flex items-center gap-2.5 px-7 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
+                className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
                 style={{
                   background: GOLD_GRADIENT,
                   color: '#5C4033',
@@ -355,8 +388,8 @@ export function DualPhotoGallery({ clientId, artistId }: DualPhotoGalleryProps) 
                 {savingCollage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {savingCollage ? 'שומר...' : 'שמור לגלריה 📸'}
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
