@@ -21,6 +21,7 @@ import HelpCenter from '@/components/HelpCenter';
 import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
 import SmartCalendar from '@/components/SmartCalendar';
 import SimpleGallery from '@/components/SimpleGallery';
+import { DualPhotoGallery } from '@/components/DualPhotoGallery';
 import HealingGallery from '@/components/HealingGallery';
 import HealingPhotoGallery from '@/components/HealingPhotoGallery';
 import BonusCenter from '@/components/BonusCenter';
@@ -2027,7 +2028,24 @@ const ArtistDashboard = () => {
                   </div>
                 )}
 
-                {/* Top collage removed — only manual collage builder below */}
+                {/* Before & After Collage Builder — Artist only */}
+                <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
+                  <div className="px-5 py-4 border-b border-border">
+                    <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
+                      <Image className="w-4 h-4 text-accent" />
+                      {lang === 'en' ? 'Before & After Collage' : 'קולאז׳ לפני ואחרי'}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {lang === 'en' ? 'Upload before & after photos, edit, and save to gallery' : 'העלי תמונות לפני ואחרי, ערכי ושמרי לגלריה'}
+                    </p>
+                  </div>
+                  <div className="p-5">
+                    <DualPhotoGallery
+                      clientId={selectedClient.dbId}
+                      artistId={userProfileId || undefined}
+                    />
+                  </div>
+                </div>
 
                 {/* 5. Shared Healing Photo Gallery */}
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
