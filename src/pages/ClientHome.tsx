@@ -92,7 +92,7 @@ const LogoBrand = ({ logoUrl, lang, setLang }: { logoUrl: string; lang: 'en' | '
         src={heroLogo}
         alt="Glow Push"
         className="object-contain"
-        style={{ maxHeight: '67px', filter: 'drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
+        style={{ maxHeight: '82px', filter: 'drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
       />
       {/* Language toggle */}
       <button
