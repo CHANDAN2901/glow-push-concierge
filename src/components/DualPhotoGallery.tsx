@@ -119,11 +119,11 @@ function applySkinSmoothing(imageData: ImageData, amount: number) {
   const { width, height, data } = imageData;
   const src = new Uint8ClampedArray(data);
 
-  // Edge-aware "smart blur" (integral-image accelerated) — CRANKED UP
-  const boosted = amount * 4; // 4x internal multiplier so 100% is extremely strong
-  const radius = Math.max(3, Math.round(3 + boosted * 12));
-  const blendBase = Math.min(1, 0.3 + boosted * 0.7);
-  const edgeThreshold = Math.max(4, 30 - boosted * 6);
+  // Edge-aware "smart blur" (integral-image accelerated) — 500% max boost
+  const boosted = amount * 5;
+  const radius = Math.max(4, Math.round(4 + boosted * 14));
+  const blendBase = Math.min(1, 0.35 + boosted * 0.85);
+  const edgeThreshold = Math.max(3, 28 - boosted * 7);
 
   const intR = createIntegralChannel(src, width, height, 0);
   const intG = createIntegralChannel(src, width, height, 1);
@@ -166,19 +166,26 @@ function applyRednessReduction(imageData: ImageData, amount: number) {
 
     const { h, s, l } = rgbToHsl(r, g, b);
 
-    // Target red-ish skin tones — CRANKED UP 4x
-    const boosted = amount * 4;
-    const redWeight = Math.max(0, 1 - hueDistance(h, 10) / 70);
-    const satWeight = Math.max(0, Math.min(1, (s - 0.04) / 0.4));
-    const lightWeight = Math.max(0, 1 - Math.abs(l - 0.55) / 0.6);
-    const strength = boosted * redWeight * satWeight * lightWeight;
+    // 500% max intensity without grayscale collapse
+    const boosted = amount * 5;
+    const redWeight = Math.max(0, 1 - hueDistance(h, 12) / 60);
+    const satWeight = Math.max(0, Math.min(1, (s - 0.03) / 0.45));
+    const lightWeight = Math.max(0, 1 - Math.abs(l - 0.55) / 0.65);
+    const strength = Math.min(1, boosted * redWeight * satWeight * lightWeight);
     if (strength <= 0.01) continue;
 
-    const targetHue = 28; // warm peach, avoids cyan/green cast
-    const nextHue = (h + hueDelta(h, targetHue) * Math.min(1, strength * 0.6) + 360) % 360;
-    const nextSat = Math.max(0, s * (1 - Math.min(0.95, strength * 0.8)));
+    const redExcess = Math.max(0, r - ((g + b) / 2));
+    const neutralize = Math.min(120, redExcess * (0.35 + strength * 1.25));
 
-    const next = hslToRgb(nextHue, nextSat, l);
+    const nr = clampByte(r - neutralize);
+    const ng = clampByte(g + neutralize * 0.32);
+    const nb = clampByte(b + neutralize * 0.16);
+
+    const adjusted = rgbToHsl(nr, ng, nb);
+    const shiftedHue = (adjusted.h + hueDelta(adjusted.h, 24) * Math.min(1, strength * 0.55) + 360) % 360;
+    const preservedSat = Math.max(0.28, adjusted.s * (1 - Math.min(0.22, strength * 0.22)));
+    const next = hslToRgb(shiftedHue, preservedSat, adjusted.l);
+
     data[i] = next.r;
     data[i + 1] = next.g;
     data[i + 2] = next.b;
@@ -186,19 +193,21 @@ function applyRednessReduction(imageData: ImageData, amount: number) {
 }
 
 /** A single collage half — shows upload prompt when empty, gesture-enabled image when filled */
-function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
+function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect, retouch }: {
   src: string | null;
   label: string;
   onClear: () => void;
   onFileSelect: (file: File) => void;
   active: boolean;
   onSelect: () => void;
+  retouch: { smooth: number; redness: number };
 }) {
   const innerRef = useRef<HTMLDivElement>(null);
   const tRef = useRef<Transform>({ ...DEFAULT_TRANSFORM });
   const inputRef = useRef<HTMLInputElement>(null);
   const [imgAspect, setImgAspect] = useState<number | null>(null);
   const coverByHeight = (imgAspect ?? COLLAGE_HALF_ASPECT) > COLLAGE_HALF_ASPECT;
+  const previewFilter = `blur(${(retouch.smooth * 10).toFixed(2)}px) hue-rotate(${(retouch.redness * 42).toFixed(1)}deg) saturate(${(1 - retouch.redness * 0.18).toFixed(3)}) contrast(${(1 + retouch.redness * 0.05).toFixed(3)})`;
 
   const apply = () => {
     if (innerRef.current) {
@@ -290,6 +299,7 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
                 height: coverByHeight ? '100%' : 'auto',
                 maxWidth: 'none',
                 maxHeight: 'none',
+                filter: previewFilter,
               }}
               draggable={false}
             />
@@ -331,8 +341,6 @@ interface DualPhotoGalleryProps {
 export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalleryProps) {
   const [before, setBefore] = useState<string | null>(null);
   const [after, setAfter] = useState<string | null>(null);
-  const [skinSmooth, setSkinSmooth] = useState(0);
-  const [rednessReduce, setRednessReduce] = useState(0);
   const [activeHalf, setActiveHalf] = useState<'before' | 'after'>('before');
   const collageRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
@@ -365,6 +373,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     canvas.width = SIZE;
     canvas.height = SIZE;
     const ctx = canvas.getContext('2d')!;
+    ctx.filter = 'none';
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, SIZE, SIZE);
 
@@ -408,6 +417,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       let dw: number, dh: number;
       if (imgAspect > frameAspect) { dh = height; dw = height * imgAspect; }
       else { dw = width; dh = width / imgAspect; }
+      ctx.filter = 'none';
       ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
       ctx.restore();
     };
@@ -518,11 +528,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       >
         {/* BEFORE half (left) */}
         <div className="absolute inset-y-0 left-0 w-1/2">
-          <CollageHalf src={before} label="לפני" onClear={() => setBefore(null)} onFileSelect={setFile('before')} active={activeHalf === 'before'} onSelect={() => setActiveHalf('before')} />
+          <CollageHalf src={before} label="לפני" onClear={() => setBefore(null)} onFileSelect={setFile('before')} active={activeHalf === 'before'} onSelect={() => setActiveHalf('before')} retouch={retouchBefore} />
         </div>
         {/* AFTER half (right) */}
         <div className="absolute inset-y-0 right-0 w-1/2">
-          <CollageHalf src={after} label="אחרי ✨" onClear={() => setAfter(null)} onFileSelect={setFile('after')} active={activeHalf === 'after'} onSelect={() => setActiveHalf('after')} />
+          <CollageHalf src={after} label="אחרי ✨" onClear={() => setAfter(null)} onFileSelect={setFile('after')} active={activeHalf === 'after'} onSelect={() => setActiveHalf('after')} retouch={retouchAfter} />
         </div>
         {/* Gold divider */}
         <div className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 z-10 pointer-events-none" style={{ backgroundColor: GOLD }} />

@@ -16,6 +16,7 @@ export interface SharedGalleryPhoto {
 }
 
 const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+const GALLERY_UPDATED_EVENT = 'client-gallery-updated';
 
 export function useClientGallery(clientId: string | undefined, artistId?: string) {
   const [photos, setPhotos] = useState<SharedGalleryPhoto[]>([]);
@@ -95,6 +96,19 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
     return () => { supabase.removeChannel(channel); };
   }, [resolvedClientId, fetchPhotos]);
 
+  // Cross-component refresh: force all gallery instances to update instantly after saves
+  useEffect(() => {
+    const onGalleryUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<{ clientId?: string }>).detail;
+      if (!detail?.clientId || !resolvedClientId || detail.clientId === resolvedClientId) {
+        void fetchPhotos();
+      }
+    };
+
+    window.addEventListener(GALLERY_UPDATED_EVENT, onGalleryUpdated as EventListener);
+    return () => window.removeEventListener(GALLERY_UPDATED_EVENT, onGalleryUpdated as EventListener);
+  }, [resolvedClientId, fetchPhotos]);
+
   // Upload — clientId is optional, falls back to artistId
   const uploadPhoto = useCallback(async (
     base64Data: string,
@@ -117,7 +131,7 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
     if (error) throw error;
     if (data?.error) throw new Error(data.error);
 
-    const { error: insertError } = await supabase.from('client_gallery_photos').insert({
+    const { data: inserted, error: insertError } = await supabase.from('client_gallery_photos').insert({
       client_id: cId,
       artist_id: aId,
       storage_path: data.storagePath,
@@ -127,10 +141,19 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
       day_number: dayNumber ?? null,
       uploaded_by: uploadedBy,
       seen_by_client: uploadedBy === 'client',
-    } as any);
+    } as any).select('*').single();
     if (insertError) throw insertError;
 
-    await fetchPhotos();
+    if (inserted) {
+      const optimistic = inserted as unknown as SharedGalleryPhoto;
+      setPhotos(prev => [optimistic, ...prev.filter(p => p.id !== optimistic.id)]);
+      if (!optimistic.seen_by_client && optimistic.uploaded_by === 'artist') {
+        setNewCount(prev => prev + 1);
+      }
+    }
+
+    window.dispatchEvent(new CustomEvent(GALLERY_UPDATED_EVENT, { detail: { clientId: cId } }));
+    void fetchPhotos();
     return data.url;
   }, [resolvedClientId, resolvedArtistId, fetchPhotos]);
 
