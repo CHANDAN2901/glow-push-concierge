@@ -2027,22 +2027,22 @@ const ArtistDashboard = () => {
 
             <div className="p-1">
               {/* Filter tabs */}
-              <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <div className="flex items-center gap-2.5 mb-4 flex-wrap">
                 <button
                   onClick={() => setClientListFilter('all')}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${clientListFilter === 'all' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
+                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${clientListFilter === 'all' ? 'border-2 border-accent bg-accent/10 text-accent shadow-sm' : 'border border-border bg-background text-foreground/70 hover:border-accent/40'}`}
                 >
                   {lang === 'en' ? 'All Clients' : 'כל הלקוחות'}
                 </button>
                 <button
                   onClick={() => setClientListFilter('birthdays')}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${clientListFilter === 'birthdays' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
+                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-1.5 ${clientListFilter === 'birthdays' ? 'border-2 border-accent bg-accent/10 text-accent shadow-sm' : 'border border-border bg-background text-foreground/70 hover:border-accent/40'}`}
                 >
                   🎂 {lang === 'en' ? 'Birthdays' : 'ימי הולדת'}
                 </button>
                 <button
                   onClick={() => setClientListFilter('renewal')}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${clientListFilter === 'renewal' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
+                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-1.5 ${clientListFilter === 'renewal' ? 'border-2 border-accent bg-accent/10 text-accent shadow-sm' : 'border border-border bg-background text-foreground/70 hover:border-accent/40'}`}
                 >
                   🔄 {lang === 'en' ? 'Renewal Due' : 'לחידוש טיפול'}
                 </button>
