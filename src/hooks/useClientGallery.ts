@@ -59,18 +59,16 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
       .then(({ data }) => { if (data?.artist_id) setResolvedArtistId(data.artist_id); });
   }, [resolvedArtistId, resolvedClientId]);
 
-  // Fetch photos — works with or without a client
+  // Fetch photos — ALWAYS filter by client_id to prevent data leakage
   const fetchPhotos = useCallback(async () => {
-    const fetchId = resolvedClientId || resolvedArtistId;
-    if (!fetchId) { setPhotos([]); setLoading(false); setFetchError(null); return; }
+    if (!resolvedClientId) { setPhotos([]); setLoading(false); setFetchError(null); return; }
     setFetchError(null);
     try {
-      let query = supabase.from('client_gallery_photos').select('*').order('created_at', { ascending: false });
-      if (resolvedClientId) {
-        query = query.eq('client_id', resolvedClientId);
-      } else {
-        query = query.eq('artist_id', fetchId);
-      }
+      const query = supabase
+        .from('client_gallery_photos')
+        .select('*')
+        .eq('client_id', resolvedClientId)
+        .order('created_at', { ascending: false });
       const { data, error } = await query;
       if (error) throw error;
       const typed = (data || []) as unknown as SharedGalleryPhoto[];
@@ -83,21 +81,17 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
     } finally {
       setLoading(false);
     }
-  }, [resolvedClientId, resolvedArtistId]);
+  }, [resolvedClientId]);
 
-  useEffect(() => { fetchPhotos(); }, [fetchPhotos]);
-
-  // Realtime subscription
+  // Realtime subscription — strictly scoped to client_id
   useEffect(() => {
-    const subId = resolvedClientId || resolvedArtistId;
-    if (!subId) return;
-    const filterCol = resolvedClientId ? 'client_id' : 'artist_id';
+    if (!resolvedClientId) return;
     const channel = supabase
-      .channel(`gallery-${subId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_gallery_photos', filter: `${filterCol}=eq.${subId}` }, () => fetchPhotos())
+      .channel(`gallery-${resolvedClientId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_gallery_photos', filter: `client_id=eq.${resolvedClientId}` }, () => fetchPhotos())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [resolvedClientId, resolvedArtistId, fetchPhotos]);
+  }, [resolvedClientId, fetchPhotos]);
 
   // Upload — clientId is optional, falls back to artistId
   const uploadPhoto = useCallback(async (
