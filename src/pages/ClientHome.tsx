@@ -81,18 +81,29 @@ function getTimeGreeting(lang: 'en' | 'he', name: string, treatment: string): st
 const MILESTONE_DAYS = [7, 14, 21, 30];
 const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
-const LogoBrand = ({ logoUrl }: { logoUrl: string }) => {
+const LogoBrand = ({ logoUrl, lang, setLang }: { logoUrl: string; lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void }) => {
   const [imgError, setImgError] = useState(false);
   const src = logoUrl && !imgError ? logoUrl : oritLogo;
   return (
-    <div className="flex justify-center pt-5 pb-4">
+    <div className="flex items-center justify-between px-4 pt-4 pb-3">
+      {/* Spacer for balance */}
+      <div className="w-14" />
+      {/* Centered logo */}
       <img
         src={src}
         alt="Glow Push"
         className="object-contain"
-        style={{ maxHeight: '80px', filter: 'drop-shadow(0 2px 6px rgba(212,175,55,0.25))' }}
+        style={{ maxHeight: '70px', filter: 'drop-shadow(0 2px 6px rgba(212,175,55,0.25))' }}
         onError={() => setImgError(true)}
       />
+      {/* Language toggle */}
+      <button
+        onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
+        className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all hover:opacity-80 active:scale-95"
+        style={{ border: '1px solid hsl(38 30% 82%)', color: 'hsl(30 10% 45%)' }}
+      >
+        🌐 {lang === 'he' ? 'EN' : 'HE'}
+      </button>
     </div>
   );
 };
@@ -461,7 +472,7 @@ const ClientHome = () => {
       {/* Centered Logo Header */}
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl" style={{ background: 'hsl(350 50% 93% / 0.85)', borderBottom: `1px solid hsl(38 40% 82% / 0.5)` }}>
         <div className="max-w-md mx-auto">
-          <LogoBrand logoUrl={logoUrl} />
+          <LogoBrand logoUrl={logoUrl} lang={lang} setLang={setLang} />
         </div>
       </header>
 
@@ -742,16 +753,8 @@ const ClientHome = () => {
           </a>
         </div>
 
-        {/* Language toggle */}
-        <div className="flex justify-center pb-24 pt-4">
-          <button
-            onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-            className="text-xs px-3 py-1.5 rounded-full border transition-all hover:opacity-80"
-            style={{ borderColor: 'hsl(38 30% 80%)', color: 'hsl(30 10% 50%)' }}
-          >
-            {lang === 'he' ? 'EN 🌐' : 'HE 🌐'}
-          </button>
-        </div>
+        {/* Spacer before bottom nav */}
+        <div className="pb-24 pt-4" />
 
         {/* Bottom Nav */}
         <div className="fixed bottom-0 left-0 right-0 z-[60] backdrop-blur-lg" style={{ background: 'hsla(0, 0%, 100%, 0.97)', boxShadow: '0 -1px 0 hsl(38 30% 88%), 0 -4px 24px -6px hsla(38, 30%, 60%, 0.1)' }}>
