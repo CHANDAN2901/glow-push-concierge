@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { I18nProvider } from "@/components/I18nProvider";
 import Header from "@/components/Header";
 import Landing from "./pages/Landing";
@@ -46,6 +46,7 @@ const App = () => (
           <ErrorBoundary>
             <Routes>
               <Route path="/" element={<MarketingLanding />} />
+              <Route path="/c/:clientId" element={<ClientHome />} />
               <Route path="/client" element={<ClientHome />} />
               <Route path="/artist" element={<ArtistDashboard />} />
               <Route path="/pricing" element={<Pricing />} />

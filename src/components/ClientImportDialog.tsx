@@ -177,7 +177,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
 
   const buildClientUrl = (clientId: string, clientName: string) => {
     const baseUrl = window.location.origin;
-    return `${baseUrl}/client?client_id=${clientId}&name=${encodeURIComponent(clientName)}`;
+    return `${baseUrl}/c/${clientId}?name=${encodeURIComponent(clientName)}`;
   };
 
   const he = lang !== 'en';
