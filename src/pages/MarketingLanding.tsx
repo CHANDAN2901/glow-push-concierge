@@ -196,13 +196,17 @@ const MarketingLanding = () => {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => setActiveCategory(cat.key)}
-                className={[
-                  'min-h-10 px-5 rounded-full text-sm font-semibold border transition-all duration-300 active:scale-95',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                  isActive
-                    ? 'bg-gold-shimmer text-accent-foreground border-gold/70 shadow-gold'
-                    : 'bg-background/80 text-gold border-gold/45 hover:bg-gold-muted/45 hover:border-gold/65 hover:shadow-gold',
-                ].join(' ')}
+                className="min-h-10 px-5 rounded-full text-sm font-bold border transition-all duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                style={isActive ? {
+                  background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 45%, #B38728 100%)',
+                  color: '#5C4033',
+                  border: '1px solid rgba(191,149,63,0.5)',
+                  boxShadow: '0 4px 14px -2px rgba(191,149,63,0.45)',
+                } : {
+                  background: 'transparent',
+                  color: '#D4AF37',
+                  border: '1.5px solid rgba(212,175,55,0.4)',
+                }}
               >
                 {isHe ? cat.he : cat.en}
               </button>
@@ -210,7 +214,7 @@ const MarketingLanding = () => {
           })}
         </div>
 
-        <Accordion type="single" collapsible className="w-full space-y-4">
+        <Accordion type="single" collapsible defaultValue="" className="w-full space-y-4">
           {faqs
             .filter((faq) => categorizeFaq(isHe ? faq.question_he : faq.question_en) === activeCategory)
             .map((faq) => (
