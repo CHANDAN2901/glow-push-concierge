@@ -2539,7 +2539,7 @@ const ArtistDashboard = () => {
                     <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      if (file.size > 2 * 1024 * 1024) { toast({ title: lang === 'en' ? 'File too large' : 'הקובץ גדול מדי', variant: 'destructive' }); return; }
+                      if (file.size > 10 * 1024 * 1024) { toast({ title: lang === 'en' ? 'File too large (max 10MB)' : 'הקובץ גדול מדי (מקס 10MB)', variant: 'destructive' }); return; }
                       const reader = new FileReader();
                       reader.onload = () => { const d = reader.result as string; setLogoUrl(d); localStorage.setItem('gp-artist-logo', d); toast({ title: '✨' }); };
                       reader.readAsDataURL(file);
