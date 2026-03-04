@@ -485,14 +485,35 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     ctx.fillText('AFTER', SIZE - 24, SIZE - 28);
     ctx.shadowBlur = 0;
 
-    // Artist logo watermark (80% opacity)
+    // Artist logo watermark (80% opacity, white background removed)
     if (resolvedLogo) {
       try {
         const logoImg = await loadImg(resolvedLogo);
+        // Remove white background from logo
+        const logoCanvas = document.createElement('canvas');
+        const lW = logoImg.width;
+        const lH = logoImg.height;
+        logoCanvas.width = lW;
+        logoCanvas.height = lH;
+        const lCtx = logoCanvas.getContext('2d')!;
+        lCtx.drawImage(logoImg, 0, 0);
+        const logoData = lCtx.getImageData(0, 0, lW, lH);
+        const ld = logoData.data;
+        for (let i = 0; i < ld.length; i += 4) {
+          const r = ld[i], g = ld[i + 1], b = ld[i + 2];
+          // If pixel is near-white, make it transparent
+          if (r > 230 && g > 230 && b > 230) {
+            // Fade smoothly: the whiter the pixel, the more transparent
+            const whiteness = Math.min(r, g, b);
+            ld[i + 3] = Math.max(0, Math.round((255 - whiteness) * (255 / 25)));
+          }
+        }
+        lCtx.putImageData(logoData, 0, 0);
+
         const logoW = SIZE * 0.18;
-        const logoH = (logoImg.height / logoImg.width) * logoW;
+        const logoH = (lH / lW) * logoW;
         ctx.globalAlpha = 0.8;
-        ctx.drawImage(logoImg, SIZE - logoW - 20, 20, logoW, logoH);
+        ctx.drawImage(logoCanvas, SIZE - logoW - 20, 20, logoW, logoH);
         ctx.globalAlpha = 1;
       } catch { /* skip */ }
     }
