@@ -2546,6 +2546,9 @@ const ArtistDashboard = () => {
                     }} />
                   </label>
                 )}
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  💡 {lang === 'en' ? 'Tip: For perfect collage results, upload a logo with a transparent background (PNG file).' : 'המלצה: לקבלת תוצאה מושלמת בקולאז׳, מומלץ להעלות לוגו עם רקע שקוף (קובץ PNG).'}
+                </p>
               </div>
 
               <div className="h-px w-full bg-gradient-to-l from-transparent via-accent/20 to-transparent my-4" />
