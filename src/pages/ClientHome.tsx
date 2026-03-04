@@ -366,11 +366,13 @@ const ClientHome = () => {
     return firstName + (phoneSuffix.length === 4 ? phoneSuffix : idSuffix);
   }, [clientName, dbClientPhone, clientId]);
 
-  const referralCode = dbReferralCode || generatedReferralCode;
+  // Use generated code; re-save if phone-based code is better than stored one
+  const referralCode = generatedReferralCode;
 
-  // Save referral code to DB once
   useEffect(() => {
-    if (!isUUID(clientId) || !referralCode || dbReferralCode) return;
+    if (!isUUID(clientId) || !referralCode) return;
+    // Always save if no stored code, or if stored code differs (e.g. phone now available)
+    if (dbReferralCode === referralCode) return;
     supabase.rpc('save_client_referral_code', { p_client_id: clientId, p_code: referralCode }).then(({ error }) => {
       if (!error) setDbReferralCode(referralCode);
     });
