@@ -206,6 +206,7 @@ export type Database = {
           id: string
           phone: string | null
           push_opted_in: boolean
+          referral_code: string | null
           treatment_date: string | null
           treatment_type: string | null
         }
@@ -218,6 +219,7 @@ export type Database = {
           id?: string
           phone?: string | null
           push_opted_in?: boolean
+          referral_code?: string | null
           treatment_date?: string | null
           treatment_type?: string | null
         }
@@ -230,6 +232,7 @@ export type Database = {
           id?: string
           phone?: string | null
           push_opted_in?: boolean
+          referral_code?: string | null
           treatment_date?: string | null
           treatment_type?: string | null
         }
@@ -982,6 +985,10 @@ export type Database = {
       }
       mark_client_push_opted_in: {
         Args: { p_client_id: string }
+        Returns: undefined
+      }
+      save_client_referral_code: {
+        Args: { p_client_id: string; p_code: string }
         Returns: undefined
       }
     }
