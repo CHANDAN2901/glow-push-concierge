@@ -9,6 +9,23 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
+type FaqCategory = 'client_app' | 'general' | 'photos';
+
+const CATEGORIES: { key: FaqCategory; he: string; en: string }[] = [
+  { key: 'client_app', he: 'אפליקציית הלקוחות', en: 'Client App' },
+  { key: 'general', he: 'שימוש שוטף', en: 'General Usage' },
+  { key: 'photos', he: 'תמונות וקולאז\'', en: 'Photos & Collage' },
+];
+
+const categorizeFaq = (q: string): FaqCategory => {
+  const lower = q.toLowerCase();
+  if (lower.includes('לקוח') || lower.includes('client') || lower.includes('אפליקציה') || lower.includes('app') || lower.includes('קישור') || lower.includes('link') || lower.includes('התחבר') || lower.includes('connect') || lower.includes('הורד') || lower.includes('download') || lower.includes('פוש') || lower.includes('push') || lower.includes('התראות') || lower.includes('notification'))
+    return 'client_app';
+  if (lower.includes('תמונ') || lower.includes('photo') || lower.includes('קולאז') || lower.includes('collage') || lower.includes('גלריה') || lower.includes('gallery') || lower.includes('לוגו') || lower.includes('logo'))
+    return 'photos';
+  return 'general';
+};
+
 const FALLBACK_FAQ_HE = [
   {
     q: 'האם הלקוחה צריכה להוריד אפליקציה שתופסת מקום בטלפון?',
@@ -59,6 +76,7 @@ export default function FaqPage() {
   const isHe = lang === 'he';
   const [dbFaqs, setDbFaqs] = useState<FaqItem[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<FaqCategory>('client_app');
 
   useEffect(() => {
     const fetchFaqs = async () => {
@@ -83,11 +101,13 @@ export default function FaqPage() {
 
   const faqItems: FaqItem[] = dbFaqs.length > 0 ? dbFaqs : (isHe ? FALLBACK_FAQ_HE : FALLBACK_FAQ_HE);
 
-  const filtered = faqItems.filter(
-    (item) =>
-      item.q.toLowerCase().includes(search.toLowerCase()) ||
-      item.a.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = faqItems
+    .filter((item) => categorizeFaq(item.q) === activeCategory)
+    .filter(
+      (item) =>
+        !search || item.q.toLowerCase().includes(search.toLowerCase()) ||
+        item.a.toLowerCase().includes(search.toLowerCase())
+    );
 
   return (
     <div className="min-h-screen bg-background" dir={isHe ? 'rtl' : 'ltr'}>
@@ -118,6 +138,31 @@ export default function FaqPage() {
           <p className="text-sm text-muted-foreground">
             {isHe ? 'מצאי תשובות לשאלות הנפוצות ביותר' : 'Find answers to the most common questions'}
           </p>
+        </div>
+
+        {/* Category Tabs */}
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          {CATEGORIES.map((cat) => {
+            const isActive = activeCategory === cat.key;
+            return (
+              <button
+                key={cat.key}
+                onClick={() => setActiveCategory(cat.key)}
+                className="px-5 py-2.5 rounded-full text-xs font-semibold transition-all duration-300 active:scale-95"
+                style={isActive ? {
+                  background: 'linear-gradient(135deg, #B8860B, #D4AF37)',
+                  color: '#fff',
+                  boxShadow: '0 4px 16px -4px rgba(212,175,55,0.45)',
+                } : {
+                  background: 'transparent',
+                  color: '#D4AF37',
+                  border: '1.5px solid rgba(212,175,55,0.4)',
+                }}
+              >
+                {isHe ? cat.he : cat.en}
+              </button>
+            );
+          })}
         </div>
 
         {/* Search */}
