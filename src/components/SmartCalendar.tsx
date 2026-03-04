@@ -734,9 +734,9 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       </div>
 
       {/* Day Appointments */}
-      <div className="relative z-[999] pointer-events-auto">
+      <div className="relative z-10 pointer-events-auto">
         <div
-          className="space-y-3 relative z-[999] pointer-events-auto"
+          className="space-y-3 relative z-10 pointer-events-auto"
         >
         <h3 className="text-sm font-semibold text-muted-foreground">
           {isHe
