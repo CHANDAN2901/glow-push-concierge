@@ -165,8 +165,9 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
 
   const { uploadPhoto } = useClientGallery(clientId, artistId);
   const [customLogo, setCustomLogo] = useState<string | null>(null);
+  const [logoHidden, setLogoHidden] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
-  const resolvedLogo = logoUrl || customLogo || null;
+  const resolvedLogo = logoHidden ? null : (logoUrl || customLogo || null);
   const bothUploaded = before && after;
 
   // Draggable logo state — position as % of container, size as % of width
@@ -446,6 +447,14 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             >
               <Move className="w-3 h-3 text-white" />
             </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); setLogoHidden(true); }}
+              onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setLogoHidden(true); }}
+              className="absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center"
+              style={{ background: '#555', boxShadow: '0 1px 4px rgba(0,0,0,0.4)', zIndex: 30 }}
+            >
+              <X className="w-3.5 h-3.5 text-white" />
+            </button>
           </div>
         )}
 
