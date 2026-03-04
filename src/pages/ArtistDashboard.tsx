@@ -1451,7 +1451,7 @@ const ArtistDashboard = () => {
               if (todayClients.length === 0) return null;
               return (
                 <div className="animate-fade-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
-                  <h3 className="text-xl font-bold mb-4" style={{ color: 'hsl(14 29% 30%)', fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
                     {lang === 'en' ? 'Your Appointments Today' : 'התורים שלך היום'}
                   </h3>
                   <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
@@ -1491,7 +1491,7 @@ const ArtistDashboard = () => {
 
             {/* ── Active Healing Tracking ── */}
             <div className="animate-fade-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
-              <h3 className="text-xl font-bold mb-4" style={{ color: 'hsl(14 29% 30%)', fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
                 {lang === 'en' ? 'Active Healing Tracking' : 'מעקב החלמה פעיל'}
               </h3>
               {(() => {

@@ -108,6 +108,30 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
     }
   }, [activeIdx]);
 
+  // Sync selected index on scroll (swipe detection)
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    let timeout: ReturnType<typeof setTimeout>;
+    const onScroll = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const children = Array.from(el.children) as HTMLElement[];
+        const center = el.scrollLeft + el.offsetWidth / 2;
+        let closest = 0;
+        let minDist = Infinity;
+        children.forEach((child, i) => {
+          const childCenter = child.offsetLeft + child.offsetWidth / 2;
+          const dist = Math.abs(center - childCenter);
+          if (dist < minDist) { minDist = dist; closest = i; }
+        });
+        setSelectedIdx(closest);
+      }, 80);
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => { clearTimeout(timeout); el.removeEventListener('scroll', onScroll); };
+  }, []);
+
   const scroll = (dir: 'left' | 'right') => {
     const el = scrollRef.current;
     if (!el) return;
