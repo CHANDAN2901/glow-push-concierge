@@ -179,6 +179,25 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [newTime, setNewTime] = useState('10:00');
   const [newAutoHealth, setNewAutoHealth] = useState(false);
+  const [newVisitType, setNewVisitType] = useState<'new' | 'touchup' | 'consultation'>('new');
+  const [selectedExistingClient, setSelectedExistingClient] = useState<{ id: string; name: string; phone: string | null } | null>(null);
+  const [clientSearch, setClientSearch] = useState('');
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [clientsList, setClientsList] = useState<{ id: string; name: string; phone: string | null }[]>([]);
+
+  // Load clients list for autocomplete
+  useEffect(() => {
+    if (!artistProfileId) return;
+    supabase.from('clients').select('id, full_name, phone').eq('artist_id', artistProfileId).order('full_name').then(({ data }) => {
+      if (data) setClientsList(data.map(c => ({ id: c.id, name: c.full_name, phone: c.phone })));
+    });
+  }, [artistProfileId]);
+
+  const filteredClients = useMemo(() => {
+    if (!clientSearch.trim()) return clientsList;
+    const q = clientSearch.trim().toLowerCase();
+    return clientsList.filter(c => c.name.toLowerCase().includes(q));
+  }, [clientSearch, clientsList]);
 
   // Swipe handling
   const touchStartX = useRef(0);
@@ -450,30 +469,34 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       };
       setAppointments(prev => [...prev, apt]);
 
-      // 3. Auto-create client if not exists, and link appointment to client
-      const isNewClient = !existingClientNames.some(n => n === newName.trim());
+      // 3. Link to existing client or auto-create new one
       let clientId: string | null = null;
-      if (isNewClient) {
-        const { data: newClient, error: clientError } = await supabase.from('clients').insert({
-          artist_id: artistProfileId,
-          full_name: newName.trim(),
-          phone: newPhone.trim() || null,
-          treatment_type: newType === 'eyebrows' ? 'גבות' : newType === 'lips' ? 'שפתיים' : 'אייליינר',
-          treatment_date: newDate,
-        }).select('id').single();
-        if (!clientError && newClient) {
-          clientId = newClient.id;
-          onClientAdded?.();
-        }
+      if (selectedExistingClient) {
+        clientId = selectedExistingClient.id;
       } else {
-        // Find existing client ID
-        const { data: existing } = await supabase.from('clients')
-          .select('id')
-          .eq('artist_id', artistProfileId)
-          .eq('full_name', newName.trim())
-          .limit(1)
-          .maybeSingle();
-        if (existing) clientId = existing.id;
+        const isNewClient = !existingClientNames.some(n => n === newName.trim());
+        if (isNewClient) {
+          const { data: newClient, error: clientError } = await supabase.from('clients').insert({
+            artist_id: artistProfileId,
+            full_name: newName.trim(),
+            phone: newPhone.trim() || null,
+            treatment_type: newType === 'eyebrows' ? 'גבות' : newType === 'lips' ? 'שפתיים' : 'אייליינר',
+            treatment_date: newDate,
+          }).select('id').single();
+          if (!clientError && newClient) {
+            clientId = newClient.id;
+            onClientAdded?.();
+            setClientsList(prev => [...prev, { id: newClient.id, name: newName.trim(), phone: newPhone.trim() || null }]);
+          }
+        } else {
+          const { data: existing } = await supabase.from('clients')
+            .select('id')
+            .eq('artist_id', artistProfileId)
+            .eq('full_name', newName.trim())
+            .limit(1)
+            .maybeSingle();
+          if (existing) clientId = existing.id;
+        }
       }
       // Link appointment to client
       if (clientId && insertedApt?.id) {
@@ -490,7 +513,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
         openWhatsAppHealthForm(newName, newPhone, newDate, newTime);
       }
 
-      setNewName(''); setNewPhone(''); setNewType('eyebrows'); setNewTime('10:00'); setNewAutoHealth(false);
+      setNewName(''); setNewPhone(''); setNewType('eyebrows'); setNewTime('10:00'); setNewAutoHealth(false); setNewVisitType('new'); setSelectedExistingClient(null); setClientSearch('');
       toast({
         title: isHe ? 'התור נשמר בהצלחה! ✨' : 'Appointment saved successfully! ✨',
       });
@@ -915,16 +938,78 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
               <h2 className="font-serif font-bold text-lg">{isHe ? 'תור חדש' : 'New Appointment'}</h2>
             </div>
             <div className="p-6 space-y-4">
-              <div className="space-y-2">
+              {/* Client search / autocomplete */}
+              <div className="space-y-2 relative">
                 <Label className="text-xs font-medium">{isHe ? 'שם הלקוחה' : 'Client Name'}</Label>
-                <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder={isHe ? 'הכניסי שם...' : 'Enter name...'} />
+                <Input
+                  value={selectedExistingClient ? selectedExistingClient.name : clientSearch}
+                  onChange={e => {
+                    if (selectedExistingClient) {
+                      setSelectedExistingClient(null);
+                      setNewPhone('');
+                    }
+                    setClientSearch(e.target.value);
+                    setNewName(e.target.value);
+                    setShowClientDropdown(true);
+                  }}
+                  onFocus={() => setShowClientDropdown(true)}
+                  placeholder={isHe ? 'חפשי או הכניסי שם חדש...' : 'Search or enter new name...'}
+                  className={selectedExistingClient ? 'border-accent/50 bg-accent/5' : ''}
+                />
+                {selectedExistingClient && (
+                  <button
+                    onClick={() => { setSelectedExistingClient(null); setClientSearch(''); setNewName(''); setNewPhone(''); }}
+                    className="absolute top-7 right-2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded"
+                  >
+                    ✕
+                  </button>
+                )}
+                {showClientDropdown && !selectedExistingClient && filteredClients.length > 0 && clientSearch.trim().length > 0 && (
+                  <div className="absolute z-20 top-full mt-1 left-0 right-0 max-h-40 overflow-y-auto rounded-xl bg-card border border-border shadow-lg">
+                    {filteredClients.map(c => (
+                      <button
+                        key={c.id}
+                        onClick={() => {
+                          setSelectedExistingClient(c);
+                          setNewName(c.name);
+                          setNewPhone(c.phone || '');
+                          setClientSearch(c.name);
+                          setShowClientDropdown(false);
+                        }}
+                        className="w-full text-right px-4 py-2.5 text-sm hover:bg-muted/60 transition-colors flex items-center justify-between border-b border-border/50 last:border-0"
+                      >
+                        <span className="font-medium">{c.name}</span>
+                        {c.phone && <span className="text-[10px] text-muted-foreground" dir="ltr">{c.phone}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              {/* Phone — hidden when existing client is selected */}
+              {!selectedExistingClient && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium">{isHe ? 'טלפון' : 'Phone'}</Label>
+                  <Input value={newPhone} onChange={e => setNewPhone(e.target.value)} placeholder="050-0000000" dir="ltr" />
+                </div>
+              )}
+
+              {/* Visit type — new / touch-up / consultation */}
               <div className="space-y-2">
-                <Label className="text-xs font-medium">{isHe ? 'טלפון' : 'Phone'}</Label>
-                <Input value={newPhone} onChange={e => setNewPhone(e.target.value)} placeholder="050-0000000" dir="ltr" />
+                <Label className="text-xs font-medium">{isHe ? 'סוג ביקור' : 'Visit Type'}</Label>
+                <Select value={newVisitType} onValueChange={(v) => setNewVisitType(v as any)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">{isHe ? '✨ טיפול חדש' : '✨ New Treatment'}</SelectItem>
+                    <SelectItem value="touchup">{isHe ? '🔄 טאצ׳ אפ / חיזוק' : '🔄 Touch-up'}</SelectItem>
+                    <SelectItem value="consultation">{isHe ? '💬 ייעוץ' : '💬 Consultation'}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
+              {/* Treatment area */}
               <div className="space-y-2">
-                <Label className="text-xs font-medium">{isHe ? 'סוג טיפול' : 'Treatment Type'}</Label>
+                <Label className="text-xs font-medium">{isHe ? 'אזור טיפול' : 'Treatment Area'}</Label>
                 <Select value={newType} onValueChange={(v) => setNewType(v as any)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
