@@ -11,6 +11,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, GripVertical, ArrowRight } from 'lucide-react';
 
+type FaqCategory = 'אפליקציית הלקוחות' | 'שימוש שוטף' | 'תמונות וקולאז\'';
+
+const FAQ_CATEGORIES: { value: FaqCategory; label: string }[] = [
+  { value: 'אפליקציית הלקוחות', label: 'אפליקציית הלקוחות' },
+  { value: 'שימוש שוטף', label: 'שימוש שוטף' },
+  { value: 'תמונות וקולאז\'', label: 'תמונות וקולאז\'' },
+];
+
 interface FaqItem {
   id: string;
   question_he: string;
@@ -19,6 +27,7 @@ interface FaqItem {
   answer_en: string;
   sort_order: number;
   is_active: boolean;
+  category: FaqCategory;
 }
 
 const emptyFaq: Omit<FaqItem, 'id'> = {
@@ -28,6 +37,7 @@ const emptyFaq: Omit<FaqItem, 'id'> = {
   answer_en: '',
   sort_order: 0,
   is_active: true,
+  category: 'אפליקציית הלקוחות',
 };
 
 export default function FaqManager() {
@@ -56,7 +66,7 @@ export default function FaqManager() {
       .from('faqs')
       .select('*')
       .order('sort_order', { ascending: true });
-    if (!error && data) setFaqs(data);
+    if (!error && data) setFaqs(data as unknown as FaqItem[]);
     setLoading(false);
   };
 
@@ -75,6 +85,7 @@ export default function FaqManager() {
       answer_en: faq.answer_en,
       sort_order: faq.sort_order,
       is_active: faq.is_active,
+      category: faq.category,
     });
     setDialogOpen(true);
   };
@@ -95,6 +106,7 @@ export default function FaqManager() {
           answer_en: form.answer_en,
           sort_order: form.sort_order,
           is_active: form.is_active,
+          category: form.category,
         })
         .eq('id', editingFaq.id);
       if (error) {
@@ -110,6 +122,7 @@ export default function FaqManager() {
         answer_en: form.answer_en,
         sort_order: form.sort_order,
         is_active: form.is_active,
+        category: form.category,
       });
       if (error) {
         toast.error('שגיאה בהוספה');
@@ -219,6 +232,9 @@ export default function FaqManager() {
               >
                 <GripVertical className="w-4 h-4 mt-1 text-muted-foreground/40 shrink-0" />
                 <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">{faq.category}</span>
+                  </div>
                   <p className="font-medium text-sm leading-relaxed">{faq.question_he}</p>
                   <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{faq.answer_he}</p>
                   {faq.question_en && (
@@ -255,6 +271,18 @@ export default function FaqManager() {
               <DialogTitle>{editingFaq ? 'עריכת שאלה' : 'שאלה חדשה'}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-2">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">קטגוריה *</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value as FaqCategory })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {FAQ_CATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">שאלה (עברית) *</label>
                 <Input

@@ -247,6 +247,7 @@ export type Database = {
         Row: {
           answer_en: string
           answer_he: string
+          category: string
           created_at: string
           id: string
           is_active: boolean
@@ -258,6 +259,7 @@ export type Database = {
         Insert: {
           answer_en?: string
           answer_he: string
+          category?: string
           created_at?: string
           id?: string
           is_active?: boolean
@@ -269,6 +271,7 @@ export type Database = {
         Update: {
           answer_en?: string
           answer_he?: string
+          category?: string
           created_at?: string
           id?: string
           is_active?: boolean

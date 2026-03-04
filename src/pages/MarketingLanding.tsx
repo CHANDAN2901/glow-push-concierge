@@ -14,13 +14,10 @@ interface FaqItem {
   answer_he: string;
   question_en: string;
   answer_en: string;
+  category: string;
 }
 
 type FaqCategory = 'אפליקציית הלקוחות' | 'שימוש שוטף' | 'תמונות וקולאז\'';
-
-interface CategorizedFaq extends FaqItem {
-  category: FaqCategory;
-}
 
 const CATEGORIES: { value: FaqCategory; he: string; en: string }[] = [
   { value: 'אפליקציית הלקוחות', he: 'אפליקציית הלקוחות', en: 'Client App' },
@@ -28,39 +25,23 @@ const CATEGORIES: { value: FaqCategory; he: string; en: string }[] = [
   { value: 'תמונות וקולאז\'', he: 'תמונות וקולאז\'', en: 'Photos & Collage' },
 ];
 
-const categorizeFaq = (faq: FaqItem): FaqCategory => {
-  const lower = `${faq.question_he} ${faq.question_en} ${faq.answer_he} ${faq.answer_en}`.toLowerCase();
-
-  if (/תמונ|photo|קולאז|collage|גלריה|gallery|לוגו|logo|לפני ואחרי|before and after/.test(lower)) {
-    return 'תמונות וקולאז\'';
-  }
-
-  if (/טיפ|tips|שפה|language|מיתוג|branding|שימור|retention|הפניה|referral|התאמה|custom|הצהרת בריאות|health declaration/.test(lower)) {
-    return 'שימוש שוטף';
-  }
-
-  return 'אפליקציית הלקוחות';
-};
-
 const MarketingLanding = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { lang, setLang } = useI18n();
   const isHe = lang === 'he';
-  const [faqs, setFaqs] = useState<CategorizedFaq[]>([]);
+  const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [activeTab, setActiveTab] = useState<FaqCategory | null>(null);
   const filteredFaqs = activeTab ? faqs.filter((faq) => faq.category === activeTab) : [];
 
   useEffect(() => {
     supabase
       .from('faqs')
-      .select('id, question_he, answer_he, question_en, answer_en')
+      .select('id, question_he, answer_he, question_en, answer_en, category')
       .eq('is_active', true)
       .order('sort_order', { ascending: true })
       .then(({ data }) => {
-        if (data) {
-          setFaqs(data.map((faq) => ({ ...faq, category: categorizeFaq(faq) })));
-        }
+        if (data) setFaqs(data as FaqItem[]);
       });
   }, []);
 
