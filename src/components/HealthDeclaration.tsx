@@ -380,8 +380,10 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 
   // ═══════════════ MAIN FORM ═══════════════
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" style={{ background: T.bg }}>
-      <div className="min-h-screen flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-28 sm:pb-20">
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: T.bg }}>
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto">
+      <div className="flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-8">
         <div className="w-full max-w-lg">
 
           {/* ═══ Luxury Dark Equipment Header ═══ */}
@@ -876,21 +878,31 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           </AnimatePresence>
         </div>
       </div>
+      </div>
 
-      {/* Sticky bottom navigation */}
+      {/* Sticky bottom navigation — always visible, never scrolled away */}
       {!readOnly && (
         <div
-          className="fixed bottom-0 inset-x-0 z-50 px-4 pb-5 pt-3 sm:pb-6"
+          className="flex-shrink-0 px-4 pb-5 pt-3 sm:pb-6"
           style={{ backgroundColor: 'rgba(228,218,217,0.95)', backdropFilter: 'blur(16px)', borderTop: `1px solid ${T.cardBorder}` }}
         >
           <div className="max-w-lg mx-auto flex gap-4 items-center">
-            {step > 1 && (
+            {step > 1 ? (
               <button
                 onClick={() => setStep(s => s - 1)}
                 className="py-3 px-5 rounded-full text-xs font-semibold transition-all flex items-center justify-center gap-1.5 min-h-[44px] active:scale-[0.97] shrink-0"
                 style={{ border: `1.5px solid ${T.gold}`, color: T.gold, backgroundColor: 'transparent' }}
               >
                 <ChevronRight className="w-3.5 h-3.5 rotate-180" />
+                {isHe ? 'חזרה' : 'Back'}
+              </button>
+            ) : (
+              <button
+                onClick={onClose}
+                className="py-3 px-5 rounded-full text-xs font-semibold transition-all flex items-center justify-center gap-1.5 min-h-[44px] active:scale-[0.97] shrink-0"
+                style={{ border: `1.5px solid ${T.gold}`, color: T.gold, backgroundColor: 'transparent' }}
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
                 {isHe ? 'חזרה' : 'Back'}
               </button>
             )}
@@ -921,7 +933,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 
       {readOnly && (
         <div
-          className="fixed bottom-0 inset-x-0 z-50 px-4 pb-5 pt-3"
+          className="flex-shrink-0 px-4 pb-5 pt-3"
           style={{ backgroundColor: 'rgba(228,218,217,0.95)', backdropFilter: 'blur(16px)', borderTop: `1px solid ${T.cardBorder}` }}
         >
           <div className="max-w-lg mx-auto">
