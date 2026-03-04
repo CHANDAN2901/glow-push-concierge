@@ -41,6 +41,7 @@ import RenewalMessageDialog, { isRenewalDue } from '@/components/RenewalMessageD
 import HelpTooltip from '@/components/HelpTooltip';
 import WelcomeTour from '@/components/WelcomeTour';
 import DailyGrowthEngine from '@/components/DailyGrowthEngine';
+import ReferralVoucherEditor from '@/components/ReferralVoucherEditor';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
 import {
   Dialog,
@@ -602,6 +603,7 @@ const ArtistDashboard = () => {
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showHealthEditor, setShowHealthEditor] = useState(false);
+  const [showVoucherEditor, setShowVoucherEditor] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showWelcomeTour, setShowWelcomeTour] = useState(false);
   const [showInvoiceComingSoon, setShowInvoiceComingSoon] = useState(false);
@@ -1347,6 +1349,31 @@ const ArtistDashboard = () => {
                   text={lang === 'en'
                     ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.'
                     : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'}
+                />
+              </span>
+            </div>
+
+            {/* REFERRAL VOUCHER EDITOR BUTTON */}
+            <div className="relative">
+              <button
+                onClick={() => setShowVoucherEditor(true)}
+                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
+                style={{
+                  background: 'hsl(0 0% 100%)',
+                  borderColor: 'hsl(38 55% 58%)',
+                  color: 'hsl(36 50% 42%)',
+                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
+                }}
+              >
+                <Gift className="w-5 h-5" />
+                {lang === 'en' ? '🎁 Edit Referral Voucher' : '🎁 עריכת שובר חברות'}
+              </button>
+              <span className="absolute top-1/2 -translate-y-1/2 left-3">
+                <HelpTooltip
+                  id="referral-voucher"
+                  text={lang === 'en'
+                    ? 'Customize the referral voucher text and WhatsApp message your clients see and share.'
+                    : 'התאימי את טקסט שובר ההפניה והודעת הוואטסאפ שהלקוחות שלך רואות ומשתפות.'}
                 />
               </span>
             </div>
@@ -3125,6 +3152,14 @@ const ArtistDashboard = () => {
         </DialogContent>
       </Dialog>
       {/* HealthDeclarationPreview removed — preview now opens the live form URL */}
+
+      {/* Referral Voucher Editor */}
+      <ReferralVoucherEditor
+        open={showVoucherEditor}
+        onOpenChange={setShowVoucherEditor}
+        artistProfileId={userProfileId || ''}
+        lang={lang}
+      />
 
       {/* Health Declaration Editor - Full Screen */}
       {showHealthEditor && (
