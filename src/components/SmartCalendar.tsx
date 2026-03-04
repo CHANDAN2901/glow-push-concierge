@@ -642,10 +642,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
 
       {/* Day Appointments */}
       <div
-        className="space-y-3"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        className="space-y-3 relative z-10"
       >
         <h3 className="text-sm font-semibold text-muted-foreground">
           {isHe
@@ -676,6 +673,8 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
             return (
               <div
                 key={apt.id}
+                onClick={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
                 className={`bg-card rounded-2xl p-4 transition-all duration-500 ease-in-out ${
                   hasRedFlag && !isCompleted
                     ? 'border-2 border-destructive/50 bg-destructive/5'
