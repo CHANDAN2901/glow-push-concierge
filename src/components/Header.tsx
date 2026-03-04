@@ -43,11 +43,11 @@ const Header = () => {
       }}
       dir="rtl"
     >
-      <div className="flex items-center w-full h-14 px-4 relative">
-        {/* Right side (RTL): Back button */}
+      <div className="relative w-full h-14 px-4 flex items-center justify-center">
+        {/* Back button — always pinned left (screen-left, regardless of dir) */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm z-20"
+          className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm z-20"
           style={{
             background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
             color: '#fff',
@@ -62,17 +62,17 @@ const Header = () => {
         {/* Center: Screen title */}
         {title && (
           <h1
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-base font-bold whitespace-nowrap"
+            className="text-base font-bold whitespace-nowrap"
             style={{ color: 'hsl(30 15% 22%)' }}
           >
             {title}
           </h1>
         )}
 
-        {/* Left side (RTL): language toggle — ml-auto keeps it pinned to the far end */}
+        {/* Language toggle — always pinned right (screen-right, regardless of dir) */}
         <button
           onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-          className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95 z-20"
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95 z-20"
           style={{
             background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
             color: '#5C4033',
