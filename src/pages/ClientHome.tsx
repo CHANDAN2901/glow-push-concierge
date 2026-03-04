@@ -393,6 +393,30 @@ const ClientHome = () => {
   const validClientId = isUUID(clientId) ? clientId : undefined;
   const gallery = useClientGallery(validClientId, artistProfileId || undefined);
 
+  // Fetch artist's custom voucher settings
+  const [voucherTextHe, setVoucherTextHe] = useState('שלחי לחברה את הקוד שלך! היא תקבל 100 ש"ח הנחה לטיפול ראשון, ואת תקבלי 50 ש"ח קרדיט לטיפול החיזוק הבא שלך.');
+  const [voucherTextEn, setVoucherTextEn] = useState('Send your code to a friend! She gets ₪100 off her first treatment, and you get ₪50 credit for your next touch-up.');
+  const [voucherWaHe, setVoucherWaHe] = useState('היי! 🎁 הנה קוד ההנחה שלי: [CODE] — תקבלי 100 ש"ח הנחה על הטיפול הראשון! ✨');
+  const [voucherWaEn, setVoucherWaEn] = useState('Hey! 🎁 Use my code [CODE] and get ₪100 off your first PMU treatment! ✨');
+
+  useEffect(() => {
+    if (!artistProfileId) return;
+    (async () => {
+      const { data } = await supabase
+        .from('artist_message_settings')
+        .select('settings')
+        .eq('artist_profile_id', artistProfileId)
+        .maybeSingle();
+      if (data?.settings && typeof data.settings === 'object') {
+        const s = data.settings as Record<string, unknown>;
+        if (s.voucher_text_he) setVoucherTextHe(s.voucher_text_he as string);
+        if (s.voucher_text_en) setVoucherTextEn(s.voucher_text_en as string);
+        if (s.voucher_wa_he) setVoucherWaHe(s.voucher_wa_he as string);
+        if (s.voucher_wa_en) setVoucherWaEn(s.voucher_wa_en as string);
+      }
+    })();
+  }, [artistProfileId]);
+
   // Bottom-nav photo upload
   const bottomFileRef = useRef<HTMLInputElement>(null);
   const [bottomUploading, setBottomUploading] = useState(false);
@@ -707,9 +731,7 @@ const ClientHome = () => {
               </h2>
             </div>
             <p className="text-sm leading-relaxed mb-6 font-light max-w-xs mx-auto" style={{ color: 'hsl(0 0% 30%)' }}>
-              {lang === 'en'
-                ? 'Send your code to a friend! She gets ₪100 off her first treatment, and you get ₪50 credit for your next touch-up.'
-                : 'שלחי לחברה את הקוד שלך! היא תקבל 100 ש"ח הנחה לטיפול ראשון, ואת תקבלי 50 ש"ח קרדיט לטיפול החיזוק הבא שלך.'}
+              {lang === 'en' ? voucherTextEn : voucherTextHe}
             </p>
             <div className="flex items-center justify-center mb-6">
               <div className="px-10 py-3.5 rounded-full" style={{ ...goldBtnStyle }}>
@@ -718,9 +740,7 @@ const ClientHome = () => {
             </div>
             <a
               href={`https://wa.me/?text=${encodeURIComponent(
-                lang === 'en'
-                  ? `Hey! 🎁 Use my code ${referralCode} and get ₪100 off your first PMU treatment! ✨`
-                  : `היי! 🎁 הנה קוד ההנחה שלי: ${referralCode} — תקבלי 100 ש"ח הנחה על הטיפול הראשון! ✨`
+                (lang === 'en' ? voucherWaEn : voucherWaHe).replace(/\[CODE\]/g, referralCode)
               )}`}
               target="_blank"
               rel="noopener noreferrer"
