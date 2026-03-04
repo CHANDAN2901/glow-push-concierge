@@ -13,6 +13,23 @@ import {
 
 const goldColor = 'hsl(38, 65%, 55%)';
 
+type FaqCategory = 'client_app' | 'general' | 'photos';
+
+const HELP_CATEGORIES: { key: FaqCategory; label: string }[] = [
+  { key: 'client_app', label: 'אפליקציית הלקוחות' },
+  { key: 'general', label: 'שימוש שוטף' },
+  { key: 'photos', label: 'תמונות וקולאז\'' },
+];
+
+const categorizeHelpFaq = (q: string): FaqCategory => {
+  const lower = q.toLowerCase();
+  if (lower.includes('לקוח') || lower.includes('קישור') || lower.includes('התחבר') || lower.includes('הורד') || lower.includes('פוש') || lower.includes('התראות') || lower.includes('תזכורת'))
+    return 'client_app';
+  if (lower.includes('תמונ') || lower.includes('קולאז') || lower.includes('גלריה') || lower.includes('לוגו'))
+    return 'photos';
+  return 'general';
+};
+
 const FAQ_ITEMS = [
   {
     q: 'איך מעלים לוגו?',
@@ -65,6 +82,7 @@ export default function HelpCenter({ onClose }: Props) {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [helpCategory, setHelpCategory] = useState<FaqCategory>('client_app');
 
   const SUPPORT_PHONE = '972501234567'; // placeholder — artist will provide real number
 
@@ -127,8 +145,33 @@ export default function HelpCenter({ onClose }: Props) {
           </h2>
         </div>
 
+        {/* Category Tabs */}
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          {HELP_CATEGORIES.map((cat) => {
+            const isActive = helpCategory === cat.key;
+            return (
+              <button
+                key={cat.key}
+                onClick={() => setHelpCategory(cat.key)}
+                className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 active:scale-95"
+                style={isActive ? {
+                  background: `linear-gradient(135deg, ${goldColor}, hsl(38, 50%, 70%))`,
+                  color: '#fff',
+                  boxShadow: '0 3px 12px -3px rgba(212,175,55,0.4)',
+                } : {
+                  background: 'transparent',
+                  color: goldColor,
+                  border: `1.5px solid ${goldColor}40`,
+                }}
+              >
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
+
         <Accordion type="single" collapsible className="space-y-2">
-          {FAQ_ITEMS.map((item, i) => (
+          {FAQ_ITEMS.filter((item) => categorizeHelpFaq(item.q) === helpCategory).map((item, i) => (
             <AccordionItem key={i} value={`faq-${i}`} className="border border-border rounded-xl px-4 overflow-hidden">
               <AccordionTrigger className="text-sm font-medium text-start py-4 hover:no-underline">
                 {item.q}
