@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
-import { Camera, Download, Loader2, X, Save, Sparkles, Droplets } from 'lucide-react';
+import { Camera, Download, Loader2, X, Save, Sparkles, Sun, RotateCcw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL } from '@/lib/branding';
@@ -207,7 +207,15 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect, reto
   const inputRef = useRef<HTMLInputElement>(null);
   const [imgAspect, setImgAspect] = useState<number | null>(null);
   const coverByHeight = (imgAspect ?? COLLAGE_HALF_ASPECT) > COLLAGE_HALF_ASPECT;
-  const previewFilter = `blur(${(retouch.smooth * 10).toFixed(2)}px) hue-rotate(${(retouch.redness * 42).toFixed(1)}deg) saturate(${(1 - retouch.redness * 0.18).toFixed(3)}) contrast(${(1 + retouch.redness * 0.05).toFixed(3)})`;
+  // Beauty filter: subtle smoothing via minimal blur + contrast/saturation boost
+  const beautyBlur = (retouch.smooth * 0.5).toFixed(2); // max 0.5px
+  const beautyContrast = (1 + retouch.smooth * 0.05).toFixed(3); // max 1.05
+  const beautySaturate = (1 + retouch.smooth * 0.1).toFixed(3); // max 1.1
+  const beautyBrightSmooth = (1 + retouch.smooth * 0.02).toFixed(3); // max 1.02
+  // Glow/brighten filter: brightness + contrast pop
+  const glowBright = (1 + retouch.redness * 0.1).toFixed(3); // max 1.1
+  const glowContrast = (1 + retouch.redness * 0.1).toFixed(3); // max 1.1
+  const previewFilter = `blur(${beautyBlur}px) contrast(${(parseFloat(beautyContrast) * parseFloat(glowContrast)).toFixed(3)}) brightness(${(parseFloat(beautyBrightSmooth) * parseFloat(glowBright)).toFixed(3)}) saturate(${beautySaturate})`;
 
   const apply = () => {
     if (innerRef.current) {
@@ -568,19 +576,29 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         <div className="flex items-center gap-3">
           <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
           <div className="flex-1 space-y-0.5">
-            <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>החלקת עור</span>
+            <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>טשטוש / החלקה (Beauty)</span>
             <Slider value={[activeRetouch.smooth]} onValueChange={([v]) => setActiveRetouch(prev => ({ ...prev, smooth: v }))} min={0} max={1} step={0.05} />
           </div>
           <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>{Math.round(activeRetouch.smooth * 100)}%</span>
         </div>
         <div className="flex items-center gap-3">
-          <Droplets className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
+          <Sun className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
           <div className="flex-1 space-y-0.5">
-            <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>הפחתת אדמומיות</span>
+            <span className="text-[10px] font-medium block" style={{ color: GOLD_DARK }}>זוהר / הבהרה (Glow)</span>
             <Slider value={[activeRetouch.redness]} onValueChange={([v]) => setActiveRetouch(prev => ({ ...prev, redness: v }))} min={0} max={1} step={0.05} />
           </div>
           <span className="text-[10px] w-8 text-center font-medium" style={{ color: GOLD_DARK }}>{Math.round(activeRetouch.redness * 100)}%</span>
         </div>
+        {hasRetouch && (
+          <button
+            onClick={() => setActiveRetouch({ smooth: 0, redness: 0 })}
+            className="flex items-center gap-1 mx-auto text-[10px] font-medium px-3 py-1 rounded-full transition-all hover:scale-105"
+            style={{ border: `1px solid ${GOLD}60`, color: GOLD_DARK }}
+          >
+            <RotateCcw className="w-3 h-3" />
+            איפוס
+          </button>
+        )}
       </div>
 
       {/* ── Permanent action buttons — always visible ── */}
