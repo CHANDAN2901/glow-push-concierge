@@ -69,10 +69,10 @@ const Header = () => {
           </h1>
         )}
 
-        {/* Left side (RTL): language toggle */}
+        {/* Left side (RTL): language toggle — ml-auto keeps it pinned to the far end */}
         <button
           onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-          className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95"
+          className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95 z-20"
           style={{
             background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
             color: '#5C4033',
