@@ -9,11 +9,15 @@ export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const location = useLocation();
   const isArtistRoute = location.pathname === '/artist';
+  const isHealthDeclaration = location.pathname === '/health-declaration';
 
   useEffect(() => {
     const saved = localStorage.getItem(COOKIE_KEY);
     if (!saved) setVisible(true);
   }, []);
+
+  // Don't show cookie banner over health declaration form — it covers the action buttons
+  if (isHealthDeclaration) return null;
 
   const accept = (choice: 'all' | 'essential') => {
     localStorage.setItem(COOKIE_KEY, choice);
