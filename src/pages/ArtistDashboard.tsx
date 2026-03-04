@@ -40,6 +40,7 @@ import MessageTemplateSettings from '@/components/MessageTemplateSettings';
 import RenewalMessageDialog, { isRenewalDue } from '@/components/RenewalMessageDialog';
 import HelpTooltip from '@/components/HelpTooltip';
 import WelcomeTour from '@/components/WelcomeTour';
+import DailyGrowthEngine from '@/components/DailyGrowthEngine';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
 import {
   Dialog,
@@ -1438,7 +1439,14 @@ const ArtistDashboard = () => {
               ))}
             </div>
 
-            {/* (merged into appointments carousel below) */}
+            {/* ── Daily Growth Engine ── */}
+            <DailyGrowthEngine
+              clients={clients}
+              artistName={artistName}
+              lang={lang as 'en' | 'he'}
+              onBirthdayClick={(client) => setBirthdayWishClient(client)}
+              onRenewalClick={(client) => setRenewalClient(client)}
+            />
 
             {/* ── Today's Appointments Carousel ── */}
             {(() => {
