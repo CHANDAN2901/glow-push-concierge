@@ -51,6 +51,7 @@ interface Props {
   wazeAddress?: string;
   appointmentDate?: string;
   appointmentTime?: string;
+  isPreview?: boolean;
 }
 
 // Ultra-Luxury theme
@@ -73,7 +74,7 @@ const T = {
 
 const STEPS = 3;
 
-export default function HealthDeclaration({ clientName = '', clientPhone = '', onComplete, onClose, readOnly = false, existingData, logoUrl, instagramUrl, wazeAddress, appointmentDate, appointmentTime }: Props) {
+export default function HealthDeclaration({ clientName = '', clientPhone = '', onComplete, onClose, readOnly = false, existingData, logoUrl, instagramUrl, wazeAddress, appointmentDate, appointmentTime, isPreview = false }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
 
@@ -243,8 +244,8 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 
   const isValidId = /^\d{9}$/.test(idNumber.trim());
   const isValidPhone = phone.trim() === '' || /^\d{10}$/.test(phone.replace(/[-\s]/g, ''));
-  const canProceedStep1 = fullName.trim().length > 0 && isValidId && isValidPhone;
-  const canProceedStep3 = consent && legalConsent && medicalConsent && signatureDataUrl.length > 0;
+  const canProceedStep1 = isPreview || (fullName.trim().length > 0 && isValidId && isValidPhone);
+  const canProceedStep3 = isPreview || (consent && legalConsent && medicalConsent && signatureDataUrl.length > 0);
 
   const hasAnyRedFlag = dbQuestions.some(q => q.risk_level === 'red' && answers[q.id]);
   const hasAnyYellow = dbQuestions.some(q => q.risk_level === 'yellow' && answers[q.id]);
