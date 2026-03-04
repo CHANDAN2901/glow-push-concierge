@@ -601,7 +601,7 @@ const ClientHome = () => {
         {/* Greeting Card */}
         <div className="relative mb-8 animate-fade-up rounded-3xl overflow-hidden" style={{ backgroundColor: 'hsl(0 0% 100%)', boxShadow: '0 4px 24px hsl(350 30% 88% / 0.35)' }}>
           <div className="relative py-10 px-6 text-center">
-            <h1 className="tracking-wide mb-5" style={{ color: CHARCOAL_TEXT, fontFamily: "'Frank Ruhl Libre', 'Playfair Display', Georgia, serif", fontWeight: 400, fontSize: '32px', letterSpacing: '0.04em', lineHeight: 1.5 }}>
+            <h1 className="text-2xl font-bold tracking-wide mb-5" style={{ color: CHARCOAL_TEXT, fontFamily: "'FB Ahava', 'Assistant', sans-serif", fontSize: '30px', letterSpacing: '0.04em', lineHeight: 1.5 }}>
               {getTimeGreeting(clientName, treatment)}
             </h1>
             <span className="sr-only" data-client-identity-source={identity.source}>
