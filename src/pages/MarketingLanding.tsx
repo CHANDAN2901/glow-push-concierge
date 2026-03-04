@@ -150,37 +150,49 @@ const MarketingLanding = () => {
       </div>
 
       {/* FAQ Section */}
-      <div className="max-w-lg w-full space-y-4">
-        <h3
-          className="text-2xl font-medium text-center mb-6"
-          style={{
-            fontFamily: "'Dancing Script', cursive",
-            background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          {isHe ? 'שאלות נפוצות' : 'FAQ'}
-        </h3>
-        <Accordion type="single" collapsible className="w-full">
+      <div className="max-w-lg w-full space-y-6">
+        <div className="text-center space-y-2">
+          <h3
+            className="text-2xl font-medium"
+            style={{
+              fontFamily: "'Dancing Script', cursive",
+              background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            {isHe ? 'שאלות נפוצות' : 'Frequently Asked Questions'}
+          </h3>
+          <p className="text-xs text-muted-foreground">{isHe ? 'הכל מה שרצית לדעת' : 'Everything you need to know'}</p>
+        </div>
+        <Accordion type="single" collapsible className="w-full space-y-4">
           {faqs.map((faq) => (
             <AccordionItem
               key={faq.id}
               value={faq.id}
-              className="border-0 mb-3 rounded-xl overflow-hidden"
+              className="border-0 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5 group data-[state=open]:shadow-[0_8px_32px_-8px_rgba(212,175,55,0.25)]"
               style={{
-                background: 'linear-gradient(135deg, rgba(212,175,55,0.04), rgba(184,134,11,0.06))',
-                border: '1px solid rgba(212,175,55,0.15)',
+                background: 'rgba(255,255,255,0.85)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(212,175,55,0.2)',
+                boxShadow: '0 4px 20px -6px rgba(212,175,55,0.12), 0 1px 3px rgba(0,0,0,0.04)',
               }}
             >
               <AccordionTrigger
-                className="px-5 py-4 text-sm font-medium hover:no-underline text-right [&>svg]:text-[#D4AF37]"
-                style={{ color: '#444' }}
+                className="px-5 py-4 text-sm font-semibold hover:no-underline text-start transition-colors duration-200 [&[data-state=open]]:text-[#B8860B] [&>svg]:hidden"
+                style={{ color: '#3a3a3a', fontFamily: "'Playfair Display', Georgia, serif" }}
               >
-                {isHe ? faq.question_he : faq.question_en}
+                <div className="flex items-center gap-3 w-full">
+                  <div className="shrink-0 w-7 h-7 rounded-full border border-[rgba(212,175,55,0.4)] flex items-center justify-center transition-all duration-300 group-data-[state=open]:bg-gradient-to-br group-data-[state=open]:from-[#B8860B] group-data-[state=open]:to-[#D4AF37] group-data-[state=open]:border-transparent group-data-[state=open]:rotate-45">
+                    <span className="text-sm font-light transition-all duration-300 group-data-[state=open]:text-white" style={{ color: '#D4AF37' }}>+</span>
+                  </div>
+                  <span className="flex-1">{isHe ? faq.question_he : faq.question_en}</span>
+                </div>
               </AccordionTrigger>
-              <AccordionContent className="px-5 pb-4 text-sm leading-relaxed" style={{ color: '#777' }}>
-                {isHe ? faq.answer_he : faq.answer_en}
+              <AccordionContent className="px-5 pb-5 text-sm leading-relaxed" style={{ color: '#666' }}>
+                <div className="pt-1 border-t border-[rgba(212,175,55,0.12)]" style={{ paddingTop: '12px', marginTop: '-4px' }}>
+                  {isHe ? faq.answer_he : faq.answer_en}
+                </div>
               </AccordionContent>
             </AccordionItem>
           ))}
