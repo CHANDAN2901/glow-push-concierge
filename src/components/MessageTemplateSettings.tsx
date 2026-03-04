@@ -7,16 +7,23 @@ import { supabase } from '@/integrations/supabase/client';
 interface Props {
   artistProfileId: string;
   lang: string;
-  onTemplatesLoaded?: (templates: { birthday?: string; renewal?: string }) => void;
+  onTemplatesLoaded?: (templates: { birthday?: string; renewal?: string; birthday_en?: string; renewal_en?: string }) => void;
 }
 
-const DEFAULT_BIRTHDAY = 'היי [CLIENT], מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: [GIFT] על הטיפול הבא שלך. נשיקות, [ARTIST] 💕';
-const DEFAULT_RENEWAL = 'היי [CLIENT], עברה כמעט שנה מאז הטיפול האחרון! ✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
+const DEFAULT_BIRTHDAY_HE = 'היי [CLIENT], מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: [GIFT] על הטיפול הבא שלך. נשיקות, [ARTIST] 💕';
+const DEFAULT_BIRTHDAY_EN = 'Hi [CLIENT], Happy Birthday! 🎉🎂 To celebrate your special day, we have a treat for you: [GIFT] on your next treatment. Warm wishes, [ARTIST] 💕';
+
+const DEFAULT_RENEWAL_HE = 'היי [CLIENT], עברה כמעט שנה מאז הטיפול האחרון! ✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
+const DEFAULT_RENEWAL_EN = 'Hi [CLIENT], it\'s been almost a year since your last treatment! ✨ Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, [ARTIST]';
 
 export default function MessageTemplateSettings({ artistProfileId, lang, onTemplatesLoaded }: Props) {
   const { toast } = useToast();
-  const [birthdayTemplate, setBirthdayTemplate] = useState(DEFAULT_BIRTHDAY);
-  const [renewalTemplate, setRenewalTemplate] = useState(DEFAULT_RENEWAL);
+  const isEn = lang === 'en';
+
+  const [birthdayHe, setBirthdayHe] = useState(DEFAULT_BIRTHDAY_HE);
+  const [birthdayEn, setBirthdayEn] = useState(DEFAULT_BIRTHDAY_EN);
+  const [renewalHe, setRenewalHe] = useState(DEFAULT_RENEWAL_HE);
+  const [renewalEn, setRenewalEn] = useState(DEFAULT_RENEWAL_EN);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -31,9 +38,16 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
         if (data?.settings && typeof data.settings === 'object') {
           const s = data.settings as Record<string, unknown>;
           const templates = (s.custom_templates || {}) as Record<string, string>;
-          if (templates.birthday) setBirthdayTemplate(templates.birthday);
-          if (templates.renewal) setRenewalTemplate(templates.renewal);
-          onTemplatesLoaded?.({ birthday: templates.birthday, renewal: templates.renewal });
+          if (templates.birthday) setBirthdayHe(templates.birthday);
+          if (templates.birthday_en) setBirthdayEn(templates.birthday_en);
+          if (templates.renewal) setRenewalHe(templates.renewal);
+          if (templates.renewal_en) setRenewalEn(templates.renewal_en);
+          onTemplatesLoaded?.({
+            birthday: templates.birthday,
+            renewal: templates.renewal,
+            birthday_en: templates.birthday_en,
+            renewal_en: templates.renewal_en,
+          });
         }
         setLoaded(true);
       });
@@ -42,7 +56,6 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
   const handleSave = async () => {
     setSaving(true);
     try {
-      // First check if settings row exists
       const { data: existing } = await supabase
         .from('artist_message_settings')
         .select('id, settings')
@@ -50,8 +63,10 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
         .maybeSingle();
 
       const customTemplates = {
-        birthday: birthdayTemplate,
-        renewal: renewalTemplate,
+        birthday: birthdayHe,
+        birthday_en: birthdayEn,
+        renewal: renewalHe,
+        renewal_en: renewalEn,
       };
 
       if (existing) {
@@ -67,9 +82,9 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
       }
 
       onTemplatesLoaded?.(customTemplates);
-      toast({ title: lang === 'en' ? 'Templates saved! ✅' : 'התבניות נשמרו בהצלחה ✅' });
+      toast({ title: isEn ? 'Templates saved! ✅' : 'התבניות נשמרו בהצלחה ✅' });
     } catch (err) {
-      toast({ title: lang === 'en' ? 'Failed to save' : 'שמירה נכשלה', variant: 'destructive' });
+      toast({ title: isEn ? 'Failed to save' : 'שמירה נכשלה', variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -77,15 +92,28 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
 
   if (!loaded) return null;
 
+  // Show the active language template in main textarea, with secondary language below
+  const birthdayValue = isEn ? birthdayEn : birthdayHe;
+  const setBirthdayValue = isEn ? setBirthdayEn : setBirthdayHe;
+  const renewalValue = isEn ? renewalEn : renewalHe;
+  const setRenewalValue = isEn ? setRenewalEn : setRenewalHe;
+
+  const birthdaySecondary = isEn ? birthdayHe : birthdayEn;
+  const setBirthdaySecondary = isEn ? setBirthdayHe : setBirthdayEn;
+  const renewalSecondary = isEn ? renewalHe : renewalEn;
+  const setRenewalSecondary = isEn ? setRenewalHe : setRenewalEn;
+
+  const secondaryLabel = isEn ? '🇮🇱 Hebrew Version' : '🇬🇧 English Version';
+
   return (
     <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
       <div className="px-5 py-4 border-b border-border">
         <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
           <MessageSquareText className="w-4 h-4 text-accent" />
-          {lang === 'en' ? 'Message Templates' : 'תבניות הודעות'}
+          {isEn ? 'Message Templates' : 'תבניות הודעות'}
         </h3>
         <p className="text-[11px] text-muted-foreground mt-1">
-          {lang === 'en'
+          {isEn
             ? 'Customize your birthday and renewal messages. Use [CLIENT], [ARTIST], [GIFT] as placeholders.'
             : 'התאימי את הודעות יום ההולדת והחידוש שלך. השתמשי ב-[CLIENT], [ARTIST], [GIFT] כמציינים.'}
         </p>
@@ -94,15 +122,28 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
         {/* Birthday Template */}
         <div className="space-y-2">
           <label className="text-xs font-bold flex items-center gap-1.5" style={{ color: 'hsl(38 40% 45%)' }}>
-            🎂 {lang === 'en' ? 'Birthday Message' : 'הודעת יום הולדת'}
+            🎂 {isEn ? 'Birthday Message' : 'הודעת יום הולדת'}
           </label>
           <textarea
-            value={birthdayTemplate}
-            onChange={(e) => setBirthdayTemplate(e.target.value)}
+            value={birthdayValue}
+            onChange={(e) => setBirthdayValue(e.target.value)}
             className="flex min-h-[100px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
-            dir="rtl"
+            dir={isEn ? 'ltr' : 'rtl'}
             rows={4}
           />
+          {/* Secondary language */}
+          <details className="group">
+            <summary className="text-[10px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+              {secondaryLabel}
+            </summary>
+            <textarea
+              value={birthdaySecondary}
+              onChange={(e) => setBirthdaySecondary(e.target.value)}
+              className="mt-1.5 flex min-h-[80px] w-full rounded-xl border border-input bg-muted/30 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+              dir={isEn ? 'rtl' : 'ltr'}
+              rows={3}
+            />
+          </details>
           <div className="flex flex-wrap gap-1.5">
             {['[CLIENT]', '[GIFT]', '[ARTIST]'].map(tag => (
               <span key={tag} className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>
@@ -115,15 +156,28 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
         {/* Renewal Template */}
         <div className="space-y-2">
           <label className="text-xs font-bold flex items-center gap-1.5" style={{ color: 'hsl(38 40% 45%)' }}>
-            🔄 {lang === 'en' ? 'Renewal Message' : 'הודעת חידוש טיפול'}
+            🔄 {isEn ? 'Renewal Message' : 'הודעת חידוש טיפול'}
           </label>
           <textarea
-            value={renewalTemplate}
-            onChange={(e) => setRenewalTemplate(e.target.value)}
+            value={renewalValue}
+            onChange={(e) => setRenewalValue(e.target.value)}
             className="flex min-h-[100px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
-            dir="rtl"
+            dir={isEn ? 'ltr' : 'rtl'}
             rows={4}
           />
+          {/* Secondary language */}
+          <details className="group">
+            <summary className="text-[10px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+              {secondaryLabel}
+            </summary>
+            <textarea
+              value={renewalSecondary}
+              onChange={(e) => setRenewalSecondary(e.target.value)}
+              className="mt-1.5 flex min-h-[80px] w-full rounded-xl border border-input bg-muted/30 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+              dir={isEn ? 'rtl' : 'ltr'}
+              rows={3}
+            />
+          </details>
           <div className="flex flex-wrap gap-1.5">
             {['[CLIENT]', '[ARTIST]'].map(tag => (
               <span key={tag} className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>
@@ -140,8 +194,8 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
         >
           <Save className="w-4 h-4 ml-2" />
           {saving
-            ? (lang === 'en' ? 'Saving...' : 'שומר...')
-            : (lang === 'en' ? 'Save Templates' : 'שמרי תבניות')}
+            ? (isEn ? 'Saving...' : 'שומר...')
+            : (isEn ? 'Save Templates' : 'שמרי תבניות')}
         </Button>
       </div>
     </div>

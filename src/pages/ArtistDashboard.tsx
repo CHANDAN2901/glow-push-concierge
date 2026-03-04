@@ -611,7 +611,7 @@ const ArtistDashboard = () => {
   const [clientListFilter, setClientListFilter] = useState<'all' | 'birthdays' | 'renewal'>('all');
   const [birthdayWishClient, setBirthdayWishClient] = useState<ClientEntry | null>(null);
   const [renewalClient, setRenewalClient] = useState<ClientEntry | null>(null);
-  const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string }>({});
+  const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string; birthday_en?: string; renewal_en?: string }>({});
 
   // Check if first-time user (no onboarding done)
   useEffect(() => {
@@ -3185,8 +3185,9 @@ const ArtistDashboard = () => {
         clientName={birthdayWishClient?.name || ''}
         clientPhone={birthdayWishClient?.phone || ''}
         clientDbId={birthdayWishClient?.dbId}
-        artistName={artistName || 'האמנית שלך'}
+        artistName={artistName || (lang === 'en' ? 'Your Artist' : 'האמנית שלך')}
         customTemplate={customTemplates.birthday}
+        customTemplateEn={customTemplates.birthday_en}
       />
 
       {/* Renewal Message Dialog */}
@@ -3197,8 +3198,9 @@ const ArtistDashboard = () => {
         clientPhone={renewalClient?.phone || ''}
         clientDbId={renewalClient?.dbId}
         treatmentType={renewalClient?.treatment || ''}
-        artistName={artistName || 'האמנית שלך'}
+        artistName={artistName || (lang === 'en' ? 'Your Artist' : 'האמנית שלך')}
         customTemplate={customTemplates.renewal}
+        customTemplateEn={customTemplates.renewal_en}
       />
 
       {/* New Client Dispatch Center */}
