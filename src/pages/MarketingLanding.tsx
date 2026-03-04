@@ -16,25 +16,30 @@ interface FaqItem {
   answer_en: string;
 }
 
-type FaqCategory = 'client_app' | 'general' | 'photos';
+type FaqCategory = 'אפליקציית הלקוחות' | 'שימוש שוטף' | 'תמונות וקולאז\'';
 
-const CATEGORIES: { key: FaqCategory; he: string; en: string }[] = [
-  { key: 'client_app', he: 'אפליקציית הלקוחות', en: 'Client App' },
-  { key: 'general', he: 'שימוש שוטף', en: 'General Usage' },
-  { key: 'photos', he: 'תמונות וקולאז\'', en: 'Photos & Collage' },
+interface CategorizedFaq extends FaqItem {
+  category: FaqCategory;
+}
+
+const CATEGORIES: { value: FaqCategory; he: string; en: string }[] = [
+  { value: 'אפליקציית הלקוחות', he: 'אפליקציית הלקוחות', en: 'Client App' },
+  { value: 'שימוש שוטף', he: 'שימוש שוטף', en: 'General Usage' },
+  { value: 'תמונות וקולאז\'', he: 'תמונות וקולאז\'', en: 'Photos & Collage' },
 ];
 
-// Client-side category assignment by keyword matching
-const categorizeFaq = (q: string): FaqCategory => {
-  const lower = q.toLowerCase();
-  // Client app: app, download, connect, push, notifications, link
-  if (/לקוח|client|אפליקציה|app|קישור|link|התחבר|connect|הורד|download|פוש|push|התראות|notification|הודעה|message/.test(lower))
-    return 'client_app';
-  // Photos: photo, collage, gallery, logo, before/after, תמונ, קולאז (with or without geresh)
-  if (/תמונ|photo|קולאז|collage|גלריה|gallery|לוגו|logo|לפני ואחרי|before and after/.test(lower))
-    return 'photos';
-  // Everything else: general usage (tips, health declaration, languages, retention, referral, customize)
-  return 'general';
+const categorizeFaq = (faq: FaqItem): FaqCategory => {
+  const lower = `${faq.question_he} ${faq.question_en} ${faq.answer_he} ${faq.answer_en}`.toLowerCase();
+
+  if (/תמונ|photo|קולאז|collage|גלריה|gallery|לוגו|logo|לפני ואחרי|before and after/.test(lower)) {
+    return 'תמונות וקולאז\'';
+  }
+
+  if (/טיפ|tips|שפה|language|מיתוג|branding|שימור|retention|הפניה|referral|התאמה|custom|הצהרת בריאות|health declaration/.test(lower)) {
+    return 'שימוש שוטף';
+  }
+
+  return 'אפליקציית הלקוחות';
 };
 
 const MarketingLanding = () => {
@@ -42,8 +47,9 @@ const MarketingLanding = () => {
   const { user } = useAuth();
   const { lang, setLang } = useI18n();
   const isHe = lang === 'he';
-  const [faqs, setFaqs] = useState<FaqItem[]>([]);
-  const [activeCategory, setActiveCategory] = useState<FaqCategory>('client_app');
+  const [faqs, setFaqs] = useState<CategorizedFaq[]>([]);
+  const [activeTab, setActiveTab] = useState<FaqCategory>('אפליקציית הלקוחות');
+  const filteredFaqs = faqs.filter((faq) => faq.category === activeTab);
 
   useEffect(() => {
     supabase
@@ -51,7 +57,11 @@ const MarketingLanding = () => {
       .select('id, question_he, answer_he, question_en, answer_en')
       .eq('is_active', true)
       .order('sort_order', { ascending: true })
-      .then(({ data }) => { if (data) setFaqs(data); });
+      .then(({ data }) => {
+        if (data) {
+          setFaqs(data.map((faq) => ({ ...faq, category: categorizeFaq(faq) })));
+        }
+      });
   }, []);
 
   return (
@@ -191,14 +201,14 @@ const MarketingLanding = () => {
         {/* Category Tabs */}
         <div className="flex items-center justify-center gap-3 flex-wrap" role="tablist" aria-label={isHe ? 'סינון שאלות נפוצות' : 'FAQ category filters'}>
           {CATEGORIES.map((cat) => {
-            const isActive = activeCategory === cat.key;
+            const isActive = activeTab === cat.value;
             return (
               <button
-                key={cat.key}
+                key={cat.value}
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => setActiveCategory(cat.key)}
+                onClick={() => setActiveTab(cat.value)}
                 className="min-h-10 px-5 rounded-full text-sm font-bold border transition-all duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 style={isActive ? {
                   background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 45%, #B38728 100%)',
@@ -218,9 +228,7 @@ const MarketingLanding = () => {
         </div>
 
         <Accordion type="single" collapsible defaultValue="" className="w-full space-y-4">
-          {faqs
-            .filter((faq) => categorizeFaq(isHe ? faq.question_he : faq.question_en) === activeCategory)
-            .map((faq) => (
+          {filteredFaqs.map((faq) => (
             <AccordionItem
               key={faq.id}
               value={faq.id}
@@ -252,7 +260,7 @@ const MarketingLanding = () => {
           ))}
         </Accordion>
 
-        {faqs.filter((faq) => categorizeFaq(isHe ? faq.question_he : faq.question_en) === activeCategory).length === 0 && (
+        {filteredFaqs.length === 0 && (
           <p className="text-center text-sm text-muted-foreground py-6">
             {isHe ? 'אין שאלות בקטגוריה זו' : 'No questions in this category'}
           </p>
