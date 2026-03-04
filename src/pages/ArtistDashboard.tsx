@@ -1088,14 +1088,14 @@ const ArtistDashboard = () => {
                   <span>{lang === 'en' ? 'Back' : 'חזרה'}</span>
                   <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
                 </button>
-                {/* Language toggle – always visible */}
+                {/* Language toggle – gold circle badge */}
                 <button
                   onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95"
+                  className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg"
                   style={{
                     background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
                     color: '#5C4033',
-                    boxShadow: '0 2px 10px rgba(212,175,55,0.4)',
+                    boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
                   }}
                 >
                   {lang === 'he' ? 'EN' : 'עב'}
@@ -1124,11 +1124,11 @@ const ArtistDashboard = () => {
                 {/* Language toggle – gold circle badge */}
                 <button
                   onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95"
+                  className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg"
                   style={{
                     background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
                     color: '#5C4033',
-                    boxShadow: '0 2px 10px rgba(212,175,55,0.4)',
+                    boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
                   }}
                 >
                   {lang === 'he' ? 'EN' : 'עב'}
