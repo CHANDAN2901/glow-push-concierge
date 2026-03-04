@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useLayoutEffect } from 'react';
+import { useState, useRef, useCallback, useLayoutEffect, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { HelpCircle, X } from 'lucide-react';
 
@@ -19,6 +19,14 @@ const HelpTooltip = ({ text, id }: HelpTooltipProps) => {
   const handleClose = useCallback(() => {
     setOpen(false);
   }, []);
+
+  // Auto-close on scroll
+  useEffect(() => {
+    if (!open) return;
+    const onScroll = () => setOpen(false);
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => window.removeEventListener('scroll', onScroll, { capture: true });
+  }, [open]);
 
   // Position tooltip after it renders
   useLayoutEffect(() => {
