@@ -241,7 +241,9 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
     }
   };
 
-  const canProceedStep1 = fullName.trim().length > 0 && idNumber.trim().length > 0;
+  const isValidId = /^\d{9}$/.test(idNumber.trim());
+  const isValidPhone = phone.trim() === '' || /^\d{10}$/.test(phone.replace(/[-\s]/g, ''));
+  const canProceedStep1 = fullName.trim().length > 0 && isValidId && isValidPhone;
   const canProceedStep3 = consent && legalConsent && medicalConsent && signatureDataUrl.length > 0;
 
   const hasAnyRedFlag = dbQuestions.some(q => q.risk_level === 'red' && answers[q.id]);
@@ -524,10 +526,10 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                     <WhiteFieldInput label={isHe ? 'שם מלא' : 'Full Name'} required value={fullName} onChange={setFullName} disabled={readOnly} placeholder={isHe ? 'שם פרטי ומשפחה' : 'First and last name'} />
                   </div>
                   <div style={{ animation: 'hd-item-enter 0.4s 0.22s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
-                    <WhiteFieldInput label={isHe ? 'תעודת זהות' : 'ID Number'} required value={idNumber} onChange={setIdNumber} disabled={readOnly} placeholder="000000000" dir="ltr" inputMode="numeric" />
+                    <WhiteFieldInput label={isHe ? 'תעודת זהות' : 'ID Number'} required value={idNumber} onChange={v => setIdNumber(v.replace(/\D/g, '').slice(0, 9))} disabled={readOnly} placeholder="000000000" dir="ltr" inputMode="numeric" maxLength={9} pattern="[0-9]*" error={idNumber.length > 0 && !isValidId ? (isHe ? 'יש להזין 9 ספרות בדיוק' : 'Must be exactly 9 digits') : undefined} />
                   </div>
                   <div style={{ animation: 'hd-item-enter 0.4s 0.29s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
-                    <WhiteFieldInput label={isHe ? 'טלפון' : 'Phone'} value={phone} onChange={setPhone} disabled={readOnly} placeholder="050-0000000" dir="ltr" inputMode="tel" />
+                    <WhiteFieldInput label={isHe ? 'טלפון' : 'Phone'} value={phone} onChange={v => setPhone(v.replace(/\D/g, '').slice(0, 10))} disabled={readOnly} placeholder="0501234567" dir="ltr" inputMode="tel" maxLength={10} pattern="[0-9]*" error={phone.length > 0 && !isValidPhone ? (isHe ? 'יש להזין 10 ספרות בדיוק' : 'Must be exactly 10 digits') : undefined} />
                   </div>
                   <div style={{ animation: 'hd-item-enter 0.4s 0.36s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
                     <WhiteFieldInput label={isHe ? 'תאריך לידה' : 'Date of Birth'} value={birthDate} onChange={setBirthDate} disabled={readOnly} placeholder="YYYY-MM-DD" dir="ltr" type="date" />
@@ -952,7 +954,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 }
 
 /* Minimalist underline input */
-function WhiteFieldInput({ label, required, value, onChange, disabled, placeholder, dir, inputMode, type }: {
+function WhiteFieldInput({ label, required, value, onChange, disabled, placeholder, dir, inputMode, type, maxLength, pattern, error }: {
   label: string;
   required?: boolean;
   value: string;
@@ -962,6 +964,9 @@ function WhiteFieldInput({ label, required, value, onChange, disabled, placehold
   dir?: string;
   inputMode?: 'numeric' | 'tel' | 'text';
   type?: string;
+  maxLength?: number;
+  pattern?: string;
+  error?: string;
 }) {
   return (
     <div className="space-y-1">
@@ -976,24 +981,33 @@ function WhiteFieldInput({ label, required, value, onChange, disabled, placehold
         placeholder={placeholder}
         dir={dir}
         inputMode={inputMode}
+        maxLength={maxLength}
+        pattern={pattern}
         className="w-full px-1 py-3 text-base outline-none transition-all duration-300 min-h-[44px] font-sans font-light disabled:opacity-60 border-b-[1.5px]"
         style={{
           backgroundColor: 'transparent',
-          borderColor: T.inputBorder,
+          borderColor: error ? '#E5484D' : T.inputBorder,
           color: T.text,
           letterSpacing: '0.02em',
           lineHeight: '1.7',
         }}
         onFocus={e => {
-          e.target.style.borderColor = T.inputFocus;
-          e.target.style.boxShadow = `0 2px 0 0 ${T.gold}`;
+          if (!error) {
+            e.target.style.borderColor = T.inputFocus;
+            e.target.style.boxShadow = `0 2px 0 0 ${T.gold}`;
+          }
           e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }}
         onBlur={e => {
-          e.target.style.borderColor = T.inputBorder;
-          e.target.style.boxShadow = 'none';
+          if (!error) {
+            e.target.style.borderColor = T.inputBorder;
+            e.target.style.boxShadow = 'none';
+          }
         }}
       />
+      {error && (
+        <p className="text-[11px] font-medium mt-1" style={{ color: '#E5484D' }}>{error}</p>
+      )}
     </div>
   );
 }
