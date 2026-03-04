@@ -505,11 +505,10 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
 
       setShowAddModal(false);
 
-      if (newAutoHealth && onNewAppointment) {
-        onNewAppointment({ name: newName, phone: newPhone, treatment: newType, date: newDate, time: newTime });
-      }
-
-      if (newPhone.trim()) {
+      if (newAutoHealth && newPhone.trim()) {
+        if (onNewAppointment) {
+          onNewAppointment({ name: newName, phone: newPhone, treatment: newType, date: newDate, time: newTime });
+        }
         openWhatsAppHealthForm(newName, newPhone, newDate, newTime);
       }
 
@@ -997,7 +996,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
               {/* Visit type — new / touch-up / consultation */}
               <div className="space-y-2">
                 <Label className="text-xs font-medium">{isHe ? 'סוג ביקור' : 'Visit Type'}</Label>
-                <Select value={newVisitType} onValueChange={(v) => setNewVisitType(v as any)}>
+                <Select value={newVisitType} onValueChange={(v) => { setNewVisitType(v as any); if (v === 'touchup') setNewAutoHealth(false); }}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="new">{isHe ? '✨ טיפול חדש' : '✨ New Treatment'}</SelectItem>
@@ -1048,7 +1047,8 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                 </div>
               </div>
 
-              {/* Auto health form checkbox */}
+              {/* Auto health form checkbox — hidden for touch-ups */}
+              {newVisitType !== 'touchup' && (
               <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/50 border border-border">
                 <Checkbox
                   id="auto-health"
@@ -1065,6 +1065,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                   </p>
                 </label>
               </div>
+              )}
             </div>
             <div className="px-6 pb-6">
               <button
