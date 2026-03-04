@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Bell, MessageCircle, Wifi, Battery, Signal } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { STUDIO_NAME } from '@/lib/branding';
+import { useI18n } from '@/lib/i18n';
 
 type PreviewMode = 'push' | 'whatsapp';
 
@@ -20,13 +21,19 @@ const GOLD_TEXT = '#5C4033';
 function replaceplaceholders(text: string): string {
   return text
     .replace(/\{שם_לקוחה\}/g, 'שירה')
+    .replace(/\{Client_Name\}/g, 'Shira')
     .replace(/\{קישור_לשאלון\}/g, 'glowpush.app/form/abc')
+    .replace(/\{Form_Link\}/g, 'glowpush.app/form/abc')
     .replace(/\[ClientName\]/g, 'Shira')
-    .replace(/\[ArtistName\]/g, STUDIO_NAME);
+    .replace(/\[CLIENT\]/g, 'Shira')
+    .replace(/\[ArtistName\]/g, STUDIO_NAME)
+    .replace(/\[ARTIST\]/g, STUDIO_NAME);
 }
 
 export default function MessagePreviewModal({ open, onClose, messageText, onEditClick }: MessagePreviewModalProps) {
   const [mode, setMode] = useState<PreviewMode>('push');
+  const { lang } = useI18n();
+  const isEn = lang === 'en';
   const preview = replaceplaceholders(messageText);
   const now = new Date();
   const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -55,7 +62,7 @@ export default function MessagePreviewModal({ open, onClose, messageText, onEdit
               style={mode === 'push' ? { background: GOLD_GRADIENT, color: GOLD_TEXT } : undefined}
             >
               <Bell className="w-3.5 h-3.5" />
-              מראה פוש
+              {isEn ? 'Push' : 'מראה פוש'}
             </button>
             <button
               onClick={() => setMode('whatsapp')}
@@ -66,7 +73,7 @@ export default function MessagePreviewModal({ open, onClose, messageText, onEdit
               }`}
             >
               <MessageCircle className="w-3.5 h-3.5" />
-              מראה וואטסאפ
+              {isEn ? 'WhatsApp' : 'מראה וואטסאפ'}
             </button>
           </div>
 
@@ -86,17 +93,13 @@ export default function MessagePreviewModal({ open, onClose, messageText, onEdit
               </div>
 
               {mode === 'push' ? (
-                /* ── Push Notification View ── */
                 <div className="flex-1 flex flex-col px-4 pt-8">
-                  {/* Lock screen time */}
                   <div className="text-center mb-8">
                     <p className="text-5xl font-light text-black tracking-tight">{timeStr}</p>
                     <p className="text-xs text-black/50 mt-1">
-                      {now.toLocaleDateString('he-IL', { weekday: 'long', month: 'long', day: 'numeric' })}
+                      {now.toLocaleDateString(isEn ? 'en-US' : 'he-IL', { weekday: 'long', month: 'long', day: 'numeric' })}
                     </p>
                   </div>
-
-                  {/* Notification card */}
                   <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-3.5 shadow-sm border border-white/50">
                     <div className="flex items-center gap-2 mb-1.5">
                       <div
@@ -108,17 +111,15 @@ export default function MessagePreviewModal({ open, onClose, messageText, onEdit
                       <span className="text-[11px] font-semibold text-black/80 uppercase tracking-wide">
                         {STUDIO_NAME}
                       </span>
-                      <span className="text-[10px] text-black/40 mr-auto">עכשיו</span>
+                      <span className="text-[10px] text-black/40 mr-auto">{isEn ? 'now' : 'עכשיו'}</span>
                     </div>
-                    <p className="text-[13px] text-black leading-relaxed whitespace-pre-line" dir="rtl">
+                    <p className="text-[13px] text-black leading-relaxed whitespace-pre-line" dir={isEn ? 'ltr' : 'rtl'}>
                       {preview}
                     </p>
                   </div>
                 </div>
               ) : (
-                /* ── WhatsApp View ── */
                 <div className="flex-1 flex flex-col">
-                  {/* WA header */}
                   <div className="bg-[#075e54] text-white px-4 py-3 flex items-center gap-3">
                     <div
                       className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
@@ -131,15 +132,12 @@ export default function MessagePreviewModal({ open, onClose, messageText, onEdit
                       <p className="text-[10px] opacity-70">Online</p>
                     </div>
                   </div>
-
-                  {/* Chat area */}
                   <div
                     className="flex-1 px-3 py-4 flex flex-col justify-end"
                     style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'200\' height=\'200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cdefs%3E%3Cpattern id=\'p\' width=\'40\' height=\'40\' patternUnits=\'userSpaceOnUse\'%3E%3Ccircle cx=\'20\' cy=\'20\' r=\'1\' fill=\'%23ddd\'/%3E%3C/pattern%3E%3C/defs%3E%3Crect fill=\'%23ece5dd\' width=\'200\' height=\'200\'/%3E%3Crect fill=\'url(%23p)\' width=\'200\' height=\'200\'/%3E%3C/svg%3E")', backgroundSize: '200px' }}
                   >
-                    {/* Message bubble */}
                     <div className="max-w-[85%] mr-auto bg-white rounded-xl rounded-tr-sm px-3 py-2 shadow-sm">
-                      <p className="text-[13px] text-black leading-relaxed whitespace-pre-line" dir="rtl">
+                      <p className="text-[13px] text-black leading-relaxed whitespace-pre-line" dir={isEn ? 'ltr' : 'rtl'}>
                         {preview}
                       </p>
                       <div className="flex items-center justify-end gap-1 mt-1">
@@ -159,7 +157,7 @@ export default function MessagePreviewModal({ open, onClose, messageText, onEdit
               onClick={onClose}
               className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-card border border-border text-foreground transition-all hover:bg-muted"
             >
-              סגור
+              {isEn ? 'Close' : 'סגור'}
             </button>
             <button
               onClick={() => { onClose(); onEditClick(); }}
@@ -170,7 +168,7 @@ export default function MessagePreviewModal({ open, onClose, messageText, onEdit
                 border: `1px solid ${GOLD}`,
               }}
             >
-              ערוך טקסט
+              {isEn ? 'Edit Text' : 'ערוך טקסט'}
             </button>
           </div>
         </div>

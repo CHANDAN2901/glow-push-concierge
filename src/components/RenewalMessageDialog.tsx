@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { extractEdgeFunctionError } from '@/lib/edge-function-errors';
+import { useI18n } from '@/lib/i18n';
 
 interface RenewalMessageDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ interface RenewalMessageDialogProps {
   treatmentType: string;
   artistName: string;
   customTemplate?: string;
+  customTemplateEn?: string;
 }
 
 const formatPhone = (raw: string): string => {
@@ -39,21 +41,25 @@ export function isRenewalDue(treatmentType: string, daysSinceTreatment: number):
   return daysSinceTreatment >= 365;
 }
 
-const DEFAULT_LIPS_TEMPLATE = 'היי [CLIENT], עברו כבר כמה חודשים מאז שעיצבנו לך את השפתיים! 💋✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
-const DEFAULT_BROWS_TEMPLATE = 'היי [CLIENT], עברה כמעט שנה מאז שעיצבנו לך את הגבות! ✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
+const DEFAULT_LIPS_HE = 'היי [CLIENT], עברו כבר כמה חודשים מאז שעיצבנו לך את השפתיים! 💋✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
+const DEFAULT_BROWS_HE = 'היי [CLIENT], עברה כמעט שנה מאז שעיצבנו לך את הגבות! ✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
 
-function buildRenewalMessage(clientName: string, treatmentType: string, artistName: string, customTemplate?: string): string {
-  if (customTemplate) {
-    return customTemplate
-      .replace(/\[CLIENT\]/g, clientName)
-      .replace(/\[ARTIST\]/g, artistName);
+const DEFAULT_LIPS_EN = 'Hi [CLIENT], it\'s been a few months since we styled your lips! 💋✨ Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, [ARTIST]';
+const DEFAULT_BROWS_EN = 'Hi [CLIENT], it\'s been almost a year since we styled your brows! ✨ Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, [ARTIST]';
+
+function buildRenewalMessage(clientName: string, treatmentType: string, artistName: string, isEn: boolean, customTemplate?: string, customTemplateEn?: string): string {
+  if (isEn && customTemplateEn) {
+    return customTemplateEn.replace(/\[CLIENT\]/g, clientName).replace(/\[ARTIST\]/g, artistName);
+  }
+  if (!isEn && customTemplate) {
+    return customTemplate.replace(/\[CLIENT\]/g, clientName).replace(/\[ARTIST\]/g, artistName);
   }
   const t = (treatmentType || '').toLowerCase();
   const isLips = t.includes('שפתיי') || t.includes('lip');
-  const template = isLips ? DEFAULT_LIPS_TEMPLATE : DEFAULT_BROWS_TEMPLATE;
-  return template
-    .replace(/\[CLIENT\]/g, clientName)
-    .replace(/\[ARTIST\]/g, artistName);
+  const template = isEn
+    ? (isLips ? DEFAULT_LIPS_EN : DEFAULT_BROWS_EN)
+    : (isLips ? DEFAULT_LIPS_HE : DEFAULT_BROWS_HE);
+  return template.replace(/\[CLIENT\]/g, clientName).replace(/\[ARTIST\]/g, artistName);
 }
 
 export default function RenewalMessageDialog({
@@ -65,11 +71,14 @@ export default function RenewalMessageDialog({
   treatmentType,
   artistName,
   customTemplate,
+  customTemplateEn,
 }: RenewalMessageDialogProps) {
   const { toast } = useToast();
+  const { lang } = useI18n();
+  const isEn = lang === 'en';
   const [sendingPush, setSendingPush] = useState(false);
 
-  const baseMessage = buildRenewalMessage(clientName, treatmentType, artistName || 'האמנית שלך', customTemplate);
+  const baseMessage = buildRenewalMessage(clientName, treatmentType, artistName || (isEn ? 'Your Artist' : 'האמנית שלך'), isEn, customTemplate, customTemplateEn);
   const [editedMessage, setEditedMessage] = useState('');
 
   useEffect(() => {
@@ -85,13 +94,13 @@ export default function RenewalMessageDialog({
       ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
       : `https://wa.me/?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
-    toast({ title: 'וואטסאפ נפתח! 🔄' });
+    toast({ title: isEn ? 'WhatsApp opened! 🔄' : 'וואטסאפ נפתח! 🔄' });
     onOpenChange(false);
   };
 
   const handlePush = async () => {
     if (!clientDbId) {
-      toast({ title: 'לא ניתן לשלוח התראה — אין מזהה לקוחה', variant: 'destructive' });
+      toast({ title: isEn ? 'Cannot send — no client ID' : 'לא ניתן לשלוח התראה — אין מזהה לקוחה', variant: 'destructive' });
       return;
     }
     setSendingPush(true);
@@ -103,7 +112,7 @@ export default function RenewalMessageDialog({
         .order('created_at', { ascending: false })
         .limit(1);
       if (subErr || !subs?.length) {
-        toast({ title: 'לא נמצא מנוי התראות ללקוחה זו', variant: 'destructive' });
+        toast({ title: isEn ? 'No push subscription found for this client' : 'לא נמצא מנוי התראות ללקוחה זו', variant: 'destructive' });
         return;
       }
       const sub = subs[0];
@@ -113,7 +122,7 @@ export default function RenewalMessageDialog({
             endpoint: sub.endpoint,
             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
           },
-          title: '✨ הגיע הזמן לרענון!',
+          title: isEn ? '✨ Time for a touch-up!' : '✨ הגיע הזמן לרענון!',
           body: getFinalMessage().substring(0, 200),
           day: 0,
         },
@@ -125,10 +134,10 @@ export default function RenewalMessageDialog({
       if (data && typeof data === 'object' && 'success' in data && !data.success) {
         throw new Error((data as any).error || 'Push delivery failed');
       }
-      toast({ title: 'התראת חידוש נשלחה! 🔄✅' });
+      toast({ title: isEn ? 'Renewal push sent! 🔄✅' : 'התראת חידוש נשלחה! 🔄✅' });
       onOpenChange(false);
     } catch (err: any) {
-      toast({ title: 'שליחת ההתראה נכשלה', description: err?.message || 'שגיאה לא ידועה', variant: 'destructive' });
+      toast({ title: isEn ? 'Push notification failed' : 'שליחת ההתראה נכשלה', description: err?.message || '', variant: 'destructive' });
     } finally {
       setSendingPush(false);
     }
@@ -136,22 +145,24 @@ export default function RenewalMessageDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm rounded-3xl" dir="rtl">
+      <DialogContent className="max-w-sm rounded-3xl" dir={isEn ? 'ltr' : 'rtl'}>
         <DialogHeader className="text-center">
           <DialogTitle className="text-lg font-bold flex items-center justify-center gap-2">
             <RefreshCw className="w-5 h-5 text-accent" />
-            חידוש טיפול — {clientName}
+            {isEn ? `Treatment Renewal — ${clientName}` : `חידוש טיפול — ${clientName}`}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
           {/* Editable message */}
           <div className="rounded-2xl p-3 bg-accent/10 border border-accent/30">
-            <p className="text-[10px] font-semibold text-accent mb-1.5">עריכת ההודעה:</p>
+            <p className="text-[10px] font-semibold text-accent mb-1.5">
+              {isEn ? 'Edit message:' : 'עריכת ההודעה:'}
+            </p>
             <Textarea
               value={editedMessage}
               onChange={(e) => setEditedMessage(e.target.value)}
-              dir="rtl"
+              dir={isEn ? 'ltr' : 'rtl'}
               className="text-xs leading-relaxed min-h-[100px] rounded-xl border-accent/30 bg-background/80 focus-visible:ring-accent/40"
             />
           </div>
@@ -164,7 +175,7 @@ export default function RenewalMessageDialog({
               style={{ background: '#25D366', color: 'white', border: 'none' }}
             >
               <MessageCircle className="w-4 h-4" />
-              שלחי בוואטסאפ
+              {isEn ? 'Send via WhatsApp' : 'שלחי בוואטסאפ'}
             </Button>
             <Button
               onClick={handlePush}
@@ -173,7 +184,9 @@ export default function RenewalMessageDialog({
               className="w-full rounded-full py-3 font-bold text-sm gap-2 border-2 border-accent"
             >
               <Bell className="w-4 h-4" />
-              {sendingPush ? 'שולחת...' : 'שלחי התראת פוש'}
+              {sendingPush
+                ? (isEn ? 'Sending...' : 'שולחת...')
+                : (isEn ? 'Send Push Notification' : 'שלחי התראת פוש')}
             </Button>
           </div>
         </div>

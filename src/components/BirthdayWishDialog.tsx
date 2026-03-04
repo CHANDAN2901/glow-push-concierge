@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { extractEdgeFunctionError } from '@/lib/edge-function-errors';
+import { useI18n } from '@/lib/i18n';
 
 interface BirthdayWishDialogProps {
   open: boolean;
@@ -21,16 +22,25 @@ interface BirthdayWishDialogProps {
   clientDbId?: string;
   artistName: string;
   customTemplate?: string;
+  customTemplateEn?: string;
 }
 
-const GIFT_PRESETS = [
+const GIFT_PRESETS_HE = [
   '15% הנחה',
   'Lip Oil במתנה',
   '50 ₪ הנחה',
   'טיפול מיני במתנה',
 ];
 
-const DEFAULT_TEMPLATE = 'היי [CLIENT], מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: [GIFT] על הטיפול הבא שלך. נשיקות, [ARTIST] 💕';
+const GIFT_PRESETS_EN = [
+  '15% off',
+  'Free Lip Oil',
+  '$10 off',
+  'Free mini treatment',
+];
+
+const DEFAULT_TEMPLATE_HE = 'היי [CLIENT], מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: [GIFT] על הטיפול הבא שלך. נשיקות, [ARTIST] 💕';
+const DEFAULT_TEMPLATE_EN = 'Hi [CLIENT], Happy Birthday! 🎉🎂 To celebrate your special day, we have a treat for you: [GIFT] on your next treatment. Warm wishes, [ARTIST] 💕';
 
 const formatPhone = (raw: string): string => {
   const digits = raw.replace(/[^0-9]/g, '');
@@ -47,35 +57,41 @@ export default function BirthdayWishDialog({
   clientDbId,
   artistName,
   customTemplate,
+  customTemplateEn,
 }: BirthdayWishDialogProps) {
   const { toast } = useToast();
+  const { lang } = useI18n();
+  const isEn = lang === 'en';
+
   const [selectedGift, setSelectedGift] = useState('');
   const [customGift, setCustomGift] = useState('');
   const [sendingPush, setSendingPush] = useState(false);
   const [editedMessage, setEditedMessage] = useState('');
 
   const gift = customGift.trim() || selectedGift;
+  const giftPresets = isEn ? GIFT_PRESETS_EN : GIFT_PRESETS_HE;
 
   const buildMessage = () => {
-    const template = customTemplate || DEFAULT_TEMPLATE;
+    const template = isEn
+      ? (customTemplateEn || DEFAULT_TEMPLATE_EN)
+      : (customTemplate || DEFAULT_TEMPLATE_HE);
     return template
       .replace(/\[CLIENT\]/g, clientName)
       .replace(/\[GIFT\]/g, gift)
-      .replace(/\[ARTIST\]/g, artistName || 'האמנית שלך');
+      .replace(/\[ARTIST\]/g, artistName || (isEn ? 'Your Artist' : 'האמנית שלך'));
   };
 
-  // Auto-fill editable message when gift changes
   useEffect(() => {
     if (gift) {
       setEditedMessage(buildMessage());
     }
-  }, [gift, clientName, artistName, customTemplate]);
+  }, [gift, clientName, artistName, customTemplate, customTemplateEn, lang]);
 
   const getFinalMessage = () => editedMessage.trim() || buildMessage();
 
   const handleWhatsApp = () => {
     if (!gift) {
-      toast({ title: 'בחרי הטבה לפני השליחה', variant: 'destructive' });
+      toast({ title: isEn ? 'Select a gift before sending' : 'בחרי הטבה לפני השליחה', variant: 'destructive' });
       return;
     }
     const msg = getFinalMessage();
@@ -84,17 +100,17 @@ export default function BirthdayWishDialog({
       ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
       : `https://wa.me/?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
-    toast({ title: 'וואטסאפ נפתח! 🎉' });
+    toast({ title: isEn ? 'WhatsApp opened! 🎉' : 'וואטסאפ נפתח! 🎉' });
     onOpenChange(false);
   };
 
   const handlePush = async () => {
     if (!gift) {
-      toast({ title: 'בחרי הטבה לפני השליחה', variant: 'destructive' });
+      toast({ title: isEn ? 'Select a gift before sending' : 'בחרי הטבה לפני השליחה', variant: 'destructive' });
       return;
     }
     if (!clientDbId) {
-      toast({ title: 'לא ניתן לשלוח התראה — אין מזהה לקוחה', variant: 'destructive' });
+      toast({ title: isEn ? 'Cannot send — no client ID' : 'לא ניתן לשלוח התראה — אין מזהה לקוחה', variant: 'destructive' });
       return;
     }
     setSendingPush(true);
@@ -106,7 +122,7 @@ export default function BirthdayWishDialog({
         .order('created_at', { ascending: false })
         .limit(1);
       if (subErr || !subs?.length) {
-        toast({ title: 'לא נמצא מנוי התראות ללקוחה זו', variant: 'destructive' });
+        toast({ title: isEn ? 'No push subscription found for this client' : 'לא נמצא מנוי התראות ללקוחה זו', variant: 'destructive' });
         return;
       }
       const sub = subs[0];
@@ -116,7 +132,7 @@ export default function BirthdayWishDialog({
             endpoint: sub.endpoint,
             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
           },
-          title: `🎂 יום הולדת שמח, ${clientName}!`,
+          title: isEn ? `🎂 Happy Birthday, ${clientName}!` : `🎂 יום הולדת שמח, ${clientName}!`,
           body: getFinalMessage().substring(0, 200),
           day: 0,
         },
@@ -128,10 +144,10 @@ export default function BirthdayWishDialog({
       if (data && typeof data === 'object' && 'success' in data && !data.success) {
         throw new Error((data as any).error || 'Push delivery failed');
       }
-      toast({ title: 'התראת יום הולדת נשלחה! 🎂✅' });
+      toast({ title: isEn ? 'Birthday push sent! 🎂✅' : 'התראת יום הולדת נשלחה! 🎂✅' });
       onOpenChange(false);
     } catch (err: any) {
-      toast({ title: 'שליחת ההתראה נכשלה', description: err?.message || 'שגיאה לא ידועה', variant: 'destructive' });
+      toast({ title: isEn ? 'Push notification failed' : 'שליחת ההתראה נכשלה', description: err?.message || '', variant: 'destructive' });
     } finally {
       setSendingPush(false);
     }
@@ -139,20 +155,22 @@ export default function BirthdayWishDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm rounded-3xl" dir="rtl">
+      <DialogContent className="max-w-sm rounded-3xl" dir={isEn ? 'ltr' : 'rtl'}>
         <DialogHeader className="text-center">
           <DialogTitle className="text-lg font-bold flex items-center justify-center gap-2">
             <span className="text-2xl">🎂</span>
-            ברכת יום הולדת ל{clientName}
+            {isEn ? `Birthday Wish for ${clientName}` : `ברכת יום הולדת ל${clientName}`}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
           {/* Gift presets */}
           <div>
-            <p className="text-xs font-semibold text-muted-foreground mb-2">בחרי הטבה:</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-2">
+              {isEn ? 'Choose a gift:' : 'בחרי הטבה:'}
+            </p>
             <div className="grid grid-cols-2 gap-2">
-              {GIFT_PRESETS.map((preset) => (
+              {giftPresets.map((preset) => (
                 <button
                   key={preset}
                   onClick={() => { setSelectedGift(preset); setCustomGift(''); }}
@@ -171,13 +189,15 @@ export default function BirthdayWishDialog({
 
           {/* Custom gift */}
           <div>
-            <p className="text-xs font-semibold text-muted-foreground mb-1.5">או כתבי הטבה מותאמת:</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-1.5">
+              {isEn ? 'Or write a custom gift:' : 'או כתבי הטבה מותאמת:'}
+            </p>
             <Input
               value={customGift}
               onChange={(e) => setCustomGift(e.target.value)}
-              placeholder="לדוגמה: טיפול שפתיים חינם"
+              placeholder={isEn ? 'e.g. Free lip treatment' : 'לדוגמה: טיפול שפתיים חינם'}
               className="rounded-xl text-sm"
-              dir="rtl"
+              dir={isEn ? 'ltr' : 'rtl'}
             />
           </div>
 
@@ -186,12 +206,12 @@ export default function BirthdayWishDialog({
             <div className="rounded-2xl p-3 bg-accent/10 border border-accent/30">
               <p className="text-[10px] font-semibold text-accent mb-1.5 flex items-center gap-1">
                 <Sparkles className="w-3 h-3" />
-                עריכת ההודעה:
+                {isEn ? 'Edit message:' : 'עריכת ההודעה:'}
               </p>
               <Textarea
                 value={editedMessage}
                 onChange={(e) => setEditedMessage(e.target.value)}
-                dir="rtl"
+                dir={isEn ? 'ltr' : 'rtl'}
                 className="text-xs leading-relaxed min-h-[100px] rounded-xl border-accent/30 bg-background/80 focus-visible:ring-accent/40"
               />
             </div>
@@ -206,7 +226,7 @@ export default function BirthdayWishDialog({
               style={{ background: '#25D366', color: 'white', border: 'none' }}
             >
               <MessageCircle className="w-4 h-4" />
-              שלחי בוואטסאפ
+              {isEn ? 'Send via WhatsApp' : 'שלחי בוואטסאפ'}
             </Button>
             <Button
               onClick={handlePush}
@@ -215,7 +235,9 @@ export default function BirthdayWishDialog({
               className="w-full rounded-full py-3 font-bold text-sm gap-2 border-2 border-[hsl(38_55%_62%)]"
             >
               <Bell className="w-4 h-4" />
-              {sendingPush ? 'שולחת...' : 'שלחי התראת פוש'}
+              {sendingPush
+                ? (isEn ? 'Sending...' : 'שולחת...')
+                : (isEn ? 'Send Push Notification' : 'שלחי התראת פוש')}
             </Button>
           </div>
         </div>
