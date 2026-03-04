@@ -129,6 +129,18 @@ const LEGACY_ID_MAP: Record<string, string> = {
 
 const STORAGE_KEY = 'gp-message-templates-v2';
 
+type AppLanguage = 'he' | 'en';
+
+const getLanguageDraftKey = (templateId: string, language: AppLanguage) => `${templateId}__${language}`;
+
+const getLegacyDraftFallback = (draftMap: Record<string, string>, templateId: string): string | undefined => {
+  return draftMap[templateId];
+};
+
+const getTemplateDefaultText = (template: MessageTemplate, language: AppLanguage): string => {
+  return language === 'en' ? template.defaultTextEn : template.defaultTextHe;
+};
+
 interface SavedState {
   drafts: Record<string, string>;
   days: Record<string, number | null>;
@@ -210,6 +222,7 @@ export default function MessageEditor() {
   const { lang } = useI18n();
   const { user } = useAuth();
   const isEn = lang === 'en';
+  const currentLanguage: AppLanguage = isEn ? 'en' : 'he';
   const localSaved = loadSavedLocal();
   const [previewId, setPreviewId] = useState<string | null>(null);
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
@@ -230,13 +243,19 @@ export default function MessageEditor() {
 
   const allTemplatesForInit = [...SHARED_TEMPLATES, ...BROWS_TEMPLATES, ...LIPS_TEMPLATES, ...customTemplates];
 
-  const getDefaultText = (t: MessageTemplate) => isEn ? t.defaultTextEn : t.defaultTextHe;
+  const getDefaultText = (template: MessageTemplate, language: AppLanguage = currentLanguage) => getTemplateDefaultText(template, language);
 
   const [drafts, setDrafts] = useState<Record<string, string>>(() => {
-    const initial: Record<string, string> = {};
-    allTemplatesForInit.forEach(t => {
-      initial[t.id] = localSaved.drafts[t.id] ?? getDefaultText(t);
+    const savedDrafts = localSaved.drafts ?? {};
+    const initial: Record<string, string> = { ...savedDrafts };
+
+    allTemplatesForInit.forEach((template) => {
+      const heKey = getLanguageDraftKey(template.id, 'he');
+      const enKey = getLanguageDraftKey(template.id, 'en');
+      initial[heKey] = savedDrafts[heKey] ?? getLegacyDraftFallback(savedDrafts, template.id) ?? template.defaultTextHe;
+      initial[enKey] = savedDrafts[enKey] ?? template.defaultTextEn;
     });
+
     return initial;
   });
 
@@ -276,14 +295,69 @@ export default function MessageEditor() {
 
       if (settingsRow?.settings) {
         const s = settingsRow.settings as SavedState;
-        if (s.drafts) setDrafts(prev => ({ ...prev, ...s.drafts }));
+        if (s.customTemplates?.length) setCustomTemplates(s.customTemplates);
+        if (s.drafts) {
+          const allTemplates = [...SHARED_TEMPLATES, ...BROWS_TEMPLATES, ...LIPS_TEMPLATES, ...(s.customTemplates ?? [])];
+          setDrafts((prev) => {
+            const next = { ...prev, ...s.drafts };
+            allTemplates.forEach((template) => {
+              const heKey = getLanguageDraftKey(template.id, 'he');
+              const enKey = getLanguageDraftKey(template.id, 'en');
+              next[heKey] = next[heKey] ?? getLegacyDraftFallback(next, template.id) ?? template.defaultTextHe;
+              next[enKey] = next[enKey] ?? template.defaultTextEn;
+            });
+            return next;
+          });
+        }
         if (s.days) setDays(prev => ({ ...prev, ...s.days }));
         if (s.sendTypes) setSendTypes(prev => ({ ...prev, ...s.sendTypes }));
-        if (s.customTemplates?.length) setCustomTemplates(s.customTemplates);
       }
       setDbLoaded(true);
     })();
   }, [user]);
+
+  useEffect(() => {
+    const allTemplates = [...SHARED_TEMPLATES, ...BROWS_TEMPLATES, ...LIPS_TEMPLATES, ...customTemplates];
+    setDrafts((prev) => {
+      const next = { ...prev };
+      let changed = false;
+
+      allTemplates.forEach((template) => {
+        const heKey = getLanguageDraftKey(template.id, 'he');
+        const enKey = getLanguageDraftKey(template.id, 'en');
+
+        if (next[heKey] === undefined) {
+          next[heKey] = getLegacyDraftFallback(next, template.id) ?? template.defaultTextHe;
+          changed = true;
+        }
+
+        if (next[enKey] === undefined) {
+          next[enKey] = template.defaultTextEn;
+          changed = true;
+        }
+      });
+
+      return changed ? next : prev;
+    });
+  }, [customTemplates]);
+
+  useEffect(() => {
+    const allTemplates = [...SHARED_TEMPLATES, ...BROWS_TEMPLATES, ...LIPS_TEMPLATES, ...customTemplates];
+    setDrafts((prev) => {
+      const next = { ...prev };
+
+      allTemplates.forEach((template) => {
+        const key = getLanguageDraftKey(template.id, currentLanguage);
+        const fallbackText = currentLanguage === 'en'
+          ? prev[key] ?? template.defaultTextEn
+          : prev[key] ?? getLegacyDraftFallback(prev, template.id) ?? template.defaultTextHe;
+
+        next[key] = fallbackText;
+      });
+
+      return next;
+    });
+  }, [currentLanguage, customTemplates]);
 
   const handleSave = useCallback(async () => {
     const state: SavedState = { drafts, days, sendTypes, customTemplates };
@@ -375,7 +449,11 @@ export default function MessageEditor() {
     const allBuiltIn = [...SHARED_TEMPLATES, ...BROWS_TEMPLATES, ...LIPS_TEMPLATES];
     const template = allBuiltIn.find(t => t.id === templateId);
     if (!template) return;
-    setDrafts(prev => ({ ...prev, [templateId]: getDefaultText(template) }));
+    setDrafts(prev => ({
+      ...prev,
+      [getLanguageDraftKey(templateId, 'he')]: template.defaultTextHe,
+      [getLanguageDraftKey(templateId, 'en')]: template.defaultTextEn,
+    }));
     setDays(prev => ({ ...prev, [templateId]: template.day }));
     setSendTypes(prev => ({ ...prev, [templateId]: 'push' }));
     toast({ title: isEn ? 'Template restored to default 🔄' : 'הנוסח שוחזר לברירת המחדל 🔄' });
@@ -383,10 +461,11 @@ export default function MessageEditor() {
 
   const insertTag = useCallback((templateId: string, tag: string) => {
     setDrafts(prev => {
-      const current = prev[templateId] || '';
-      return { ...prev, [templateId]: current + ' ' + tag };
+      const draftKey = getLanguageDraftKey(templateId, currentLanguage);
+      const current = prev[draftKey] ?? getLegacyDraftFallback(prev, templateId) ?? '';
+      return { ...prev, [draftKey]: `${current} ${tag}`.trim() };
     });
-  }, []);
+  }, [currentLanguage]);
 
   const addCustomMessage = useCallback(() => {
     const newId = `custom_${Date.now()}`;
@@ -404,7 +483,11 @@ export default function MessageEditor() {
       category: activeCategory,
     };
     setCustomTemplates(prev => [...prev, newTemplate]);
-    setDrafts(prev => ({ ...prev, [newId]: getDefaultText(newTemplate) }));
+    setDrafts(prev => ({
+      ...prev,
+      [getLanguageDraftKey(newId, 'he')]: newTemplate.defaultTextHe,
+      [getLanguageDraftKey(newId, 'en')]: newTemplate.defaultTextEn,
+    }));
     setDays(prev => ({ ...prev, [newId]: newTemplate.day }));
     setSendTypes(prev => ({ ...prev, [newId]: 'push' }));
     // Auto-scroll to the new card after render
@@ -412,7 +495,7 @@ export default function MessageEditor() {
       const el = document.getElementById(`msg-card-${newId}`);
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
-  }, [activeCategory, isEn]);
+  }, [activeCategory]);
 
   const removeCustomMessage = useCallback((id: string) => {
     setCustomTemplates(prev => prev.filter(t => t.id !== id));
@@ -525,6 +608,8 @@ export default function MessageEditor() {
         const type = sendTypes[template.id] || 'push';
         const label = isEn ? template.labelEn : template.labelHe;
         const placeholders = isEn ? template.placeholdersEn : template.placeholdersHe;
+        const draftKey = getLanguageDraftKey(template.id, currentLanguage);
+        const draftValue = drafts[draftKey] ?? getDefaultText(template, currentLanguage);
         return (
           <div
             key={template.id}
@@ -624,8 +709,8 @@ export default function MessageEditor() {
             {/* Textarea */}
             <Textarea
               ref={(el) => { textareaRefs.current[template.id] = el; }}
-              value={drafts[template.id] ?? ''}
-              onChange={(e) => setDrafts(prev => ({ ...prev, [template.id]: e.target.value }))}
+              value={draftValue}
+              onChange={(e) => setDrafts(prev => ({ ...prev, [draftKey]: e.target.value }))}
               rows={4}
               dir={isEn ? 'ltr' : 'rtl'}
               className="resize-y text-sm bg-background"
@@ -717,7 +802,7 @@ export default function MessageEditor() {
       <MessagePreviewModal
         open={!!previewId}
         onClose={() => setPreviewId(null)}
-        messageText={previewId ? (drafts[previewId] ?? '') : ''}
+        messageText={previewId ? (drafts[getLanguageDraftKey(previewId, currentLanguage)] ?? '') : ''}
         onEditClick={() => {
           if (previewId) {
             textareaRefs.current[previewId]?.focus();
