@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { HelpCircle, X } from 'lucide-react';
 
 interface HelpTooltipProps {
@@ -11,9 +12,7 @@ const HelpTooltip = ({ text, id }: HelpTooltipProps) => {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const handleToggle = useCallback((e: React.MouseEvent | React.PointerEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const handleToggle = useCallback(() => {
     setOpen(prev => !prev);
   }, []);
 
@@ -47,8 +46,10 @@ const HelpTooltip = ({ text, id }: HelpTooltipProps) => {
       <button
         ref={triggerRef}
         type="button"
-        onClick={handleToggle}
-        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleToggle();
+        }}
         className="w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 hover:scale-110 border-2 cursor-pointer select-none"
         style={{
           background: '#ffffff',
@@ -62,19 +63,20 @@ const HelpTooltip = ({ text, id }: HelpTooltipProps) => {
         <HelpCircle className="w-4 h-4 pointer-events-none" strokeWidth={2.5} style={{ color: 'hsl(38 55% 62%)' }} />
       </button>
 
-      {open && (
+      {open && createPortal(
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-[100]"
+            className="fixed inset-0"
+            style={{ zIndex: 9998 }}
             onClick={handleClose}
-            onPointerDown={handleClose}
           />
           {/* Tooltip bubble */}
           <div
             ref={tooltipRef}
-            className="fixed z-[101] p-3.5 rounded-xl animate-fade-in text-xs leading-relaxed"
+            className="fixed p-3.5 rounded-xl animate-fade-in text-xs leading-relaxed"
             style={{
+              zIndex: 9999,
               maxWidth: '250px',
               width: '250px',
               background: 'linear-gradient(145deg, #1a1a1a 0%, #2a2a2a 100%)',
@@ -92,7 +94,8 @@ const HelpTooltip = ({ text, id }: HelpTooltipProps) => {
             </button>
             <p className="text-white/90 font-medium pr-1" dir="rtl" style={{ lineHeight: '1.7' }}>{text}</p>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </span>
   );
