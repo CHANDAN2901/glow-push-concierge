@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { useHealthQuestions, calculateDynamicRiskLevel } from '@/hooks/useHealthQuestions';
@@ -103,6 +103,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   const isHe = lang === 'he';
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const isRedFlag = (name: string) => redFlagClients.includes(name);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -335,24 +336,47 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   };
 
   const handleAppointmentCardClick = async (apt: Appointment) => {
-    // Navigate to the client's full profile page
-    // First try to find the client_id from the clients table
-    let clientId = '';
+    // Navigate to the artist's detailed client management card inside dashboard
+    let clientParam = apt.clientName;
+
     if (artistProfileId) {
-      const { data } = await supabase.from('clients')
-        .select('id')
-        .eq('artist_id', artistProfileId)
-        .eq('full_name', apt.clientName)
-        .limit(1)
-        .maybeSingle();
-      if (data) clientId = data.id;
+      let clientMatch: { id: string } | null = null;
+
+      if (apt.clientPhone) {
+        const { data } = await supabase
+          .from('clients')
+          .select('id')
+          .eq('artist_id', artistProfileId)
+          .eq('full_name', apt.clientName)
+          .eq('phone', apt.clientPhone)
+          .limit(1)
+          .maybeSingle();
+        clientMatch = data;
+      }
+
+      if (!clientMatch) {
+        const { data } = await supabase
+          .from('clients')
+          .select('id')
+          .eq('artist_id', artistProfileId)
+          .eq('full_name', apt.clientName)
+          .limit(1)
+          .maybeSingle();
+        clientMatch = data;
+      }
+
+      if (clientMatch?.id) clientParam = clientMatch.id;
     }
-    const params = new URLSearchParams();
-    if (clientId) params.set('client_id', clientId);
-    params.set('name', apt.clientName);
-    if (apt.clientPhone) params.set('phone', apt.clientPhone);
-    if (artistProfileId) params.set('artist_id', artistProfileId);
-    navigate(`/client-profile?${params.toString()}`);
+
+    const params = new URLSearchParams(location.search);
+    params.set('tab', 'clients');
+    params.set('client', clientParam);
+    params.delete('name');
+    params.delete('phone');
+    params.delete('artist_id');
+    params.delete('client_id');
+
+    navigate(`/artist?${params.toString()}`);
   };
 
   const toggleHealthStatus = async (aptId: string) => {
