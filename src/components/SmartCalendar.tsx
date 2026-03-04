@@ -482,12 +482,14 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
           </button>
         </div>
       )}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h2 className="font-serif font-bold text-xl flex items-center gap-2">
-            <CalendarDays className="w-5 h-5 text-accent" />
-            {isHe ? 'יומן טיפולים' : 'Treatment Calendar'}
-          </h2>
+          {!onBack && (
+            <h2 className="font-serif font-bold text-xl flex items-center gap-2">
+              <CalendarDays className="w-5 h-5 text-accent" />
+              {isHe ? 'יומן טיפולים' : 'Treatment Calendar'}
+            </h2>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {/* Week/Month toggle */}
