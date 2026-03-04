@@ -186,23 +186,23 @@ const MarketingLanding = () => {
         </div>
 
         {/* Category Tabs */}
-        <div className="flex items-center justify-center gap-2 flex-wrap">
+        <div className="flex items-center justify-center gap-3 flex-wrap" role="tablist" aria-label={isHe ? 'סינון שאלות נפוצות' : 'FAQ category filters'}>
           {CATEGORIES.map((cat) => {
             const isActive = activeCategory === cat.key;
             return (
               <button
                 key={cat.key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
                 onClick={() => setActiveCategory(cat.key)}
-                className="px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 active:scale-95"
-                style={isActive ? {
-                  background: 'linear-gradient(135deg, #B8860B, #D4AF37)',
-                  color: '#fff',
-                  boxShadow: '0 4px 16px -4px rgba(212,175,55,0.45)',
-                } : {
-                  background: 'transparent',
-                  color: '#D4AF37',
-                  border: '1.5px solid rgba(212,175,55,0.4)',
-                }}
+                className={[
+                  'min-h-10 px-5 rounded-full text-sm font-semibold border transition-all duration-300 active:scale-95',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  isActive
+                    ? 'bg-gold-shimmer text-accent-foreground border-gold/70 shadow-gold'
+                    : 'bg-background/80 text-gold border-gold/45 hover:bg-gold-muted/45 hover:border-gold/65 hover:shadow-gold',
+                ].join(' ')}
               >
                 {isHe ? cat.he : cat.en}
               </button>
