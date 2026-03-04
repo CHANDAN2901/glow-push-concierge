@@ -1015,6 +1015,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                   <SelectContent>
                     <SelectItem value="eyebrows">{isHe ? '✨ גבות' : '✨ Brows'}</SelectItem>
                     <SelectItem value="lips">{isHe ? '💋 שפתיים' : '💋 Lips'}</SelectItem>
+                    <SelectItem value="eyeliner">{isHe ? '👁️ אייליינר' : '👁️ Eyeliner'}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

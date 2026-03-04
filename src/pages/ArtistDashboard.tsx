@@ -2528,7 +2528,7 @@ const ArtistDashboard = () => {
                 name: apt.clientName,
                 phone: apt.clientPhone,
                 day: 1,
-                treatment: apt.treatmentType === 'eyebrows' ? (lang === 'en' ? 'Brows' : 'גבות') : (lang === 'en' ? 'Lips' : 'שפתיים'),
+                treatment: apt.treatmentType === 'eyebrows' ? (lang === 'en' ? 'Brows' : 'גבות') : apt.treatmentType === 'eyeliner' ? (lang === 'en' ? 'Eyeliner' : 'אייליינר') : (lang === 'en' ? 'Lips' : 'שפתיים'),
                 link: `${origin}/c/new?name=${encodeURIComponent(apt.clientName)}&treatment=${apt.treatmentType}&start=${apt.date}`,
                 beforeImg: '',
                 afterImg: '',
