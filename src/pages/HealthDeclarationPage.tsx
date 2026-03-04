@@ -139,7 +139,7 @@ const HealthDeclarationPage = () => {
         logoUrl={logo}
         onComplete={handleComplete}
         onClose={() => {}}
-        
+        isPreview={isPreview}
         appointmentDate={appointmentDate}
         appointmentTime={appointmentTime}
       />
