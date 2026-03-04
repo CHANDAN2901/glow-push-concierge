@@ -927,8 +927,8 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
 
       {/* Add Appointment Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowAddModal(false)}>
-          <div className="relative w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowAddModal(false)}>
+          <div className="relative w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col" style={{ maxHeight: '85dvh' }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setShowAddModal(false)} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -936,7 +936,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
               <CalendarDays className="w-8 h-8 mx-auto mb-2 text-accent" />
               <h2 className="font-serif font-bold text-lg">{isHe ? 'תור חדש' : 'New Appointment'}</h2>
             </div>
-            <div className="p-6 space-y-4 overflow-y-auto flex-1 pb-24">
+            <div className="p-6 space-y-4 flex-1 pb-24 px-6" style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', minHeight: 0 }}>
               {/* Client search / autocomplete */}
               <div className="space-y-2 relative">
                 <Label className="text-xs font-medium">{isHe ? 'שם הלקוחה' : 'Client Name'}</Label>
