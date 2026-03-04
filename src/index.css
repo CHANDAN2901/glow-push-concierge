@@ -169,16 +169,18 @@
 
   /* True Metallic Gold – global primary button */
   .btn-metallic-gold {
-    background: linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%);
+    background: linear-gradient(135deg, #996515 0%, #B8860B 15%, #D4AF37 35%, #F9F295 50%, #D4AF37 65%, #B8860B 85%, #996515 100%);
+    background-size: 200% 100%;
     border: none;
     box-shadow:
-      0 4px 18px rgba(212, 175, 55, 0.35),
-      inset 0 1px 0 rgba(249, 242, 149, 0.5);
-    color: #5C4033;
-    font-weight: 600;
+      0 4px 20px rgba(212, 175, 55, 0.4),
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(249, 242, 149, 0.6);
+    color: #4A3520;
+    font-weight: 700;
     border-radius: 9999px;
-    letter-spacing: 0.02em;
-    transition: all 0.2s ease;
+    letter-spacing: 0.03em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
   }
@@ -186,17 +188,26 @@
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
+    left: -100%;
     right: 0;
-    height: 50%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0) 100%);
-    border-radius: 9999px 9999px 0 0;
+    height: 100%;
+    width: 60%;
+    background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+    animation: btn-shine-sweep 3s ease-in-out infinite;
     pointer-events: none;
   }
+  @keyframes btn-shine-sweep {
+    0% { left: -60%; }
+    50% { left: 120%; }
+    100% { left: 120%; }
+  }
   .btn-metallic-gold:hover {
+    transform: scale(1.02);
     box-shadow:
-      0 6px 24px rgba(212, 175, 55, 0.45),
-      inset 0 1px 0 rgba(249, 242, 149, 0.6);
+      0 8px 28px rgba(212, 175, 55, 0.5),
+      0 2px 6px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(249, 242, 149, 0.7);
+    background-position: 100% 0;
   }
   .btn-metallic-gold:active {
     transform: scale(0.97);
@@ -204,42 +215,63 @@
 
   /* Jewel Gold variant – same as metallic gold */
   .btn-jewel-gold {
-    background: linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%);
+    background: linear-gradient(135deg, #996515 0%, #B8860B 15%, #D4AF37 35%, #F9F295 50%, #D4AF37 65%, #B8860B 85%, #996515 100%);
+    background-size: 200% 100%;
     border: none;
     box-shadow:
-      0 4px 18px rgba(212, 175, 55, 0.35),
-      inset 0 1px 0 rgba(249, 242, 149, 0.5);
-    color: #5C4033;
-    font-weight: 600;
+      0 4px 20px rgba(212, 175, 55, 0.4),
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(249, 242, 149, 0.6);
+    color: #4A3520;
+    font-weight: 700;
     border-radius: 9999px;
-    letter-spacing: 0.02em;
-    transition: all 0.2s ease;
+    letter-spacing: 0.03em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
   }
   .btn-jewel-gold::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 50%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0) 100%);
-    border-radius: 9999px 9999px 0 0;
+    top: 0; left: -100%; right: 0;
+    height: 100%;
+    width: 60%;
+    background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+    animation: btn-shine-sweep 3s ease-in-out infinite;
     pointer-events: none;
+  }
+  .btn-jewel-gold:hover {
+    transform: scale(1.02);
+    box-shadow:
+      0 8px 28px rgba(212, 175, 55, 0.5),
+      0 2px 6px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(249, 242, 149, 0.7);
   }
 
   /* Quick Action CTA – white with gold border */
   .btn-gold-cta {
     background: #ffffff;
     border: 2.5px solid #D4AF37;
-    color: #5C4033;
+    color: #4A3520;
     box-shadow: 0 4px 16px rgba(212, 175, 55, 0.15);
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .btn-gold-cta:hover {
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.25);
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+    border-color: #B8860B;
   }
   .btn-gold-cta:active {
     transform: scale(0.97);
+  }
+
+  /* Premium card hover lift */
+  .card-premium {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px -8px rgba(162, 109, 93, 0.15), 0 4px 16px rgba(212, 175, 55, 0.08);
   }
 
   .border-gold {
