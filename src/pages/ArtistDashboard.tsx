@@ -1676,6 +1676,59 @@ const ArtistDashboard = () => {
                   <Eye className="w-3.5 h-3.5" />
                 </button>
 
+                {/* === Share Client Portal Link === */}
+                {(() => {
+                  const clientLink = selectedClient.link || `${origin}/c/${encodeURIComponent(selectedClient.dbId || '')}?name=${encodeURIComponent(selectedClient.name)}&treatment=${encodeURIComponent(selectedClient.treatment || '')}&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`;
+                  const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
+                  const hasPhone = cleanPhone.length > 0;
+                  const waMsg = `היי ${selectedClient.name} 💛\nמצורף הקישור האישי שלך לאזור הלקוחות שלנו.\nתוכלי לראות שם את מסע ההחלמה שלך ולמלא את הצהרת הבריאות:\n👇\n${clientLink}`;
+                  const waUrl = hasPhone
+                    ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMsg)}`
+                    : `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
+
+                  return (
+                    <div className="rounded-2xl overflow-hidden bg-card border border-border p-4 space-y-3">
+                      <p className="text-xs font-semibold text-muted-foreground tracking-wide text-center">
+                        {lang === 'en' ? '🔗 Client Portal Link' : '🔗 קישור לאזור הלקוחה'}
+                      </p>
+                      <div className="flex gap-2">
+                        {/* WhatsApp button */}
+                        <a
+                          href={waUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => {
+                            if (!hasPhone) {
+                              e.preventDefault();
+                              toast({ title: lang === 'en' ? 'No phone number set for this client' : 'לא הוגדר מספר טלפון ללקוחה זו', variant: 'destructive' });
+                            }
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.97]"
+                          style={{ background: '#25D366', color: '#ffffff', boxShadow: '0 4px 16px rgba(37, 211, 102, 0.3)' }}
+                        >
+                          <MessageCircle className="w-4 h-4" strokeWidth={2} />
+                          {lang === 'en' ? 'WhatsApp' : 'וואטסאפ'}
+                        </a>
+                        {/* Copy Link button */}
+                        <button
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(clientLink);
+                              toast({ title: lang === 'en' ? 'Link copied! ✨' : 'הקישור הועתק בהצלחה! ✨' });
+                            } catch {
+                              window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', clientLink);
+                            }
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.97] btn-gold-cta"
+                        >
+                          <Copy className="w-4 h-4" strokeWidth={2} />
+                          {lang === 'en' ? 'Copy Link' : 'העתקת קישור'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* === Send Test Push Notification === */}
                 <button
                   type="button"
