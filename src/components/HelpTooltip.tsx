@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useCallback, useLayoutEffect } from 'react';
 import { HelpCircle, X } from 'lucide-react';
 
 interface HelpTooltipProps {
@@ -11,64 +11,70 @@ const HelpTooltip = ({ text, id }: HelpTooltipProps) => {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Collision detection: reposition tooltip if it overflows viewport
-  useEffect(() => {
-    if (open && tooltipRef.current) {
-      const el = tooltipRef.current;
-      const rect = el.getBoundingClientRect();
-      const vw = window.innerWidth;
+  const handleToggle = useCallback((e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setOpen(prev => !prev);
+  }, []);
 
-      // Reset any previous adjustments
-      el.style.left = '';
-      el.style.right = '';
-      el.style.transform = '';
+  const handleClose = useCallback(() => {
+    setOpen(false);
+  }, []);
 
-      // Center the tooltip relative to the trigger
-      if (triggerRef.current) {
-        const triggerRect = triggerRef.current.getBoundingClientRect();
-        const tooltipWidth = el.offsetWidth;
-        const triggerCenter = triggerRect.left + triggerRect.width / 2;
-        let desiredLeft = triggerCenter - tooltipWidth / 2;
+  // Position tooltip after it renders
+  useLayoutEffect(() => {
+    if (!open || !tooltipRef.current || !triggerRef.current) return;
 
-        // Clamp to viewport with 12px padding
-        const padding = 12;
-        if (desiredLeft < padding) desiredLeft = padding;
-        if (desiredLeft + tooltipWidth > vw - padding) desiredLeft = vw - padding - tooltipWidth;
+    const el = tooltipRef.current;
+    const triggerRect = triggerRef.current.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const tooltipWidth = 250;
+    const padding = 12;
 
-        el.style.position = 'fixed';
-        el.style.left = `${desiredLeft}px`;
-        el.style.right = 'auto';
-      }
-    }
+    // Vertical position: below the trigger
+    el.style.top = `${triggerRect.bottom + 8}px`;
+
+    // Horizontal: center on trigger, clamped to viewport
+    const triggerCenter = triggerRect.left + triggerRect.width / 2;
+    let left = triggerCenter - tooltipWidth / 2;
+    if (left < padding) left = padding;
+    if (left + tooltipWidth > vw - padding) left = vw - padding - tooltipWidth;
+    el.style.left = `${left}px`;
   }, [open]);
 
   return (
     <span className="relative inline-flex items-center">
       <button
         ref={triggerRef}
-        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-        className="w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 hover:scale-110 border-2"
+        type="button"
+        onClick={handleToggle}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 hover:scale-110 border-2 cursor-pointer select-none"
         style={{
           background: '#ffffff',
           borderColor: 'hsl(38 55% 62%)',
           boxShadow: '0 2px 8px hsl(38 55% 62% / 0.2)',
         }}
         aria-label="Help"
+        aria-expanded={open}
         data-tour-id={id}
       >
-        <HelpCircle className="w-4 h-4" strokeWidth={2.5} style={{ color: 'hsl(38 55% 62%)' }} />
+        <HelpCircle className="w-4 h-4 pointer-events-none" strokeWidth={2.5} style={{ color: 'hsl(38 55% 62%)' }} />
       </button>
 
       {open && (
         <>
-          <div className="fixed inset-0 z-[100]" onClick={() => setOpen(false)} />
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-[100]"
+            onClick={handleClose}
+            onPointerDown={handleClose}
+          />
+          {/* Tooltip bubble */}
           <div
             ref={tooltipRef}
-            className="fixed z-[101] mt-2 p-3.5 rounded-xl animate-fade-in text-xs leading-relaxed"
+            className="fixed z-[101] p-3.5 rounded-xl animate-fade-in text-xs leading-relaxed"
             style={{
-              top: triggerRef.current
-                ? triggerRef.current.getBoundingClientRect().bottom + 8
-                : 'auto',
               maxWidth: '250px',
               width: '250px',
               background: 'linear-gradient(145deg, #1a1a1a 0%, #2a2a2a 100%)',
@@ -77,7 +83,8 @@ const HelpTooltip = ({ text, id }: HelpTooltipProps) => {
             }}
           >
             <button
-              onClick={() => setOpen(false)}
+              type="button"
+              onClick={handleClose}
               className="absolute top-2 left-2 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
               style={{ color: 'hsl(40 50% 70%)' }}
             >
