@@ -43,17 +43,26 @@ const formatPhone = (raw: string): string => {
   return digits;
 };
 
-/* ── Shiny gold border wrapper ── */
+/* ── Gold action button style (white bg, gold border, gold text) ── */
+const goldButtonStyle: React.CSSProperties = {
+  background: '#fff',
+  border: '2px solid transparent',
+  borderImage: 'linear-gradient(135deg, #F5E6A3, #D4AF37, #B8860B, #D4AF37) 1',
+  color: '#B8860B',
+  boxShadow: '0 2px 8px rgba(212,175,55,0.18)',
+};
+
+/* ── Thick shiny gold border wrapper ── */
 function GoldCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex-shrink-0 w-[280px] rounded-2xl p-[2.5px]"
+      className="flex-shrink-0 w-[280px] rounded-2xl p-[4px]"
       style={{
-        background: 'linear-gradient(135deg, #F5E6A3 0%, #D4AF37 25%, #B8860B 50%, #D4AF37 75%, #F5E6A3 100%)',
-        boxShadow: '0 4px 24px rgba(212,175,55,0.3), 0 1px 6px rgba(184,134,11,0.2)',
+        background: 'linear-gradient(135deg, #F5E6A3 0%, #D4AF37 20%, #B8860B 40%, #DAA520 60%, #D4AF37 80%, #F5E6A3 100%)',
+        boxShadow: '0 6px 28px rgba(212,175,55,0.35), 0 2px 8px rgba(184,134,11,0.25)',
       }}
     >
-      <div className="rounded-[14px] bg-card p-4 h-full">
+      <div className="rounded-[12px] bg-card p-4 h-full">
         {children}
       </div>
     </div>
@@ -64,9 +73,6 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
   const birthdayClients = clients.filter(c => isBirthdayThisWeek(c.birthDate));
   const renewalClients = clients.filter(c => isRenewalDue(c.treatment, c.day));
   const reviewClients = clients.filter(c => c.day >= 35 && c.day <= 120);
-
-  const hasContent = birthdayClients.length > 0 || renewalClients.length > 0 || reviewClients.length > 0;
-  if (!hasContent) return null;
 
   const handleReviewWhatsApp = (client: ClientEntry) => {
     const msg = lang === 'en'
@@ -79,18 +85,20 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
     window.open(url, '_blank');
   };
 
+  /* Always show all 3 categories */
   const categories = [
     {
       id: 'birthdays',
       emoji: '🎂',
       title: lang === 'en' ? 'Birthdays' : 'ימי הולדת',
       subtitle: lang === 'en' ? 'This week' : 'השבוע',
+      emptyText: lang === 'en' ? 'No birthdays this week' : 'אין ימי הולדת השבוע',
       clients: birthdayClients,
       renderAction: (client: ClientEntry) => (
         <button
           onClick={(e) => { e.stopPropagation(); onBirthdayClick(client); }}
           className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
-          style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#5C4033', boxShadow: '0 2px 8px rgba(255,165,0,0.25)' }}
+          style={goldButtonStyle}
         >
           <Gift className="w-3 h-3" />
           {lang === 'en' ? 'Send Wish' : 'שלחי ברכה'}
@@ -102,12 +110,13 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
       emoji: '🔄',
       title: lang === 'en' ? 'Renewals' : 'חידוש טיפול',
       subtitle: lang === 'en' ? 'Due now' : 'הגיע הזמן',
+      emptyText: lang === 'en' ? 'No renewals due' : 'אין חידושים כרגע',
       clients: renewalClients,
       renderAction: (client: ClientEntry) => (
         <button
           onClick={(e) => { e.stopPropagation(); onRenewalClick(client); }}
           className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
-          style={{ background: 'linear-gradient(135deg, #D4AF37, #B8860B)', color: '#fff', boxShadow: '0 2px 8px rgba(184,134,11,0.3)' }}
+          style={goldButtonStyle}
         >
           <RefreshCw className="w-3 h-3" />
           {lang === 'en' ? 'Send Reminder' : 'שלחי תזכורת'}
@@ -119,21 +128,20 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
       emoji: '⭐',
       title: lang === 'en' ? 'Reviews' : 'בקשת המלצה',
       subtitle: lang === 'en' ? 'Ask now' : 'הזמן לבקש',
+      emptyText: lang === 'en' ? 'No review candidates' : 'אין לקוחות להמלצה כרגע',
       clients: reviewClients,
       renderAction: (client: ClientEntry) => (
         <button
           onClick={(e) => { e.stopPropagation(); handleReviewWhatsApp(client); }}
           className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
-          style={{ background: '#25D366', color: '#fff', boxShadow: '0 2px 8px rgba(37,211,102,0.25)' }}
+          style={goldButtonStyle}
         >
           <MessageCircle className="w-3 h-3" />
           {lang === 'en' ? 'Ask Review' : 'בקשי המלצה'}
         </button>
       ),
     },
-  ].filter(cat => cat.clients.length > 0);
-
-  if (categories.length === 0) return null;
+  ];
 
   return (
     <div className="animate-fade-up" style={{ animationDelay: '0.2s', opacity: 0 }}>
@@ -155,11 +163,10 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
         </div>
       </div>
 
-      {/* Horizontal scrollable categories with gold borders */}
+      {/* Horizontal scrollable — ALL 3 cards always visible */}
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
         {categories.map((cat) => (
           <GoldCard key={cat.id}>
-            {/* Category header */}
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">{cat.emoji}</span>
               <div className="flex-1">
@@ -168,32 +175,35 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
               </div>
             </div>
 
-            {/* Client list (max 3 shown) */}
-            <div className="space-y-2">
-              {cat.clients.slice(0, 3).map((client, i) => (
-                <div
-                  key={client.dbId || i}
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 bg-muted/50 border border-border/50"
-                >
+            {cat.clients.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">{cat.emptyText}</p>
+            ) : (
+              <div className="space-y-2">
+                {cat.clients.slice(0, 3).map((client, i) => (
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                    style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
+                    key={client.dbId || i}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 bg-muted/50 border border-border/50"
                   >
-                    {client.name.charAt(0)}
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                      style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
+                    >
+                      {client.name.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground truncate">{client.name}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{client.treatment}</p>
+                    </div>
+                    {cat.renderAction(client)}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-foreground truncate">{client.name}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{client.treatment}</p>
-                  </div>
-                  {cat.renderAction(client)}
-                </div>
-              ))}
-              {cat.clients.length > 3 && (
-                <p className="text-[10px] text-center text-muted-foreground pt-1">
-                  +{cat.clients.length - 3} {lang === 'en' ? 'more' : 'נוספות'}
-                </p>
-              )}
-            </div>
+                ))}
+                {cat.clients.length > 3 && (
+                  <p className="text-[10px] text-center text-muted-foreground pt-1">
+                    +{cat.clients.length - 3} {lang === 'en' ? 'more' : 'נוספות'}
+                  </p>
+                )}
+              </div>
+            )}
           </GoldCard>
         ))}
       </div>
