@@ -291,7 +291,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         ];
 
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto" style={{ background: T.bg }}>
+      <div className="fixed inset-0 z-[70] overflow-y-auto" style={{ background: T.bg }}>
         <div className="min-h-screen flex flex-col items-center justify-center px-5 py-10 hd-flip-perspective">
           {/* VIP TICKET CARD */}
           <div
@@ -380,7 +380,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 
   // ═══════════════ MAIN FORM ═══════════════
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: T.bg }}>
+    <div className="fixed inset-0 z-[70] flex flex-col" style={{ background: T.bg }}>
       {/* Scrollable content area */}
       <div className="flex-1 overflow-y-auto">
       <div className="flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-8">
