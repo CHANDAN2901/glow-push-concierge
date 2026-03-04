@@ -334,14 +334,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   };
 
   const handleAppointmentCardClick = (apt: Appointment) => {
-    if (apt.healthFormStatus === 'signed') {
-      setFullScreenDeclaration(apt);
-      return;
-    }
-    if (apt.clientPhone) {
-      openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time);
-      return;
-    }
+    // Primary action: always open the detail/profile modal
     setDetailModalApt(apt);
   };
 
