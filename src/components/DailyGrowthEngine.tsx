@@ -1,4 +1,5 @@
 import { Gift, RefreshCw, Star, MessageCircle } from 'lucide-react';
+import HelpTooltip from '@/components/HelpTooltip';
 import { isRenewalDue } from '@/components/RenewalMessageDialog';
 
 interface ClientEntry {
@@ -154,8 +155,9 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
           <Star className="w-4 h-4 text-white" />
         </div>
         <div>
-          <h2 className="text-base font-extrabold text-foreground">
+          <h2 className="text-base font-extrabold text-foreground flex items-center gap-1.5">
             {lang === 'en' ? 'Your Daily Growth Engine' : 'מנוע הצמיחה היומי שלך'}
+            <HelpTooltip text="פעולות יומיות קטנות ומוכחות שיעזרו לך למלא את היומן, לשמר לקוחות ולהגדיל הכנסות." id="growth-engine" />
           </h2>
           <p className="text-[10px] text-muted-foreground">
             {lang === 'en' ? 'One-tap actions to grow your business' : 'פעולות בלחיצה אחת להצמחת העסק'}

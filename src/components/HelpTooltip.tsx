@@ -28,21 +28,22 @@ const HelpTooltip = ({ text, id }: HelpTooltipProps) => {
         <>
           <div className="fixed inset-0 z-[100]" onClick={() => setOpen(false)} />
           <div
-            className="absolute z-[101] top-full mt-2 w-64 p-3 rounded-xl shadow-xl animate-fade-in text-xs leading-relaxed"
+            className="absolute z-[101] top-full mt-2 w-64 p-3.5 rounded-xl animate-fade-in text-xs leading-relaxed"
             style={{
-              background: '#fffdf7',
-              border: '1.5px solid hsl(38 55% 62%)',
-              boxShadow: '0 8px 24px hsl(38 55% 50% / 0.2)',
+              background: 'linear-gradient(145deg, #1a1a1a 0%, #2a2a2a 100%)',
+              border: '1.5px solid hsl(40 60% 50% / 0.4)',
+              boxShadow: '0 12px 32px hsl(0 0% 0% / 0.35), 0 0 0 1px hsl(40 60% 50% / 0.1)',
               right: 0,
             }}
           >
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-1.5 left-1.5 w-5 h-5 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+              className="absolute top-2 left-2 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
+              style={{ color: 'hsl(40 50% 70%)' }}
             >
               <X className="w-3 h-3" />
             </button>
-            <p className="text-foreground font-medium" dir="rtl">{text}</p>
+            <p className="text-white/90 font-medium pr-1" dir="rtl" style={{ lineHeight: '1.7' }}>{text}</p>
           </div>
         </>
       )}
