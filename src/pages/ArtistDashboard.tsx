@@ -1355,11 +1355,10 @@ const ArtistDashboard = () => {
             <button
               type="button"
               onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-              className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] border border-black"
               style={{
-                background: 'linear-gradient(135deg, hsl(43 96% 56%), hsl(38 90% 45%))',
+                background: 'hsl(36 50% 42%)',
                 color: '#fff',
-                boxShadow: '0 4px 16px hsl(38 80% 50% / 0.35)',
               }}
             >
               <Eye className="w-3.5 h-3.5" />
