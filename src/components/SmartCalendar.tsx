@@ -333,6 +333,18 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     window.open(waUrl, '_blank');
   };
 
+  const handleAppointmentCardClick = (apt: Appointment) => {
+    if (apt.healthFormStatus === 'signed') {
+      setFullScreenDeclaration(apt);
+      return;
+    }
+    if (apt.clientPhone) {
+      openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time);
+      return;
+    }
+    setDetailModalApt(apt);
+  };
+
   const toggleHealthStatus = async (aptId: string) => {
     if (navigator.vibrate) navigator.vibrate(50);
     const apt = appointments.find(a => a.id === aptId);
@@ -543,7 +555,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       </div>
 
       {/* Calendar Views */}
-      <div className="bg-card rounded-2xl border border-border p-3 select-none">
+      <div className="bg-card rounded-2xl border border-border p-3 select-none relative z-0">
         {/* Navigation header */}
         <div className="flex items-center justify-between mb-3">
           <button
@@ -614,9 +626,9 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
           </div>
         ) : (
           /* Full Month Grid */
-          <div>
+          <div className="relative z-0">
             {/* Day name headers */}
-            <div className="grid grid-cols-7 gap-1 mb-1">
+            <div className="grid grid-cols-7 gap-1 mb-1 pointer-events-none">
               {(isHe ? DAYS_HE : DAYS_EN).map((name, i) => (
                 <div key={i} className="text-center text-[10px] font-semibold text-muted-foreground py-1">
                   {name}
@@ -624,7 +636,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
               ))}
             </div>
             {/* Day cells */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-1 pointer-events-none">
               {monthGridDays.map((day, i) => {
                 if (!day) return <div key={`blank-${i}`} />;
                 const isCurrentMonth = day.getMonth() === displayMonth.getMonth();
@@ -638,7 +650,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                       ws.setDate(ws.getDate() - ws.getDay());
                       setWeekStart(ws);
                     }}
-                    className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-sm relative ${
+                    className={`pointer-events-auto flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-sm relative ${
                       isSelected(day)
                         ? 'shadow-sm font-bold'
                         : isToday(day)
@@ -665,9 +677,10 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       </div>
 
       {/* Day Appointments */}
-      <div
-        className="space-y-3 relative z-10"
-      >
+      <div className="relative z-[999] pointer-events-auto">
+        <div
+          className="space-y-3 relative z-[999] pointer-events-auto"
+        >
         <h3 className="text-sm font-semibold text-muted-foreground">
           {isHe
             ? `${selectedDate.getDate()} ${MONTHS_HE[selectedDate.getMonth()]} · ${dayAppointments.length} תורים`
@@ -697,9 +710,13 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
             return (
               <div
                 key={apt.id}
-                onClick={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-                className={`bg-card rounded-2xl p-4 transition-all duration-500 ease-in-out ${
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAppointmentCardClick(apt);
+                }}
+                className={`pointer-events-auto cursor-pointer bg-card rounded-2xl p-4 transition-all duration-500 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-12px_hsl(var(--foreground)/0.35)] ${
                   hasRedFlag && !isCompleted
                     ? 'border-2 border-destructive/50 bg-destructive/5'
                     : isCompleted
@@ -720,7 +737,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     </div>
                     {/* Traffic light dot — clickable */}
                     <button
-                      onClick={() => apt.healthFormStatus === 'signed' ? setDetailModalApt(apt) : undefined}
+                      onClick={(e) => { e.stopPropagation(); if (apt.healthFormStatus === 'signed') setDetailModalApt(apt); }}
                       className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all active:scale-90"
                       style={{ borderColor: risk.color, backgroundColor: risk.bg }}
                       title={isHe ? risk.labelHe : risk.labelEn}
@@ -746,7 +763,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       {/* Health form status toggle */}
                       <button
-                        onClick={() => toggleHealthStatus(apt.id)}
+                        onClick={(e) => { e.stopPropagation(); toggleHealthStatus(apt.id); }}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 ease-in-out active:scale-95 cursor-pointer text-white"
                         style={{
                           backgroundColor: apt.healthFormStatus === 'signed' ? '#22c55e' : '#9ca3af',
@@ -768,7 +785,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                       {/* View details button — signed: open full declaration; pending: send WhatsApp */}
                       {apt.healthFormStatus === 'signed' ? (
                         <button
-                          onClick={() => setFullScreenDeclaration(apt)}
+                          onClick={(e) => { e.stopPropagation(); setFullScreenDeclaration(apt); }}
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-white transition-all active:scale-95 shadow-sm"
                           style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295 80%)' }}
                         >
@@ -777,7 +794,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                         </button>
                       ) : apt.clientPhone ? (
                         <button
-                          onClick={() => openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time)}
+                           onClick={(e) => { e.stopPropagation(); openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time); }}
                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all active:scale-95"
                           style={{ borderColor: '#D4AF37', color: '#5C4033', background: 'transparent' }}
                         >
@@ -807,7 +824,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                 {!isCompleted && (
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
                     <button
-                      onClick={() => markCompleted(apt)}
+                      onClick={(e) => { e.stopPropagation(); markCompleted(apt); }}
                       className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-xs font-bold transition-all active:scale-[0.97] shadow-md btn-metallic-gold"
                       style={{ boxShadow: '0 4px 14px -3px rgba(212, 175, 55, 0.4)' }}
                     >
@@ -817,7 +834,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     {/* WhatsApp health form send */}
                     {apt.clientPhone && apt.healthFormStatus === 'pending' && (
                       <button
-                        onClick={() => openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time)}
+                        onClick={(e) => { e.stopPropagation(); openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time); }}
                         className="w-10 h-10 rounded-full flex items-center justify-center border border-[#D4AF37]/30 shadow-md transition-all active:scale-95 shrink-0"
                         style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295 80%)' }}
                         title={isHe ? 'שלח הצהרת בריאות בוואטסאפ' : 'Send health form via WhatsApp'}
@@ -828,7 +845,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     {/* Tomorrow reminder button */}
                     {isTomorrow(apt.date) && apt.clientPhone && (
                       <button
-                        onClick={() => sendReminder(apt)}
+                        onClick={(e) => { e.stopPropagation(); sendReminder(apt); }}
                         className="w-10 h-10 rounded-xl flex items-center justify-center border border-accent/30 bg-accent/5 hover:bg-accent/10 transition-colors shrink-0"
                         title={isHe ? 'שלח תזכורת למחר' : 'Send tomorrow reminder'}
                       >
@@ -838,7 +855,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     {apt.clientPhone && (
                       <a
                         href={`tel:${apt.clientPhone}`}
-                        className="w-10 h-10 rounded-xl flex items-center justify-center border border-border hover:bg-muted transition-colors shrink-0"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <Phone className="w-4 h-4 text-muted-foreground" />
                       </a>
@@ -849,6 +866,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
             );
           })
         )}
+      </div>
       </div>
 
       {/* Add Appointment Modal */}
