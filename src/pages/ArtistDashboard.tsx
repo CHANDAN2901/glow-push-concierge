@@ -1081,36 +1081,22 @@ const ArtistDashboard = () => {
       </div>
       {/* ===== FIXED TOP HEADER ===== */}
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'hsla(0, 0%, 100%, 0.85)', borderBottom: '1.5px solid hsl(38 30% 82%)' }}>
-        <div className="flex justify-between items-center w-full h-16 px-5 relative">
+        <div className="relative w-full h-16 px-5">
 
-          {/* Left Side: + Add, Preview, Language */}
-          <div className="flex items-center gap-2.5 z-20">
+          {/* Left side buttons (add, preview, back) */}
+          <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-2.5 z-20">
           {(subScreen || selectedClient) ? (
-              <div className="flex items-center gap-2.5">
-                <button
-                  onClick={() => {
-                    if (selectedClient) { setSelectedClient(null); }
-                    else if (subScreen) { setSubScreen(null); }
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm"
-                  style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))', color: '#fff', border: '1px solid hsl(38 40% 50%)' }}
-                >
-                  <span>{lang === 'en' ? 'Back' : 'חזרה'}</span>
-                  <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-                </button>
-                {/* Language toggle – gold circle badge */}
-                <button
-                  onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-                  className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg"
-                  style={{
-                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                    color: '#5C4033',
-                    boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
-                  }}
-                >
-                  {lang === 'he' ? 'EN' : 'עב'}
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  if (selectedClient) { setSelectedClient(null); }
+                  else if (subScreen) { setSubScreen(null); }
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm"
+                style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))', color: '#fff', border: '1px solid hsl(38 40% 50%)' }}
+              >
+                <span>{lang === 'en' ? 'Back' : 'חזרה'}</span>
+                <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
+              </button>
             ) : (
               <>
                 <button
@@ -1131,18 +1117,6 @@ const ArtistDashboard = () => {
                 >
                   <Eye className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} strokeWidth={1.8} />
                 </button>
-                {/* Language toggle – gold circle badge */}
-                <button
-                  onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-                  className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg"
-                  style={{
-                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                    color: '#5C4033',
-                    boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
-                  }}
-                >
-                  {lang === 'he' ? 'EN' : 'עב'}
-                </button>
               </>
             )}
           </div>
@@ -1151,13 +1125,13 @@ const ArtistDashboard = () => {
           <img
             src={defaultLogo}
             alt="Glow Push"
-            className="absolute left-[45%] top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90px] w-[282px] max-w-[45vw] object-contain bg-transparent z-10 drop-shadow-[0_1px_4px_rgba(212,175,55,0.25)]"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90px] w-[282px] max-w-[45vw] object-contain bg-transparent z-10 drop-shadow-[0_1px_4px_rgba(212,175,55,0.25)]"
             onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
           />
 
-          {/* Right Side: Help + Settings */}
+          {/* Right side: Help + Settings */}
           {!(subScreen || selectedClient) && (
-            <div className="flex items-center gap-2.5 z-20">
+            <div className="absolute right-16 top-1/2 -translate-y-1/2 flex items-center gap-2.5 z-20">
               <button
                 onClick={() => { setShowHelpCenter(true); setActiveTab('home'); setSubScreen(null); }}
                 className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95"
@@ -1183,6 +1157,19 @@ const ArtistDashboard = () => {
               </button>
             </div>
           )}
+
+          {/* Language toggle — FIXED position, never moves with RTL/LTR */}
+          <button
+            onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg z-30"
+            style={{
+              background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+              color: '#5C4033',
+              boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
+            }}
+          >
+            {lang === 'he' ? 'EN' : 'עב'}
+          </button>
         </div>
       </header>
 
