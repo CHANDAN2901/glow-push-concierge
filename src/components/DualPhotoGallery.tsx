@@ -256,8 +256,8 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect, reto
 
   return (
     <div
-      className="absolute inset-0"
-      style={{ overflow: 'visible', touchAction: 'none' }}
+      className="absolute inset-0 overflow-hidden"
+      style={{ touchAction: 'none' }}
       data-gesture-frame
       onClick={() => { if (src) onSelect(); }}
     >
@@ -520,7 +520,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           📸 העלי תמונות של לפני ואחרי
         </p>
         <p className="text-[10px] font-serif" style={{ color: GOLD_DARK, opacity: 0.75 }}>
-          לחצי על המסגרת כדי לבחור תמונה. התמונות ייכנסו אוטומטית למסגרת ללא חיתוך.
+          לחצי על המסגרת כדי לבחור תמונה. התמונות יתכווצו באופן אוטומטי וייכנסו למסגרת ללא חיתוך ובלי לחרוג.
         </p>
       </div>
 
