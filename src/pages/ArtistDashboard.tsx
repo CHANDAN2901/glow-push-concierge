@@ -1350,6 +1350,21 @@ const ArtistDashboard = () => {
                 />
               </span>
             </div>
+
+            {/* PREVIEW HEALTH DECLARATION TEMPLATE */}
+            <button
+              type="button"
+              onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
+              className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98]"
+              style={{
+                background: 'linear-gradient(135deg, hsl(43 96% 56%), hsl(38 90% 45%))',
+                color: '#fff',
+                boxShadow: '0 4px 16px hsl(38 80% 50% / 0.35)',
+              }}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              {lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}
+            </button>
             {/* RED FLAG ALERT BANNER */}
             {redFlagClients.length > 0 && (
               <div className="rounded-xl border-2 border-destructive/40 bg-destructive/5 p-4 animate-fade-up">
@@ -1665,17 +1680,6 @@ const ArtistDashboard = () => {
                   );
                 })()}
 
-                {/* Preview Health Declaration */}
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full text-xs font-medium tracking-wide"
-                  style={{ background: '#ffffff', border: '2px solid #D4AF37', color: '#333333', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.2)' }}
-                >
-                  {lang === 'en' ? 'Preview Health Form' : 'תצוגה מקדימה של הטופס'}
-                  <Eye className="w-3.5 h-3.5" />
-                </button>
-
                 {/* === Share Client Portal Link === */}
                 {(() => {
                   const clientLink = selectedClient.link || `${origin}/c/${encodeURIComponent(selectedClient.dbId || '')}?name=${encodeURIComponent(selectedClient.name)}&treatment=${encodeURIComponent(selectedClient.treatment || '')}&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`;
@@ -1946,17 +1950,6 @@ const ArtistDashboard = () => {
                     {lang === 'en' ? 'Import Clients (CSV)' : 'ייבוא לקוחות (CSV)'}
                   </button>
                 </div>
-
-                {/* Preview Health Declaration - prominent top button */}
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full text-xs font-medium tracking-wide"
-                  style={{ background: '#ffffff', border: '2px solid #D4AF37', color: '#333333', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.2)' }}
-                >
-                  {lang === 'en' ? 'Preview Health Form' : 'תצוגה מקדימה של הטופס'}
-                  <Eye className="w-3.5 h-3.5" />
-                </button>
 
             <div className="p-1">
               {/* Filter tabs */}
