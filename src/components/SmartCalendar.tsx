@@ -125,7 +125,15 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
         .eq('artist_id', artistProfileId)
         .order('date', { ascending: true });
       if (data && !error) {
-        setAppointments(data.map((row: any) => ({
+        // Deduplicate by client_name + date + time
+        const seen = new Set<string>();
+        const unique = data.filter((row: any) => {
+          const key = `${row.client_name}-${row.date}-${row.time}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        setAppointments(unique.map((row: any) => ({
           id: row.id,
           clientName: row.client_name,
           clientPhone: row.client_phone || '',
@@ -344,6 +352,22 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     setIsSaving(true);
 
     try {
+      // 0. Check for duplicate appointment
+      const { data: existing } = await db
+        .from('appointments')
+        .select('id')
+        .eq('artist_id', artistProfileId)
+        .eq('client_name', newName.trim())
+        .eq('date', newDate)
+        .eq('time', newTime)
+        .neq('status', 'cancelled')
+        .limit(1);
+      if (existing && existing.length > 0) {
+        toast({ title: isHe ? 'תור זהה כבר קיים לאותו לקוח, תאריך ושעה' : 'A duplicate appointment already exists for this client, date and time', variant: 'destructive' });
+        setIsSaving(false);
+        return;
+      }
+
       // 1. Save appointment to DB
       const { data: insertedApt, error: aptError } = await db
         .from('appointments')
