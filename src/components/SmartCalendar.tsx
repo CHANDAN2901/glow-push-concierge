@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { useHealthQuestions, calculateDynamicRiskLevel } from '@/hooks/useHealthQuestions';
@@ -101,6 +102,7 @@ const RISK_CONFIG: Record<HealthRiskLevel, { color: string; bg: string; emoji: s
 export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClients = [], onNewAppointment, onBack, artistProfileId, logoUrl, removeClientName, onClientRemoved, onClientAdded, existingClientNames = [] }: Props) {
   const isHe = lang === 'he';
   const { toast } = useToast();
+  const navigate = useNavigate();
   const isRedFlag = (name: string) => redFlagClients.includes(name);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -113,7 +115,6 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   });
   const [showAddModal, setShowAddModal] = useState(false);
   const [detailModalApt, setDetailModalApt] = useState<Appointment | null>(null);
-  const [fullScreenDeclaration, setFullScreenDeclaration] = useState<Appointment | null>(null);
 
   // Load appointments from database
   useEffect(() => {
@@ -333,9 +334,25 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     window.open(waUrl, '_blank');
   };
 
-  const handleAppointmentCardClick = (apt: Appointment) => {
-    // Primary action: always open the detail/profile modal
-    setDetailModalApt(apt);
+  const handleAppointmentCardClick = async (apt: Appointment) => {
+    // Navigate to the client's full profile page
+    // First try to find the client_id from the clients table
+    let clientId = '';
+    if (artistProfileId) {
+      const { data } = await supabase.from('clients')
+        .select('id')
+        .eq('artist_id', artistProfileId)
+        .eq('full_name', apt.clientName)
+        .limit(1)
+        .maybeSingle();
+      if (data) clientId = data.id;
+    }
+    const params = new URLSearchParams();
+    if (clientId) params.set('client_id', clientId);
+    params.set('name', apt.clientName);
+    if (apt.clientPhone) params.set('phone', apt.clientPhone);
+    if (artistProfileId) params.set('artist_id', artistProfileId);
+    navigate(`/client-profile?${params.toString()}`);
   };
 
   const toggleHealthStatus = async (aptId: string) => {
@@ -778,12 +795,12 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                       {/* View details button — signed: open full declaration; pending: send WhatsApp */}
                       {apt.healthFormStatus === 'signed' ? (
                         <button
-                          onClick={(e) => { e.stopPropagation(); setFullScreenDeclaration(apt); }}
+                          onClick={(e) => { e.stopPropagation(); handleAppointmentCardClick(apt); }}
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-white transition-all active:scale-95 shadow-sm"
                           style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295 80%)' }}
                         >
                           <Eye className="w-3 h-3" />
-                          {isHe ? 'צפייה' : 'View'}
+                          {isHe ? 'פרופיל' : 'Profile'}
                         </button>
                       ) : apt.clientPhone ? (
                         <button
@@ -1009,115 +1026,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
         </div>
       )}
 
-      {/* ===== FULL SCREEN HEALTH DECLARATION VIEW ===== */}
-      {fullScreenDeclaration && (
-        <div className="fixed inset-0 z-[70] bg-card flex flex-col" dir={isHe ? 'rtl' : 'ltr'}>
-          {/* Top bar */}
-          <div className="flex-shrink-0 border-b border-border bg-background px-4 py-3 flex items-center gap-3">
-            <button
-              onClick={() => setFullScreenDeclaration(null)}
-              className="p-2 -m-2 rounded-xl hover:bg-muted transition-colors"
-            >
-              <X className="w-5 h-5 text-foreground" />
-            </button>
-            <h2 className="font-bold text-lg flex-1 text-foreground">
-              {isHe ? 'הצהרת בריאות' : 'Health Declaration'}
-            </h2>
-          </div>
-
-          {/* Scrollable content */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {/* Client Info Card */}
-            <div className="bg-background rounded-2xl border border-border p-5 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
-                  <ClipboardCheck className="w-5 h-5 text-accent" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-base text-foreground">{fullScreenDeclaration.clientName}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {fullScreenDeclaration.clientPhone && <span dir="ltr">{fullScreenDeclaration.clientPhone}</span>}
-                    {fullScreenDeclaration.clientPhone && ' · '}
-                    {treatmentLabels[fullScreenDeclaration.treatmentType as keyof typeof treatmentLabels]?.emoji ?? '💉'} {isHe ? treatmentLabels[fullScreenDeclaration.treatmentType as keyof typeof treatmentLabels]?.he ?? fullScreenDeclaration.treatmentType : treatmentLabels[fullScreenDeclaration.treatmentType as keyof typeof treatmentLabels]?.en ?? fullScreenDeclaration.treatmentType}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 pt-2 border-t border-border">
-                <span className="text-[10px] text-muted-foreground">{isHe ? 'תאריך:' : 'Date:'}</span>
-                <span className="text-xs font-semibold text-foreground">{fullScreenDeclaration.date} · {fullScreenDeclaration.time}</span>
-              </div>
-            </div>
-
-            {/* Status Badge */}
-            <div
-              className="rounded-2xl p-4 flex items-center gap-3"
-              style={{ backgroundColor: RISK_CONFIG[fullScreenDeclaration.healthRiskLevel].bg }}
-            >
-              <div className="text-2xl">{RISK_CONFIG[fullScreenDeclaration.healthRiskLevel].emoji}</div>
-              <div>
-                <p className="text-sm font-bold" style={{ color: RISK_CONFIG[fullScreenDeclaration.healthRiskLevel].color }}>
-                  {isHe ? RISK_CONFIG[fullScreenDeclaration.healthRiskLevel].labelHe : RISK_CONFIG[fullScreenDeclaration.healthRiskLevel].labelEn}
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {fullScreenDeclaration.healthFormStatus === 'signed'
-                    ? (isHe ? '✅ הצהרה חתומה' : '✅ Declaration signed')
-                    : (isHe ? '⚠️ ממתין לחתימה' : '⚠️ Pending signature')}
-                </p>
-              </div>
-            </div>
-
-            {/* Medical History */}
-            <div className="bg-background rounded-2xl border border-border p-5">
-              <h3 className="text-sm font-bold text-foreground mb-3">
-                {isHe ? 'היסטוריה רפואית' : 'Medical History'}
-              </h3>
-              {fullScreenDeclaration.healthFormAnswers ? (
-                <div className="space-y-2">
-                  {medicalLabels.map(({ key, labelHe, labelEn, detailKey, critical }) => {
-                    const val = fullScreenDeclaration.healthFormAnswers?.[key];
-                    const detail = detailKey ? (fullScreenDeclaration.healthFormAnswers as any)?.[detailKey] : undefined;
-                    const isYes = val === true;
-                    return (
-                      <div
-                        key={key}
-                        className="flex items-center justify-between py-3 px-4 rounded-xl transition-colors"
-                        style={isYes ? { backgroundColor: critical ? 'rgba(220,38,38,0.08)' : 'rgba(217,119,6,0.08)' } : { backgroundColor: 'rgba(22,163,74,0.05)' }}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-foreground">{isHe ? labelHe : labelEn}</p>
-                          {detail && <p className="text-[10px] text-muted-foreground mt-0.5">{detail}</p>}
-                        </div>
-                        <span className="text-sm shrink-0 ml-2">
-                          {isYes ? (critical ? '🔴' : '🟡') : '✅'}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">{isHe ? 'אין נתונים זמינים — הטופס סומן ידנית' : 'No data available — form was toggled manually'}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Digital Signature placeholder */}
-            <div className="bg-background rounded-2xl border border-border p-5">
-              <h3 className="text-sm font-bold text-foreground mb-3">
-                {isHe ? 'חתימה דיגיטלית' : 'Digital Signature'}
-              </h3>
-              <div className="h-20 rounded-xl bg-muted/50 border border-dashed border-border flex items-center justify-center">
-                <p className="text-xs text-muted-foreground italic">
-                  {isHe ? 'חתימה שמורה ✍️' : 'Signature on file ✍️'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom safe area spacer */}
-          <div className="h-20" />
-        </div>
-      )}
+      {/* Health declaration view removed — accessible from Client Profile page */}
     </div>
   );
 }
