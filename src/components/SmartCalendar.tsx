@@ -104,6 +104,8 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   const isRedFlag = (name: string) => redFlagClients.includes(name);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<'week' | 'month'>('week');
+  const [displayMonth, setDisplayMonth] = useState(() => new Date());
   const [weekStart, setWeekStart] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - d.getDay());
@@ -233,6 +235,22 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     return days;
   }, [weekStart]);
 
+  // Month grid days computation
+  const monthGridDays = useMemo(() => {
+    const year = displayMonth.getFullYear();
+    const month = displayMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDay = firstDay.getDay(); // 0=Sun
+    const days: (Date | null)[] = [];
+    // Fill leading blanks
+    for (let i = 0; i < startDay; i++) days.push(null);
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      days.push(new Date(year, month, d));
+    }
+    return days;
+  }, [displayMonth]);
+
   const selectedDateStr = selectedDate.toISOString().split('T')[0];
   const dayAppointments = appointments
     .filter(a => a.date === selectedDateStr && a.status !== 'cancelled')
@@ -242,6 +260,14 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     setWeekStart(prev => {
       const d = new Date(prev);
       d.setDate(d.getDate() + dir * 7);
+      return d;
+    });
+  };
+
+  const navigateMonth = (dir: number) => {
+    setDisplayMonth(prev => {
+      const d = new Date(prev);
+      d.setMonth(d.getMonth() + dir);
       return d;
     });
   };
@@ -414,9 +440,13 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     onTreatmentCompleted?.({ ...apt, status: 'completed' });
   };
 
-  const monthLabel = isHe
-    ? `${MONTHS_HE[weekStart.getMonth()]} ${weekStart.getFullYear()}`
-    : weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const monthLabel = viewMode === 'month'
+    ? (isHe
+        ? `${MONTHS_HE[displayMonth.getMonth()]} ${displayMonth.getFullYear()}`
+        : displayMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }))
+    : (isHe
+        ? `${MONTHS_HE[weekStart.getMonth()]} ${weekStart.getFullYear()}`
+        : weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
 
   // Medical question labels for detail modal
   const medicalLabels: { key: keyof HealthFormAnswers; labelHe: string; labelEn: string; detailKey?: keyof HealthFormAnswers; critical?: boolean }[] = [
@@ -458,68 +488,154 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
             <CalendarDays className="w-5 h-5 text-accent" />
             {isHe ? 'יומן טיפולים' : 'Treatment Calendar'}
           </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">{monthLabel}</p>
         </div>
-        <button
-          onClick={() => { setNewDate(selectedDateStr); setShowAddModal(true); }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95"
-          style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' }}
-        >
-          <Plus className="w-4 h-4" />
-          {isHe ? 'תור חדש' : 'New'}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Week/Month toggle */}
+          <div className="flex items-center bg-muted rounded-xl p-0.5">
+            <button
+              onClick={() => setViewMode('week')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${viewMode === 'week' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'}`}
+            >
+              {isHe ? 'שבוע' : 'Week'}
+            </button>
+            <button
+              onClick={() => setViewMode('month')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${viewMode === 'month' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'}`}
+            >
+              {isHe ? 'חודש' : 'Month'}
+            </button>
+          </div>
+          <button
+            onClick={() => { setNewDate(selectedDateStr); setShowAddModal(true); }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95"
+            style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' }}
+          >
+            <Plus className="w-4 h-4" />
+            {isHe ? 'תור חדש' : 'New'}
+          </button>
+        </div>
       </div>
 
-      {/* Week Strip — swipeable */}
-      <div
-        ref={swipeContainerRef}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        className="bg-card rounded-2xl border border-border p-3 touch-pan-y select-none"
-      >
+      {/* Calendar Views */}
+      <div className="bg-card rounded-2xl border border-border p-3 select-none">
+        {/* Navigation header */}
         <div className="flex items-center justify-between mb-3">
-          <button onClick={() => navigateWeek(-1)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
+          <button
+            onClick={() => viewMode === 'week' ? navigateWeek(-1) : navigateMonth(-1)}
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+          >
             <ChevronLeft className="w-4 h-4" />
           </button>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-foreground">{monthLabel}</span>
+            <button
+              onClick={() => {
+                const today = new Date();
+                setSelectedDate(today);
+                setDisplayMonth(today);
+                setWeekStart(() => { const d = new Date(); d.setDate(d.getDate() - d.getDay()); return d; });
+              }}
+              className="text-xs font-medium text-accent hover:underline"
+            >
+              {isHe ? 'היום' : 'Today'}
+            </button>
+          </div>
           <button
-            onClick={() => { setSelectedDate(new Date()); setWeekStart(() => { const d = new Date(); d.setDate(d.getDate() - d.getDay()); return d; }); }}
-            className="text-xs font-medium text-accent hover:underline"
+            onClick={() => viewMode === 'week' ? navigateWeek(1) : navigateMonth(1)}
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
           >
-            {isHe ? 'היום' : 'Today'}
-          </button>
-          <button onClick={() => navigateWeek(1)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
-        <div className="grid grid-cols-7 gap-1">
-          {weekDays.map((day, i) => {
-            const dayNames = isHe ? DAYS_HE : DAYS_EN;
-            return (
-              <button
-                key={i}
-                onClick={() => setSelectedDate(day)}
-                className={`flex flex-col items-center py-2 rounded-xl transition-all ${
-                  isSelected(day)
-                    ? 'shadow-sm'
-                    : isToday(day)
-                    ? 'bg-accent/10 text-accent'
-                    : 'hover:bg-muted text-foreground'
-                }`}
-                style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' } : undefined}
-              >
-                <span className="text-[10px] font-medium opacity-70">{dayNames[i]}</span>
-                <span className="text-sm font-bold mt-0.5">{day.getDate()}</span>
-                {hasAppointments(day) && !isSelected(day) && (
-                  <div className="w-1.5 h-1.5 rounded-full mt-1" style={{ backgroundColor: goldColor }} />
-                )}
-              </button>
-            );
-          })}
-        </div>
-        <p className="text-[10px] text-muted-foreground text-center mt-2 opacity-60">
-          {isHe ? '← החליקי בין ימים →' : '← Swipe between days →'}
-        </p>
+
+        {viewMode === 'week' ? (
+          /* Week Strip */
+          <div
+            ref={swipeContainerRef}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            className="touch-pan-y"
+          >
+            <div className="grid grid-cols-7 gap-1">
+              {weekDays.map((day, i) => {
+                const dayNames = isHe ? DAYS_HE : DAYS_EN;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedDate(day)}
+                    className={`flex flex-col items-center py-2 rounded-xl transition-all ${
+                      isSelected(day)
+                        ? 'shadow-sm'
+                        : isToday(day)
+                        ? 'bg-accent/10 text-accent'
+                        : 'hover:bg-muted text-foreground'
+                    }`}
+                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' } : undefined}
+                  >
+                    <span className="text-[10px] font-medium opacity-70">{dayNames[i]}</span>
+                    <span className="text-sm font-bold mt-0.5">{day.getDate()}</span>
+                    {hasAppointments(day) && !isSelected(day) && (
+                      <div className="w-1.5 h-1.5 rounded-full mt-1" style={{ backgroundColor: goldColor }} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-muted-foreground text-center mt-2 opacity-60">
+              {isHe ? '← החליקי בין ימים →' : '← Swipe between days →'}
+            </p>
+          </div>
+        ) : (
+          /* Full Month Grid */
+          <div>
+            {/* Day name headers */}
+            <div className="grid grid-cols-7 gap-1 mb-1">
+              {(isHe ? DAYS_HE : DAYS_EN).map((name, i) => (
+                <div key={i} className="text-center text-[10px] font-semibold text-muted-foreground py-1">
+                  {name}
+                </div>
+              ))}
+            </div>
+            {/* Day cells */}
+            <div className="grid grid-cols-7 gap-1">
+              {monthGridDays.map((day, i) => {
+                if (!day) return <div key={`blank-${i}`} />;
+                const isCurrentMonth = day.getMonth() === displayMonth.getMonth();
+                return (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setSelectedDate(day);
+                      // Also update week start so switching back to week view stays consistent
+                      const ws = new Date(day);
+                      ws.setDate(ws.getDate() - ws.getDay());
+                      setWeekStart(ws);
+                    }}
+                    className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all text-sm relative ${
+                      isSelected(day)
+                        ? 'shadow-sm font-bold'
+                        : isToday(day)
+                        ? 'bg-accent/10 text-accent font-semibold'
+                        : isCurrentMonth
+                        ? 'hover:bg-muted text-foreground'
+                        : 'text-muted-foreground/40'
+                    }`}
+                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' } : undefined}
+                  >
+                    <span>{day.getDate()}</span>
+                    {hasAppointments(day) && !isSelected(day) && (
+                      <div className="w-1.5 h-1.5 rounded-full mt-0.5" style={{ backgroundColor: goldColor }} />
+                    )}
+                    {hasAppointments(day) && isSelected(day) && (
+                      <div className="w-1.5 h-1.5 rounded-full mt-0.5" style={{ backgroundColor: goldColor }} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Day Appointments */}
