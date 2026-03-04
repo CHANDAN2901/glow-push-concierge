@@ -1,9 +1,9 @@
 import { useState, useRef, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
-import { Camera, Download, Loader2, X, Save, Sparkles, Sun, RotateCcw } from 'lucide-react';
+import { Camera, Download, Loader2, X, Save, Sparkles, Sun, RotateCcw, Upload } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
-import { STUDIO_LOGO_URL } from '@/lib/branding';
+import { supabase } from '@/integrations/supabase/client';
 import { Slider } from '@/components/ui/slider';
 
 const GOLD = '#D4AF37';
@@ -361,8 +361,27 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
   const setActiveRetouch = activeHalf === 'before' ? setRetouchBefore : setRetouchAfter;
 
   const { uploadPhoto } = useClientGallery(clientId, artistId);
-  const resolvedLogo = logoUrl || STUDIO_LOGO_URL;
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const resolvedLogo = logoUrl || customLogo || null;
   const bothUploaded = before && after;
+
+  const handleLogoUpload = async (file: File) => {
+    if (!artistId) return;
+    try {
+      const ext = file.name.split('.').pop() || 'png';
+      const path = `${artistId}/logo.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, file, { upsert: true });
+      if (uploadErr) throw uploadErr;
+      const { data: { publicUrl } } = supabase.storage.from('portfolio').getPublicUrl(path);
+      setCustomLogo(publicUrl);
+      // Also update the profile
+      await supabase.from('profiles').update({ logo_url: publicUrl }).eq('id', artistId);
+      toast({ title: 'הלוגו עודכן בהצלחה ✅' });
+    } catch (err: any) {
+      toast({ title: 'שגיאה בהעלאת לוגו', description: err?.message, variant: 'destructive' });
+    }
+  };
 
   const setFile = (which: 'before' | 'after') => (file: File) => {
     const url = URL.createObjectURL(file);
@@ -455,25 +474,25 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     ctx.fillStyle = GOLD;
     ctx.fillRect(HALF - DIVIDER_W / 2, 0, DIVIDER_W, SIZE);
 
-    // Labels
-    ctx.font = 'bold 28px serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.95)';
-    ctx.shadowColor = 'rgba(0,0,0,0.6)';
-    ctx.shadowBlur = 6;
+    // Labels — gold text, high-end look
+    ctx.font = 'bold 30px serif';
+    ctx.fillStyle = GOLD;
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = 8;
     ctx.textAlign = 'left';
-    ctx.fillText('לפני', 20, SIZE - 24);
+    ctx.fillText('BEFORE', 24, SIZE - 28);
     ctx.textAlign = 'right';
-    ctx.fillText('אחרי ✨', SIZE - 20, SIZE - 24);
+    ctx.fillText('AFTER', SIZE - 24, SIZE - 28);
     ctx.shadowBlur = 0;
 
-    // Logo watermark
+    // Artist logo watermark (80% opacity)
     if (resolvedLogo) {
       try {
         const logoImg = await loadImg(resolvedLogo);
         const logoW = SIZE * 0.18;
         const logoH = (logoImg.height / logoImg.width) * logoW;
-        ctx.globalAlpha = 0.45;
-        ctx.drawImage(logoImg, SIZE - logoW - 20, SIZE - logoH - 50, logoW, logoH);
+        ctx.globalAlpha = 0.8;
+        ctx.drawImage(logoImg, SIZE - logoW - 20, 20, logoW, logoH);
         ctx.globalAlpha = 1;
       } catch { /* skip */ }
     }
@@ -530,9 +549,20 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         <p className="text-[10px] font-serif" style={{ color: GOLD_DARK, opacity: 0.75 }}>
           לחצי על המסגרת כדי לבחור תמונה. התמונות יתכווצו באופן אוטומטי וייכנסו למסגרת ללא חיתוך ובלי לחרוג.
         </p>
+        {!resolvedLogo && (
+          <div className="flex items-center justify-center gap-1.5 mt-1">
+            <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleLogoUpload(f); }} />
+            <button
+              onClick={() => logoInputRef.current?.click()}
+              className="flex items-center gap-1 text-[10px] font-medium px-3 py-1 rounded-full transition-all hover:scale-105"
+              style={{ border: `1px solid ${GOLD}`, color: GOLD_DARK }}
+            >
+              <Upload className="w-3 h-3" />
+              העלי לוגו לסימון מים
+            </button>
+          </div>
+        )}
       </div>
-
-      {/* Single unified collage frame — always visible */}
       <div
         ref={collageRef}
         className="relative w-full rounded-2xl overflow-hidden shadow-lg"
@@ -551,11 +581,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         {/* Labels overlay */}
         {bothUploaded && (
           <>
-            <span className="absolute bottom-3 left-3 text-white text-xs font-bold font-serif tracking-wide pointer-events-none z-10" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>
-              לפני
+            <span className="absolute bottom-3 left-3 text-xs font-bold font-serif tracking-widest uppercase pointer-events-none z-10" style={{ color: GOLD, textShadow: '0 1px 6px rgba(0,0,0,0.8)' }}>
+              BEFORE
             </span>
-            <span className="absolute bottom-3 right-3 text-white text-xs font-bold font-serif tracking-wide pointer-events-none z-10" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>
-              אחרי ✨
+            <span className="absolute bottom-3 right-3 text-xs font-bold font-serif tracking-widest uppercase pointer-events-none z-10" style={{ color: GOLD, textShadow: '0 1px 6px rgba(0,0,0,0.8)' }}>
+              AFTER
             </span>
           </>
         )}
