@@ -280,32 +280,59 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     if (resolvedLogo) {
       try {
         const logoImg = await loadImg(resolvedLogo);
-        // Remove white background from logo
+
         const logoCanvas = document.createElement('canvas');
         const lW = logoImg.width;
         const lH = logoImg.height;
         logoCanvas.width = lW;
         logoCanvas.height = lH;
-        const lCtx = logoCanvas.getContext('2d')!;
+
+        const lCtx = logoCanvas.getContext('2d');
+        if (!lCtx) throw new Error('Logo context unavailable');
+
         lCtx.drawImage(logoImg, 0, 0);
         const logoData = lCtx.getImageData(0, 0, lW, lH);
         const ld = logoData.data;
+
+        // Aggressive near-white removal to eliminate white boxes/halos
+        const softStart = 210;
+        const hardCut = 245;
+
         for (let i = 0; i < ld.length; i += 4) {
-          const r = ld[i], g = ld[i + 1], b = ld[i + 2];
-          if (r > 230 && g > 230 && b > 230) {
-            const whiteness = Math.min(r, g, b);
-            ld[i + 3] = Math.max(0, Math.round((255 - whiteness) * (255 / 25)));
+          const r = ld[i];
+          const g = ld[i + 1];
+          const b = ld[i + 2];
+          const a = ld[i + 3];
+          if (a === 0) continue;
+
+          const minRgb = Math.min(r, g, b);
+
+          if (minRgb >= hardCut) {
+            ld[i + 3] = 0;
+            continue;
+          }
+
+          if (minRgb >= softStart) {
+            const t = (hardCut - minRgb) / (hardCut - softStart); // 1..0
+            const nextAlpha = Math.max(0, Math.min(255, Math.round(a * t * t)));
+            ld[i + 3] = nextAlpha;
           }
         }
+
         lCtx.putImageData(logoData, 0, 0);
 
         const logoW = SIZE * 0.3;
         const logoH = (lH / lW) * logoW;
+
+        ctx.save();
         ctx.globalAlpha = 0.8;
-        // Center the logo on the collage
+        // Canvas equivalent of mix-blend-mode: multiply
+        ctx.globalCompositeOperation = 'multiply';
         ctx.drawImage(logoCanvas, (SIZE - logoW) / 2, (SIZE - logoH) / 2, logoW, logoH);
-        ctx.globalAlpha = 1;
-      } catch { /* skip */ }
+        ctx.restore();
+      } catch {
+        // skip logo if it fails to load/process
+      }
     }
 
     return canvas;
