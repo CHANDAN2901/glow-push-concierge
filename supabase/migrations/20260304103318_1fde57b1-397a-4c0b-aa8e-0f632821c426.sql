@@ -1,0 +1,2 @@
+UPDATE health_questions SET detail_placeholder_en = 'Please specify the allergies...' WHERE id = '6c59176c-b868-4d99-af04-5795ba9efee0';
+UPDATE health_questions SET detail_placeholder_en = 'Please describe the condition...' WHERE id = 'c7e16ab6-2dc6-48b4-9344-bb02311fb717';
