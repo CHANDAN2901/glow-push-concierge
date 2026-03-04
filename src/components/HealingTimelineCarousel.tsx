@@ -186,18 +186,18 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                 key={i}
                 onClick={() => setSelectedIdx(i)}
                 className={`snap-center flex-shrink-0 rounded-2xl flex flex-col items-center transition-all duration-300 cursor-pointer ${
-                  isActive ? 'scale-[1.03]' : isPast ? 'opacity-60' : 'opacity-80'
-                } ${isSelected ? 'ring-2 ring-offset-2' : ''}`}
+                  isSelected ? 'scale-[1.03]' : isPast ? 'opacity-60' : 'opacity-80'
+                }`}
                 style={{
                   width: 180,
                   padding: '16px 12px 12px',
-                  background: isActive
+                  background: isSelected
                     ? 'linear-gradient(180deg, hsl(40 50% 97%), hsl(40 40% 94%))'
                     : 'hsl(0 0% 99%)',
-                  border: isActive
+                  border: isSelected
                     ? '2px solid hsl(38 55% 62%)'
                     : '1px solid hsl(350 30% 92%)',
-                  boxShadow: isActive
+                  boxShadow: isSelected
                     ? '0 0 20px hsl(38 55% 62% / 0.25), 0 4px 12px hsl(38 40% 50% / 0.1)'
                     : '0 1px 4px hsl(0 0% 0% / 0.04)',
                 }}
@@ -206,11 +206,11 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                 <div
                   className="px-4 py-1 rounded-full text-xs font-bold mb-3 tracking-wide"
                   style={{
-                    background: isActive
+                    background: isSelected
                       ? 'linear-gradient(135deg, hsl(36 50% 42%), hsl(38 55% 58%) 40%, hsl(40 50% 72%) 60%, hsl(36 50% 42%))'
                       : 'hsl(40 40% 92%)',
-                    color: isActive ? 'hsl(0 0% 100%)' : 'hsl(36 50% 42%)',
-                    boxShadow: isActive
+                    color: isSelected ? 'hsl(0 0% 100%)' : 'hsl(36 50% 42%)',
+                    boxShadow: isSelected
                       ? '0 2px 8px hsl(38 55% 50% / 0.3)'
                       : 'none',
                   }}
@@ -222,10 +222,10 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                 <div
                   className="w-[120px] h-[120px] rounded-full overflow-hidden mb-3 flex-shrink-0"
                   style={{
-                    border: isActive
+                    border: isSelected
                       ? '3px solid hsl(38 55% 62%)'
                       : '2px solid hsl(350 30% 92%)',
-                    boxShadow: isActive
+                    boxShadow: isSelected
                       ? '0 0 12px hsl(38 55% 62% / 0.2)'
                       : 'none',
                   }}
