@@ -256,8 +256,8 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect, reto
 
   return (
     <div
-      className="absolute inset-0 overflow-hidden"
-      style={{ touchAction: 'none' }}
+      className="absolute inset-0"
+      style={{ overflow: 'visible', touchAction: 'none' }}
       data-gesture-frame
       onClick={() => { if (src) onSelect(); }}
     >
@@ -295,10 +295,9 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect, reto
               }}
               className="pointer-events-none select-none"
               style={{
-                width: coverByHeight ? 'auto' : '100%',
-                height: coverByHeight ? '100%' : 'auto',
-                maxWidth: 'none',
-                maxHeight: 'none',
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
                 filter: previewFilter,
               }}
               draggable={false}
@@ -515,10 +514,15 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
 
   return (
     <div className="space-y-4">
-      {/* Hint */}
-      <p className="text-center text-[10px] font-serif" style={{ color: GOLD_DARK }}>
-        👆 לחצי על צד כדי לבחור אותו · ☝️ גררי להזזה · 🤏 צבטי לזום
-      </p>
+      {/* Instructions */}
+      <div className="text-center space-y-1">
+        <p className="text-sm font-serif font-semibold" style={{ color: GOLD_DARK }}>
+          📸 העלי תמונות של לפני ואחרי
+        </p>
+        <p className="text-[10px] font-serif" style={{ color: GOLD_DARK, opacity: 0.75 }}>
+          לחצי על המסגרת כדי לבחור תמונה. התמונות ייכנסו אוטומטית למסגרת ללא חיתוך.
+        </p>
+      </div>
 
       {/* Single unified collage frame — always visible */}
       <div
