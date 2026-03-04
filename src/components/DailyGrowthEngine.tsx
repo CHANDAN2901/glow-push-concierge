@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Gift, RefreshCw, Star, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Gift, RefreshCw, Star, MessageCircle } from 'lucide-react';
 import { isRenewalDue } from '@/components/RenewalMessageDialog';
 
 interface ClientEntry {
@@ -24,14 +23,6 @@ interface DailyGrowthEngineProps {
   onRenewalClick: (client: ClientEntry) => void;
 }
 
-function isBirthdayToday(birthDate: string | null | undefined): boolean {
-  if (!birthDate) return false;
-  const today = new Date();
-  const m = String(today.getMonth() + 1).padStart(2, '0');
-  const d = String(today.getDate()).padStart(2, '0');
-  return birthDate.slice(5, 7) === m && birthDate.slice(8, 10) === d;
-}
-
 function isBirthdayThisWeek(birthDate: string | null | undefined): boolean {
   if (!birthDate) return false;
   const today = new Date();
@@ -52,10 +43,26 @@ const formatPhone = (raw: string): string => {
   return digits;
 };
 
+/* ── Shiny gold border wrapper ── */
+function GoldCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="flex-shrink-0 w-[280px] rounded-2xl p-[2.5px]"
+      style={{
+        background: 'linear-gradient(135deg, #F5E6A3 0%, #D4AF37 25%, #B8860B 50%, #D4AF37 75%, #F5E6A3 100%)',
+        boxShadow: '0 4px 24px rgba(212,175,55,0.3), 0 1px 6px rgba(184,134,11,0.2)',
+      }}
+    >
+      <div className="rounded-[14px] bg-card p-4 h-full">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function DailyGrowthEngine({ clients, artistName, lang, onBirthdayClick, onRenewalClick }: DailyGrowthEngineProps) {
   const birthdayClients = clients.filter(c => isBirthdayThisWeek(c.birthDate));
   const renewalClients = clients.filter(c => isRenewalDue(c.treatment, c.day));
-  // Review requests: clients 35+ days post-treatment (healed, good time to ask)
   const reviewClients = clients.filter(c => c.day >= 35 && c.day <= 120);
 
   const hasContent = birthdayClients.length > 0 || renewalClients.length > 0 || reviewClients.length > 0;
@@ -75,14 +82,10 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
   const categories = [
     {
       id: 'birthdays',
-      icon: Gift,
       emoji: '🎂',
       title: lang === 'en' ? 'Birthdays' : 'ימי הולדת',
       subtitle: lang === 'en' ? 'This week' : 'השבוע',
       clients: birthdayClients,
-      color: 'hsl(35 90% 55%)',
-      bgGradient: 'linear-gradient(135deg, hsl(40 80% 96%), hsl(35 70% 92%))',
-      border: 'hsl(35 60% 75%)',
       renderAction: (client: ClientEntry) => (
         <button
           onClick={(e) => { e.stopPropagation(); onBirthdayClick(client); }}
@@ -96,19 +99,15 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
     },
     {
       id: 'renewals',
-      icon: RefreshCw,
       emoji: '🔄',
       title: lang === 'en' ? 'Renewals' : 'חידוש טיפול',
       subtitle: lang === 'en' ? 'Due now' : 'הגיע הזמן',
       clients: renewalClients,
-      color: 'hsl(38 55% 62%)',
-      bgGradient: 'linear-gradient(135deg, hsl(38 45% 97%), hsl(36 40% 92%))',
-      border: 'hsl(38 30% 80%)',
       renderAction: (client: ClientEntry) => (
         <button
           onClick={(e) => { e.stopPropagation(); onRenewalClick(client); }}
           className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
-          style={{ background: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)', border: '1.5px solid hsl(38 55% 62%)' }}
+          style={{ background: 'linear-gradient(135deg, #D4AF37, #B8860B)', color: '#fff', boxShadow: '0 2px 8px rgba(184,134,11,0.3)' }}
         >
           <RefreshCw className="w-3 h-3" />
           {lang === 'en' ? 'Send Reminder' : 'שלחי תזכורת'}
@@ -117,14 +116,10 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
     },
     {
       id: 'reviews',
-      icon: Star,
       emoji: '⭐',
       title: lang === 'en' ? 'Reviews' : 'בקשת המלצה',
       subtitle: lang === 'en' ? 'Ask now' : 'הזמן לבקש',
       clients: reviewClients,
-      color: 'hsl(45 80% 50%)',
-      bgGradient: 'linear-gradient(135deg, hsl(45 60% 97%), hsl(42 50% 92%))',
-      border: 'hsl(45 50% 78%)',
       renderAction: (client: ClientEntry) => (
         <button
           onClick={(e) => { e.stopPropagation(); handleReviewWhatsApp(client); }}
@@ -151,7 +146,7 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
           <Star className="w-4 h-4 text-white" />
         </div>
         <div>
-          <h2 className="text-base font-extrabold text-foreground" style={{ fontFamily: 'inherit' }}>
+          <h2 className="text-base font-extrabold text-foreground">
             {lang === 'en' ? 'Your Daily Growth Engine' : 'מנוע הצמיחה היומי שלך'}
           </h2>
           <p className="text-[10px] text-muted-foreground">
@@ -160,18 +155,10 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
         </div>
       </div>
 
-      {/* Horizontal scrollable categories */}
+      {/* Horizontal scrollable categories with gold borders */}
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
         {categories.map((cat) => (
-          <div
-            key={cat.id}
-            className="flex-shrink-0 w-[280px] rounded-2xl p-4"
-            style={{
-              background: cat.bgGradient,
-              border: `1.5px solid ${cat.border}`,
-              boxShadow: '0 4px 20px hsla(38, 40%, 50%, 0.08)',
-            }}
-          >
+          <GoldCard key={cat.id}>
             {/* Category header */}
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">{cat.emoji}</span>
@@ -186,22 +173,18 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
               {cat.clients.slice(0, 3).map((client, i) => (
                 <div
                   key={client.dbId || i}
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2"
-                  style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(0,0,0,0.04)' }}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 bg-muted/50 border border-border/50"
                 >
-                  {/* Avatar */}
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                     style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
                   >
                     {client.name.charAt(0)}
                   </div>
-                  {/* Name */}
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-foreground truncate">{client.name}</p>
                     <p className="text-[10px] text-muted-foreground truncate">{client.treatment}</p>
                   </div>
-                  {/* Action button */}
                   {cat.renderAction(client)}
                 </div>
               ))}
@@ -211,7 +194,7 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
                 </p>
               )}
             </div>
-          </div>
+          </GoldCard>
         ))}
       </div>
     </div>
