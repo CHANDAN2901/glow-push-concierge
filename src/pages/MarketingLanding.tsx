@@ -48,8 +48,8 @@ const MarketingLanding = () => {
   const { lang, setLang } = useI18n();
   const isHe = lang === 'he';
   const [faqs, setFaqs] = useState<CategorizedFaq[]>([]);
-  const [activeTab, setActiveTab] = useState<FaqCategory>('אפליקציית הלקוחות');
-  const filteredFaqs = faqs.filter((faq) => faq.category === activeTab);
+  const [activeTab, setActiveTab] = useState<FaqCategory | null>(null);
+  const filteredFaqs = activeTab ? faqs.filter((faq) => faq.category === activeTab) : [];
 
   useEffect(() => {
     supabase
@@ -208,7 +208,7 @@ const MarketingLanding = () => {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => setActiveTab(cat.value)}
+                onClick={() => setActiveTab(prev => prev === cat.value ? null : cat.value)}
                 className="min-h-10 px-5 rounded-full text-sm font-bold border transition-all duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 style={isActive ? {
                   background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 45%, #B38728 100%)',
