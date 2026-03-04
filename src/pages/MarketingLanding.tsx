@@ -27,10 +27,13 @@ const CATEGORIES: { key: FaqCategory; he: string; en: string }[] = [
 // Client-side category assignment by keyword matching
 const categorizeFaq = (q: string): FaqCategory => {
   const lower = q.toLowerCase();
-  if (lower.includes('לקוח') || lower.includes('client') || lower.includes('אפליקציה') || lower.includes('app') || lower.includes('קישור') || lower.includes('link') || lower.includes('התחבר') || lower.includes('connect') || lower.includes('הורד') || lower.includes('download') || lower.includes('פוש') || lower.includes('push') || lower.includes('התראות') || lower.includes('notification'))
+  // Client app: app, download, connect, push, notifications, link
+  if (/לקוח|client|אפליקציה|app|קישור|link|התחבר|connect|הורד|download|פוש|push|התראות|notification|הודעה|message/.test(lower))
     return 'client_app';
-  if (lower.includes('תמונ') || lower.includes('photo') || lower.includes('קולאז') || lower.includes('collage') || lower.includes('גלריה') || lower.includes('gallery') || lower.includes('לוגו') || lower.includes('logo'))
+  // Photos: photo, collage, gallery, logo, before/after, תמונ, קולאז (with or without geresh)
+  if (/תמונ|photo|קולאז|collage|גלריה|gallery|לוגו|logo|לפני ואחרי|before and after/.test(lower))
     return 'photos';
+  // Everything else: general usage (tips, health declaration, languages, retention, referral, customize)
   return 'general';
 };
 
