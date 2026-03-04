@@ -1,9 +1,10 @@
 import { useState, useRef, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
-import { Camera, Download, Loader2, X, Save, Upload } from 'lucide-react';
+import { Camera, Download, Loader2, X, Save, Upload, Move } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { supabase } from '@/integrations/supabase/client';
+import { Slider } from '@/components/ui/slider';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
@@ -18,7 +19,7 @@ const MAX_GESTURE_SCALE = 8;
 const DEFAULT_TRANSFORM: Transform = { x: 0, y: 0, scale: 1, rotation: 0 };
 const COLLAGE_HALF_ASPECT = 0.5;
 
-/** A single collage half — shows upload prompt when empty, gesture-enabled image when filled */
+/** A single collage half */
 function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
   src: string | null;
   label: string;
@@ -116,11 +117,7 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
                 setImgAspect(w / h);
               }}
               className="pointer-events-none select-none"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-              }}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
               draggable={false}
             />
           </div>
@@ -172,6 +169,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
   const resolvedLogo = logoUrl || customLogo || null;
   const bothUploaded = before && after;
 
+  // Draggable logo state — position as % of container, size as % of width
+  const [logoPos, setLogoPos] = useState({ x: 50, y: 50 }); // center by default (%)
+  const [logoSize, setLogoSize] = useState(25); // 25% of collage width
+  const logoDragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null);
+
   const handleLogoUpload = async (file: File) => {
     if (!artistId) return;
     try {
@@ -194,7 +196,41 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     setActiveHalf(which);
   };
 
-  /** Render clean 1080×1080 canvas — NO filters, raw images only */
+  // Logo drag handlers
+  const handleLogoDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    logoDragRef.current = { startX: clientX, startY: clientY, startPosX: logoPos.x, startPosY: logoPos.y };
+
+    const handleMove = (ev: MouseEvent | TouchEvent) => {
+      if (!logoDragRef.current || !collageRef.current) return;
+      const cx = 'touches' in ev ? (ev as TouchEvent).touches[0].clientX : (ev as MouseEvent).clientX;
+      const cy = 'touches' in ev ? (ev as TouchEvent).touches[0].clientY : (ev as MouseEvent).clientY;
+      const rect = collageRef.current.getBoundingClientRect();
+      const dx = ((cx - logoDragRef.current.startX) / rect.width) * 100;
+      const dy = ((cy - logoDragRef.current.startY) / rect.height) * 100;
+      const newX = Math.max(0, Math.min(100, logoDragRef.current.startPosX + dx));
+      const newY = Math.max(0, Math.min(100, logoDragRef.current.startPosY + dy));
+      setLogoPos({ x: newX, y: newY });
+    };
+
+    const handleEnd = () => {
+      logoDragRef.current = null;
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleEnd);
+    };
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+    window.addEventListener('touchmove', handleMove, { passive: false });
+    window.addEventListener('touchend', handleEnd);
+  };
+
+  /** Render clean 1080×1080 canvas */
   const renderToCanvas = useCallback(async (): Promise<HTMLCanvasElement> => {
     if (!before || !after) throw new Error('Both photos required');
     const SIZE = 1080;
@@ -265,7 +301,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     ctx.fillStyle = GOLD;
     ctx.fillRect(HALF - DIVIDER_W / 2, 0, DIVIDER_W, SIZE);
 
-    // Labels — gold text, high-end look
+    // Labels — gold text, fixed positions
     ctx.font = 'bold 30px serif';
     ctx.fillStyle = GOLD;
     ctx.shadowColor = 'rgba(0,0,0,0.7)';
@@ -276,67 +312,29 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     ctx.fillText('AFTER', SIZE - 24, SIZE - 28);
     ctx.shadowBlur = 0;
 
-    // Artist logo — CENTERED, 30% width, white background removed, 80% opacity
+    // Artist logo — drawn at user-chosen position & size, as a clean sticker
     if (resolvedLogo) {
       try {
         const logoImg = await loadImg(resolvedLogo);
+        const logoW = SIZE * (logoSize / 100);
+        const logoH = (logoImg.height / logoImg.width) * logoW;
+        // Convert % position to pixel (position is center of logo)
+        const lx = (logoPos.x / 100) * SIZE - logoW / 2;
+        const ly = (logoPos.y / 100) * SIZE - logoH / 2;
 
-        const logoCanvas = document.createElement('canvas');
-        const lW = logoImg.width;
-        const lH = logoImg.height;
-        logoCanvas.width = lW;
-        logoCanvas.height = lH;
-
-        const lCtx = logoCanvas.getContext('2d');
-        if (!lCtx) throw new Error('Logo context unavailable');
-
-        lCtx.drawImage(logoImg, 0, 0);
-        const logoData = lCtx.getImageData(0, 0, lW, lH);
-        const ld = logoData.data;
-
-        // Aggressive near-white removal to eliminate white boxes/halos
-        const softStart = 210;
-        const hardCut = 245;
-
-        for (let i = 0; i < ld.length; i += 4) {
-          const r = ld[i];
-          const g = ld[i + 1];
-          const b = ld[i + 2];
-          const a = ld[i + 3];
-          if (a === 0) continue;
-
-          const minRgb = Math.min(r, g, b);
-
-          if (minRgb >= hardCut) {
-            ld[i + 3] = 0;
-            continue;
-          }
-
-          if (minRgb >= softStart) {
-            const t = (hardCut - minRgb) / (hardCut - softStart); // 1..0
-            const nextAlpha = Math.max(0, Math.min(255, Math.round(a * t * t)));
-            ld[i + 3] = nextAlpha;
-          }
-        }
-
-        lCtx.putImageData(logoData, 0, 0);
-
-        const logoW = SIZE * 0.3;
-        const logoH = (lH / lW) * logoW;
-
+        // Draw subtle shadow behind logo for sticker feel
         ctx.save();
-        ctx.globalAlpha = 0.8;
-        // Canvas equivalent of mix-blend-mode: multiply
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.drawImage(logoCanvas, (SIZE - logoW) / 2, (SIZE - logoH) / 2, logoW, logoH);
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.drawImage(logoImg, lx, ly, logoW, logoH);
         ctx.restore();
-      } catch {
-        // skip logo if it fails to load/process
-      }
+      } catch { /* skip */ }
     }
 
     return canvas;
-  }, [before, after, resolvedLogo]);
+  }, [before, after, resolvedLogo, logoPos, logoSize]);
 
   const handleSave = useCallback(async () => {
     if (!clientId) { toast({ title: 'לא ניתן לשמור ללא תיק לקוחה', variant: 'destructive' }); return; }
@@ -383,9 +381,9 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           📸 העלי תמונות של לפני ואחרי
         </p>
         <p className="text-[10px] font-serif" style={{ color: GOLD_DARK, opacity: 0.75 }}>
-          לחצי על המסגרת כדי לבחור תמונה. התמונות יתכווצו באופן אוטומטי וייכנסו למסגרת ללא חיתוך ובלי לחרוג.
+          לחצי על המסגרת כדי לבחור תמונה. גררי את הלוגו למיקום הרצוי.
         </p>
-        {/* Upload Logo button — shown when no logo is set */}
+        {/* Upload Logo button */}
         {!resolvedLogo && (
           <div className="flex items-center justify-center gap-1.5 mt-1">
             <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleLogoUpload(f); }} />
@@ -417,19 +415,41 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         </div>
         {/* Gold divider */}
         <div className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 z-10 pointer-events-none" style={{ backgroundColor: GOLD }} />
-        {/* Logo preview overlay — centered */}
+
+        {/* Draggable Logo Sticker */}
         {resolvedLogo && bothUploaded && (
-          <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <div
+            onMouseDown={handleLogoDragStart}
+            onTouchStart={handleLogoDragStart}
+            className="absolute z-20 cursor-grab active:cursor-grabbing select-none"
+            style={{
+              left: `${logoPos.x}%`,
+              top: `${logoPos.y}%`,
+              transform: 'translate(-50%, -50%)',
+              width: `${logoSize}%`,
+              touchAction: 'none',
+            }}
+          >
             <img
               src={resolvedLogo}
               alt="Logo"
-              className="pointer-events-none select-none"
-              style={{ width: '30%', opacity: 0.8, mixBlendMode: 'multiply' }}
+              className="w-full h-auto pointer-events-none select-none rounded-md"
+              style={{
+                boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
+                border: '1px solid rgba(255,255,255,0.3)',
+              }}
               draggable={false}
             />
+            <div
+              className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center"
+              style={{ background: GOLD, boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
+            >
+              <Move className="w-3 h-3 text-white" />
+            </div>
           </div>
         )}
-        {/* Labels overlay */}
+
+        {/* Labels overlay — FIXED positions */}
         {bothUploaded && (
           <>
             <span className="absolute bottom-3 left-3 text-xs font-bold font-serif tracking-widest uppercase pointer-events-none z-10" style={{ color: GOLD, textShadow: '0 1px 6px rgba(0,0,0,0.8)' }}>
@@ -441,6 +461,27 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           </>
         )}
       </div>
+
+      {/* Logo size slider — only shown when logo exists and both images uploaded */}
+      {resolvedLogo && bothUploaded && (
+        <div className="rounded-xl p-3 space-y-1.5" style={{ backgroundColor: '#faf8f2', border: `1px solid ${GOLD}30` }}>
+          <div className="flex items-center gap-2">
+            <Move className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
+            <span className="text-[11px] font-semibold" style={{ color: GOLD_DARK }}>גודל לוגו</span>
+            <span className="text-[10px] font-medium ml-auto" style={{ color: GOLD_DARK }}>{logoSize}%</span>
+          </div>
+          <Slider
+            value={[logoSize]}
+            onValueChange={([v]) => setLogoSize(v)}
+            min={8}
+            max={50}
+            step={1}
+          />
+          <p className="text-[9px] text-center" style={{ color: GOLD_DARK, opacity: 0.6 }}>
+            גררי את הלוגו על הקולאז׳ למיקום הרצוי
+          </p>
+        </div>
+      )}
 
       {/* ── Action buttons ── */}
       <div className="flex gap-3 justify-center">
