@@ -1,4 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Assistant:wght@200;300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/earlyaccess/opensanshebrew.css');
+
+@font-face {
+  font-family: 'FB Ahava';
+  src: url('https://fonts.cdnfonts.com/css/fb-ahava') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;

@@ -155,7 +155,7 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
           <Star className="w-4 h-4 text-white" />
         </div>
         <div>
-          <h2 className="text-base font-extrabold text-foreground flex items-center gap-1.5">
+          <h2 className="text-xl font-bold flex items-center gap-1.5 mb-1" style={{ color: 'hsl(14 29% 30%)', fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
             {lang === 'en' ? 'Your Daily Growth Engine' : 'מנוע הצמיחה היומי שלך'}
             <HelpTooltip text="פעולות יומיות קטנות ומוכחות שיעזרו לך למלא את היומן, לשמר לקוחות ולהגדיל הכנסות." id="growth-engine" />
           </h2>
