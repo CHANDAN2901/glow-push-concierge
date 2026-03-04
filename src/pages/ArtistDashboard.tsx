@@ -59,7 +59,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ToastAction } from '@/components/ui/toast';
+
 import { supabase } from '@/integrations/supabase/client';
 import { extractEdgeFunctionError, isPushSubscriptionExpired } from '@/lib/edge-function-errors';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -466,67 +466,38 @@ const ArtistDashboard = () => {
     const deleteId = clientToDelete.dbId;
     const alsoDeleteAppointments = deleteAlsoAppointments;
     
+    setDeletingClient(null);
+    setDeleteAlsoAppointments(false);
+
     if (!deleteId) {
       // No DB record — just remove from local state
       setClients(prev => prev.filter(c => c.name !== clientToDelete.name));
-      setDeletingClient(null);
-      setDeleteAlsoAppointments(false);
       toast({ title: lang === 'en' ? 'Client removed' : 'הלקוחה הוסרה' });
       return;
     }
     
-    // Optimistically remove from UI using unique DB ID
-    setClients(prev => prev.filter(c => c.dbId !== deleteId));
-    if (selectedClient?.dbId === deleteId) {
-      setSelectedClient(null);
-    }
-    if (alsoDeleteAppointments) {
-      setRemoveClientFromCalendar(clientToDelete.name);
-    }
-    setDeletingClient(null);
-    setDeleteAlsoAppointments(false);
+    try {
+      // Delete from DB first
+      const { error } = await supabase.from('clients').delete().eq('id', deleteId);
+      if (error) throw error;
 
-    // Show undo toast for 5 seconds
-    let undone = false;
-    const { dismiss } = toast({
-      title: lang === 'en' ? 'Client deleted successfully' : 'הלקוחה נמחקה בהצלחה',
-      duration: 5000,
-      action: (
-        <ToastAction
-          altText={lang === 'en' ? 'Undo' : 'ביטול'}
-          onClick={() => {
-            undone = true;
-            dismiss();
-            setClients(prev => [...prev, clientToDelete]);
-            toast({ title: lang === 'en' ? 'Deletion undone ✅' : 'המחיקה בוטלה ✅' });
-          }}
-          className="px-3 py-1.5 rounded-full text-xs font-serif font-semibold transition-all active:scale-95 shrink-0 hover:bg-transparent"
-          style={{
-            background: 'white',
-            border: '2.5px solid #D4AF37',
-            color: '#5C4033',
-          }}
-        >
-          {lang === 'en' ? 'Undo' : 'ביטול'}
-        </ToastAction>
-      ),
-    });
-
-    // After 5 seconds, permanently delete from DB if not undone
-    setTimeout(async () => {
-      if (undone) return;
-      try {
-        const { error } = await supabase.from('clients').delete().eq('id', deleteId);
-        if (error) throw error;
-        // Refresh from DB to ensure clean state
-        fetchClients();
-      } catch (err) {
-        console.error('Failed to delete client:', err);
-        // Restore on failure
-        setClients(prev => [...prev, clientToDelete]);
-        toast({ title: lang === 'en' ? 'Failed to delete client' : 'מחיקת הלקוחה נכשלה', variant: 'destructive' });
+      // Only update UI after successful DB deletion
+      setClients(prev => prev.filter(c => c.dbId !== deleteId));
+      if (selectedClient?.dbId === deleteId) {
+        setSelectedClient(null);
       }
-    }, 5200);
+      if (alsoDeleteAppointments) {
+        setRemoveClientFromCalendar(clientToDelete.name);
+      }
+
+      toast({ title: lang === 'en' ? 'Client deleted successfully' : 'הלקוחה נמחקה בהצלחה' });
+
+      // Refresh from DB to ensure clean state
+      fetchClients();
+    } catch (err) {
+      console.error('Failed to delete client:', err);
+      toast({ title: lang === 'en' ? 'Failed to delete client' : 'מחיקת הלקוחה נכשלה', variant: 'destructive' });
+    }
   };
 
   // Build dynamic appointment reminder WhatsApp URL
