@@ -59,7 +59,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-
+import { ToastAction } from '@/components/ui/toast';
 import { supabase } from '@/integrations/supabase/client';
 import { extractEdgeFunctionError, isPushSubscriptionExpired } from '@/lib/edge-function-errors';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -490,7 +490,46 @@ const ArtistDashboard = () => {
         setRemoveClientFromCalendar(clientToDelete.name);
       }
 
-      toast({ title: lang === 'en' ? 'Client deleted successfully' : 'הלקוחה נמחקה בהצלחה' });
+      toast({
+        title: lang === 'en' ? 'Client deleted successfully' : 'הלקוחה נמחקה בהצלחה',
+        duration: 6000,
+        action: (
+          <ToastAction
+            altText={lang === 'en' ? 'Undo' : 'ביטול'}
+            onClick={async () => {
+              try {
+                // Extract treatment_date from link params
+                const linkUrl = new URL(clientToDelete.link, window.location.origin);
+                const startParam = linkUrl.searchParams.get('start') || null;
+                const { error } = await supabase.from('clients').insert({
+                  id: deleteId,
+                  artist_id: userProfileId!,
+                  full_name: clientToDelete.name,
+                  phone: clientToDelete.phone || null,
+                  email: clientToDelete.email || null,
+                  treatment_date: startParam,
+                  treatment_type: clientToDelete.treatment || null,
+                  birth_date: clientToDelete.birthDate || null,
+                });
+                if (error) throw error;
+                fetchClients();
+                toast({ title: lang === 'en' ? 'Deletion undone ✅' : 'המחיקה בוטלה ✅' });
+              } catch (err) {
+                console.error('Failed to undo delete:', err);
+                toast({ title: lang === 'en' ? 'Failed to undo' : 'שחזור הלקוחה נכשל', variant: 'destructive' });
+              }
+            }}
+            className="px-3 py-1.5 rounded-full text-xs font-serif font-semibold transition-all active:scale-95 shrink-0 hover:bg-transparent"
+            style={{
+              background: 'white',
+              border: '2.5px solid #D4AF37',
+              color: '#5C4033',
+            }}
+          >
+            {lang === 'en' ? 'Undo' : 'ביטול'}
+          </ToastAction>
+        ),
+      });
 
       // Refresh from DB to ensure clean state
       fetchClients();
