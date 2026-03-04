@@ -1121,47 +1121,33 @@ const ArtistDashboard = () => {
             )}
           </div>
 
-          {/* Center: Logo — absolute, large & prominent */}
+          {/* Center: Logo — absolute, perfectly centered */}
           <img
             src={defaultLogo}
             alt="Glow Push"
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90px] w-[282px] max-w-[45vw] object-contain bg-transparent z-10 drop-shadow-[0_1px_4px_rgba(212,175,55,0.25)]"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[70px] w-[220px] max-w-[40vw] object-contain bg-transparent z-10 drop-shadow-[0_1px_4px_rgba(212,175,55,0.25)]"
             onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
           />
 
-          {/* Right side: Help + Settings */}
+          {/* Right side: Settings button — positioned to leave room for language toggle */}
           {!(subScreen || selectedClient) && (
-            <div className="absolute right-16 top-1/2 -translate-y-1/2 flex items-center gap-2.5 z-20">
-              <button
-                onClick={() => { setShowHelpCenter(true); setActiveTab('home'); setSubScreen(null); }}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(40 45% 95%), hsl(38 40% 90%))',
-                  border: '1px solid hsl(38 30% 82%)',
-                  boxShadow: '0 2px 8px hsl(38 55% 62% / 0.15)',
-                }}
-                title={lang === 'en' ? 'Help Center' : 'מרכז עזרה'}
-              >
-                <HelpCircle className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} strokeWidth={1.8} />
-              </button>
-              <button
-                onClick={() => setActiveTab('profile')}
-                className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-95"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
-                  border: '1px solid hsl(38 40% 50%)',
-                  boxShadow: '0 2px 8px hsl(38 55% 62% / 0.3)',
-                }}
-              >
-                <Settings className="w-4.5 h-4.5 text-white" strokeWidth={1.8} />
-              </button>
-            </div>
+            <button
+              onClick={() => setActiveTab('profile')}
+              className="absolute right-[60px] top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-95 z-20"
+              style={{
+                background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
+                border: '1px solid hsl(38 40% 50%)',
+                boxShadow: '0 2px 8px hsl(38 55% 62% / 0.3)',
+              }}
+            >
+              <Settings className="w-4.5 h-4.5 text-white" strokeWidth={1.8} />
+            </button>
           )}
 
-          {/* Language toggle — FIXED position, never moves with RTL/LTR */}
+          {/* Language toggle — FIXED right edge, never moves */}
           <button
             onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg z-30"
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg z-30"
             style={{
               background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
               color: '#5C4033',
