@@ -9,8 +9,6 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-const goldColor = 'hsl(38, 65%, 55%)';
-
 const FALLBACK_FAQ_HE = [
   {
     q: 'האם הלקוחה צריכה להוריד אפליקציה שתופסת מקום בטלפון?',
@@ -83,7 +81,6 @@ export default function FaqPage() {
     fetchFaqs();
   }, [isHe]);
 
-  // Use DB FAQs if available, otherwise fallback to hardcoded Hebrew list
   const faqItems: FaqItem[] = dbFaqs.length > 0 ? dbFaqs : (isHe ? FALLBACK_FAQ_HE : FALLBACK_FAQ_HE);
 
   const filtered = faqItems.filter(
@@ -96,11 +93,26 @@ export default function FaqPage() {
     <div className="min-h-screen bg-background" dir={isHe ? 'rtl' : 'ltr'}>
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center" style={{ backgroundColor: `${goldColor}15` }}>
-            <HelpCircle className="w-7 h-7" style={{ color: goldColor }} />
+        <div className="text-center space-y-3">
+          <div
+            className="w-16 h-16 rounded-full mx-auto flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.08))',
+              border: '1px solid rgba(212,175,55,0.25)',
+              boxShadow: '0 4px 20px -4px rgba(212,175,55,0.2)',
+            }}
+          >
+            <HelpCircle className="w-7 h-7" style={{ color: '#D4AF37' }} />
           </div>
-          <h1 className="text-2xl font-serif font-bold">
+          <h1
+            className="text-3xl font-bold"
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
             {isHe ? 'שאלות ותשובות' : 'Frequently Asked Questions'}
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -110,30 +122,52 @@ export default function FaqPage() {
 
         {/* Search */}
         <div className="relative">
-          <Search className={`absolute ${isHe ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
+          <Search className={`absolute ${isHe ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-4 h-4`} style={{ color: '#D4AF37' }} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={isHe ? 'חיפוש שאלה...' : 'Search questions...'}
-            className={`w-full ${isHe ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-3 rounded-xl border border-border bg-card text-sm outline-none transition-all focus:ring-1`}
-            style={{ '--tw-ring-color': goldColor } as React.CSSProperties}
+            className={`w-full ${isHe ? 'pr-11 pl-4' : 'pl-11 pr-4'} py-3.5 rounded-2xl text-sm outline-none transition-all duration-300 focus:shadow-[0_0_0_2px_rgba(212,175,55,0.3)]`}
+            style={{
+              background: 'rgba(255,255,255,0.9)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(212,175,55,0.2)',
+              boxShadow: '0 2px 12px -4px rgba(212,175,55,0.1)',
+            }}
           />
         </div>
 
-        {/* FAQ Accordion */}
-        <Accordion type="single" collapsible className="space-y-3">
+        {/* FAQ Accordion — Luxury Floating Cards */}
+        <Accordion type="single" collapsible className="space-y-4">
           {filtered.map((item, i) => (
             <AccordionItem
               key={i}
               value={`faq-${i}`}
-              className="border border-border rounded-xl px-5 overflow-hidden bg-card shadow-sm"
+              className="border-0 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5 group data-[state=open]:shadow-[0_8px_32px_-8px_rgba(212,175,55,0.25)]"
+              style={{
+                background: 'rgba(255,255,255,0.9)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(212,175,55,0.2)',
+                boxShadow: '0 4px 20px -6px rgba(212,175,55,0.12), 0 1px 3px rgba(0,0,0,0.04)',
+              }}
             >
-              <AccordionTrigger className="text-sm font-bold text-start py-4 hover:no-underline" style={{ color: goldColor }}>
-                {item.q}
+              <AccordionTrigger
+                className="px-5 py-4.5 text-sm font-semibold hover:no-underline text-start transition-colors duration-200 [&[data-state=open]]:text-[#B8860B] [&>svg]:hidden"
+                style={{ color: '#3a3a3a', fontFamily: "'Playfair Display', Georgia, serif" }}
+              >
+                <div className="flex items-center gap-3.5 w-full">
+                  <div className="relative shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 overflow-hidden group-data-[state=open]:rotate-45" style={{ borderColor: 'rgba(212,175,55,0.4)' }}>
+                    <div className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-data-[state=open]:opacity-100" style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)' }} />
+                    <span className="relative z-10 text-base font-light leading-none transition-all duration-300 group-data-[state=open]:text-white" style={{ color: '#D4AF37' }}>+</span>
+                  </div>
+                  <span className="flex-1 leading-relaxed">{item.q}</span>
+                </div>
               </AccordionTrigger>
-              <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4">
-                {item.a}
+              <AccordionContent className="px-5 pb-5 text-sm leading-relaxed" style={{ color: '#666' }}>
+                <div className="pt-3 border-t" style={{ borderColor: 'rgba(212,175,55,0.12)' }}>
+                  {item.a}
+                </div>
               </AccordionContent>
             </AccordionItem>
           ))}
