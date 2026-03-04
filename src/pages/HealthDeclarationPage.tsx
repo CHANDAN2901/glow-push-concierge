@@ -15,6 +15,7 @@ const HealthDeclarationPage = () => {
   const artistId = searchParams.get('artist_id') || '';
   const appointmentDate = searchParams.get('start') || '';
   const appointmentTime = searchParams.get('time') || '';
+  const isPreview = searchParams.get('preview') === 'true';
 
   const [isArtist, setIsArtist] = useState(false);
 
@@ -116,13 +117,21 @@ const HealthDeclarationPage = () => {
 
   return (
     <div className="relative">
-      {isArtist && (
-        <button
-          onClick={() => navigate('/artist')}
-          className="fixed top-4 right-4 z-50 bg-accent text-accent-foreground px-4 py-2 rounded-xl text-sm font-bold shadow-lg hover:bg-accent/90 transition-colors"
-        >
-          חזרה לדשבורד ←
-        </button>
+      {(isArtist || isPreview) && (
+        <div className="fixed top-0 left-0 right-0 z-[80] flex items-center justify-between px-4 py-3" style={{ background: 'linear-gradient(135deg, #1A1A1A, #2A2A2A)', boxShadow: '0 2px 12px rgba(0,0,0,0.3)' }}>
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
+            style={{ background: '#D4AF37', color: '#1A1A1A' }}
+          >
+            ✕ {isPreview ? 'סגור תצוגה מקדימה' : 'חזרה לדשבורד'}
+          </button>
+          {isPreview && (
+            <span className="text-xs font-medium tracking-wide" style={{ color: '#D4AF37' }}>
+              👁️ תצוגה מקדימה
+            </span>
+          )}
+        </div>
       )}
       <HealthDeclaration
         clientName={clientName}
