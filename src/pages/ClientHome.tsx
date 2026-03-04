@@ -318,6 +318,7 @@ const ClientHome = () => {
   const clientId = identity.clientId;
   const [dbClientName, setDbClientName] = useState<string | null>(null);
   const [dbClientPhone, setDbClientPhone] = useState<string | null>(null);
+  const [dbReferralCode, setDbReferralCode] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -325,6 +326,7 @@ const ClientHome = () => {
     if (!isUUID(clientId)) {
       setDbClientName(null);
       setDbClientPhone(null);
+      setDbReferralCode(null);
       return;
     }
 
@@ -332,13 +334,14 @@ const ClientHome = () => {
       try {
         const { data, error } = await supabase
           .from('clients')
-          .select('full_name, phone')
+          .select('full_name, phone, referral_code')
           .eq('id', clientId)
           .maybeSingle();
 
         if (cancelled || error) return;
         if (data?.full_name) setDbClientName(data.full_name.split(' ')[0]);
         if (data?.phone) setDbClientPhone(data.phone);
+        if (data?.referral_code) setDbReferralCode(data.referral_code);
       } catch (err) {
         if (!cancelled) {
           console.error('[ClientHome] Failed to load client name:', err);
@@ -354,6 +357,24 @@ const ClientHome = () => {
   }, [clientId]);
 
   const clientName = urlClientName || identity.clientName || dbClientName || fallbackName;
+
+  // Generate & persist referral code
+  const generatedReferralCode = useMemo(() => {
+    const firstName = (clientName || '').split(' ')[0].toUpperCase();
+    const phoneSuffix = dbClientPhone ? dbClientPhone.replace(/\D/g, '').slice(-4) : '';
+    const idSuffix = clientId ? clientId.replace(/-/g, '').slice(0, 4).toUpperCase() : '';
+    return firstName + (phoneSuffix.length === 4 ? phoneSuffix : idSuffix);
+  }, [clientName, dbClientPhone, clientId]);
+
+  const referralCode = dbReferralCode || generatedReferralCode;
+
+  // Save referral code to DB once
+  useEffect(() => {
+    if (!isUUID(clientId) || !referralCode || dbReferralCode) return;
+    supabase.rpc('save_client_referral_code', { p_client_id: clientId, p_code: referralCode }).then(({ error }) => {
+      if (!error) setDbReferralCode(referralCode);
+    });
+  }, [clientId, referralCode, dbReferralCode]);
   const startDateParam = searchParams.get('start') || localStorage.getItem(LS_START) || '';
   const treatmentParam = searchParams.get('treatment') || localStorage.getItem(LS_TREATMENT) || '';
   const treatment: TreatmentType = treatmentParam === 'lips' ? 'lips' : 'eyebrows';
@@ -688,35 +709,25 @@ const ClientHome = () => {
                 ? 'Send your code to a friend! She gets ₪100 off her first treatment, and you get ₪50 credit for your next touch-up.'
                 : 'שלחי לחברה את הקוד שלך! היא תקבל 100 ש"ח הנחה לטיפול ראשון, ואת תקבלי 50 ש"ח קרדיט לטיפול החיזוק הבא שלך.'}
             </p>
-            {(() => {
-              const firstName = (clientName || '').split(' ')[0].toUpperCase();
-              const phoneSuffix = dbClientPhone ? dbClientPhone.replace(/\D/g, '').slice(-4) : '';
-              const idSuffix = clientId ? clientId.replace(/-/g, '').slice(0, 4).toUpperCase() : '';
-              const promoCode = firstName + (phoneSuffix.length === 4 ? phoneSuffix : idSuffix);
-              return (
-                <>
-                  <div className="flex items-center justify-center mb-6">
-                    <div className="px-10 py-3.5 rounded-full" style={{ ...goldBtnStyle }}>
-                      <span className="font-bold text-2xl tracking-[0.15em]" style={{ color: 'hsl(0 0% 100%)' }}>{promoCode}</span>
-                    </div>
-                  </div>
-                  <a
-                    href={`https://wa.me/?text=${encodeURIComponent(
-                      lang === 'en'
-                        ? `Hey! 🎁 Use my code ${promoCode} and get ₪100 off your first PMU treatment! ✨`
-                        : `היי! 🎁 הנה קוד ההנחה שלי: ${promoCode} — תקבלי 100 ש"ח הנחה על הטיפול הראשון! ✨`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2.5 w-full py-4 text-base font-bold no-underline transition-all hover:opacity-90 active:scale-[0.97]"
-                    style={goldBtnStyle}
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    {lang === 'en' ? 'Share via WhatsApp' : 'שתפי בוואטסאפ'}
-                  </a>
-                </>
-              );
-            })()}
+            <div className="flex items-center justify-center mb-6">
+              <div className="px-10 py-3.5 rounded-full" style={{ ...goldBtnStyle }}>
+                <span className="font-bold text-2xl tracking-[0.15em]" style={{ color: 'hsl(0 0% 100%)' }}>{referralCode}</span>
+              </div>
+            </div>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(
+                lang === 'en'
+                  ? `Hey! 🎁 Use my code ${referralCode} and get ₪100 off your first PMU treatment! ✨`
+                  : `היי! 🎁 הנה קוד ההנחה שלי: ${referralCode} — תקבלי 100 ש"ח הנחה על הטיפול הראשון! ✨`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2.5 w-full py-4 text-base font-bold no-underline transition-all hover:opacity-90 active:scale-[0.97]"
+              style={goldBtnStyle}
+            >
+              <MessageCircle className="w-5 h-5" />
+              {lang === 'en' ? 'Share via WhatsApp' : 'שתפי בוואטסאפ'}
+            </a>
           </div>
         </div>
 
