@@ -3477,6 +3477,10 @@ const ArtistDashboard = () => {
             {lang === 'en' ? 'Terms of Service' : 'תנאי שימוש'}
           </a>
           <span>·</span>
+          <a href="/refund-policy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+            {lang === 'en' ? 'Refund Policy' : 'מדיניות ביטולים'}
+          </a>
+          <span>·</span>
           <a href="/privacy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
             {lang === 'en' ? 'Privacy Policy' : 'מדיניות פרטיות'}
           </a>
