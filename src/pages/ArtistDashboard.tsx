@@ -1489,6 +1489,23 @@ const ArtistDashboard = () => {
               ))}
             </div>
 
+            {/* ── Quick Template Edit Button on Home ── */}
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowTemplateEditor(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-[1.02] active:scale-[0.98] border"
+                style={{
+                  background: 'hsl(0 0% 100%)',
+                  borderColor: 'hsl(38 55% 58%)',
+                  color: 'hsl(36 50% 42%)',
+                  boxShadow: '0 2px 8px hsl(38 55% 50% / 0.12)',
+                }}
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                {lang === 'en' ? 'Edit Templates' : 'עריכת תבניות הודעה'}
+              </button>
+            </div>
+
             {/* ── Daily Growth Engine ── */}
             <DailyGrowthEngine
               clients={clients}
