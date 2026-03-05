@@ -604,6 +604,7 @@ const ArtistDashboard = () => {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showHealthEditor, setShowHealthEditor] = useState(false);
   const [showVoucherEditor, setShowVoucherEditor] = useState(false);
+  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showWelcomeTour, setShowWelcomeTour] = useState(false);
   const [showInvoiceComingSoon, setShowInvoiceComingSoon] = useState(false);
@@ -613,7 +614,7 @@ const ArtistDashboard = () => {
   const [clientListFilter, setClientListFilter] = useState<'all' | 'birthdays' | 'renewal'>('all');
   const [birthdayWishClient, setBirthdayWishClient] = useState<ClientEntry | null>(null);
   const [renewalClient, setRenewalClient] = useState<ClientEntry | null>(null);
-  const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string; review?: string; birthday_en?: string; renewal_en?: string; review_en?: string }>({});
+  const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string; review?: string; referral?: string; birthday_en?: string; renewal_en?: string; review_en?: string; referral_en?: string }>({});
 
   // Check if first-time user (no onboarding done)
   useEffect(() => {
@@ -1349,6 +1350,31 @@ const ArtistDashboard = () => {
                   text={lang === 'en'
                     ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.'
                     : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'}
+                />
+              </span>
+            </div>
+
+            {/* MESSAGE TEMPLATE EDITOR BUTTON */}
+            <div className="relative">
+              <button
+                onClick={() => setShowTemplateEditor(true)}
+                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
+                style={{
+                  background: 'hsl(0 0% 100%)',
+                  borderColor: 'hsl(38 55% 58%)',
+                  color: 'hsl(36 50% 42%)',
+                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
+                }}
+              >
+                <MessageSquare className="w-5 h-5" />
+                {lang === 'en' ? '✉️ Edit Message Templates' : '✉️ עריכת תבניות הודעה'}
+              </button>
+              <span className="absolute top-1/2 -translate-y-1/2 left-3">
+                <HelpTooltip
+                  id="message-templates"
+                  text={lang === 'en'
+                    ? 'Set your default WhatsApp message templates for birthdays, renewals, recommendations and referrals.'
+                    : 'הגדירי את תבניות הודעות הוואטסאפ לימי הולדת, חידוש טיפול, המלצות והפניות.'}
                 />
               </span>
             </div>
@@ -3286,6 +3312,24 @@ const ArtistDashboard = () => {
         customTemplate={customTemplates.renewal}
         customTemplateEn={customTemplates.renewal_en}
       />
+
+      {/* Message Template Editor Dialog */}
+      <Dialog open={showTemplateEditor} onOpenChange={setShowTemplateEditor}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-right font-serif">
+              {lang === 'en' ? 'Edit Message Templates' : 'עריכת תבניות הודעה'}
+            </DialogTitle>
+          </DialogHeader>
+          {userProfileId && (
+            <MessageTemplateSettings
+              artistProfileId={userProfileId}
+              lang={lang}
+              onTemplatesLoaded={setCustomTemplates}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* New Client Dispatch Center */}
       <NewClientDispatch

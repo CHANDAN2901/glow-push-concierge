@@ -8,8 +8,8 @@ interface Props {
   artistProfileId: string;
   lang: string;
   onTemplatesLoaded?: (templates: {
-    birthday?: string; renewal?: string; review?: string;
-    birthday_en?: string; renewal_en?: string; review_en?: string;
+    birthday?: string; renewal?: string; review?: string; referral?: string;
+    birthday_en?: string; renewal_en?: string; review_en?: string; referral_en?: string;
   }) => void;
 }
 
@@ -21,6 +21,9 @@ const DEFAULT_RENEWAL_EN = 'Hi {{client_name}}, it\'s been almost a year since y
 
 const DEFAULT_REVIEW_HE = 'היי {{client_name}}! ✨ מקווה שאת מרוצה מהתוצאות! אם יש לך רגע, אשמח מאוד להמלצה קצרה — זה עוזר לנשים נוספות למצוא את הטיפול הנכון. תודה רבה! 💕 — {{artist_name}}';
 const DEFAULT_REVIEW_EN = 'Hi {{client_name}}! ✨ I hope you\'re loving your results! If you have a moment, I\'d really appreciate a short review — it helps other women find the right treatment. Thank you so much! 💕 — {{artist_name}}';
+
+const DEFAULT_REFERRAL_HE = 'היי {{client_name}}! 💝 אם יש לך חברה שתשמח לטיפול — שלחי לה את הקישור שלי ותהני מהטבה מיוחדת על ההפניה! תודה שאת ממליצה עליי 🌟 — {{artist_name}}';
+const DEFAULT_REFERRAL_EN = 'Hi {{client_name}}! 💝 If you have a friend who\'d love a treatment — send her my link and enjoy a special referral reward! Thank you for recommending me 🌟 — {{artist_name}}';
 
 // Support both {{placeholder}} and [PLACEHOLDER] formats
 function normalizePlaceholders(text: string): string {
@@ -88,6 +91,8 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
   const [renewalEn, setRenewalEn] = useState(DEFAULT_RENEWAL_EN);
   const [reviewHe, setReviewHe] = useState(DEFAULT_REVIEW_HE);
   const [reviewEn, setReviewEn] = useState(DEFAULT_REVIEW_EN);
+  const [referralHe, setReferralHe] = useState(DEFAULT_REFERRAL_HE);
+  const [referralEn, setReferralEn] = useState(DEFAULT_REFERRAL_EN);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -108,13 +113,17 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
           if (templates.renewal_en) setRenewalEn(normalizePlaceholders(templates.renewal_en));
           if (templates.review) setReviewHe(normalizePlaceholders(templates.review));
           if (templates.review_en) setReviewEn(normalizePlaceholders(templates.review_en));
+          if (templates.referral) setReferralHe(normalizePlaceholders(templates.referral));
+          if (templates.referral_en) setReferralEn(normalizePlaceholders(templates.referral_en));
           onTemplatesLoaded?.({
             birthday: templates.birthday,
             renewal: templates.renewal,
             review: templates.review,
+            referral: templates.referral,
             birthday_en: templates.birthday_en,
             renewal_en: templates.renewal_en,
             review_en: templates.review_en,
+            referral_en: templates.referral_en,
           });
         }
         setLoaded(true);
@@ -137,6 +146,8 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
         renewal_en: renewalEn,
         review: reviewHe,
         review_en: reviewEn,
+        referral: referralHe,
+        referral_en: referralEn,
       };
 
       if (existing) {
@@ -190,6 +201,15 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
       onChange: isEn ? setReviewEn : setReviewHe,
       secondary: isEn ? reviewHe : reviewEn,
       onSecondary: isEn ? setReviewHe : setReviewEn,
+      placeholders: ['{{client_name}}', '{{artist_name}}'],
+    },
+    {
+      emoji: '💝',
+      label: isEn ? 'Referral / Recommendations' : 'המלצות / הפניות',
+      value: isEn ? referralEn : referralHe,
+      onChange: isEn ? setReferralEn : setReferralHe,
+      secondary: isEn ? referralHe : referralEn,
+      onSecondary: isEn ? setReferralHe : setReferralEn,
       placeholders: ['{{client_name}}', '{{artist_name}}'],
     },
   ];
