@@ -6,7 +6,7 @@ import {
   Plus, MessageCircle, Clock, MessageSquare, Copy, CheckCircle, Trash2, Calendar, Gift,
   Lock, Globe, Camera, Star, Zap, Crown, AlertTriangle, X, ClipboardCheck,
   Share2, Image, DollarSign, CalendarCheck, Eye, HelpCircle, Smartphone, ShieldCheck, ShieldAlert,
-  Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home, ScrollText,
+  Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home, ScrollText, ArrowRight,
 } from 'lucide-react';
 import defaultLogo from '@/assets/glowpush-logo.png';
 import DigitalCard from '@/pages/DigitalCard';
@@ -2539,6 +2539,14 @@ const ArtistDashboard = () => {
         {/* ===== PUSH! TAB ===== */}
         {activeTab === 'push' && !subScreen && (
           <div className="space-y-4">
+            {/* Back button */}
+            <button
+              onClick={() => setActiveTab('home')}
+              className="flex items-center gap-2 text-sm font-medium text-accent hover:opacity-80 transition-opacity"
+            >
+              <ArrowRight className="w-4 h-4" style={{ transform: lang === 'en' ? 'rotate(180deg)' : undefined }} />
+              {lang === 'en' ? 'Back' : 'חזרה'}
+            </button>
             {/* Premium Upgrade Banner */}
             <button
               onClick={() => setSubScreen('plans')}
