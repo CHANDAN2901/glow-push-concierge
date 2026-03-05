@@ -166,7 +166,7 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
       tip: isHe
         ? '💡 טיפ מ-Glow Push: כרטיס דיגיטלי מעוצב משדר יוקרה ועוזר ללקוחות להמליץ עלייך.'
         : '💡 Tip: A styled digital card projects luxury and helps clients recommend you.',
-      action: () => { onOpenDigitalCard(); },
+      action: () => { navigate('/artist?tab=profile'); },
     },
     {
       key: 'pushMessages',
