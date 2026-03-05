@@ -2885,16 +2885,6 @@ const ArtistDashboard = () => {
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
 
-                {/* Message Template Settings */}
-                {userProfileId && (
-                  <div className="py-3">
-                    <MessageTemplateSettings
-                      artistProfileId={userProfileId}
-                      lang={lang}
-                      onTemplatesLoaded={setCustomTemplates}
-                    />
-                  </div>
-                )}
 
                 {/* Delete Account */}
                 <button
