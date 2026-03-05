@@ -959,10 +959,10 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           rel="noopener noreferrer"
           className="inline-block group"
         >
-          <p className="text-xs font-medium" style={{ color: 'rgba(169,113,66,0.45)' }}>
-            נוצר באמצעות <span className="font-semibold" style={{ color: 'rgba(212,175,55,0.6)' }}>Glow Push</span> ✨
+          <p className="text-xs font-medium" style={{ color: 'rgba(92,64,51,0.6)' }}>
+            נוצר באמצעות <span className="font-semibold" style={{ color: '#A97142' }}>Glow Push</span> ✨
           </p>
-          <p className="text-[10px] mt-0.5 group-hover:underline" style={{ color: 'rgba(169,113,66,0.3)' }}>
+          <p className="text-[10px] mt-0.5 group-hover:underline" style={{ color: 'rgba(92,64,51,0.45)' }}>
             המערכת החכמה לניהול קליניקות
           </p>
         </a>
