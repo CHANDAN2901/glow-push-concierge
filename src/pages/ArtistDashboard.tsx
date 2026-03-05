@@ -1610,7 +1610,7 @@ const ArtistDashboard = () => {
             {/* ===== Referral CTA ===== */}
             <div className="animate-fade-up mt-6 flex justify-center" style={{ animationDelay: '0.45s', opacity: 0 }}>
               <button
-                onClick={() => { setActiveTab('profile'); setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }}
+                onClick={() => setActiveTab('bonuses')}
                 className="w-full max-w-md px-6 py-4 rounded-full font-bold text-lg shadow-lg transition-all active:scale-95 hover:scale-[1.02] btn-metallic-gold flex items-center justify-center gap-2"
               >
                 <Gift className="w-5 h-5" />
