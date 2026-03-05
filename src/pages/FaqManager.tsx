@@ -9,7 +9,8 @@ import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, GripVertical, ArrowRight } from 'lucide-react';
+import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 
 type FaqCategory = 'אפליקציית הלקוחות' | 'שימוש שוטף' | 'תמונות וקולאז\'';
 
@@ -198,9 +199,10 @@ export default function FaqManager() {
             <p className="text-sm text-muted-foreground mt-1">שאלות אלו מוצגות בדף הנחיתה הראשי</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => navigate('/super-admin')}>
-              <ArrowRight className="w-4 h-4 ml-1" /> חזרה לניהול
-            </Button>
+            <BackButton
+              onClick={() => navigate('/super-admin')}
+              label="חזרה לניהול"
+            />
             {canManageFaq && (
               <Button onClick={openNew} size="sm">
                 <Plus className="w-4 h-4 ml-1" /> Add New FAQ
