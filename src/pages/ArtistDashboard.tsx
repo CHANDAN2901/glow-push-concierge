@@ -2764,21 +2764,6 @@ const ArtistDashboard = () => {
               <ChevronRight className="w-5 h-5 text-accent/50" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
             </button>
 
-            {/* Card — Health Declaration Editor */}
-            <div className="bg-card rounded-3xl border border-accent/20 p-5 shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
-              <div className="flex items-center gap-3 mb-3">
-                <ClipboardCheck className="w-5 h-5 text-accent" strokeWidth={1.5} />
-                <h2 className="font-semibold text-xl tracking-wide text-accent flex items-center gap-2">{lang === 'en' ? 'Health Declaration' : 'הצהרת בריאות'} <HelpTooltip text="טופס הסכמה רפואי דיגיטלי מלא. תוכלי לשלוח ללקוחה לחתימה מראש או להחתים בקליניקה." id="health-declaration" /></h2>
-              </div>
-              <p className="text-xs text-[#555555] mb-4">{lang === 'en' ? 'Edit the questions and sections in the form sent to clients before treatment.' : 'עריכת השאלות והסעיפים בטופס שנשלח ללקוחות לפני טיפול'}</p>
-              <Button
-                onClick={() => setShowHealthEditor(true)}
-                variant="outline"
-                className="w-full border-accent/40 text-accent hover:bg-accent/5 rounded-2xl"
-              >
-                {lang === 'en' ? 'Edit Declaration Form' : 'עריכת טופס ההצהרה'}
-              </Button>
-            </div>
 
             {/* Notification & Automation Upgrade */}
             <NotificationUpgradeSection
