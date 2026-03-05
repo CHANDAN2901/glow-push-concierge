@@ -2902,6 +2902,23 @@ const ArtistDashboard = () => {
           </div>
         )}
 
+        {/* Footer – Terms & Privacy */}
+        <footer className="border-t py-6 mt-8 text-center" style={{ borderColor: 'hsl(38 40% 88%)' }}>
+          <div className="flex items-center justify-center gap-4 text-xs" style={{ color: 'hsl(0 0% 55%)' }}>
+            <a href="/terms" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+              {lang === 'en' ? 'Terms of Service' : 'תנאי שימוש'}
+            </a>
+            <span>·</span>
+            <a href="/refund-policy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+              {lang === 'en' ? 'Refund Policy' : 'מדיניות ביטולים'}
+            </a>
+            <span>·</span>
+            <a href="/privacy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+              {lang === 'en' ? 'Privacy Policy' : 'מדיניות פרטיות'}
+            </a>
+          </div>
+        </footer>
+
         </div>{/* end scrollable content inner */}
       </div>{/* end scrollable content */}
 
@@ -3453,22 +3470,6 @@ const ArtistDashboard = () => {
         lang={lang}
       />
 
-      {/* Footer – Terms & Privacy */}
-      <footer className="border-t py-6 mt-8 pb-24 text-center" style={{ borderColor: 'hsl(38 40% 88%)' }}>
-        <div className="flex items-center justify-center gap-4 text-xs" style={{ color: 'hsl(0 0% 55%)' }}>
-          <a href="/terms" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
-            {lang === 'en' ? 'Terms of Service' : 'תנאי שימוש'}
-          </a>
-          <span>·</span>
-          <a href="/refund-policy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
-            {lang === 'en' ? 'Refund Policy' : 'מדיניות ביטולים'}
-          </a>
-          <span>·</span>
-          <a href="/privacy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
-            {lang === 'en' ? 'Privacy Policy' : 'מדיניות פרטיות'}
-          </a>
-        </div>
-      </footer>
     </div>
   );
 };
