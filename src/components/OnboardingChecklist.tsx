@@ -151,7 +151,7 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
       key: 'logo',
       icon: Upload,
       label: isHe ? 'העלי לוגו לעסק ✨' : 'Upload your business logo ✨',
-      action: () => { navigate('/?tab=profile'); },
+      action: () => { navigate('/artist?tab=profile'); },
     },
     {
       key: 'client',
