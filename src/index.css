@@ -113,8 +113,12 @@
     @apply border-border;
   }
 
+  html {
+    font-size: 17px;
+  }
+
   body {
-    @apply text-foreground font-sans antialiased;
+    @apply text-foreground font-sans antialiased text-base leading-relaxed;
     background: linear-gradient(145deg, hsl(350 50% 95%) 0%, hsl(350 50% 93%) 40%, hsl(350 45% 91%) 100%);
     background-attachment: fixed;
     min-height: 100vh;
@@ -124,12 +128,28 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-sans);
-    @apply font-light tracking-wide;
+    @apply font-light tracking-wide leading-snug;
     color: hsl(0 0% 15%);
   }
 
   h1 {
-    @apply font-extralight tracking-wider;
+    @apply text-3xl font-extralight tracking-wider;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
+
+  p, li, label, span {
+    @apply leading-relaxed;
+  }
+
+  button {
+    @apply text-base;
   }
 
   [dir="rtl"] {
