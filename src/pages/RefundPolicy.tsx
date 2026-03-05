@@ -1,22 +1,23 @@
 import { useI18n } from '@/lib/i18n';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ScrollText } from 'lucide-react';
 
 const RefundPolicy = () => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background" dir={isHe ? 'rtl' : 'ltr'}>
       <div className="max-w-2xl mx-auto px-4 py-16">
         {/* Back link */}
-        <Link
-          to="/pricing"
+        <button
+          onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
         >
           <ArrowRight className="w-4 h-4" style={{ transform: isHe ? undefined : 'rotate(180deg)' }} />
-          {isHe ? 'חזרה למחירון' : 'Back to Pricing'}
-        </Link>
+          {isHe ? 'חזרה' : 'Back'}
+        </button>
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
