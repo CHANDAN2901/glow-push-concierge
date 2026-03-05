@@ -1502,7 +1502,7 @@ const ArtistDashboard = () => {
                 }}
               >
                 <MessageSquare className="w-3.5 h-3.5" />
-                {lang === 'en' ? 'Edit Templates' : 'עריכת תבניות הודעה'}
+                {lang === 'en' ? 'Edit Growth Engine' : 'עריכת מנוע צמיחה יומי'}
               </button>
             </div>
 
