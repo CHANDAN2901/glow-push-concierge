@@ -11,6 +11,7 @@ interface Props {
   subscriptionTier: string;
   onOpenDigitalCard: () => void;
   onOpenAddClient: () => void;
+  onOpenTemplateEditor?: () => void;
   userProfileId?: string | null;
 }
 
@@ -24,7 +25,7 @@ interface CheckState {
   healing: boolean;
 }
 
-export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier, onOpenDigitalCard, onOpenAddClient, userProfileId }: Props) {
+export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier, onOpenDigitalCard, onOpenAddClient, onOpenTemplateEditor, userProfileId }: Props) {
   const { lang } = useI18n();
   const navigate = useNavigate();
   const isHe = lang === 'he';
@@ -174,7 +175,7 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
       tip: isHe
         ? '💡 טיפ מ-Glow Push: ניסוח אישי של הפושים יגרום ללקוחות שלך להרגיש שאת מלווה אותן באמת!'
         : '💡 Tip: Personalized push messages make your clients feel truly cared for!',
-      action: () => { navigate('/?tab=push'); },
+      action: () => { onOpenTemplateEditor?.(); },
     },
     {
       key: 'healing',
