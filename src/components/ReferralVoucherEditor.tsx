@@ -108,9 +108,76 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
         </DialogHeader>
 
         <div className="space-y-5 mt-2">
+          {/* Referral WhatsApp message with presets */}
           <div>
             <Label className="text-sm font-semibold mb-1.5 block">
-              {lang === 'en' ? 'Description (Hebrew)' : 'תיאור השובר (עברית)'}
+              {lang === 'en' ? 'Referral WhatsApp Message (Hebrew)' : '💝 הודעת שובר - חברה מביאה חברה (עברית)'}
+            </Label>
+            {lang === 'he' && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                <button
+                  type="button"
+                  onClick={() => setWaHe('היי {{client_name}} אהובה! 💕 מקווה שאת נהנית מהתוצאה! בגלל שלקוחות מדהימות תמיד מביאות חברות מדהימות, יצרתי לך קוד קופון VIP משלך: [CODE]. אם מישהי שואלת מי עשתה לך את העבודה, תעבירי לה את הקוד – היא תקבל מתנה לטיפול הראשון, ואת תקבלי קרדיט לטיפול החידוש הבא שלך! 🎁 נשיקות! 😘')}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all hover:scale-[1.03] active:scale-[0.97] border"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(38 50% 96%), hsl(38 45% 92%))',
+                    borderColor: 'hsl(38 55% 62% / 0.4)',
+                    color: 'hsl(36 50% 35%)',
+                  }}
+                >
+                  תבנית 1: חברות קרובה
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWaHe('היי {{client_name}} מהממת! 🥰 תודה שבחרת בי. פינקתי אותך בקוד הטבה אישי לחברות: [CODE]. כל חברה שתגיע דרכך ותציג את הקוד תקבל הנחה מיוחדת, ואני אפנק אותך בקרדיט לטיפול הבא! תרגישי חופשי להעביר למי שרק בא לך. מחכה לראות אותך בטאצ\'-אפ! ✨')}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all hover:scale-[1.03] active:scale-[0.97] border"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(38 50% 96%), hsl(38 45% 92%))',
+                    borderColor: 'hsl(38 55% 62% / 0.4)',
+                    color: 'hsl(36 50% 35%)',
+                  }}
+                >
+                  תבנית 2: קצרה וקולעת
+                </button>
+              </div>
+            )}
+            <Textarea
+              value={waHe}
+              onChange={e => setWaHe(e.target.value)}
+              rows={4}
+              dir="rtl"
+              className="text-sm"
+            />
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {['{{client_name}}', '{{artist_name}}', '[CODE]'].map(tag => (
+                <span key={tag} className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Label className="text-sm font-semibold mb-1.5 block">
+              {lang === 'en' ? 'Referral WhatsApp Message (English)' : 'הודעת שובר וואטסאפ (אנגלית)'}
+            </Label>
+            <Textarea
+              value={waEn}
+              onChange={e => setWaEn(e.target.value)}
+              rows={3}
+              dir="ltr"
+              className="text-sm"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {lang === 'en' ? 'Use [CODE] as placeholder for the referral code' : 'השתמשי ב-[CODE] כמקום לקוד ההפניה'}
+            </p>
+          </div>
+
+          <hr className="border-border" />
+
+          <div>
+            <Label className="text-sm font-semibold mb-1.5 block">
+              {lang === 'en' ? 'Voucher Description (Hebrew)' : 'תיאור השובר (עברית)'}
             </Label>
             <Textarea
               value={textHe}
@@ -123,7 +190,7 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
 
           <div>
             <Label className="text-sm font-semibold mb-1.5 block">
-              {lang === 'en' ? 'Description (English)' : 'תיאור השובר (אנגלית)'}
+              {lang === 'en' ? 'Voucher Description (English)' : 'תיאור השובר (אנגלית)'}
             </Label>
             <Textarea
               value={textEn}
@@ -132,38 +199,6 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
               dir="ltr"
               className="text-sm"
             />
-          </div>
-
-          <div>
-            <Label className="text-sm font-semibold mb-1.5 block">
-              {lang === 'en' ? 'WhatsApp Message (Hebrew)' : 'הודעת וואטסאפ (עברית)'}
-            </Label>
-            <Textarea
-              value={waHe}
-              onChange={e => setWaHe(e.target.value)}
-              rows={2}
-              dir="rtl"
-              className="text-sm"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {lang === 'en' ? 'Use [CODE] as placeholder for the referral code' : 'השתמשי ב-[CODE] כמקום לקוד ההפניה'}
-            </p>
-          </div>
-
-          <div>
-            <Label className="text-sm font-semibold mb-1.5 block">
-              {lang === 'en' ? 'WhatsApp Message (English)' : 'הודעת וואטסאפ (אנגלית)'}
-            </Label>
-            <Textarea
-              value={waEn}
-              onChange={e => setWaEn(e.target.value)}
-              rows={2}
-              dir="ltr"
-              className="text-sm"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {lang === 'en' ? 'Use [CODE] as placeholder for the referral code' : 'השתמשי ב-[CODE] כמקום לקוד ההפניה'}
-            </p>
           </div>
 
           <Button
