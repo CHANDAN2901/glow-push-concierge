@@ -1354,7 +1354,20 @@ const ArtistDashboard = () => {
               </span>
             </div>
 
-            {/* MESSAGE TEMPLATE EDITOR BUTTON */}
+            {/* PREVIEW HEALTH DECLARATION TEMPLATE */}
+            <button
+              type="button"
+              onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
+              className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] border border-black"
+              style={{
+                background: 'hsl(36 50% 42%)',
+                color: '#fff',
+              }}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              {lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}
+            </button>
+
             <div className="relative">
               <button
                 onClick={() => setShowTemplateEditor(true)}
@@ -1404,19 +1417,7 @@ const ArtistDashboard = () => {
               </span>
             </div>
 
-            {/* PREVIEW HEALTH DECLARATION TEMPLATE */}
-            <button
-              type="button"
-              onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-              className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] border border-black"
-              style={{
-                background: 'hsl(36 50% 42%)',
-                color: '#fff',
-              }}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              {lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}
-            </button>
+
             {/* RED FLAG ALERT BANNER */}
             {redFlagClients.length > 0 && (
               <div className="rounded-xl border-2 border-destructive/40 bg-destructive/5 p-4 animate-fade-up">
