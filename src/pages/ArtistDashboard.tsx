@@ -1277,6 +1277,7 @@ const ArtistDashboard = () => {
               subscriptionTier={subscriptionTier}
               onOpenDigitalCard={() => setShowDigitalCardPreview(true)}
               onOpenAddClient={() => { setDispatchPrefill(null); setDispatchOpen(true); }}
+              onOpenTemplateEditor={() => setShowTemplateEditor(true)}
               userProfileId={userProfileId}
             />
 
