@@ -223,25 +223,6 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
       onSecondary: isEn ? setReviewHe : setReviewEn,
       placeholders: ['{{client_name}}', '{{artist_name}}', '{{review_link}}'],
     },
-    {
-      emoji: '💝',
-      label: isEn ? 'Referral Voucher — Friend brings Friend' : 'הודעת שובר - חברה מביאה חברה',
-      value: isEn ? referralEn : referralHe,
-      onChange: isEn ? setReferralEn : setReferralHe,
-      secondary: isEn ? referralHe : referralEn,
-      onSecondary: isEn ? setReferralHe : setReferralEn,
-      placeholders: ['{{client_name}}', '{{artist_name}}', '{{promo_code}}'],
-      presets: isEn ? undefined : [
-        {
-          label: 'תבנית 1: חברות קרובה',
-          text: 'היי {{client_name}} אהובה! 💕 מקווה שאת נהנית מהתוצאה! בגלל שלקוחות מדהימות תמיד מביאות חברות מדהימות, יצרתי לך קוד קופון VIP משלך: {{promo_code}}. אם מישהי שואלת מי עשתה לך את העבודה, תעבירי לה את הקוד – היא תקבל מתנה לטיפול הראשון, ואת תקבלי קרדיט לטיפול החידוש הבא שלך! 🎁 נשיקות! 😘',
-        },
-        {
-          label: 'תבנית 2: קצרה וקולעת',
-          text: 'היי {{client_name}} מהממת! 🥰 תודה שבחרת בי. פינקתי אותך בקוד הטבה אישי לחברות: {{promo_code}}. כל חברה שתגיע דרכך ותציג את הקוד תקבל הנחה מיוחדת, ואני אפנק אותך בקרדיט לטיפול הבא! תרגישי חופשי להעביר למי שרק בא לך. מחכה לראות אותך בטאצ\'-אפ! ✨',
-        },
-      ],
-    },
   ];
 
   return (
@@ -270,7 +251,7 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
             onSecondaryChange={block.onSecondary}
             isEn={isEn}
             placeholders={block.placeholders}
-            presets={block.presets}
+            presets={undefined}
           />
         ))}
 
