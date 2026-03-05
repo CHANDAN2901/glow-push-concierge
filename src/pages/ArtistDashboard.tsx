@@ -1368,31 +1368,8 @@ const ArtistDashboard = () => {
               {lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}
             </button>
 
-            <div className="relative">
-              <button
-                onClick={() => setShowTemplateEditor(true)}
-                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
-                style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
-                }}
-              >
-                <MessageSquare className="w-5 h-5" />
-                {lang === 'en' ? '✉️ Edit Message Templates' : '✉️ עריכת תבניות הודעה'}
-              </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
-                <HelpTooltip
-                  id="message-templates"
-                  text={lang === 'en'
-                    ? 'Set your default WhatsApp message templates for birthdays, renewals, recommendations and referrals.'
-                    : 'הגדירי את תבניות הודעות הוואטסאפ לימי הולדת, חידוש טיפול, המלצות והפניות.'}
-                />
-              </span>
-            </div>
 
-            {/* REFERRAL VOUCHER EDITOR BUTTON */}
+
             <div className="relative">
               <button
                 onClick={() => setShowVoucherEditor(true)}
