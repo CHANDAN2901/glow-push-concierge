@@ -173,34 +173,6 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
             </p>
           </div>
 
-          <hr className="border-border" />
-
-          <div>
-            <Label className="text-sm font-semibold mb-1.5 block">
-              {lang === 'en' ? 'Voucher Description (Hebrew)' : 'תיאור השובר (עברית)'}
-            </Label>
-            <Textarea
-              value={textHe}
-              onChange={e => setTextHe(e.target.value)}
-              rows={3}
-              dir="rtl"
-              className="text-sm"
-            />
-          </div>
-
-          <div>
-            <Label className="text-sm font-semibold mb-1.5 block">
-              {lang === 'en' ? 'Voucher Description (English)' : 'תיאור השובר (אנגלית)'}
-            </Label>
-            <Textarea
-              value={textEn}
-              onChange={e => setTextEn(e.target.value)}
-              rows={3}
-              dir="ltr"
-              className="text-sm"
-            />
-          </div>
-
           <Button
             onClick={handleSave}
             disabled={saving}
