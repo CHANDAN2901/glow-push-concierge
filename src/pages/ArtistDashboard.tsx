@@ -9,6 +9,7 @@ import {
   Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home, ScrollText, ArrowRight,
 } from 'lucide-react';
 import defaultLogo from '@/assets/glowpush-logo.png';
+import BackButton from '@/components/BackButton';
 import DigitalCard from '@/pages/DigitalCard';
 import HealthDeclaration, { type HealthDeclarationData } from '@/components/HealthDeclaration';
 import VoiceTreatmentRecord from '@/components/VoiceTreatmentRecord';
@@ -1097,17 +1098,12 @@ const ArtistDashboard = () => {
           {/* Left side buttons (add, preview, back) */}
           <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-2.5 z-20">
           {(subScreen || selectedClient) ? (
-              <button
+              <BackButton
                 onClick={() => {
                   if (selectedClient) { setSelectedClient(null); }
                   else if (subScreen) { setSubScreen(null); }
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm"
-                style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))', color: '#fff', border: '1px solid hsl(38 40% 50%)' }}
-              >
-                <span>{lang === 'en' ? 'Back' : 'חזרה'}</span>
-                <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-              </button>
+              />
             ) : (
               <>
                 <button
@@ -1212,13 +1208,11 @@ const ArtistDashboard = () => {
         {/* ===== WALLET SUB-SCREEN ===== */}
         {subScreen === 'wallet' && (
           <div className="space-y-4">
-            <button
+            <BackButton
               onClick={() => setSubScreen(null)}
-              className="flex items-center gap-1.5 text-sm text-accent hover:underline mb-2"
-            >
-              <ChevronRight className="w-4 h-4" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
-              {lang === 'en' ? 'Back to Settings' : 'חזרה להגדרות'}
-            </button>
+              label={lang === 'en' ? 'Back to Settings' : 'חזרה להגדרות'}
+              className="mb-2"
+            />
             <BonusCenter
               userProfileId={userProfileId}
               onNavigateToReferrals={() => { setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }}

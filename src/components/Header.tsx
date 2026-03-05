@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
-import { ChevronRight } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 
 /** 
  * Maps route paths to screen titles (Hebrew + English).
@@ -45,19 +45,9 @@ const Header = () => {
     >
       <div className="relative w-full h-14 px-4 flex items-center justify-center">
         {/* Back button — always pinned left (screen-left, regardless of dir) */}
-        <button
-          onClick={() => navigate(-1)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm z-20"
-          style={{
-            background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
-            color: '#fff',
-            border: '1px solid hsl(38 40% 50%)',
-            boxShadow: '0 2px 8px hsl(38 55% 62% / 0.25)',
-          }}
-        >
-          <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-          <span>{lang === 'he' ? 'חזרה' : 'Back'}</span>
-        </button>
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20">
+          <BackButton />
+        </div>
 
         {/* Center: Screen title */}
         {title && (
