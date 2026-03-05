@@ -202,9 +202,12 @@ const Pricing = () => {
         })}
       </div>
 
-      <p className="text-center text-xs pb-10 px-4" style={{ color: '#bbb' }}>
-        {isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}
-      </p>
+      <div className="text-center text-xs pb-10 px-4 space-y-2" style={{ color: '#bbb' }}>
+        <p>{isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}</p>
+        <Link to="/refund-policy" className="underline hover:text-foreground transition-colors">
+          {isHe ? 'מדיניות ביטולים והחזרים' : 'Cancellation & Refund Policy'}
+        </Link>
+      </div>
 
       {/* Cancellation & Refund Policy */}
       <div className="mx-auto px-4 pb-20 max-w-lg">

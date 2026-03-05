@@ -6,7 +6,7 @@ import {
   Plus, MessageCircle, Clock, MessageSquare, Copy, CheckCircle, Trash2, Calendar, Gift,
   Lock, Globe, Camera, Star, Zap, Crown, AlertTriangle, X, ClipboardCheck,
   Share2, Image, DollarSign, CalendarCheck, Eye, HelpCircle, Smartphone, ShieldCheck, ShieldAlert,
-  Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home,
+  Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home, ScrollText,
 } from 'lucide-react';
 import defaultLogo from '@/assets/glowpush-logo.png';
 import DigitalCard from '@/pages/DigitalCard';
@@ -2873,6 +2873,15 @@ const ArtistDashboard = () => {
                 >
                   <HelpCircle className="w-4 h-4 text-accent" />
                   <p className="text-sm font-medium flex-1">{lang === 'en' ? 'Help Center' : 'מרכז עזרה'}</p>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+                </button>
+                {/* Refund Policy */}
+                <button
+                  onClick={() => navigate('/refund-policy')}
+                  className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
+                >
+                  <ScrollText className="w-4 h-4 text-accent" />
+                  <p className="text-sm font-medium flex-1">{lang === 'en' ? 'Cancellation & Refund Policy' : 'מדיניות ביטולים והחזרים'}</p>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
 
