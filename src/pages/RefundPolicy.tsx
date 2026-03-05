@@ -10,14 +10,6 @@ const RefundPolicy = () => {
   return (
     <div className="min-h-screen bg-background" dir={isHe ? 'rtl' : 'ltr'}>
       <div className="max-w-2xl mx-auto px-4 py-16">
-        {/* Back link */}
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
-        >
-          <ArrowRight className="w-4 h-4" style={{ transform: isHe ? undefined : 'rotate(180deg)' }} />
-          {isHe ? 'חזרה' : 'Back'}
-        </button>
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
