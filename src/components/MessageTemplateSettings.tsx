@@ -43,14 +43,34 @@ interface TemplateBlockProps {
   onSecondaryChange: (v: string) => void;
   isEn: boolean;
   placeholders: string[];
+  presets?: { label: string; text: string }[];
 }
 
-function TemplateBlock({ emoji, label, value, onChange, secondaryLabel, secondaryValue, onSecondaryChange, isEn, placeholders }: TemplateBlockProps) {
+function TemplateBlock({ emoji, label, value, onChange, secondaryLabel, secondaryValue, onSecondaryChange, isEn, placeholders, presets }: TemplateBlockProps) {
   return (
     <div className="space-y-2">
       <label className="text-xs font-bold flex items-center gap-1.5" style={{ color: 'hsl(38 40% 45%)' }}>
         {emoji} {label}
       </label>
+      {presets && presets.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {presets.map((preset, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onChange(preset.text)}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all hover:scale-[1.03] active:scale-[0.97] border"
+              style={{
+                background: 'linear-gradient(135deg, hsl(38 50% 96%), hsl(38 45% 92%))',
+                borderColor: 'hsl(38 55% 62% / 0.4)',
+                color: 'hsl(36 50% 35%)',
+              }}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      )}
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -210,7 +230,17 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
       onChange: isEn ? setReferralEn : setReferralHe,
       secondary: isEn ? referralHe : referralEn,
       onSecondary: isEn ? setReferralHe : setReferralEn,
-      placeholders: ['{{client_name}}', '{{artist_name}}'],
+      placeholders: ['{{client_name}}', '{{artist_name}}', '{{promo_code}}'],
+      presets: isEn ? undefined : [
+        {
+          label: 'תבנית 1: חברות קרובה',
+          text: 'היי {{client_name}} אהובה! 💕 מקווה שאת נהנית מהתוצאה! בגלל שלקוחות מדהימות תמיד מביאות חברות מדהימות, יצרתי לך קוד קופון VIP משלך: {{promo_code}}. אם מישהי שואלת מי עשתה לך את העבודה, תעבירי לה את הקוד – היא תקבל מתנה לטיפול הראשון, ואת תקבלי קרדיט לטיפול החידוש הבא שלך! 🎁 נשיקות! 😘',
+        },
+        {
+          label: 'תבנית 2: קצרה וקולעת',
+          text: 'היי {{client_name}} מהממת! 🥰 תודה שבחרת בי. פינקתי אותך בקוד הטבה אישי לחברות: {{promo_code}}. כל חברה שתגיע דרכך ותציג את הקוד תקבל הנחה מיוחדת, ואני אפנק אותך בקרדיט לטיפול הבא! תרגישי חופשי להעביר למי שרק בא לך. מחכה לראות אותך בטאצ\'-אפ! ✨',
+        },
+      ],
     },
   ];
 
@@ -240,6 +270,7 @@ export default function MessageTemplateSettings({ artistProfileId, lang, onTempl
             onSecondaryChange={block.onSecondary}
             isEn={isEn}
             placeholders={block.placeholders}
+            presets={block.presets}
           />
         ))}
 
