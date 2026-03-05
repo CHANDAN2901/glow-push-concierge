@@ -47,19 +47,26 @@ const DEFAULT_BROWS_HE = 'היי [CLIENT], עברה כמעט שנה מאז שע�
 const DEFAULT_LIPS_EN = 'Hi [CLIENT], it\'s been a few months since we styled your lips! 💋✨ Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, [ARTIST]';
 const DEFAULT_BROWS_EN = 'Hi [CLIENT], it\'s been almost a year since we styled your brows! ✨ Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, [ARTIST]';
 
+function resolvePlaceholders(template: string, vars: Record<string, string>): string {
+  let result = template;
+  for (const [key, value] of Object.entries(vars)) {
+    result = result
+      .replace(new RegExp(`\\{\\{${key}\\}\\}`, 'gi'), value)
+      .replace(new RegExp(`\\[${key.toUpperCase()}\\]`, 'gi'), value);
+  }
+  return result;
+}
+
 function buildRenewalMessage(clientName: string, treatmentType: string, artistName: string, isEn: boolean, customTemplate?: string, customTemplateEn?: string): string {
-  if (isEn && customTemplateEn) {
-    return customTemplateEn.replace(/\[CLIENT\]/g, clientName).replace(/\[ARTIST\]/g, artistName);
-  }
-  if (!isEn && customTemplate) {
-    return customTemplate.replace(/\[CLIENT\]/g, clientName).replace(/\[ARTIST\]/g, artistName);
-  }
+  const vars = { client_name: clientName, artist_name: artistName, client: clientName, artist: artistName };
+  if (isEn && customTemplateEn) return resolvePlaceholders(customTemplateEn, vars);
+  if (!isEn && customTemplate) return resolvePlaceholders(customTemplate, vars);
   const t = (treatmentType || '').toLowerCase();
   const isLips = t.includes('שפתיי') || t.includes('lip');
   const template = isEn
     ? (isLips ? DEFAULT_LIPS_EN : DEFAULT_BROWS_EN)
     : (isLips ? DEFAULT_LIPS_HE : DEFAULT_BROWS_HE);
-  return template.replace(/\[CLIENT\]/g, clientName).replace(/\[ARTIST\]/g, artistName);
+  return resolvePlaceholders(template, vars);
 }
 
 export default function RenewalMessageDialog({

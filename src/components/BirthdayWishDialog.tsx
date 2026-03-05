@@ -75,10 +75,18 @@ export default function BirthdayWishDialog({
     const template = isEn
       ? (customTemplateEn || DEFAULT_TEMPLATE_EN)
       : (customTemplate || DEFAULT_TEMPLATE_HE);
-    return template
-      .replace(/\[CLIENT\]/g, clientName)
-      .replace(/\[GIFT\]/g, gift)
-      .replace(/\[ARTIST\]/g, artistName || (isEn ? 'Your Artist' : 'האמנית שלך'));
+    const vars: Record<string, string> = {
+      client_name: clientName, client: clientName,
+      gift: gift, artist_name: artistName || (isEn ? 'Your Artist' : 'האמנית שלך'),
+      artist: artistName || (isEn ? 'Your Artist' : 'האמנית שלך'),
+    };
+    let result = template;
+    for (const [key, value] of Object.entries(vars)) {
+      result = result
+        .replace(new RegExp(`\\{\\{${key}\\}\\}`, 'gi'), value)
+        .replace(new RegExp(`\\[${key.toUpperCase()}\\]`, 'gi'), value);
+    }
+    return result;
   };
 
   useEffect(() => {
