@@ -259,6 +259,13 @@ const ArtistDashboard = () => {
   const [activeTab, setActiveTabInternal] = useState<'home' | 'clients' | 'calendar' | 'upgrades' | 'messages' | 'digital-card' | 'profile' | 'healing' | 'bonuses' | 'push'>(activeTabParam || 'home');
   const selectedClientParam = searchParams.get('client');
 
+  // Sync activeTab when URL tab param changes (e.g. from checklist navigation)
+  useEffect(() => {
+    if (activeTabParam && activeTabParam !== activeTab) {
+      setActiveTabInternal(activeTabParam);
+    }
+  }, [activeTabParam]);
+
   // Use a ref to avoid searchParams in callback dependencies (prevents re-render loops)
   const searchParamsRef = useRef(searchParams);
   searchParamsRef.current = searchParams;
