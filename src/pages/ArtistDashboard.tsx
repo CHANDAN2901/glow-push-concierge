@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import {
   Users, Upload, ToggleLeft, ToggleRight, Settings, FileText, Bell, Sparkles,
@@ -1177,7 +1177,7 @@ const ArtistDashboard = () => {
       </header>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-24 bg-background">
+      <div id="artist-dashboard-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-24 bg-background">
         <div className="container mx-auto px-5 max-w-lg py-2">
 
         {/* ===== TRIAL COUNTDOWN BANNER ===== */}
@@ -2912,17 +2912,17 @@ const ArtistDashboard = () => {
         {/* Footer – Terms & Privacy */}
         <footer className="border-t py-6 mt-8 text-center" style={{ borderColor: 'hsl(38 40% 88%)' }}>
           <div className="flex items-center justify-center gap-4 text-xs" style={{ color: 'hsl(0 0% 55%)' }}>
-            <a href="/terms" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+            <Link to="/terms" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
               {lang === 'en' ? 'Terms of Service' : 'תנאי שימוש'}
-            </a>
+            </Link>
             <span>·</span>
-            <a href="/refund-policy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+            <Link to="/refund-policy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
               {lang === 'en' ? 'Refund Policy' : 'מדיניות ביטולים'}
-            </a>
+            </Link>
             <span>·</span>
-            <a href="/privacy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+            <Link to="/privacy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
               {lang === 'en' ? 'Privacy Policy' : 'מדיניות פרטיות'}
-            </a>
+            </Link>
           </div>
         </footer>
 
