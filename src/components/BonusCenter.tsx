@@ -147,17 +147,84 @@ export default function BonusCenter({ userProfileId, onNavigateToReferrals }: Bo
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
+  const vipGoal = 3;
+  const vipProgress = Math.min(referralCount, vipGoal);
+  const vipPct = Math.round((vipProgress / vipGoal) * 100);
+
   return (
     <div className="space-y-6 pb-10" dir={isHe ? 'rtl' : 'ltr'}>
+
+      {/* 🎮 VIP Gamification Progress */}
+      <div className="rounded-2xl border border-[#D4AF37]/30 p-5 animate-fade-up" style={{ background: 'linear-gradient(160deg, hsl(40 50% 97%), hsl(38 45% 93%))' }}>
+        <div className="text-center mb-4">
+          <h2 className="text-xl font-bold text-foreground mb-1">
+            {isHe ? 'פתחי את פרס ה-VIP שלך! 🎁' : 'Unlock your VIP Reward! 🎁'}
+          </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {isHe
+              ? 'הזמיני 3 קולגות ל-Glow Push וקבלי חודש חינם!'
+              : 'Invite 3 colleagues to Glow Push and get a free month!'}
+          </p>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="relative mb-3">
+          <div className="w-full h-5 rounded-full bg-muted/60 overflow-hidden border border-border/30">
+            <div
+              className="h-full rounded-full transition-all duration-1000 ease-out"
+              style={{
+                width: `${vipPct}%`,
+                background: 'linear-gradient(90deg, #B8860B, #D4AF37 40%, #F9F295 70%, #D4AF37)',
+                boxShadow: '0 0 12px hsl(38 55% 55% / 0.4)',
+              }}
+            />
+          </div>
+          {/* Milestone markers */}
+          <div className="flex justify-between mt-2 px-1">
+            {[1, 2, 3].map((step) => (
+              <div key={step} className="flex flex-col items-center">
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
+                    vipProgress >= step
+                      ? 'border-[#D4AF37] text-white'
+                      : 'border-border text-muted-foreground bg-card'
+                  }`}
+                  style={vipProgress >= step ? { background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295)' } : {}}
+                >
+                  {vipProgress >= step ? '✓' : step}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Counter text */}
+        <p className="text-center text-sm font-semibold text-foreground/80 mb-4">
+          {isHe
+            ? `${vipProgress} מתוך ${vipGoal} חברות הצטרפו`
+            : `${vipProgress} out of ${vipGoal} friends joined`}
+        </p>
+
+        {/* WhatsApp Share CTA */}
+        <button
+          onClick={shareWhatsApp}
+          className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-white font-bold text-base transition-all active:scale-95 hover:brightness-110 shadow-lg"
+          style={{ backgroundColor: '#25D366' }}
+        >
+          <MessageCircle className="w-5 h-5" />
+          {isHe ? 'שתפי קישור בוואטסאפ' : 'Share link on WhatsApp'}
+        </button>
+      </div>
+
       {/* Engaging Header */}
-      <div className="text-center py-4 space-y-3 px-2 animate-fade-up">
+      <div className="text-center py-2 space-y-2 px-2">
         <h1 
-          className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent leading-tight"
+          className="text-xl md:text-2xl font-bold bg-clip-text text-transparent leading-tight"
           style={{ backgroundImage: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
         >
           {isHe ? 'הזמיני חברות ותתחילי להרוויח!' : 'Invite friends and start earning!'}
         </h1>
-        <p className="text-sm md:text-base text-foreground/80 font-medium leading-relaxed max-w-[280px] mx-auto">
+        <p className="text-sm text-foreground/80 font-medium leading-relaxed max-w-[280px] mx-auto">
           {isHe 
             ? 'על כל קולגה שתצטרף ל-GlowPush דרכך, הארנק שלך יגדל ב-50 ש"ח למילוי חוזר.'
             : 'For every colleague who joins GlowPush through you, your wallet will grow by ₪50 for refills.'}
