@@ -175,7 +175,7 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
       tip: isHe
         ? '💡 טיפ מ-Glow Push: ניסוח אישי של הפושים יגרום ללקוחות שלך להרגיש שאת מלווה אותן באמת!'
         : '💡 Tip: Personalized push messages make your clients feel truly cared for!',
-      action: () => { onOpenTemplateEditor?.(); },
+      action: () => { navigate('/artist?tab=push'); },
     },
     {
       key: 'healing',
