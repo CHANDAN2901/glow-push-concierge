@@ -306,12 +306,6 @@ const ArtistDashboard = () => {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll container to top on mount (e.g. returning from policy pages)
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = 0;
-    }
-  }, []);
 
   // Treatment notes history — persisted in localStorage per client
   interface TreatmentNote {
@@ -1177,7 +1171,7 @@ const ArtistDashboard = () => {
       </header>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div id="artist-dashboard-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-24 bg-background">
+      <div id="main-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-24 bg-background">
         <div className="container mx-auto px-5 max-w-lg py-2">
 
         {/* ===== TRIAL COUNTDOWN BANNER ===== */}
