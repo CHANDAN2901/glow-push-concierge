@@ -306,6 +306,13 @@ const ArtistDashboard = () => {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // Scroll container to top on mount (e.g. returning from policy pages)
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, []);
+
   // Treatment notes history — persisted in localStorage per client
   interface TreatmentNote {
     id: string;
