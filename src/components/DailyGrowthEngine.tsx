@@ -22,6 +22,19 @@ interface DailyGrowthEngineProps {
   lang: 'en' | 'he';
   onBirthdayClick: (client: ClientEntry) => void;
   onRenewalClick: (client: ClientEntry) => void;
+  reviewTemplate?: string;
+  reviewTemplateEn?: string;
+}
+
+/** Resolve both {{placeholder}} and [PLACEHOLDER] formats */
+function resolvePlaceholders(template: string, vars: Record<string, string>): string {
+  let result = template;
+  for (const [key, value] of Object.entries(vars)) {
+    result = result
+      .replace(new RegExp(`\\{\\{${key}\\}\\}`, 'gi'), value)
+      .replace(new RegExp(`\\[${key.toUpperCase()}\\]`, 'gi'), value);
+  }
+  return result;
 }
 
 function isBirthdayThisWeek(birthDate: string | null | undefined): boolean {
@@ -70,15 +83,17 @@ function GoldCard({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function DailyGrowthEngine({ clients, artistName, lang, onBirthdayClick, onRenewalClick }: DailyGrowthEngineProps) {
+export default function DailyGrowthEngine({ clients, artistName, lang, onBirthdayClick, onRenewalClick, reviewTemplate, reviewTemplateEn }: DailyGrowthEngineProps) {
   const birthdayClients = clients.filter(c => isBirthdayThisWeek(c.birthDate));
   const renewalClients = clients.filter(c => isRenewalDue(c.treatment, c.day));
   const reviewClients = clients.filter(c => c.day >= 35 && c.day <= 120);
 
   const handleReviewWhatsApp = (client: ClientEntry) => {
-    const msg = lang === 'en'
-      ? `Hi ${client.name}! ✨ I hope you're loving your results! If you have a moment, I'd really appreciate a short review — it helps other women find the right treatment. Thank you so much! 💕 — ${artistName || 'Your artist'}`
-      : `היי ${client.name}! ✨ מקווה שאת מרוצה מהתוצאות! אם יש לך רגע, אשמח מאוד להמלצה קצרה — זה עוזר לנשים נוספות למצוא את הטיפול הנכון. תודה רבה! 💕 — ${artistName || 'האמנית שלך'}`;
+    const defaultMsgHe = 'היי {{client_name}}! ✨ מקווה שאת מרוצה מהתוצאות! אם יש לך רגע, אשמח מאוד להמלצה קצרה — זה עוזר לנשים נוספות למצוא את הטיפול הנכון. תודה רבה! 💕 — {{artist_name}}';
+    const defaultMsgEn = 'Hi {{client_name}}! ✨ I hope you\'re loving your results! If you have a moment, I\'d really appreciate a short review — it helps other women find the right treatment. Thank you so much! 💕 — {{artist_name}}';
+    const template = lang === 'en' ? (reviewTemplateEn || defaultMsgEn) : (reviewTemplate || defaultMsgHe);
+    const vars = { client_name: client.name, artist_name: artistName || (lang === 'en' ? 'Your artist' : 'האמנית שלך') };
+    const msg = resolvePlaceholders(template, vars);
     const cleanPhone = client.phone ? formatPhone(client.phone) : '';
     const url = cleanPhone
       ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`

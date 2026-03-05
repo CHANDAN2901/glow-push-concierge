@@ -613,7 +613,7 @@ const ArtistDashboard = () => {
   const [clientListFilter, setClientListFilter] = useState<'all' | 'birthdays' | 'renewal'>('all');
   const [birthdayWishClient, setBirthdayWishClient] = useState<ClientEntry | null>(null);
   const [renewalClient, setRenewalClient] = useState<ClientEntry | null>(null);
-  const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string; birthday_en?: string; renewal_en?: string }>({});
+  const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string; review?: string; birthday_en?: string; renewal_en?: string; review_en?: string }>({});
 
   // Check if first-time user (no onboarding done)
   useEffect(() => {
@@ -1470,6 +1470,8 @@ const ArtistDashboard = () => {
               lang={lang as 'en' | 'he'}
               onBirthdayClick={(client) => setBirthdayWishClient(client)}
               onRenewalClick={(client) => setRenewalClient(client)}
+              reviewTemplate={customTemplates.review}
+              reviewTemplateEn={customTemplates.review_en}
             />
 
             {/* ── Today's Appointments Carousel ── */}
