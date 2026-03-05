@@ -30,6 +30,7 @@ import FaqManager from "./pages/FaqManager";
 import Legal from "./pages/Legal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import RefundPolicy from "./pages/RefundPolicy";
 import DevSwitcher from "./components/DevSwitcher";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
@@ -69,6 +70,7 @@ const App = () => (
               <Route path="/legal" element={<Legal />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>

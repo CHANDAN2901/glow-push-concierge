@@ -13,6 +13,7 @@ const MarketingFooter = ({ isHe }: Props) => (
           <a href="/terms" className="hover:text-foreground transition-colors">{isHe ? 'תנאי שימוש' : 'Terms of Service'}</a>
           <a href="/legal?tab=privacy" className="hover:text-foreground transition-colors">{isHe ? 'פרטיות' : 'Privacy'}</a>
           <a href="/privacy" className="hover:text-foreground transition-colors">{isHe ? 'מדיניות פרטיות' : 'Privacy Policy'}</a>
+          <a href="/refund-policy" className="hover:text-foreground transition-colors">{isHe ? 'מדיניות ביטולים' : 'Refund Policy'}</a>
           <div className="flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5" />
             <span>Powered by Stripe</span>
