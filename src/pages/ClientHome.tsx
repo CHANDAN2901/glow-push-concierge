@@ -17,6 +17,7 @@ import confetti from 'canvas-confetti';
 import { useToast } from '@/hooks/use-toast';
 import InstallBanner from '@/components/InstallBanner';
 
+import ClientNotificationCenter from '@/components/ClientNotificationCenter';
 import ClientSharedGallery from '@/components/ClientSharedGallery';
 import ClientMyPhotos from '@/components/ClientMyPhotos';
 import HealingTimelineCarousel from '@/components/HealingTimelineCarousel';
