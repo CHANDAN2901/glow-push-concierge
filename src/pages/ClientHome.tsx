@@ -576,52 +576,62 @@ const ClientHome = () => {
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
           <div className="px-7 py-9 text-right" dir="rtl">
-            {/* Clipboard icon – enlarged & prominent */}
+            {/* Clipboard icon */}
             <div className="flex justify-center mb-5">
               <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(139,101,8,0.12), rgba(212,175,55,0.10))' }}>
                 <Clipboard className="w-7 h-7" style={{ color: '#8B6508', strokeWidth: 1.4 }} />
               </div>
             </div>
 
+            {/* Title – gold gradient */}
             <h2 className="text-[22px] font-semibold mb-5 leading-relaxed text-center" style={{ fontFamily: FBAHAVA }}>
               <GoldText>ברוכה הבאה ליומן ההחלמה שלך</GoldText>
             </h2>
 
-            <p className="text-[17px] leading-[2] mb-6" style={{ fontFamily: FBAHAVA }}>
-              <GoldText style={{ fontWeight: 400 }}>
-                יצרתי את האזור האישי הזה במיוחד עבורך, כדי ללוות אותך יום אחר יום עד לתוצאה המושלמת.
-              </GoldText>
+            {/* Body – matte black for readability */}
+            <p className="text-[17px] leading-[2] mb-2" style={{ fontFamily: FBAHAVA, color: '#2A2118' }}>
+              יצרתי את האזור האישי הזה במיוחד עבורך, כדי ללוות אותך יום אחר יום עד לתוצאה המושלמת.
             </p>
 
-            <p className="text-[17px] leading-[2] mb-6" style={{ fontFamily: FBAHAVA }}>
-              <GoldText style={{ fontWeight: 400 }}>מה מחכה לך כאן?</GoldText>
+            <p className="text-[17px] leading-[2] mb-6" style={{ fontFamily: FBAHAVA, color: '#2A2118' }}>
+              מה מחכה לך כאן?
             </p>
 
-            <ul className="space-y-5 mb-7">
-              <li className="flex items-start gap-3 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
+            {/* List with gold separator lines */}
+            <div className="mb-7">
+              {/* Item 1 */}
+              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
+              <div className="flex items-start gap-3 py-4 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
                 <CalendarCheck className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
-                <span>
-                  <GoldText style={{ fontWeight: 600 }}>הנחיות מדויקות:</GoldText>{' '}
-                  <GoldText style={{ fontWeight: 400 }}>מותאמות בדיוק ליום ההחלמה שלך.</GoldText>
+                <span style={{ color: '#2A2118' }}>
+                  <strong style={{ color: '#2A2118' }}>הנחיות מדויקות:</strong>{' '}
+                  מותאמות בדיוק ליום ההחלמה שלך.
                 </span>
-              </li>
-              <li className="flex items-start gap-3 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
-                <Camera className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
-                <span>
-                  <GoldText style={{ fontWeight: 600 }}>מעקב אישי:</GoldText>{' '}
-                  <GoldText style={{ fontWeight: 400 }}>העלי תמונות מהירות כדי שאוכל ללוות אותך.</GoldText>
-                </span>
-              </li>
-              <li className="flex items-start gap-3 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
-                <MessageCircle className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
-                <span>
-                  <GoldText style={{ fontWeight: 600 }}>קשר ישיר:</GoldText>{' '}
-                  <GoldText style={{ fontWeight: 400 }}>צריכה אותי? אני במרחק לחיצה.</GoldText>
-                </span>
-              </li>
-            </ul>
+              </div>
+              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
 
-            {/* Treatment badge – enlarged */}
+              {/* Item 2 */}
+              <div className="flex items-start gap-3 py-4 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
+                <Camera className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
+                <span style={{ color: '#2A2118' }}>
+                  <strong style={{ color: '#2A2118' }}>מעקב אישי:</strong>{' '}
+                  העלי תמונות מהירות כדי שאוכל ללוות אותך.
+                </span>
+              </div>
+              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
+
+              {/* Item 3 */}
+              <div className="flex items-start gap-3 py-4 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
+                <MessageCircle className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
+                <span style={{ color: '#2A2118' }}>
+                  <strong style={{ color: '#2A2118' }}>קשר ישיר:</strong>{' '}
+                  צריכה אותי? אני במרחק לחיצה.
+                </span>
+              </div>
+              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
+            </div>
+
+            {/* Treatment badge */}
             <div className="flex justify-center">
               <span
                 className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full text-[15px]"
