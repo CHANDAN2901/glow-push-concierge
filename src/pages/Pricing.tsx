@@ -178,7 +178,7 @@ const Pricing = () => {
                 background: '#ffffff',
                 color: '#B8860B',
               }}
-              onClick={() => window.location.href = '/payment-history'}
+              onClick={() => navigate('/payment-history')}
             >
               <Receipt className="w-4 h-4" />
               {isHe ? 'היסטוריית תשלומים וקבלות' : 'Payment History & Receipts'}
