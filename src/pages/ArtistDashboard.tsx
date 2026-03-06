@@ -3288,15 +3288,6 @@ const ArtistDashboard = () => {
         </div>
         )}
 
-        {/* ===== UPGRADES FROM SETTINGS ===== */}
-        {activeTab === 'profile' && subScreen === 'plans' && (
-          <PlansUpgradeScreen
-            onBack={() => setSubScreen(null)}
-            currentTier={userTier}
-            artistName={artistName}
-          />
-        )}
-
       {/* Client Import Dialog */}
       <ClientImportDialog
         open={importOpen}
