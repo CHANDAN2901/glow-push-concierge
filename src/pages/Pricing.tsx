@@ -74,11 +74,40 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
   );
 };
 
+const tierLabelMap: Record<string, { he: string; en: string }> = {
+  lite: { he: 'Pro – בסיסי', en: 'Pro – Basic' },
+  professional: { he: 'Elite – מקצועי', en: 'Elite – Professional' },
+  master: { he: 'VIP – מייסדות', en: 'VIP – Founders' },
+};
+
 const Pricing = () => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
+  const { toast } = useToast();
   const { data: plans = [], isLoading } = usePricingPlans();
   const { data: vipTaken = 0 } = useVipTakenCount();
+  const { user } = useAuth();
+
+  const [artistName, setArtistName] = useState('');
+  const [currentTier, setCurrentTier] = useState('lite');
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('profiles')
+      .select('full_name, subscription_tier')
+      .eq('user_id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setArtistName(data.full_name || '');
+          setCurrentTier(data.subscription_tier || 'lite');
+        }
+      });
+  }, [user]);
+
+  const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
+  const tierLabel = tierLabelMap[currentTier]?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
   if (isLoading) {
     return (
