@@ -136,6 +136,7 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'e
     />
     {/* Notification bell — right */}
     <button
+      onClick={onBellClick}
       className="relative flex items-center justify-center w-9 h-9 rounded-full transition-all hover:scale-105 active:scale-95"
       style={{
         background: METALLIC_GOLD_GRADIENT,
