@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Crown, Sparkles, Star, Flame, Receipt } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/usePricingPlans';
