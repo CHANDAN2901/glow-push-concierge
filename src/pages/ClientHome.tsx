@@ -871,11 +871,42 @@ const ClientHome = () => {
 
         {/* ─── SHARED GALLERY ─── */}
         <div id="gallery" className="scroll-mt-20" />
-        <ClientSharedGallery
-          clientId={clientId}
-          artistId={artistProfileId}
-          gallery={gallery}
-        />
+        <div
+          className="rounded-3xl p-6 mb-8 animate-fade-up"
+          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          dir="rtl"
+        >
+          {/* Premium Title */}
+          <h2
+            className="text-xl font-bold text-center mb-1"
+            style={{
+              fontFamily: TITLE_FONT,
+              background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            ✨ הגלריה שלך ✨
+          </h2>
+          {/* Delicate Subtitle */}
+          <p
+            className="text-[11px] text-center mb-5"
+            style={{
+              fontFamily: FBAHAVA,
+              background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            הצצה לתוצאות
+          </p>
+
+          <ClientSharedGallery
+            clientId={clientId}
+            artistId={artistProfileId}
+            gallery={gallery}
+          />
+        </div>
 
         {/* ─── FAQ ─── */}
         <div id="faq" className="scroll-mt-20" />
