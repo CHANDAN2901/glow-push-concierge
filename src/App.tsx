@@ -72,6 +72,7 @@ const App = () => (
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/payment-history" element={<PaymentHistory />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>

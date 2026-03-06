@@ -177,7 +177,7 @@ const Pricing = () => {
                 background: '#ffffff',
                 color: '#B8860B',
               }}
-              onClick={() => toast({ title: isHe ? 'היסטוריית תשלומים תהיה זמינה בקרוב' : 'Payment history coming soon' })}
+              onClick={() => window.location.href = '/payment-history'}
             >
               <Receipt className="w-4 h-4" />
               {isHe ? 'היסטוריית תשלומים וקבלות' : 'Payment History & Receipts'}
