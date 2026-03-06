@@ -2565,13 +2565,6 @@ const ArtistDashboard = () => {
             <MessageEditor />
           </div>
         )}
-        {activeTab === 'push' && subScreen === 'plans' && (
-          <PlansUpgradeScreen
-            onBack={() => setSubScreen(null)}
-            currentTier={userTier}
-            artistName={artistName}
-          />
-        )}
         {/* ===== CALENDAR TAB ===== */}
         {activeTab === 'calendar' && (
           <SmartCalendar
