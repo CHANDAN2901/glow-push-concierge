@@ -2551,7 +2551,7 @@ const ArtistDashboard = () => {
             </button>
             {/* Premium Upgrade Banner */}
             <button
-              onClick={() => setSubScreen('plans')}
+              onClick={() => navigate('/pricing')}
               className="w-full flex items-center gap-3 py-4 px-5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
               style={{ background: '#ffffff', color: '#5C4033', border: '3px solid #D4AF37', boxShadow: '0 6px 28px -4px hsla(38, 55%, 62%, 0.35)' }}
             >
