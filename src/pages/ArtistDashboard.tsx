@@ -3300,6 +3300,7 @@ const ArtistDashboard = () => {
           <PlansUpgradeScreen
             onBack={() => setSubScreen(null)}
             currentTier={userTier}
+            artistName={artistName}
           />
         )}
 
