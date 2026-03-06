@@ -11,9 +11,20 @@ const receipts = [
 
 const PaymentHistory = () => (
   <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF] pb-20" dir="rtl">
-    <div className="px-4 pt-6">
+    {/* Sticky glassmorphism header with asymmetrical gold border */}
+    <header
+      className="sticky top-0 w-full z-50 flex items-center justify-between px-6 py-4"
+      style={{
+        background: 'rgba(255, 255, 255, 0.4)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        borderBottom: '3px solid',
+        borderImage: 'linear-gradient(to left, #D4AF37 40%, rgba(212, 175, 55, 0.1) 90%) 1',
+      }}
+    >
+      <div className="text-sm" style={{ color: '#333' }}>היסטוריית תשלומים</div>
       <BackButton />
-    </div>
+    </header>
 
     <div className="pt-8 pb-6 text-center px-4">
       <h1
@@ -57,8 +68,13 @@ const PaymentHistory = () => (
                 href={r.invoiceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95"
-                style={{ border: '1.5px solid #D4AF37', color: '#B8860B', background: '#fff' }}
+                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full text-sm font-bold transition-transform hover:scale-105 active:scale-95"
+                style={{
+                  background: 'linear-gradient(145deg, #f3d078, #D4AF37)',
+                  color: '#fff',
+                  boxShadow: '0 4px 15px rgba(212, 175, 55, 0.4)',
+                  border: 'none',
+                }}
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 צפייה והורדת חשבונית
