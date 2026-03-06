@@ -61,7 +61,7 @@ const PaymentHistory = () => (
                 style={{ border: '1.5px solid #D4AF37', color: '#B8860B', background: '#fff' }}
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                צפייה בחשבונית
+                צפייה והורדת חשבונית
               </a>
             </div>
           </div>
