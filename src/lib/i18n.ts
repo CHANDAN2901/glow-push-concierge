@@ -65,6 +65,27 @@ export const translations: Record<string, Record<Language, string>> = {
   // General
   'general.learnMore': { en: 'Learn More', he: 'למדי עוד' },
   'general.getStarted': { en: 'Get Started', he: 'התחילי עכשיו' },
+
+  // FAQ
+  'faq.title': { en: 'Frequently Asked Questions', he: 'שאלות ותשובות' },
+  'faq.subtitle': { en: 'Find answers to the most common questions', he: 'מצאי תשובות לשאלות הנפוצות ביותר' },
+  'faq.search': { en: 'Search questions...', he: 'חיפוש שאלה...' },
+  'faq.noResults': { en: 'No results found for', he: 'לא נמצאו תוצאות עבור' },
+  'faq.cat.client_app': { en: 'Client App', he: 'אפליקציית הלקוחות' },
+  'faq.cat.general': { en: 'General Usage', he: 'שימוש שוטף' },
+  'faq.cat.photos': { en: 'Photos & Collage', he: "תמונות וקולאז'" },
+
+  // Payment History
+  'payment.title': { en: 'Payment History & Receipts', he: 'היסטוריית תשלומים וקבלות' },
+  'payment.header': { en: 'Payment History', he: 'היסטוריית תשלומים' },
+  'payment.paid': { en: 'Paid', he: 'שולם' },
+  'payment.viewInvoice': { en: 'View & Download Invoice', he: 'צפייה והורדת חשבונית' },
+
+  // Subscription status
+  'sub.greeting': { en: 'Hey {name}, glad to have you! ✨', he: 'היי {name}, איזה כיף שאת איתנו! ✨' },
+  'sub.currentPlan': { en: 'Current Plan: {plan}', he: 'חבילה נוכחית: {plan}' },
+  'sub.validUntil': { en: 'Valid until: —', he: 'בתוקף עד לתאריך: —' },
+  'sub.paymentHistory': { en: 'Payment History & Receipts', he: 'היסטוריית תשלומים וקבלות' },
 };
 
 export function translate(key: string, lang: Language): string {

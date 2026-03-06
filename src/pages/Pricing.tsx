@@ -82,7 +82,7 @@ const tierLabelMap: Record<string, { he: string; en: string }> = {
 
 const Pricing = () => {
   const navigate = useNavigate();
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const isHe = lang === 'he';
   const { toast } = useToast();
   const { data: plans = [], isLoading } = usePricingPlans();
@@ -159,15 +159,15 @@ const Pricing = () => {
               className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
               style={{ backgroundImage: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)' }}
             >
-              {isHe ? `היי ${displayName}, איזה כיף שאת איתנו! ✨` : `Hey ${displayName}, glad to have you! ✨`}
+              {t('sub.greeting').replace('{name}', displayName)}
             </h2>
 
             <div className="space-y-1.5">
               <p className="text-sm font-medium" style={{ color: '#000000' }}>
-                {isHe ? `חבילה נוכחית: ${tierLabel}` : `Current Plan: ${tierLabel}`}
+                {t('sub.currentPlan').replace('{plan}', tierLabel)}
               </p>
               <p className="text-sm font-medium" style={{ color: '#000000' }}>
-                {isHe ? 'בתוקף עד לתאריך: —' : 'Valid until: —'}
+                {t('sub.validUntil')}
               </p>
             </div>
 
@@ -181,7 +181,7 @@ const Pricing = () => {
               onClick={() => navigate('/payment-history')}
             >
               <Receipt className="w-4 h-4" />
-              {isHe ? 'היסטוריית תשלומים וקבלות' : 'Payment History & Receipts'}
+              {t('sub.paymentHistory')}
             </button>
           </div>
 
