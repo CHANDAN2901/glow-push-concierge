@@ -99,6 +99,10 @@ const SuperAdmin = () => {
     'האם שתית אלכוהול או נטלת משככי כאבים ב-24 השעות האחרונות?',
   ]);
   const [newQuestion, setNewQuestion] = useState('');
+  const [upsellEnabled, setUpsellEnabled] = useState(true);
+  const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
+  const [upsellDescription, setUpsellDescription] = useState('אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה');
+  const [upsellButtonText, setUpsellButtonText] = useState('למימוש ההטבה');
 
   if (loading || roleLoading) {
     return (
