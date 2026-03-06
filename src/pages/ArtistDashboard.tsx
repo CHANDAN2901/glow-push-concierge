@@ -2850,7 +2850,7 @@ const ArtistDashboard = () => {
                 )}
                 {/* My Subscription & Upgrades */}
                 <button
-                  onClick={() => { setSubScreen('plans'); }}
+                  onClick={() => navigate('/pricing')}
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <Crown className="w-4 h-4 text-accent" />
