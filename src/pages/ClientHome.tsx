@@ -475,6 +475,16 @@ const ClientHome = () => {
     toast({ description: lang === 'en' ? 'Your calendar is set! See you tomorrow morning ✨' : 'היומן שלך מסודר! נתראה מחר בבוקר ✨' });
   }, [lang, toast]);
 
+  /* ─── Notification Center ─── */
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const treatmentStartDate = useMemo(() => {
+    if (!startDateParam) return new Date();
+    const d = new Date(startDateParam);
+    return Number.isNaN(d.getTime()) ? new Date() : d;
+  }, [startDateParam]);
+  const handleUnreadCountChange = useCallback((count: number) => setUnreadCount(count), []);
+
   /* ─── Loading / Error ─── */
   if (phasesLoading) {
     return (
