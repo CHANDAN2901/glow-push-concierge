@@ -114,6 +114,21 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
         </button>
       </div>
 
+      {/* Asymmetrical gold divider */}
+      <div className="py-2">
+        <div
+          style={{
+            height: '4px',
+            width: '70%',
+            marginLeft: 'auto',
+            marginRight: 0,
+            borderRadius: '2px',
+            background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+            boxShadow: '0 0 10px rgba(212,175,55,0.3), 0 0 20px rgba(212,175,55,0.1)',
+          }}
+        />
+      </div>
+
       {plans.map((plan) => {
         const Icon = iconMap[plan.slug] || Sparkles;
         const name = isHe ? plan.name_he : plan.name_en;
