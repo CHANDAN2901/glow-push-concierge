@@ -111,7 +111,7 @@ const goldBtnStyle: React.CSSProperties = {
 };
 
 /* ─── Logo Header ─── */
-const LogoBrand = ({ lang, setLang }: { lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void }) => (
+const LogoBrand = ({ lang, setLang, hasUnread = true }: { lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void; hasUnread?: boolean }) => (
   <div className="flex items-center justify-between px-4 pt-3 pb-2">
     {/* Language toggle — left */}
     <button
@@ -121,7 +121,7 @@ const LogoBrand = ({ lang, setLang }: { lang: 'en' | 'he'; setLang: (l: 'en' | '
         background: METALLIC_GOLD_GRADIENT,
         backgroundSize: '200% 100%',
         color: '#5C4033',
-        boxShadow: '0 2px 10px rgba(212,175,55,0.4)',
+        boxShadow: '0 2px 10px rgba(191,149,63,0.4)',
       }}
     >
       {lang === 'he' ? 'EN' : 'עב'}
@@ -131,10 +131,29 @@ const LogoBrand = ({ lang, setLang }: { lang: 'en' | 'he'; setLang: (l: 'en' | '
       src={heroLogo}
       alt="Glow Push"
       className="object-contain"
-      style={{ maxHeight: '82px', filter: 'drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
+      style={{ maxHeight: '82px', filter: 'drop-shadow(0 2px 8px rgba(191,149,63,0.3))' }}
     />
-    {/* Spacer for balance */}
-    <div className="w-9" />
+    {/* Notification bell — right */}
+    <button
+      className="relative flex items-center justify-center w-9 h-9 rounded-full transition-all hover:scale-105 active:scale-95"
+      style={{
+        background: METALLIC_GOLD_GRADIENT,
+        backgroundSize: '200% 100%',
+        boxShadow: '0 2px 10px rgba(191,149,63,0.4)',
+      }}
+      aria-label="Notifications"
+    >
+      <Bell className="w-[18px] h-[18px]" style={{ color: '#5C4033' }} strokeWidth={2.2} />
+      {hasUnread && (
+        <span
+          className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full border border-white/80"
+          style={{
+            background: 'radial-gradient(circle, hsl(350 55% 75%) 0%, hsl(350 50% 65%) 100%)',
+            boxShadow: '0 0 6px hsl(350 55% 75% / 0.6)',
+          }}
+        />
+      )}
+    </button>
   </div>
 );
 
