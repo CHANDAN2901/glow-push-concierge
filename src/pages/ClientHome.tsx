@@ -704,7 +704,7 @@ const ClientHome = () => {
             <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
               <Sparkles className="w-6 h-6" style={{ color: '#B8860B' }} />
             </div>
-            <h2 className="text-xl font-bold mb-2" style={{ fontFamily: FBAHAVA }}>
+            <h2 className="text-xl font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Complete Your Look' : 'להשלמת המראה'}</GoldText>
             </h2>
             <p className="text-sm leading-relaxed mb-5" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
