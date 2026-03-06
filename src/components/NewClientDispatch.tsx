@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
+import { TREATMENT_OPTIONS } from '@/lib/treatment-options';
 import { Share2, Smartphone, Copy, Clock, CheckCircle, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
