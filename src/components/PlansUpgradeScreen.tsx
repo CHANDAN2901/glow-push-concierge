@@ -1,4 +1,4 @@
-import { Check, Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt } from 'lucide-react';
+import { Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
