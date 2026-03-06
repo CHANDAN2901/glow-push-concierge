@@ -963,11 +963,7 @@ const ClientHome = () => {
                   >
                     <span
                       className="font-medium text-right flex-1"
-                      style={{
-                        background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                      }}
+                      style={{ color: '#1A1A1A' }}
                     >
                       {faq.q}
                     </span>
