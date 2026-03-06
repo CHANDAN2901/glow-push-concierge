@@ -79,11 +79,12 @@ const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-
 
 /* ─── Shared style constants ─── */
 const METALLIC_GOLD_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
-const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
+const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)';
 const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.35)';
 const CARD_BG = 'rgba(255,255,255,0.85)';
 const CARD_SHADOW = '0 4px 24px rgba(212,175,55,0.08), 0 1px 6px rgba(0,0,0,0.03)';
 const FBAHAVA = "'FB Ahava', 'Assistant', sans-serif";
+const TITLE_FONT = "'Frank Ruhl Libre', 'FB Ahava', serif";
 
 const GoldText = ({ children, className = '', style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
   <span
@@ -559,7 +560,7 @@ const ClientHome = () => {
           <div className="py-8 px-6 text-center">
             <h1
               className="text-2xl font-bold tracking-wide mb-3"
-              style={{ fontFamily: FBAHAVA, fontSize: '28px', lineHeight: 1.6 }}
+              style={{ fontFamily: TITLE_FONT, fontSize: '28px', lineHeight: 1.6 }}
             >
               <GoldText>{getTimeGreeting(clientName)}</GoldText>
             </h1>
@@ -578,7 +579,7 @@ const ClientHome = () => {
             <div className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
               <Clipboard className="w-6 h-6" style={{ color: '#B8860B' }} />
             </div>
-            <h2 className="text-lg font-bold mb-2" style={{ fontFamily: FBAHAVA }}>
+            <h2 className="text-lg font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Daily Recovery Instructions' : 'הנחיות ההחלמה היומיות'}</GoldText>
             </h2>
             <p className="text-sm leading-relaxed" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
@@ -633,7 +634,7 @@ const ClientHome = () => {
             </button>
           </div>
 
-          <p className="text-center text-base mt-4 tracking-wider" style={{ fontFamily: FBAHAVA }}>
+          <p className="text-center text-base mt-4 tracking-wider" style={{ fontFamily: TITLE_FONT }}>
             <GoldText>{lang === 'en' ? content.titleEn : content.title}</GoldText>
           </p>
           <p className="text-center text-xs mt-1" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
@@ -703,7 +704,7 @@ const ClientHome = () => {
             <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
               <Sparkles className="w-6 h-6" style={{ color: '#B8860B' }} />
             </div>
-            <h2 className="text-xl font-bold mb-2" style={{ fontFamily: FBAHAVA }}>
+            <h2 className="text-xl font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Complete Your Look' : 'להשלמת המראה'}</GoldText>
             </h2>
             <p className="text-sm leading-relaxed mb-5" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
@@ -738,7 +739,7 @@ const ClientHome = () => {
             <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
               <Gift className="w-7 h-7" style={{ color: '#B8860B' }} />
             </div>
-            <h2 className="text-xl font-bold" style={{ fontFamily: FBAHAVA }}>
+            <h2 className="text-xl font-bold" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Bring a friend, get a gift!' : 'הביאי חברה, קבלי מתנה!'}</GoldText>
             </h2>
           </div>
@@ -835,7 +836,7 @@ const ClientHome = () => {
             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
               <HelpCircle className="w-5 h-5" style={{ color: '#B8860B' }} />
             </div>
-            <h2 className="text-xl tracking-wide" style={{ fontFamily: FBAHAVA }}>
+            <h2 className="text-xl tracking-wide" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Frequently Asked Questions' : 'שאלות נפוצות'}</GoldText>
             </h2>
           </div>
