@@ -68,8 +68,13 @@ const PaymentHistory = () => (
                 href={r.invoiceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95"
-                style={{ border: '1.5px solid #D4AF37', color: '#B8860B', background: '#fff' }}
+                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full text-sm font-bold transition-transform hover:scale-105 active:scale-95"
+                style={{
+                  background: 'linear-gradient(145deg, #f3d078, #D4AF37)',
+                  color: '#fff',
+                  boxShadow: '0 4px 15px rgba(212, 175, 55, 0.4)',
+                  border: 'none',
+                }}
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 צפייה והורדת חשבונית
