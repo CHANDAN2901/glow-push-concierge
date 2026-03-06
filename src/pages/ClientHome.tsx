@@ -77,8 +77,8 @@ const MILESTONE_DAYS = [7, 14, 21, 30];
 const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
 /* ─── Shared style constants ─── */
-const METALLIC_GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)';
-const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)';
+const METALLIC_GOLD_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
+const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
 const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.35)';
 const CARD_BG = 'rgba(255,255,255,0.85)';
 const CARD_SHADOW = '0 4px 24px rgba(212,175,55,0.08), 0 1px 6px rgba(0,0,0,0.03)';
