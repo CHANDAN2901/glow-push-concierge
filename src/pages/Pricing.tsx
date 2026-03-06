@@ -82,7 +82,7 @@ const tierLabelMap: Record<string, { he: string; en: string }> = {
 
 const Pricing = () => {
   const navigate = useNavigate();
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const isHe = lang === 'he';
   const { toast } = useToast();
   const { data: plans = [], isLoading } = usePricingPlans();
