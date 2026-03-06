@@ -112,7 +112,7 @@ const goldBtnStyle: React.CSSProperties = {
 };
 
 /* ─── Logo Header ─── */
-const LogoBrand = ({ lang, setLang, hasUnread = true }: { lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void; hasUnread?: boolean }) => (
+const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void; hasUnread?: boolean; onBellClick?: () => void }) => (
   <div className="flex items-center justify-between px-4 pt-3 pb-2">
     {/* Language toggle — left */}
     <button
