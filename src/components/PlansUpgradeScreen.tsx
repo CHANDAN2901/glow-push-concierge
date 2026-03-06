@@ -75,7 +75,46 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
         </div>
       </div>
 
-      {plans.map((plan) => {
+      {/* Personal Status Card */}
+      <div
+        className="rounded-2xl p-6 space-y-4 text-center"
+        style={{
+          border: '2px solid #D4AF37',
+          background: 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(40 45% 96%) 100%)',
+          boxShadow: '0 4px 24px -4px rgba(212, 175, 55, 0.15)',
+        }}
+      >
+        <h2
+          className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
+          style={{ backgroundImage: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)' }}
+        >
+          {isHe ? `היי ${displayName}, איזה כיף שאת איתנו! ✨` : `Hey ${displayName}, glad to have you! ✨`}
+        </h2>
+
+        <div className="space-y-1.5">
+          <p className="text-sm font-medium" style={{ color: '#1A1A1A' }}>
+            {isHe ? `חבילה נוכחית: ${tierLabel}` : `Current Plan: ${tierLabel}`}
+          </p>
+          <p className="text-sm font-medium" style={{ color: '#1A1A1A' }}>
+            {isHe ? 'בתוקף עד לתאריך: —' : 'Valid until: —'}
+          </p>
+        </div>
+
+        <button
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
+          style={{
+            border: '1.5px solid #D4AF37',
+            background: 'transparent',
+            color: '#B8860B',
+          }}
+          onClick={() => toast({ title: isHe ? 'היסטוריית תשלומים תהיה זמינה בקרוב' : 'Payment history coming soon' })}
+        >
+          <Receipt className="w-4 h-4" />
+          {isHe ? 'היסטוריית תשלומים וקבלות' : 'Payment History & Receipts'}
+        </button>
+      </div>
+
+
         const Icon = iconMap[plan.slug] || Sparkles;
         const name = isHe ? plan.name_he : plan.name_en;
         const features = isHe ? plan.features_he : plan.features_en;
