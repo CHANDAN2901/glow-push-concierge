@@ -978,31 +978,37 @@ const ClientHome = () => {
               <div key={faq.key}>
                 <AccordionItem value={faq.key} className="border-none">
                   <AccordionTrigger
-                    className="text-sm text-right py-4 hover:no-underline gap-3 [&>svg]:order-first [&>svg]:ml-0 [&>svg]:mr-0"
+                    className="text-sm text-right py-5 hover:no-underline gap-3 [&>svg]:hidden"
                     style={{ fontFamily: FBAHAVA, direction: 'rtl' }}
                   >
                     <span
-                      className="font-medium text-right flex-1"
-                      style={{ color: '#1A1A1A' }}
+                      className="font-bold text-right flex-1"
+                      style={{ color: '#000000' }}
                     >
                       {faq.q}
                     </span>
                   </AccordionTrigger>
                   <AccordionContent
-                    className="text-sm leading-[1.85] pb-4 text-right"
+                    className="text-sm leading-[1.85] pb-5 text-right"
                     style={{ color: '#333333', fontFamily: FBAHAVA, fontWeight: 400, direction: 'rtl' }}
                   >
                     {faq.a}
                   </AccordionContent>
                 </AccordionItem>
                 {idx < arr.length - 1 && (
-                  <div
-                    className="h-[2.5px] mx-1 rounded-full"
-                    style={{
-                      background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
-                      boxShadow: '0 0 6px rgba(212,175,55,0.4), 0 0 12px rgba(212,175,55,0.15)',
-                    }}
-                  />
+                  <div className="py-1">
+                    <div
+                      style={{
+                        height: '3px',
+                        width: '80%',
+                        marginRight: 0,
+                        marginLeft: 'auto',
+                        borderRadius: '2px',
+                        background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+                        boxShadow: '0 0 8px rgba(212,175,55,0.35), 0 0 16px rgba(212,175,55,0.1)',
+                      }}
+                    />
+                  </div>
                 )}
               </div>
             ))}
