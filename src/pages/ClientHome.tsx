@@ -836,7 +836,7 @@ const ClientHome = () => {
             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
               <HelpCircle className="w-5 h-5" style={{ color: '#B8860B' }} />
             </div>
-            <h2 className="text-xl tracking-wide" style={{ fontFamily: FBAHAVA }}>
+            <h2 className="text-xl tracking-wide" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Frequently Asked Questions' : 'שאלות נפוצות'}</GoldText>
             </h2>
           </div>
