@@ -97,24 +97,11 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
 
   const sorted = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+  const GOLD_BTN_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
+
   return (
     <div ref={ref}>
-      {/* Upload button */}
-      <div className="flex justify-center mb-3">
-        <button
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
-          style={{ background: '#ffffff', border: `2.5px solid ${GOLD}`, color: GOLD_DARK }}
-        >
-          <Camera className="w-4 h-4" />
-          {uploading ? 'מעלה...' : 'העלאת תמונה 📸'}
-        </button>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
-      </div>
-      <p className="text-center text-[11px] font-serif -mt-1 mb-3" style={{ color: '#999' }}>
-        צלמי תמונה ברורה של אזור הטיפול
-      </p>
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
 
       {/* New badge */}
       {newCount > 0 && (
@@ -194,7 +181,22 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
         </div>
       )}
 
-      {/* Fullscreen preview */}
+      {/* Upload button — bottom of gallery */}
+      <div className="flex flex-col items-center gap-1.5 mt-5 pt-4" style={{ borderTop: `1px solid ${GOLD}20` }}>
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 hover:brightness-105 active:scale-[0.98] disabled:opacity-60"
+          style={{ background: GOLD_BTN_GRADIENT, color: '#5C4033', boxShadow: '0 4px 15px rgba(212,175,55,0.3)' }}
+        >
+          <Camera className="w-4 h-4" />
+          {uploading ? 'מעלה...' : 'העלאת תמונה 📸'}
+        </button>
+        <p className="text-[10px] font-serif" style={{ color: '#999' }}>
+          צלמי תמונה ברורה של אזור הטיפול
+        </p>
+      </div>
+
       {selected && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
