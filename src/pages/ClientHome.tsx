@@ -79,11 +79,12 @@ const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-
 
 /* ─── Shared style constants ─── */
 const METALLIC_GOLD_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
-const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
+const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)';
 const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.35)';
 const CARD_BG = 'rgba(255,255,255,0.85)';
 const CARD_SHADOW = '0 4px 24px rgba(212,175,55,0.08), 0 1px 6px rgba(0,0,0,0.03)';
 const FBAHAVA = "'FB Ahava', 'Assistant', sans-serif";
+const TITLE_FONT = "'Frank Ruhl Libre', 'FB Ahava', serif";
 
 const GoldText = ({ children, className = '', style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
   <span
