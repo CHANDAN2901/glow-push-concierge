@@ -835,10 +835,7 @@ const ArtistDashboard = () => {
     toast({ title: lang === 'en' ? 'WhatsApp opened!' : 'וואטסאפ נפתח!' });
   };
 
-  const getTreatmentLabel = (value: string) => {
-    const opt = treatmentOptions.find((o) => o.value === value);
-    return opt ? (lang === 'en' ? opt.en : opt.he) : value;
-  };
+  const getTreatmentLabel = (value: string) => getTreatmentLabelFn(value, lang);
 
   // Live preview link updates as user types
   const buildPreviewLink = () => {

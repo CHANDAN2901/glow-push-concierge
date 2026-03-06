@@ -61,10 +61,7 @@ const NewClientDispatch = ({
     }
   }, [open, prefill]);
 
-  const treatmentOptions = [
-    { value: 'eyebrows', en: 'Brows', he: 'גבות' },
-    { value: 'lips', en: 'Lips', he: 'שפתיים' },
-  ];
+  const treatmentOptions = TREATMENT_OPTIONS;
 
   const isDuplicate = phone.trim().length >= 7 && sentPhones.some(p => {
     const norm = normalizePhone(phone);
