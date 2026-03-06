@@ -996,7 +996,13 @@ const ClientHome = () => {
                   </AccordionContent>
                 </AccordionItem>
                 {idx < arr.length - 1 && (
-                  <div className="h-px mx-2" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.25) 30%, rgba(245,220,200,0.4) 50%, rgba(212,175,55,0.25) 70%, transparent 100%)' }} />
+                  <div
+                    className="h-[2.5px] mx-1 rounded-full"
+                    style={{
+                      background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+                      boxShadow: '0 0 6px rgba(212,175,55,0.4), 0 0 12px rgba(212,175,55,0.15)',
+                    }}
+                  />
                 )}
               </div>
             ))}
