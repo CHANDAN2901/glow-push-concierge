@@ -1,4 +1,4 @@
-import { Check, Crown, Sparkles, ArrowRight, MessageCircle, Zap } from 'lucide-react';
+import { Check, Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
@@ -6,6 +6,7 @@ import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
 interface Props {
   onBack: () => void;
   currentTier?: string;
+  artistName?: string;
 }
 
 const iconMap: Record<string, React.ElementType> = {
