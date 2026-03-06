@@ -17,6 +17,7 @@ import confetti from 'canvas-confetti';
 import { useToast } from '@/hooks/use-toast';
 import InstallBanner from '@/components/InstallBanner';
 
+import ClientNotificationCenter from '@/components/ClientNotificationCenter';
 import ClientSharedGallery from '@/components/ClientSharedGallery';
 import ClientMyPhotos from '@/components/ClientMyPhotos';
 import HealingTimelineCarousel from '@/components/HealingTimelineCarousel';
@@ -111,7 +112,7 @@ const goldBtnStyle: React.CSSProperties = {
 };
 
 /* ─── Logo Header ─── */
-const LogoBrand = ({ lang, setLang, hasUnread = true }: { lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void; hasUnread?: boolean }) => (
+const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void; hasUnread?: boolean; onBellClick?: () => void }) => (
   <div className="flex items-center justify-between px-4 pt-3 pb-2">
     {/* Language toggle — left */}
     <button
@@ -135,6 +136,7 @@ const LogoBrand = ({ lang, setLang, hasUnread = true }: { lang: 'en' | 'he'; set
     />
     {/* Notification bell — right */}
     <button
+      onClick={onBellClick}
       className="relative flex items-center justify-center w-9 h-9 rounded-full transition-all hover:scale-105 active:scale-95"
       style={{
         background: METALLIC_GOLD_GRADIENT,
@@ -473,6 +475,16 @@ const ClientHome = () => {
     toast({ description: lang === 'en' ? 'Your calendar is set! See you tomorrow morning ✨' : 'היומן שלך מסודר! נתראה מחר בבוקר ✨' });
   }, [lang, toast]);
 
+  /* ─── Notification Center ─── */
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const treatmentStartDate = useMemo(() => {
+    if (!startDateParam) return new Date();
+    const d = new Date(startDateParam);
+    return Number.isNaN(d.getTime()) ? new Date() : d;
+  }, [startDateParam]);
+  const handleUnreadCountChange = useCallback((count: number) => setUnreadCount(count), []);
+
   /* ─── Loading / Error ─── */
   if (phasesLoading) {
     return (
@@ -517,9 +529,22 @@ const ClientHome = () => {
         }}
       >
         <div className="max-w-md mx-auto">
-          <LogoBrand lang={lang} setLang={setLang} />
+          <LogoBrand lang={lang} setLang={setLang} hasUnread={unreadCount > 0} onBellClick={() => setNotifOpen(true)} />
         </div>
       </header>
+
+      {/* ─── NOTIFICATION CENTER ─── */}
+      <ClientNotificationCenter
+        isOpen={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        artistProfileId={artistProfileId}
+        treatmentType={treatment}
+        daysSinceTreatment={actualDay}
+        clientName={clientName}
+        lang={lang}
+        startDate={treatmentStartDate}
+        onUnreadCountChange={handleUnreadCountChange}
+      />
 
       <div className="pt-28 max-w-md mx-auto px-4" dir="rtl">
 
