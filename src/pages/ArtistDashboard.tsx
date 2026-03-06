@@ -2551,7 +2551,7 @@ const ArtistDashboard = () => {
             </button>
             {/* Premium Upgrade Banner */}
             <button
-              onClick={() => setSubScreen('plans')}
+              onClick={() => navigate('/pricing')}
               className="w-full flex items-center gap-3 py-4 px-5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
               style={{ background: '#ffffff', color: '#5C4033', border: '3px solid #D4AF37', boxShadow: '0 6px 28px -4px hsla(38, 55%, 62%, 0.35)' }}
             >
@@ -2564,13 +2564,6 @@ const ArtistDashboard = () => {
             </button>
             <MessageEditor />
           </div>
-        )}
-        {activeTab === 'push' && subScreen === 'plans' && (
-          <PlansUpgradeScreen
-            onBack={() => setSubScreen(null)}
-            currentTier={userTier}
-            artistName={artistName}
-          />
         )}
         {/* ===== CALENDAR TAB ===== */}
         {activeTab === 'calendar' && (
@@ -2850,7 +2843,7 @@ const ArtistDashboard = () => {
                 )}
                 {/* My Subscription & Upgrades */}
                 <button
-                  onClick={() => { setSubScreen('plans'); }}
+                  onClick={() => navigate('/pricing')}
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <Crown className="w-4 h-4 text-accent" />
@@ -3293,15 +3286,6 @@ const ArtistDashboard = () => {
             {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}
           </button>
         </div>
-        )}
-
-        {/* ===== UPGRADES FROM SETTINGS ===== */}
-        {activeTab === 'profile' && subScreen === 'plans' && (
-          <PlansUpgradeScreen
-            onBack={() => setSubScreen(null)}
-            currentTier={userTier}
-            artistName={artistName}
-          />
         )}
 
       {/* Client Import Dialog */}
