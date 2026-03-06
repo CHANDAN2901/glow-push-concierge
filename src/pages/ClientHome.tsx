@@ -869,6 +869,14 @@ const ClientHome = () => {
           </div>
         </div>
 
+        {/* ─── SHARED GALLERY ─── */}
+        <div id="gallery" className="scroll-mt-20" />
+        <ClientSharedGallery
+          clientId={clientId}
+          artistId={artistProfileId}
+          gallery={gallery}
+        />
+
         {/* ─── FAQ ─── */}
         <div id="faq" className="scroll-mt-20" />
         <div
