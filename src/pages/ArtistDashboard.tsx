@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { TREATMENT_OPTIONS, getTreatmentLabel as getTreatmentLabelFn } from '@/lib/treatment-options';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import {
@@ -464,11 +465,7 @@ const ArtistDashboard = () => {
     { icon: MessageSquare, label: lang === 'en' ? 'Messages Saved' : 'הודעות שנחסכו', value: '312' },
   ];
 
-  const treatmentOptions = [
-    { value: 'eyebrows', en: 'Eyebrows', he: 'גבות' },
-    { value: 'lips', en: 'Lips', he: 'שפתיים' },
-    { value: 'eyeliner', en: 'Eyeliner', he: 'אייליינר' },
-  ];
+  const treatmentOptions = TREATMENT_OPTIONS;
 
   const confirmDeleteClient = async () => {
     if (!deletingClient) return;
@@ -839,10 +836,7 @@ const ArtistDashboard = () => {
     toast({ title: lang === 'en' ? 'WhatsApp opened!' : 'וואטסאפ נפתח!' });
   };
 
-  const getTreatmentLabel = (value: string) => {
-    const opt = treatmentOptions.find((o) => o.value === value);
-    return opt ? (lang === 'en' ? opt.en : opt.he) : value;
-  };
+  const getTreatmentLabel = (value: string) => getTreatmentLabelFn(value, lang);
 
   // Live preview link updates as user types
   const buildPreviewLink = () => {
