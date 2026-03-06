@@ -559,10 +559,10 @@ const ClientHome = () => {
         >
           <div className="py-8 px-6 text-center">
             <h1
-              className="text-2xl font-bold tracking-wide mb-3"
-              style={{ fontFamily: TITLE_FONT, fontSize: '28px', lineHeight: 1.6 }}
+              className="font-bold tracking-wide mb-3"
+              style={{ fontFamily: FBAHAVA, fontSize: '32px', lineHeight: 1.5 }}
             >
-              <GoldText>{getTimeGreeting(clientName)}</GoldText>
+              <GoldText>{getTimeGreeting(clientName)} ✨</GoldText>
             </h1>
             <span className="sr-only" data-client-identity-source={identity.source}>
               {`client-identity-source:${identity.source}|client-id:${clientId || 'none'}|client-name:${clientName || 'none'}`}
@@ -575,47 +575,64 @@ const ClientHome = () => {
           className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
-          <div className="px-7 py-8 text-right" dir="rtl">
-            {/* Delicate sparkle icon */}
+          <div className="px-7 py-9 text-right" dir="rtl">
+            {/* Clipboard icon – enlarged & prominent */}
             <div className="flex justify-center mb-5">
-              <Sparkles className="w-7 h-7" style={{ color: '#C9A84C', strokeWidth: 1 }} />
+              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(139,101,8,0.12), rgba(212,175,55,0.10))' }}>
+                <Clipboard className="w-7 h-7" style={{ color: '#8B6508', strokeWidth: 1.4 }} />
+              </div>
             </div>
 
-            <h2 className="text-[17px] font-normal mb-4 leading-relaxed" style={{ fontFamily: TITLE_FONT }}>
+            <h2 className="text-[22px] font-semibold mb-5 leading-relaxed text-center" style={{ fontFamily: FBAHAVA }}>
               <GoldText>ברוכה הבאה ליומן ההחלמה שלך</GoldText>
             </h2>
 
-            <p className="text-[14px] font-light leading-[1.9] mb-5" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
-              יצרתי את האזור האישי הזה במיוחד עבורך, כדי ללוות אותך יום אחר יום עד לתוצאה המושלמת.
-              <br /><br />
-              מה מחכה לך כאן?
+            <p className="text-[17px] leading-[2] mb-6" style={{ fontFamily: FBAHAVA }}>
+              <GoldText style={{ fontWeight: 400 }}>
+                יצרתי את האזור האישי הזה במיוחד עבורך, כדי ללוות אותך יום אחר יום עד לתוצאה המושלמת.
+              </GoldText>
             </p>
 
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-start gap-2.5 text-[13.5px] font-light leading-[1.8]" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
-                <CalendarCheck className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#C9A84C', strokeWidth: 1.2 }} />
-                <span><GoldText style={{ fontWeight: 500 }}>הנחיות מדויקות:</GoldText> מותאמות בדיוק ליום ההחלמה שלך.</span>
+            <p className="text-[17px] leading-[2] mb-6" style={{ fontFamily: FBAHAVA }}>
+              <GoldText style={{ fontWeight: 400 }}>מה מחכה לך כאן?</GoldText>
+            </p>
+
+            <ul className="space-y-5 mb-7">
+              <li className="flex items-start gap-3 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
+                <CalendarCheck className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
+                <span>
+                  <GoldText style={{ fontWeight: 600 }}>הנחיות מדויקות:</GoldText>{' '}
+                  <GoldText style={{ fontWeight: 400 }}>מותאמות בדיוק ליום ההחלמה שלך.</GoldText>
+                </span>
               </li>
-              <li className="flex items-start gap-2.5 text-[13.5px] font-light leading-[1.8]" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
-                <Camera className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#C9A84C', strokeWidth: 1.2 }} />
-                <span><GoldText style={{ fontWeight: 500 }}>מעקב אישי:</GoldText> העלי תמונות מהירות כדי שאוכל ללוות אותך.</span>
+              <li className="flex items-start gap-3 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
+                <Camera className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
+                <span>
+                  <GoldText style={{ fontWeight: 600 }}>מעקב אישי:</GoldText>{' '}
+                  <GoldText style={{ fontWeight: 400 }}>העלי תמונות מהירות כדי שאוכל ללוות אותך.</GoldText>
+                </span>
               </li>
-              <li className="flex items-start gap-2.5 text-[13.5px] font-light leading-[1.8]" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
-                <MessageCircle className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#C9A84C', strokeWidth: 1.2 }} />
-                <span><GoldText style={{ fontWeight: 500 }}>קשר ישיר:</GoldText> צריכה אותי? אני במרחק לחיצה.</span>
+              <li className="flex items-start gap-3 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
+                <MessageCircle className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
+                <span>
+                  <GoldText style={{ fontWeight: 600 }}>קשר ישיר:</GoldText>{' '}
+                  <GoldText style={{ fontWeight: 400 }}>צריכה אותי? אני במרחק לחיצה.</GoldText>
+                </span>
               </li>
             </ul>
 
-            {/* Treatment badge */}
+            {/* Treatment badge – enlarged */}
             <div className="flex justify-center">
               <span
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-[12.5px] font-light"
-                style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.18)', color: '#8B6914', fontFamily: FBAHAVA }}
+                className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full text-[15px]"
+                style={{ background: 'rgba(139,101,8,0.06)', border: '1px solid rgba(139,101,8,0.18)', fontFamily: FBAHAVA }}
               >
-                {treatment === 'lips' ? '👄' : '✍️'}{' '}
-                {lang === 'en'
-                  ? `Treatment: ${treatment === 'lips' ? 'Lips' : 'Brows'} ✨`
-                  : `סוג הטיפול: ${treatment === 'lips' ? 'שפתיים' : 'גבות'} ✨`}
+                <GoldText style={{ fontWeight: 500 }}>
+                  {treatment === 'lips' ? '👄' : '✍️'}{' '}
+                  {lang === 'en'
+                    ? `Treatment: ${treatment === 'lips' ? 'Lips' : 'Brows'} ✨`
+                    : `סוג הטיפול: ${treatment === 'lips' ? 'שפתיים' : 'גבות'} ✨`}
+                </GoldText>
               </span>
             </div>
           </div>
