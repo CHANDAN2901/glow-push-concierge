@@ -560,7 +560,7 @@ const ClientHome = () => {
           <div className="py-8 px-6 text-center">
             <h1
               className="text-2xl font-bold tracking-wide mb-3"
-              style={{ fontFamily: FBAHAVA, fontSize: '28px', lineHeight: 1.6 }}
+              style={{ fontFamily: TITLE_FONT, fontSize: '28px', lineHeight: 1.6 }}
             >
               <GoldText>{getTimeGreeting(clientName)}</GoldText>
             </h1>
