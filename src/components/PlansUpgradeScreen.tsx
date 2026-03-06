@@ -1,4 +1,4 @@
-import { Check, Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt } from 'lucide-react';
+import { Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
@@ -114,6 +114,21 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
         </button>
       </div>
 
+      {/* Asymmetrical gold divider */}
+      <div className="py-2">
+        <div
+          style={{
+            height: '4px',
+            width: '70%',
+            marginLeft: 'auto',
+            marginRight: 0,
+            borderRadius: '2px',
+            background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+            boxShadow: '0 0 10px rgba(212,175,55,0.3), 0 0 20px rgba(212,175,55,0.1)',
+          }}
+        />
+      </div>
+
       {plans.map((plan) => {
         const Icon = iconMap[plan.slug] || Sparkles;
         const name = isHe ? plan.name_he : plan.name_en;
@@ -224,11 +239,9 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
         {features.map((f, i) => (
           <div key={i} className="flex items-start gap-2.5">
             <div
-              className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-              style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)' }}
-            >
-              <Check className="w-3 h-3 text-white" />
-            </div>
+              className="w-2 h-2 rounded-full shrink-0 mt-1.5"
+              style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
+            />
             <p className="text-sm text-foreground font-medium leading-relaxed">{f}</p>
           </div>
         ))}
@@ -300,9 +313,10 @@ function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade }: 
       <div className="space-y-2.5">
         {features.map((f, i) => (
           <div key={i} className="flex items-start gap-2.5">
-            <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
-              <Check className="w-3 h-3 text-accent" />
-            </div>
+            <div
+              className="w-2 h-2 rounded-full shrink-0 mt-1.5"
+              style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
+            />
             <p className="text-sm text-foreground/80 leading-relaxed">{f}</p>
           </div>
         ))}
