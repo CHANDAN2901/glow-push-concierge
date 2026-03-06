@@ -346,6 +346,36 @@ const SuperAdmin = () => {
         </div>
       </div>
 
+      {/* Card C: Upsell Management */}
+      <div className="bg-card border border-border rounded-xl p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <Gift className="w-5 h-5 text-accent" />
+          <h2 className="font-serif font-semibold text-lg">ניהול פינוק והטבות</h2>
+        </div>
+
+        <div className="space-y-5" dir="rtl">
+          <div className="flex items-center justify-between gap-3 bg-muted/30 rounded-lg px-4 py-3">
+            <label className="text-sm font-medium">הצג כרטיסיית הטבה באפליקציית הלקוחה</label>
+            <Switch checked={upsellEnabled} onCheckedChange={setUpsellEnabled} className="data-[state=checked]:bg-accent" />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">כותרת ההטבה</label>
+            <Input value={upsellTitle} onChange={(e) => setUpsellTitle(e.target.value)} dir="rtl" placeholder="להשלמת המראה" />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">תיאור ההטבה</label>
+            <Textarea value={upsellDescription} onChange={(e) => setUpsellDescription(e.target.value)} rows={3} className="resize-y" dir="rtl" placeholder="אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה" />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">טקסט על כפתור המימוש</label>
+            <Input value={upsellButtonText} onChange={(e) => setUpsellButtonText(e.target.value)} dir="rtl" placeholder="למימוש ההטבה" />
+          </div>
+        </div>
+      </div>
+
       {/* Sticky Save */}
       <div className="sticky bottom-6 flex justify-end">
         <Button className="bg-accent text-accent-foreground hover:bg-accent/90 h-12 px-8 text-base shadow-lg" onClick={() => toast({ title: 'System settings updated successfully' })}>
