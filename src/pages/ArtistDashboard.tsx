@@ -464,11 +464,7 @@ const ArtistDashboard = () => {
     { icon: MessageSquare, label: lang === 'en' ? 'Messages Saved' : 'הודעות שנחסכו', value: '312' },
   ];
 
-  const treatmentOptions = [
-    { value: 'eyebrows', en: 'Eyebrows', he: 'גבות' },
-    { value: 'lips', en: 'Lips', he: 'שפתיים' },
-    { value: 'eyeliner', en: 'Eyeliner', he: 'אייליינר' },
-  ];
+  const treatmentOptions = TREATMENT_OPTIONS;
 
   const confirmDeleteClient = async () => {
     if (!deletingClient) return;
