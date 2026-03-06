@@ -143,6 +143,64 @@ const Pricing = () => {
         />
       </div>
 
+      {/* Personal Status Card — only for logged-in users */}
+      {user && (
+        <div className="mx-auto px-4 max-w-lg mb-8">
+          <div
+            className="rounded-2xl p-6 space-y-4 text-center"
+            style={{
+              background: '#ffffff',
+              border: '2px solid #D4AF37',
+              boxShadow: '0 4px 24px -4px rgba(212, 175, 55, 0.15)',
+            }}
+          >
+            <h2
+              className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
+              style={{ backgroundImage: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)' }}
+            >
+              {isHe ? `היי ${displayName}, איזה כיף שאת איתנו! ✨` : `Hey ${displayName}, glad to have you! ✨`}
+            </h2>
+
+            <div className="space-y-1.5">
+              <p className="text-sm font-medium" style={{ color: '#000000' }}>
+                {isHe ? `חבילה נוכחית: ${tierLabel}` : `Current Plan: ${tierLabel}`}
+              </p>
+              <p className="text-sm font-medium" style={{ color: '#000000' }}>
+                {isHe ? 'בתוקף עד לתאריך: —' : 'Valid until: —'}
+              </p>
+            </div>
+
+            <button
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
+              style={{
+                border: '1.5px solid #D4AF37',
+                background: '#ffffff',
+                color: '#B8860B',
+              }}
+              onClick={() => toast({ title: isHe ? 'היסטוריית תשלומים תהיה זמינה בקרוב' : 'Payment history coming soon' })}
+            >
+              <Receipt className="w-4 h-4" />
+              {isHe ? 'היסטוריית תשלומים וקבלות' : 'Payment History & Receipts'}
+            </button>
+          </div>
+
+          {/* Asymmetrical gold divider */}
+          <div className="pt-6">
+            <div
+              style={{
+                height: '3px',
+                width: '60%',
+                marginRight: 0,
+                marginLeft: 'auto',
+                borderRadius: '4px',
+                background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+                boxShadow: '0 0 8px rgba(212,175,55,0.25)',
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Cards */}
       <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-8 max-w-lg">
         {plans.map((plan, idx) => {
