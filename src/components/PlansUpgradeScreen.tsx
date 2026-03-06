@@ -114,7 +114,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
         </button>
       </div>
 
-
+      {plans.map((plan) => {
         const Icon = iconMap[plan.slug] || Sparkles;
         const name = isHe ? plan.name_he : plan.name_en;
         const features = isHe ? plan.features_he : plan.features_en;
