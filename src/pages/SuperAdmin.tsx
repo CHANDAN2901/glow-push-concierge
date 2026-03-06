@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users, DollarSign, TrendingUp, UserPlus,
   Shield, Send, Pencil, Ban, CalendarDays, Eye,
-  Settings, Save, Plus, X, MessageSquareText, Heart,
+  Settings, Save, Plus, X, MessageSquareText, Heart, Gift,
 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
