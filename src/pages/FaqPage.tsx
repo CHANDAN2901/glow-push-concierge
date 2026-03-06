@@ -52,8 +52,8 @@ const FALLBACK_FAQ: Record<'he' | 'en', FaqItem[]> = {
     { q: 'Can the client see all the photos I upload?', a: 'Yes, the gallery is synced. Every photo you upload to the client's file will also appear on her end, so she can track her progress.' },
     { q: 'What happens if a client accidentally deletes the message and loses her link?', a: 'Very simple. Go to her client card in the management area and tap the "Send Login Link" button. The link will be sent to her again immediately.' },
     { q: 'How does the "Refer a Friend" feature work?', a: 'On the main screen you have a dedicated button. Tapping it generates a personal link you can share with fellow professionals. Once a friend signs up through your link, the system detects it automatically and both of you receive a reward!' },
-    { q: 'Who can see my clients\' healing photos?', a: 'Privacy comes first. Photos are secured and visible only to you (the artist) and the client herself. No other client can view a gallery that isn\'t hers.' },
-    { q: 'How does my logo appear on collages?', a: 'In your profile settings you can upload your clinic logo. Once it\'s in the system, Glow Push will automatically stamp it elegantly on every collage you create through the app.' },
+    { q: 'Who can see my clients\u2019 healing photos?', a: 'Privacy comes first. Photos are secured and visible only to you (the artist) and the client herself. No other client can view a gallery that isn\u2019t hers.' },
+    { q: 'How does my logo appear on collages?', a: 'In your profile settings you can upload your clinic logo. Once it\u2019s in the system, Glow Push will automatically stamp it elegantly on every collage you create through the app.' },
   ],
 };
 
