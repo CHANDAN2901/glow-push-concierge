@@ -1,4 +1,4 @@
-import { Check, Crown, Sparkles, Star, Flame } from 'lucide-react';
+import { Crown, Sparkles, Star, Flame } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
@@ -173,11 +173,25 @@ const Pricing = () => {
                 </div>
               </div>
 
-              <ul className="space-y-4 mb-10 flex-1">
+              <ul className="space-y-0 mb-10 flex-1">
                 {features.map((f, i) => (
-                  <li key={i} className="flex items-center justify-center gap-3 text-sm" style={{ color: '#444' }}>
-                    <Check className="w-4 h-4 shrink-0 order-first rtl:order-last" style={{ color: '#D4AF37' }} />
-                    <span>{f}</span>
+                  <li key={i}>
+                    <div className="flex items-center justify-center gap-3 text-sm py-3" style={{ color: '#000000', fontWeight: 500 }}>
+                      <span>{f}</span>
+                    </div>
+                    {i < features.length - 1 && (
+                      <div
+                        style={{
+                          height: '3px',
+                          width: '60%',
+                          marginRight: 0,
+                          marginLeft: 'auto',
+                          borderRadius: '4px',
+                          background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+                          boxShadow: '0 0 6px rgba(212,175,55,0.25)',
+                        }}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>
