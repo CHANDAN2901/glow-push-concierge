@@ -15,11 +15,20 @@ const iconMap: Record<string, React.ElementType> = {
   'vip-3year': Crown,
 };
 
-export default function PlansUpgradeScreen({ onBack, currentTier }: Props) {
+const tierLabelMap: Record<string, { he: string; en: string }> = {
+  lite: { he: 'Pro – בסיסי', en: 'Pro – Basic' },
+  professional: { he: 'Elite – מקצועי', en: 'Elite – Professional' },
+  master: { he: 'VIP – מייסדות', en: 'VIP – Founders' },
+};
+
+export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: Props) {
   const { lang } = useI18n();
   const { toast } = useToast();
   const isHe = lang === 'he';
   const { data: plans = [], isLoading } = usePricingPlans();
+
+  const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
+  const tierLabel = tierLabelMap[currentTier || 'lite']?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
   const handleUpgrade = (plan: PricingPlan) => {
     // Log full plan object for debugging — confirm DB data is used
