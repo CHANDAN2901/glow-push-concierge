@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Crown, Sparkles, Star, Flame, Receipt } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/usePricingPlans';
@@ -81,6 +81,7 @@ const tierLabelMap: Record<string, { he: string; en: string }> = {
 };
 
 const Pricing = () => {
+  const navigate = useNavigate();
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const { toast } = useToast();
@@ -177,7 +178,7 @@ const Pricing = () => {
                 background: '#ffffff',
                 color: '#B8860B',
               }}
-              onClick={() => toast({ title: isHe ? 'היסטוריית תשלומים תהיה זמינה בקרוב' : 'Payment history coming soon' })}
+              onClick={() => navigate('/payment-history')}
             >
               <Receipt className="w-4 h-4" />
               {isHe ? 'היסטוריית תשלומים וקבלות' : 'Payment History & Receipts'}

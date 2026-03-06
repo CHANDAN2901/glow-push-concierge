@@ -31,6 +31,7 @@ import Legal from "./pages/Legal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
+import PaymentHistory from "./pages/PaymentHistory";
 import DevSwitcher from "./components/DevSwitcher";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/payment-history" element={<PaymentHistory />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
