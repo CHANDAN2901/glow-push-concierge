@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users, DollarSign, TrendingUp, UserPlus,
   Shield, Send, Pencil, Ban, CalendarDays, Eye,
-  Settings, Save, Plus, X, MessageSquareText, Heart,
+  Settings, Save, Plus, X, MessageSquareText, Heart, Gift,
 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -99,6 +100,10 @@ const SuperAdmin = () => {
     'האם שתית אלכוהול או נטלת משככי כאבים ב-24 השעות האחרונות?',
   ]);
   const [newQuestion, setNewQuestion] = useState('');
+  const [upsellEnabled, setUpsellEnabled] = useState(true);
+  const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
+  const [upsellDescription, setUpsellDescription] = useState('אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה');
+  const [upsellButtonText, setUpsellButtonText] = useState('למימוש ההטבה');
 
   if (loading || roleLoading) {
     return (
@@ -336,6 +341,36 @@ const SuperAdmin = () => {
               <Input placeholder="הוסיפי שאלה חדשה…" value={newQuestion} onChange={(e) => setNewQuestion(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addQuestion()} dir="rtl" />
               <Button variant="outline" size="icon" onClick={addQuestion}><Plus className="w-4 h-4" /></Button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Card C: Upsell Management */}
+      <div className="bg-card border border-border rounded-xl p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <Gift className="w-5 h-5 text-accent" />
+          <h2 className="font-serif font-semibold text-lg">ניהול פינוק והטבות</h2>
+        </div>
+
+        <div className="space-y-5" dir="rtl">
+          <div className="flex items-center justify-between gap-3 bg-muted/30 rounded-lg px-4 py-3">
+            <label className="text-sm font-medium">הצג כרטיסיית הטבה באפליקציית הלקוחה</label>
+            <Switch checked={upsellEnabled} onCheckedChange={setUpsellEnabled} className="data-[state=checked]:bg-accent" />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">כותרת ההטבה</label>
+            <Input value={upsellTitle} onChange={(e) => setUpsellTitle(e.target.value)} dir="rtl" placeholder="להשלמת המראה" />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">תיאור ההטבה</label>
+            <Textarea value={upsellDescription} onChange={(e) => setUpsellDescription(e.target.value)} rows={3} className="resize-y" dir="rtl" placeholder="אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה" />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">טקסט על כפתור המימוש</label>
+            <Input value={upsellButtonText} onChange={(e) => setUpsellButtonText(e.target.value)} dir="rtl" placeholder="למימוש ההטבה" />
           </div>
         </div>
       </div>
