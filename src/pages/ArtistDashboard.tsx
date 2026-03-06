@@ -2569,6 +2569,7 @@ const ArtistDashboard = () => {
           <PlansUpgradeScreen
             onBack={() => setSubScreen(null)}
             currentTier={userTier}
+            artistName={artistName}
           />
         )}
         {/* ===== CALENDAR TAB ===== */}
@@ -3299,6 +3300,7 @@ const ArtistDashboard = () => {
           <PlansUpgradeScreen
             onBack={() => setSubScreen(null)}
             currentTier={userTier}
+            artistName={artistName}
           />
         )}
 

@@ -1,4 +1,4 @@
-import { Check, Crown, Sparkles, ArrowRight, MessageCircle, Zap } from 'lucide-react';
+import { Check, Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
@@ -6,6 +6,7 @@ import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
 interface Props {
   onBack: () => void;
   currentTier?: string;
+  artistName?: string;
 }
 
 const iconMap: Record<string, React.ElementType> = {
@@ -14,11 +15,20 @@ const iconMap: Record<string, React.ElementType> = {
   'vip-3year': Crown,
 };
 
-export default function PlansUpgradeScreen({ onBack, currentTier }: Props) {
+const tierLabelMap: Record<string, { he: string; en: string }> = {
+  lite: { he: 'Pro – בסיסי', en: 'Pro – Basic' },
+  professional: { he: 'Elite – מקצועי', en: 'Elite – Professional' },
+  master: { he: 'VIP – מייסדות', en: 'VIP – Founders' },
+};
+
+export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: Props) {
   const { lang } = useI18n();
   const { toast } = useToast();
   const isHe = lang === 'he';
   const { data: plans = [], isLoading } = usePricingPlans();
+
+  const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
+  const tierLabel = tierLabelMap[currentTier || 'lite']?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
   const handleUpgrade = (plan: PricingPlan) => {
     // Log full plan object for debugging — confirm DB data is used
@@ -63,6 +73,45 @@ export default function PlansUpgradeScreen({ onBack, currentTier }: Props) {
             {isHe ? 'בחרי את החבילה המתאימה לך' : 'Choose the right plan for you'}
           </p>
         </div>
+      </div>
+
+      {/* Personal Status Card */}
+      <div
+        className="rounded-2xl p-6 space-y-4 text-center"
+        style={{
+          border: '2px solid #D4AF37',
+          background: 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(40 45% 96%) 100%)',
+          boxShadow: '0 4px 24px -4px rgba(212, 175, 55, 0.15)',
+        }}
+      >
+        <h2
+          className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
+          style={{ backgroundImage: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)' }}
+        >
+          {isHe ? `היי ${displayName}, איזה כיף שאת איתנו! ✨` : `Hey ${displayName}, glad to have you! ✨`}
+        </h2>
+
+        <div className="space-y-1.5">
+          <p className="text-sm font-medium" style={{ color: '#1A1A1A' }}>
+            {isHe ? `חבילה נוכחית: ${tierLabel}` : `Current Plan: ${tierLabel}`}
+          </p>
+          <p className="text-sm font-medium" style={{ color: '#1A1A1A' }}>
+            {isHe ? 'בתוקף עד לתאריך: —' : 'Valid until: —'}
+          </p>
+        </div>
+
+        <button
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
+          style={{
+            border: '1.5px solid #D4AF37',
+            background: 'transparent',
+            color: '#B8860B',
+          }}
+          onClick={() => toast({ title: isHe ? 'היסטוריית תשלומים תהיה זמינה בקרוב' : 'Payment history coming soon' })}
+        >
+          <Receipt className="w-4 h-4" />
+          {isHe ? 'היסטוריית תשלומים וקבלות' : 'Payment History & Receipts'}
+        </button>
       </div>
 
       {plans.map((plan) => {
