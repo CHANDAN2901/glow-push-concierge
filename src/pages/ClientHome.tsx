@@ -913,7 +913,7 @@ const ClientHome = () => {
         <div
           className="rounded-3xl p-6 mb-5 animate-fade-up"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
-          dir={lang === 'he' ? 'rtl' : 'ltr'}
+          dir="rtl"
         >
           <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-1.5 mb-4 text-xs hover:underline underline-offset-2" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
             <ArrowUp className="w-3.5 h-3.5" />
@@ -927,21 +927,62 @@ const ClientHome = () => {
               <GoldText>{lang === 'en' ? 'Frequently Asked Questions' : 'שאלות נפוצות'}</GoldText>
             </h2>
           </div>
-          <Accordion type="single" collapsible className="space-y-2">
+          <Accordion type="single" collapsible className="w-full">
             {[
-              { key: 'faq-1', q: { en: 'Why do my brows look so dark today?', he: 'למה הגבות שלי נראות כל כך כהות היום?' }, a: { en: "That's completely natural! In the first few days the pigment oxidizes and darkens. After healing, the color will fade and look natural.", he: 'זה טבעי לגמרי! בימים הראשונים הפיגמנט מתחמצן ומתכהה. לאחר ההחלמה הצבע ידהה וייראה טבעי.' } },
-              { key: 'faq-2', q: { en: "I'm peeling and it's really itchy, can I scratch?", he: 'התחיל לי קילוף וממש מגרד לי, מותר לגרד?' }, a: { en: "Absolutely not. Let your skin heal at its own pace so you don't damage the pigment.", he: 'בשום פנים ואופן לא. תני לעור להחלים בקצב שלו כדי לא לפגוע בפיגמנט.' } },
-              { key: 'faq-3', q: { en: 'When can I wear makeup again?', he: 'מתי אפשר לחזור להתאפר?' }, a: { en: 'Avoid applying makeup directly on the treated area for 10-14 days.', he: 'הימנעי מאיפור ישירות על האזור המטופל למשך 10-14 ימים.' } },
-              { key: 'faq-4', q: { en: 'Can I get the area wet in the shower?', he: 'מותר לי להרטיב את האזור במקלחת?' }, a: { en: 'In the first few days, keep the area as dry as possible.', he: 'בימים הראשונים יש לשמור על האזור יבש ככל הניתן.' } },
-            ].map(faq => (
-              <AccordionItem key={faq.key} value={faq.key} className="rounded-2xl px-4 overflow-hidden" style={{ border: '1px solid rgba(212,175,55,0.15)', background: 'rgba(212,175,55,0.03)' }}>
-                <AccordionTrigger className="text-sm text-start py-4 hover:no-underline" style={{ color: '#5C4033', fontFamily: FBAHAVA }}>
-                  {lang === 'en' ? faq.q.en : faq.q.he}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm leading-relaxed pb-4" style={{ color: '#8B7355', fontFamily: FBAHAVA }}>
-                  {lang === 'en' ? faq.a.en : faq.a.he}
-                </AccordionContent>
-              </AccordionItem>
+              {
+                key: 'faq-1',
+                q: 'הצבע נראה לי כהה ועבה מדי, זה יישאר ככה?',
+                a: 'ממש לא! בימים הראשונים הפיגמנט מתחמצן ומתכהה, וזה טבעי לגמרי. לאחר שלב הקילוף, הצבע יתבהר משמעותית (בין 30% ל-50%) ויתרכך לגוון הטבעי והמדויק שבחרנו.',
+              },
+              {
+                key: 'faq-2',
+                q: 'אחרי שהקילוף ירד, נראה כאילו אין לי צבע בכלל. זה הגיוני?',
+                a: 'כן! זה נקרא "שלב החלביות" של העור. העור החדש שצומח מסתיר מעט את הפיגמנט. הצבע יחזור ויצוף אל פני השטח בהדרגה במהלך השבועות הקרובים.',
+              },
+              {
+                key: 'faq-3',
+                q: 'האזור מתחיל להתקלף ומאוד מגרד לי, מותר לי לגרד או לעזור לקילוף לרדת?',
+                a: 'בשום פנים ואופן לא. משיכה או גירוד של הקילופים עלולים למשוך החוצה את הפיגמנט ולפגוע בתוצאה, ואפילו ליצור צלקת. תני לעור להחלים בקצב שלו. אם מאוד מגרד, אפשר לטפוח ממש בעדינות מסביב.',
+              },
+              {
+                key: 'faq-4',
+                q: 'מתי אפשר לחזור להתאפר, לשים קרמים או לשטוף את הפנים כרגיל?',
+                a: 'יש להימנע מאיפור, קרמים (שלא נתתי לך) או סבון על אזור הטיפול עצמו למשך 10 ימים לפחות. את שאר הפנים אפשר לנקות כרגיל, רק בזהירות מסביב.',
+              },
+              {
+                key: 'faq-5',
+                q: 'מותר לי לעשות ספורט או ללכת לבריכה/לים?',
+                a: 'בשבוע הראשון יש להימנע מפעילות גופנית מאומצת שגורמת להזעה רבה, מכיוון שהזיעה עלולה לדחות את הפיגמנט החוצה. כמו כן, חובה להימנע מבריכה, ים, סאונה או שמש ישירה עד להחלמה מלאה של העור.',
+              },
+            ].map((faq, idx, arr) => (
+              <div key={faq.key}>
+                <AccordionItem value={faq.key} className="border-none">
+                  <AccordionTrigger
+                    className="text-sm text-right py-4 hover:no-underline gap-3 [&>svg]:order-first [&>svg]:ml-0 [&>svg]:mr-0"
+                    style={{ fontFamily: FBAHAVA, direction: 'rtl' }}
+                  >
+                    <span
+                      className="font-medium text-right flex-1"
+                      style={{
+                        background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                      }}
+                    >
+                      {faq.q}
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent
+                    className="text-sm leading-[1.85] pb-4 text-right"
+                    style={{ color: '#333333', fontFamily: FBAHAVA, fontWeight: 400, direction: 'rtl' }}
+                  >
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+                {idx < arr.length - 1 && (
+                  <div className="h-px mx-2" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.25) 30%, rgba(245,220,200,0.4) 50%, rgba(212,175,55,0.25) 70%, transparent 100%)' }} />
+                )}
+              </div>
             ))}
           </Accordion>
         </div>
