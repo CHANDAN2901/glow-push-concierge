@@ -1,4 +1,4 @@
-import { Check, Crown, Sparkles, Star, Flame } from 'lucide-react';
+import { Crown, Sparkles, Star, Flame } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
