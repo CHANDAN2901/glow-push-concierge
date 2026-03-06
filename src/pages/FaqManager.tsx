@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Pencil, Trash2, GripVertical, Loader2 } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 
 type FaqCategory = 'אפליקציית הלקוחות' | 'שימוש שוטף' | 'תמונות וקולאז\'';
@@ -91,11 +91,14 @@ export default function FaqManager() {
     setDialogOpen(true);
   };
 
+  const [savingFaq, setSavingFaq] = useState(false);
+
   const handleSave = async () => {
     if (!form.question_he.trim()) {
       toast.error('שאלה בעברית היא שדה חובה');
       return;
     }
+    setSavingFaq(true);
 
     if (editingFaq) {
       const { error } = await supabase
@@ -132,6 +135,7 @@ export default function FaqManager() {
       toast.success('שאלה נוספה בהצלחה');
     }
 
+    setSavingFaq(false);
     setDialogOpen(false);
     await fetchFaqs();
   };
@@ -334,8 +338,9 @@ export default function FaqManager() {
                   <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
                 </div>
               </div>
-              <Button onClick={handleSave} className="w-full">
-                {editingFaq ? 'שמור שינויים' : 'הוסף שאלה'}
+              <Button onClick={handleSave} disabled={savingFaq} className="w-full">
+                {savingFaq ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
+                {savingFaq ? 'שומר...' : (editingFaq ? 'שמור שינויים' : 'הוסף שאלה')}
               </Button>
             </div>
           </DialogContent>

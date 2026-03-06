@@ -3,7 +3,8 @@ import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Trash2, GripVertical, X } from 'lucide-react';
+import { Plus, Trash2, GripVertical, X, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const DEFAULT_QUESTIONS_HE = [
   'האם את בהריון או חושדת בהריון?',
@@ -23,6 +24,8 @@ const DEFAULT_QUESTIONS_HE = [
 export default function HealthDeclarationEditor({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
 
   const [questions, setQuestions] = useState<string[]>(() => {
     const saved = localStorage.getItem('gp-health-questions');
@@ -30,8 +33,12 @@ export default function HealthDeclarationEditor({ open, onClose }: { open: boole
   });
   const [newQuestion, setNewQuestion] = useState('');
 
-  const save = () => {
+  const save = async () => {
+    setSaving(true);
+    await new Promise(r => setTimeout(r, 400));
     localStorage.setItem('gp-health-questions', JSON.stringify(questions));
+    setSaving(false);
+    toast({ title: isHe ? 'השינויים נשמרו בהצלחה! ✅' : 'Changes saved successfully! ✅' });
     onClose();
   };
 
@@ -100,8 +107,9 @@ export default function HealthDeclarationEditor({ open, onClose }: { open: boole
         </div>
 
         <div className="flex gap-3 mt-5">
-          <Button onClick={save} className="flex-1 btn-gold-cta">
-            {isHe ? 'שמור שינויים' : 'Save Changes'}
+          <Button onClick={save} disabled={saving} className="flex-1 btn-gold-cta">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
+            {saving ? (isHe ? 'שומר...' : 'Saving...') : (isHe ? 'שמור שינויים' : 'Save Changes')}
           </Button>
           <Button onClick={onClose} variant="outline" className="border-accent/30 text-accent rounded-2xl">
             {isHe ? 'ביטול' : 'Cancel'}

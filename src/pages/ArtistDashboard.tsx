@@ -6,7 +6,7 @@ import {
   Plus, MessageCircle, Clock, MessageSquare, Copy, CheckCircle, Trash2, Calendar, Gift,
   Lock, Globe, Camera, Star, Zap, Crown, AlertTriangle, X, ClipboardCheck,
   Share2, Image, DollarSign, CalendarCheck, Eye, HelpCircle, Smartphone, ShieldCheck, ShieldAlert,
-  Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home, ScrollText, ArrowRight,
+  Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home, ScrollText, ArrowRight, Loader2,
 } from 'lucide-react';
 import defaultLogo from '@/assets/glowpush-logo.png';
 import BackButton from '@/components/BackButton';
@@ -601,6 +601,8 @@ const ArtistDashboard = () => {
   const [showFormPreview, setShowFormPreview] = useState(false);
   const [showDigitalCardPreview, setShowDigitalCardPreview] = useState(false);
   const [savingClient, setSavingClient] = useState(false);
+  const [savingCard, setSavingCard] = useState(false);
+  const [savingNote, setSavingNote] = useState(false);
   // Edit treatment note modal
   const [editingNote, setEditingNote] = useState<{ clientName: string; note: TreatmentNote } | null>(null);
   const [editNoteArea, setEditNoteArea] = useState('');
@@ -2720,18 +2722,21 @@ const ArtistDashboard = () => {
                   <Input value={wazeAddress} onChange={(e) => setWazeAddress(e.target.value)} placeholder={lang === 'en' ? 'e.g. Dizengoff 50, Tel Aviv' : 'לדוגמה: דיזנגוף 50, תל אביב'} className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
                 </div>
 
-                <Button
+              <Button
                   onClick={async () => {
                     if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
+                    setSavingCard(true);
                     const { error } = await supabase.from('profiles').update({
                       business_phone: artistPhone,
                       instagram_url: instagramUrl,
                       facebook_url: facebookUrl,
                       waze_address: wazeAddress,
                     } as any).eq('id', userProfileId);
+                    setSavingCard(false);
                     if (error) { toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' }); }
-                    else { toast({ title: lang === 'en' ? 'Saved! ✨' : 'נשמר בהצלחה! ✨' }); }
+                    else { toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' }); }
                   }}
+                  disabled={savingCard}
                   className="w-full mt-2 h-12 rounded-full text-white font-bold text-sm tracking-wide"
                   style={{
                     background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
@@ -2739,7 +2744,8 @@ const ArtistDashboard = () => {
                     boxShadow: '0 4px 16px -2px hsla(38, 55%, 62%, 0.4)',
                   }}
                 >
-                  {lang === 'en' ? 'Save Changes' : 'שמור שינויים'}
+                  {savingCard ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
+                  {savingCard ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמור שינויים')}
                 </Button>
               </div>
             </div>
@@ -3173,8 +3179,10 @@ const ArtistDashboard = () => {
               </div>
             )}
             <Button
-              onClick={() => {
+              onClick={async () => {
                 if (!editingNote) return;
+                setSavingNote(true);
+                await new Promise(r => setTimeout(r, 400));
                 setTreatmentNotes(prev => {
                   const notes = prev[editingNote.clientName] || [];
                   const updated = notes.map(n => {
@@ -3188,12 +3196,15 @@ const ArtistDashboard = () => {
                   localStorage.setItem('gp-treatment-notes', JSON.stringify(result));
                   return result;
                 });
+                setSavingNote(false);
                 setEditingNote(null);
-                toast({ title: lang === 'en' ? 'Treatment record updated ✅' : 'תיעוד הטיפול עודכן ✅' });
+                toast({ title: lang === 'en' ? 'Changes saved successfully! ✅' : 'השינויים נשמרו בהצלחה! ✅' });
               }}
+              disabled={savingNote}
               className="w-full btn-gold-cta"
             >
-              {lang === 'en' ? 'Save Changes' : 'שמור שינויים'}
+              {savingNote ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
+              {savingNote ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמור שינויים')}
             </Button>
           </div>
         </DialogContent>

@@ -49,7 +49,7 @@ export default function AdminMessages() {
       }
     }
     setSaving(false);
-    toast({ title: 'תבניות ההודעות עודכנו בהצלחה ✅' });
+    toast({ title: 'השינויים נשמרו בהצלחה! ✅' });
     // refresh
     const { data } = await supabase.from('message_templates').select('*').order('template_key');
     if (data) {
