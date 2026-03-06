@@ -529,9 +529,22 @@ const ClientHome = () => {
         }}
       >
         <div className="max-w-md mx-auto">
-          <LogoBrand lang={lang} setLang={setLang} />
+          <LogoBrand lang={lang} setLang={setLang} hasUnread={unreadCount > 0} onBellClick={() => setNotifOpen(true)} />
         </div>
       </header>
+
+      {/* ─── NOTIFICATION CENTER ─── */}
+      <ClientNotificationCenter
+        isOpen={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        artistProfileId={artistProfileId}
+        treatmentType={treatment}
+        daysSinceTreatment={actualDay}
+        clientName={clientName}
+        lang={lang}
+        startDate={treatmentStartDate}
+        onUnreadCountChange={handleUnreadCountChange}
+      />
 
       <div className="pt-28 max-w-md mx-auto px-4" dir="rtl">
 
