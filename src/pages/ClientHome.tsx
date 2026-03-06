@@ -575,28 +575,49 @@ const ClientHome = () => {
           className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
-          <div className="p-6 text-center">
-            <div className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
-              <Clipboard className="w-6 h-6" style={{ color: '#B8860B' }} />
+          <div className="px-7 py-8 text-right" dir="rtl">
+            {/* Delicate sparkle icon */}
+            <div className="flex justify-center mb-5">
+              <Sparkles className="w-7 h-7" style={{ color: '#C9A84C', strokeWidth: 1 }} />
             </div>
-            <h2 className="text-lg font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
-              <GoldText>{lang === 'en' ? 'Daily Recovery Instructions' : 'הנחיות ההחלמה היומיות'}</GoldText>
+
+            <h2 className="text-[17px] font-normal mb-4 leading-relaxed" style={{ fontFamily: TITLE_FONT }}>
+              <GoldText>ברוכה הבאה ליומן ההחלמה שלך</GoldText>
             </h2>
-            <p className="text-sm leading-relaxed" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
-              {lang === 'en'
-                ? 'Follow the steps below to ensure perfect healing results. I\'m with you every step of the way! ✍️👄'
-                : 'עקבי אחרי ההנחיות למטה כדי להבטיח תוצאות החלמה מושלמות. אני כאן איתך לאורך כל הדרך! ✍️👄'}
+
+            <p className="text-[14px] font-light leading-[1.9] mb-5" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+              יצרתי את האזור האישי הזה במיוחד עבורך, כדי ללוות אותך יום אחר יום עד לתוצאה המושלמת.
+              <br /><br />
+              מה מחכה לך כאן?
             </p>
+
+            <ul className="space-y-3 mb-6">
+              <li className="flex items-start gap-2.5 text-[13.5px] font-light leading-[1.8]" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+                <CalendarCheck className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#C9A84C', strokeWidth: 1.2 }} />
+                <span><GoldText style={{ fontWeight: 500 }}>הנחיות מדויקות:</GoldText> מותאמות בדיוק ליום ההחלמה שלך.</span>
+              </li>
+              <li className="flex items-start gap-2.5 text-[13.5px] font-light leading-[1.8]" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+                <Camera className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#C9A84C', strokeWidth: 1.2 }} />
+                <span><GoldText style={{ fontWeight: 500 }}>מעקב אישי:</GoldText> העלי תמונות מהירות כדי שאוכל ללוות אותך.</span>
+              </li>
+              <li className="flex items-start gap-2.5 text-[13.5px] font-light leading-[1.8]" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+                <MessageCircle className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#C9A84C', strokeWidth: 1.2 }} />
+                <span><GoldText style={{ fontWeight: 500 }}>קשר ישיר:</GoldText> צריכה אותי? אני במרחק לחיצה.</span>
+              </li>
+            </ul>
+
             {/* Treatment badge */}
-            <span
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full mt-4 text-sm"
-              style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', color: '#8B6914', fontFamily: FBAHAVA }}
-            >
-              {treatment === 'lips' ? '👄' : '✍️'}{' '}
-              {lang === 'en'
-                ? `Treatment: ${treatment === 'lips' ? 'Lips' : 'Brows'} ✨`
-                : `סוג הטיפול: ${treatment === 'lips' ? 'שפתיים' : 'גבות'} ✨`}
-            </span>
+            <div className="flex justify-center">
+              <span
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-[12.5px] font-light"
+                style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.18)', color: '#8B6914', fontFamily: FBAHAVA }}
+              >
+                {treatment === 'lips' ? '👄' : '✍️'}{' '}
+                {lang === 'en'
+                  ? `Treatment: ${treatment === 'lips' ? 'Lips' : 'Brows'} ✨`
+                  : `סוג הטיפול: ${treatment === 'lips' ? 'שפתיים' : 'גבות'} ✨`}
+              </span>
+            </div>
           </div>
         </div>
 
