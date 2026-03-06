@@ -75,6 +75,7 @@ const SuperAdmin = () => {
   const { toast } = useToast();
   const { isAdmin, loading, roleLoading } = useAuth();
   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [view, setView] = useState<AdminView>('dashboard');
   const [trialDays, setTrialDays] = useState('14');
   const [litePrice, setLitePrice] = useState('89');
