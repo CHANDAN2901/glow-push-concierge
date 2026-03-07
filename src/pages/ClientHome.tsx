@@ -633,7 +633,7 @@ const ClientHome = () => {
 
         {/* ─── INSTRUCTIONS CARD ─── */}
         <div
-          className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden"
+          className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
           <div className="px-7 py-9 text-right" dir="rtl">
@@ -711,7 +711,7 @@ const ClientHome = () => {
 
         {/* ─── DAY COUNTER ─── */}
         <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up delay-200"
+          className="rounded-3xl p-6 mb-5 animate-fade-up delay-200 card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
           {isPreviewing && (
@@ -801,7 +801,7 @@ const ClientHome = () => {
         {/* ─── UPSELL CARD (Dynamic from DB) ─── */}
         {promo.is_enabled && (
         <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden"
+          className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
           {/* Corner badge */}
@@ -834,7 +834,7 @@ const ClientHome = () => {
 
         {/* ─── REFERRAL CARD ─── */}
         <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up overflow-hidden relative text-center"
+          className="rounded-3xl p-6 mb-5 animate-fade-up overflow-hidden relative text-center card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
           dir={lang === 'he' ? 'rtl' : 'ltr'}
         >
@@ -927,7 +927,7 @@ const ClientHome = () => {
         {/* ─── SHARED GALLERY ─── */}
         <div id="gallery" className="scroll-mt-20" />
         <div
-          className="rounded-3xl p-6 mb-8 animate-fade-up"
+          className="rounded-3xl p-6 mb-8 animate-fade-up card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
           dir="rtl"
         >
@@ -966,7 +966,7 @@ const ClientHome = () => {
         {/* ─── FAQ ─── */}
         <div id="faq" className="scroll-mt-20" />
         <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up"
+          className="rounded-3xl p-6 mb-5 animate-fade-up card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
           dir="rtl"
         >
