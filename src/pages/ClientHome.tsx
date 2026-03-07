@@ -1220,7 +1220,4 @@ const ClientHome = () => {
   );
 };
 
-  );
-};
-
 export default ClientHome;
