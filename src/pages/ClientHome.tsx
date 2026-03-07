@@ -818,20 +818,14 @@ const ClientHome = () => {
             <p className="text-sm leading-relaxed mb-5" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
               {promo.description}
             </p>
-            <a
-              href={promo.button_url || `https://wa.me/${artistBusinessPhone || artistPhone || ''}?text=${encodeURIComponent(
-                lang === 'en'
-                  ? `Hi! I'd love to hear about your special offer for completing my look ✨`
-                  : `היי! אשמח לשמוע על ההטבה המיוחדת להשלמת המראה ✨`
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3 text-sm no-underline transition-all hover:opacity-90 active:scale-[0.97] rounded-2xl"
-              style={{ ...goldBtnStyle, fontFamily: FBAHAVA }}
+            <button
+              onClick={() => setShowPromoModal(true)}
+              className="inline-flex items-center justify-center gap-2 px-8 py-3 text-sm transition-all hover:opacity-90 active:scale-[0.97] rounded-2xl cursor-pointer"
+              style={{ ...goldBtnStyle, fontFamily: FBAHAVA, border: 'none' }}
             >
               <Sparkles className="w-4 h-4" />
               {promo.button_text}
-            </a>
+            </button>
           </div>
         </div>
         )}

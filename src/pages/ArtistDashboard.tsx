@@ -2896,7 +2896,7 @@ const ArtistDashboard = () => {
                       title: promoTitle,
                       description: promoDescription,
                       button_text: promoButtonText,
-                      button_url: promoButtonUrl,
+                      button_url: '',
                       is_enabled: true,
                     });
                     setSavingPromo(false);
