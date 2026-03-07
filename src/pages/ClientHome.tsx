@@ -801,7 +801,7 @@ const ClientHome = () => {
         {/* ─── UPSELL CARD (Dynamic from DB) ─── */}
         {promo.is_enabled && (
         <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden"
+          className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
           {/* Corner badge */}
