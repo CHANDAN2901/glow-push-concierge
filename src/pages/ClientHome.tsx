@@ -516,7 +516,7 @@ const ClientHome = () => {
     <div
       className="min-h-screen pb-32"
       style={{
-        background: 'linear-gradient(160deg, hsl(350 50% 96%) 0%, hsl(350 45% 93%) 30%, hsl(30 25% 93%) 60%, hsl(40 30% 95%) 80%, hsl(350 40% 94%) 100%)',
+        background: 'linear-gradient(180deg, #ffe6f0 0%, #fff0f7 100%)',
         backgroundAttachment: 'fixed',
       }}
     >
