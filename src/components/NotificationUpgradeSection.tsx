@@ -99,15 +99,15 @@ export default function NotificationUpgradeSection({ hasWhatsAppAutomation, user
       </div>
 
       <button
-        onClick={() => {
-          console.log('[NotificationUpgrade] Plan used for CTA:', elitePlan);
-          if (onRequestUpgrade) onRequestUpgrade();
-          else navigate('/pricing');
+        disabled
+        className="w-full py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed"
+        style={{
+          background: 'linear-gradient(135deg, #B0B0B0, #D3D3D3)',
+          color: '#333333',
         }}
-        className="w-full py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.97] shadow-lg btn-jewel-gold"
       >
         <Crown className="w-4 h-4" />
-        {isHe ? `שדרגי עכשיו ב-${ctaPrice}` : `Upgrade Now — ${ctaPrice}`}
+        {isHe ? 'שדרגי עכשיו ב-69 ₪ לחודש - בקרוב' : 'Upgrade Now — ₪69/month — Coming Soon'}
       </button>
 
       <p className="text-center text-[10px] text-muted-foreground mt-2">
