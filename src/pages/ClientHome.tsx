@@ -85,7 +85,7 @@ const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.35)';
 const CARD_BG = 'linear-gradient(145deg, rgba(255,220,230,0.92) 0%, rgba(255,235,243,0.88) 50%, rgba(255,245,248,0.85) 100%)';
 const CARD_SHADOW = '0 8px 32px rgba(180,120,140,0.18), 0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)';
 const FBAHAVA = "'FB Ahava', 'Assistant', sans-serif";
-const TITLE_FONT = "'Frank Ruhl Libre', 'FB Ahava', serif";
+const TITLE_FONT = FBAHAVA;
 
 const GoldText = ({ children, className = '', style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
   <span
