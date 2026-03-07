@@ -556,9 +556,9 @@ const ClientHome = () => {
         <div
           className="relative mb-5 animate-fade-up rounded-3xl overflow-hidden"
           style={{
-            background: 'radial-gradient(circle at top, #fff8e8 0%, rgba(255,255,255,0.92) 70%)',
+            background: 'rgba(255,255,255,0.85)',
             backdropFilter: 'blur(16px)',
-            boxShadow: '0 10px 30px rgba(212,175,55,0.25)',
+            boxShadow: '0 10px 30px rgba(212,175,55,0.18), 0 2px 8px rgba(0,0,0,0.04)',
             border: GOLD_BORDER,
           }}
         >
@@ -592,8 +592,9 @@ const ClientHome = () => {
         <div
           className="mb-5 animate-fade-up delay-100 rounded-2xl overflow-hidden"
           style={{
-            background: '#ffffff',
-            boxShadow: '0 8px 25px rgba(212,175,55,0.2)',
+            background: 'rgba(255,255,255,0.85)',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 8px 25px rgba(212,175,55,0.15), 0 2px 8px rgba(0,0,0,0.04)',
             border: GOLD_BORDER,
           }}
         >
