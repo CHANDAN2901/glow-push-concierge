@@ -554,15 +554,24 @@ const ClientHome = () => {
 
         {/* ─── GREETING CARD ─── */}
         <div
-          className="relative mb-5 animate-fade-up rounded-3xl overflow-hidden"
+          className="relative mb-6 animate-fade-up rounded-3xl overflow-hidden"
           style={{
-            background: 'rgba(255,255,255,0.85)',
-            backdropFilter: 'blur(16px)',
-            boxShadow: '0 10px 30px rgba(212,175,55,0.18), 0 2px 8px rgba(0,0,0,0.04)',
-            border: GOLD_BORDER,
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 12px 40px rgba(212,175,55,0.20), 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)',
+            border: '1.5px solid rgba(212,175,55,0.25)',
           }}
         >
-          <div className="py-8 px-6 text-center">
+          {/* Shine sweep overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.5) 50%, transparent 60%)',
+              backgroundSize: '200% 100%',
+              animation: 'hd-bronze-shimmer 4s ease-in-out infinite',
+            }}
+          />
+          <div className="relative py-9 px-6 text-center">
             <h1
               className="font-bold tracking-wide mb-2 hd-shimmer-text"
               style={{
@@ -574,12 +583,12 @@ const ClientHome = () => {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                filter: 'drop-shadow(0 0 8px rgba(212,175,55,0.4))',
+                filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.45))',
               }}
             >
               ✨ {getTimeGreeting(clientName)} ✨
             </h1>
-            <p className="text-sm mt-1.5" style={{ color: '#b79a3a', fontFamily: FBAHAVA }}>
+            <p className="text-sm mt-2" style={{ color: '#b79a3a', fontFamily: FBAHAVA, letterSpacing: '0.02em' }}>
               {lang === 'en' ? 'A new day on your Glow journey' : 'יום חדש למסע ה-Glow שלך'}
             </p>
             <span className="sr-only" data-client-identity-source={identity.source}>
@@ -592,10 +601,10 @@ const ClientHome = () => {
         <div
           className="mb-5 animate-fade-up delay-100 rounded-2xl overflow-hidden"
           style={{
-            background: 'rgba(255,255,255,0.85)',
-            backdropFilter: 'blur(16px)',
-            boxShadow: '0 8px 25px rgba(212,175,55,0.15), 0 2px 8px rgba(0,0,0,0.04)',
-            border: GOLD_BORDER,
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 10px 32px rgba(212,175,55,0.16), 0 3px 10px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)',
+            border: '1.5px solid rgba(212,175,55,0.25)',
           }}
         >
           <div className="px-5 py-4 flex items-center gap-4">
@@ -603,12 +612,13 @@ const ClientHome = () => {
               {lang === 'en' ? `Day ${viewingDay}` : `יום ${viewingDay}`}
             </span>
             <div className="flex-1">
-              <div className="w-full rounded-xl overflow-hidden" style={{ height: '6px', background: 'rgba(212,175,55,0.12)' }}>
+              <div className="w-full rounded-xl overflow-hidden" style={{ height: '6px', background: 'rgba(212,175,55,0.10)' }}>
                 <div
                   className="h-full rounded-xl transition-all duration-700 ease-out"
                   style={{
                     width: `${Math.min(100, (viewingDay / 30) * 100)}%`,
                     background: 'linear-gradient(90deg, #d4af37, #f3e29c)',
+                    boxShadow: '0 0 8px rgba(212,175,55,0.4)',
                   }}
                 />
               </div>
