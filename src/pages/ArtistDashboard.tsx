@@ -340,6 +340,24 @@ const ArtistDashboard = () => {
   const [userProfileId, setUserProfileId] = useState<string | null>(null);
   const [hasWhatsAppAutomation, setHasWhatsAppAutomation] = useState(false);
 
+  // Promo settings hook
+  const { promo, savePromo } = usePromoSettings(userProfileId);
+  const [promoTagText, setPromoTagText] = useState('');
+  const [promoTitle, setPromoTitle] = useState('');
+  const [promoDescription, setPromoDescription] = useState('');
+  const [promoButtonText, setPromoButtonText] = useState('');
+  const [promoButtonUrl, setPromoButtonUrl] = useState('');
+  const [savingPromo, setSavingPromo] = useState(false);
+
+  // Sync promo form fields when data loads
+  useEffect(() => {
+    setPromoTagText(promo.tag_text);
+    setPromoTitle(promo.title);
+    setPromoDescription(promo.description);
+    setPromoButtonText(promo.button_text);
+    setPromoButtonUrl(promo.button_url);
+  }, [promo]);
+
   // Appointment lookup for dynamic reminders
   const [appointmentLookup, setAppointmentLookup] = useState<Record<string, { date: string; time: string }>>({});
 
