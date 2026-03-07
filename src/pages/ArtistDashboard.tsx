@@ -355,7 +355,7 @@ const ArtistDashboard = () => {
     setPromoTitle(promo.title);
     setPromoDescription(promo.description);
     setPromoButtonText(promo.button_text);
-    setPromoButtonUrl(promo.button_url);
+    
   }, [promo]);
 
   // Appointment lookup for dynamic reminders
