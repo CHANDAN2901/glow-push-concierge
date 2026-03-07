@@ -796,7 +796,8 @@ const ClientHome = () => {
           {lang === 'en' ? 'Sync Calendar Reminders 📅' : 'סנכרני תזכורות ליומן 📅'}
         </button>
 
-        {/* ─── UPSELL CARD (Dynamic) ─── */}
+        {/* ─── UPSELL CARD (Dynamic from DB) ─── */}
+        {promo.is_enabled && (
         <div
           className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
@@ -804,7 +805,7 @@ const ClientHome = () => {
           {/* Corner badge */}
           <div className="absolute top-3 left-3">
             <span className="px-3 py-1 rounded-full text-[10px] font-bold" style={{ background: 'rgba(212,175,55,0.12)', color: '#B8860B', fontFamily: FBAHAVA }}>
-              {lang === 'en' ? '✨ Special Treat' : '✨ פינוק במיוחד בשבילך'}
+              {promo.tag_text}
             </span>
           </div>
           <div className="pt-6 text-center">
@@ -812,15 +813,13 @@ const ClientHome = () => {
               <Sparkles className="w-6 h-6" style={{ color: '#B8860B' }} />
             </div>
             <h2 className="text-xl font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
-              <GoldText>{lang === 'en' ? 'Complete Your Look' : 'להשלמת המראה'}</GoldText>
+              <GoldText>{promo.title}</GoldText>
             </h2>
             <p className="text-sm leading-relaxed mb-5" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
-              {lang === 'en'
-                ? 'Enhance your beauty with a complementary treatment. Ask your artist about exclusive offers just for you!'
-                : 'השלימי את המראה שלך עם טיפול משלים. שאלי את המאפרת שלך על הצעות בלעדיות!'}
+              {promo.description}
             </p>
             <a
-              href={`https://wa.me/${artistBusinessPhone || artistPhone || ''}?text=${encodeURIComponent(
+              href={promo.button_url || `https://wa.me/${artistBusinessPhone || artistPhone || ''}?text=${encodeURIComponent(
                 lang === 'en'
                   ? `Hi! I'd love to hear about your special offer for completing my look ✨`
                   : `היי! אשמח לשמוע על ההטבה המיוחדת להשלמת המראה ✨`
@@ -831,10 +830,11 @@ const ClientHome = () => {
               style={{ ...goldBtnStyle, fontFamily: FBAHAVA }}
             >
               <Sparkles className="w-4 h-4" />
-              {lang === 'en' ? 'Redeem Offer' : 'למימוש ההטבה'}
+              {promo.button_text}
             </a>
           </div>
         </div>
+        )}
 
         {/* ─── REFERRAL CARD ─── */}
         <div
