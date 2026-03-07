@@ -346,7 +346,7 @@ const ArtistDashboard = () => {
   const [promoTitle, setPromoTitle] = useState('');
   const [promoDescription, setPromoDescription] = useState('');
   const [promoButtonText, setPromoButtonText] = useState('');
-  const [promoButtonUrl, setPromoButtonUrl] = useState('');
+  
   const [savingPromo, setSavingPromo] = useState(false);
 
   // Sync promo form fields when data loads
@@ -355,7 +355,7 @@ const ArtistDashboard = () => {
     setPromoTitle(promo.title);
     setPromoDescription(promo.description);
     setPromoButtonText(promo.button_text);
-    setPromoButtonUrl(promo.button_url);
+    
   }, [promo]);
 
   // Appointment lookup for dynamic reminders
@@ -2887,17 +2887,6 @@ const ArtistDashboard = () => {
                     style={{ border: '1px solid hsl(38 55% 62%)' }}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Button Link (URL)' : 'קישור כפתור (URL)'}</Label>
-                  <Input
-                    value={promoButtonUrl}
-                    onChange={(e) => setPromoButtonUrl(e.target.value)}
-                    dir="ltr"
-                    placeholder="https://wa.me/972..."
-                    className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
-                    style={{ border: '1px solid hsl(38 55% 62%)' }}
-                  />
-                </div>
 
                 <Button
                   onClick={async () => {
@@ -2907,7 +2896,7 @@ const ArtistDashboard = () => {
                       title: promoTitle,
                       description: promoDescription,
                       button_text: promoButtonText,
-                      button_url: promoButtonUrl,
+                      button_url: '',
                       is_enabled: true,
                     });
                     setSavingPromo(false);
