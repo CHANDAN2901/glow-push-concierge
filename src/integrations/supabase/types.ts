@@ -779,6 +779,53 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_settings: {
+        Row: {
+          artist_profile_id: string
+          button_text: string
+          button_url: string | null
+          created_at: string
+          description: string
+          id: string
+          is_enabled: boolean
+          tag_text: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          artist_profile_id: string
+          button_text?: string
+          button_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_enabled?: boolean
+          tag_text?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          artist_profile_id?: string
+          button_text?: string
+          button_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_enabled?: boolean
+          tag_text?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_settings_artist_profile_id_fkey"
+            columns: ["artist_profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           artist_profile_id: string | null

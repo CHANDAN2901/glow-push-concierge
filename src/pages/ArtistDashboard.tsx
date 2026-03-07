@@ -45,6 +45,7 @@ import WelcomeTour from '@/components/WelcomeTour';
 import DailyGrowthEngine from '@/components/DailyGrowthEngine';
 import ReferralVoucherEditor from '@/components/ReferralVoucherEditor';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
+import { usePromoSettings } from '@/hooks/usePromoSettings';
 import {
   Dialog,
   DialogContent,
@@ -54,6 +55,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -337,6 +339,24 @@ const ArtistDashboard = () => {
 
   const [userProfileId, setUserProfileId] = useState<string | null>(null);
   const [hasWhatsAppAutomation, setHasWhatsAppAutomation] = useState(false);
+
+  // Promo settings hook
+  const { promo, savePromo } = usePromoSettings(userProfileId);
+  const [promoTagText, setPromoTagText] = useState('');
+  const [promoTitle, setPromoTitle] = useState('');
+  const [promoDescription, setPromoDescription] = useState('');
+  const [promoButtonText, setPromoButtonText] = useState('');
+  const [promoButtonUrl, setPromoButtonUrl] = useState('');
+  const [savingPromo, setSavingPromo] = useState(false);
+
+  // Sync promo form fields when data loads
+  useEffect(() => {
+    setPromoTagText(promo.tag_text);
+    setPromoTitle(promo.title);
+    setPromoDescription(promo.description);
+    setPromoButtonText(promo.button_text);
+    setPromoButtonUrl(promo.button_url);
+  }, [promo]);
 
   // Appointment lookup for dynamic reminders
   const [appointmentLookup, setAppointmentLookup] = useState<Record<string, { date: string; time: string }>>({});
@@ -1603,6 +1623,50 @@ const ArtistDashboard = () => {
               })()}
             </div>
 
+            {/* ===== Promo Card Preview (View-Only) ===== */}
+            {promo.is_enabled && (
+              <div
+                className="rounded-3xl p-6 animate-fade-up relative overflow-hidden"
+                style={{
+                  background: 'rgba(255,255,255,0.88)',
+                  backdropFilter: 'blur(16px)',
+                  boxShadow: '0 4px 24px rgba(212,175,55,0.08), 0 1px 6px rgba(0,0,0,0.03)',
+                  border: '1.5px solid rgba(212,175,55,0.35)',
+                }}
+              >
+                <div className="absolute top-3 left-3">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-bold" style={{ background: 'rgba(212,175,55,0.12)', color: '#B8860B' }}>
+                    {promo.tag_text}
+                  </span>
+                </div>
+                <div className="pt-6 text-center">
+                  <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
+                    <Sparkles className="w-6 h-6" style={{ color: '#B8860B' }} />
+                  </div>
+                  <h2 className="text-xl font-bold mb-2">
+                    <span style={{ background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                      {promo.title}
+                    </span>
+                  </h2>
+                  <p className="text-sm leading-relaxed mb-5" style={{ color: '#8B7355' }}>
+                    {promo.description}
+                  </p>
+                  <div
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 text-sm rounded-2xl font-bold"
+                    style={{
+                      background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
+                      backgroundSize: '200% 100%',
+                      color: '#4A3520',
+                      boxShadow: '0 4px 20px rgba(212,175,55,0.4), 0 1px 3px rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    {promo.button_text}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* ===== Referral CTA ===== */}
             <div className="animate-fade-up mt-6 flex justify-center" style={{ animationDelay: '0.45s', opacity: 0 }}>
               <button
@@ -2772,6 +2836,100 @@ const ArtistDashboard = () => {
               <ChevronRight className="w-5 h-5 text-accent/50" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
             </button>
 
+
+            {/* Card — Promo & Benefits Manager */}
+            <div className="rounded-3xl p-5 bg-card" style={{ boxShadow: '0 6px 32px -8px hsla(0, 0%, 0%, 0.1)' }}>
+              <div className="flex items-center gap-3 mb-3">
+                <Gift className="w-5 h-5 text-accent" strokeWidth={1.5} />
+                <h2 className="font-bold text-xl tracking-wide text-foreground">{lang === 'en' ? 'Manage Promotions & Benefits' : 'ניהול מבצעים והטבות'}</h2>
+              </div>
+              <div className="h-[2px] w-full mb-5" style={{ background: 'linear-gradient(90deg, transparent, hsl(38 55% 62%), transparent)' }} />
+
+              <div className="space-y-5" dir="rtl">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Tag Text' : 'טקסט תגית'}</Label>
+                  <Input
+                    value={promoTagText}
+                    onChange={(e) => setPromoTagText(e.target.value)}
+                    dir="rtl"
+                    className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
+                    style={{ border: '1px solid hsl(38 55% 62%)' }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Main Title' : 'כותרת ראשית'}</Label>
+                  <Input
+                    value={promoTitle}
+                    onChange={(e) => setPromoTitle(e.target.value)}
+                    dir="rtl"
+                    className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
+                    style={{ border: '1px solid hsl(38 55% 62%)' }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Description' : 'תיאור'}</Label>
+                  <Textarea
+                    value={promoDescription}
+                    onChange={(e) => setPromoDescription(e.target.value)}
+                    dir="rtl"
+                    rows={4}
+                    className="rounded-2xl bg-white text-sm px-4 py-3 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
+                    style={{ border: '1px solid hsl(38 55% 62%)' }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Button Text' : 'טקסט כפתור'}</Label>
+                  <Input
+                    value={promoButtonText}
+                    onChange={(e) => setPromoButtonText(e.target.value)}
+                    dir="rtl"
+                    className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
+                    style={{ border: '1px solid hsl(38 55% 62%)' }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Button Link (URL)' : 'קישור כפתור (URL)'}</Label>
+                  <Input
+                    value={promoButtonUrl}
+                    onChange={(e) => setPromoButtonUrl(e.target.value)}
+                    dir="ltr"
+                    placeholder="https://wa.me/972..."
+                    className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
+                    style={{ border: '1px solid hsl(38 55% 62%)' }}
+                  />
+                </div>
+
+                <Button
+                  onClick={async () => {
+                    setSavingPromo(true);
+                    const success = await savePromo({
+                      tag_text: promoTagText,
+                      title: promoTitle,
+                      description: promoDescription,
+                      button_text: promoButtonText,
+                      button_url: promoButtonUrl,
+                      is_enabled: true,
+                    });
+                    setSavingPromo(false);
+                    if (success) {
+                      toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
+                    } else {
+                      toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
+                    }
+                  }}
+                  disabled={savingPromo}
+                  className="w-full mt-2 h-12 rounded-full text-white font-bold text-sm tracking-wide"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(38 55% 42%), hsl(40 45% 32%))',
+                    border: '1px solid hsl(38 40% 30%)',
+                    boxShadow: '0 4px 16px -2px hsla(38, 55%, 42%, 0.4)',
+                  }}
+                >
+                  {savingPromo ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
+                  {savingPromo ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמירת שינויים')}
+                </Button>
+              </div>
+            </div>
 
             {/* Notification & Automation Upgrade */}
             <NotificationUpgradeSection
