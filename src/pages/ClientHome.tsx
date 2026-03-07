@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
+import { usePromoSettings } from '@/hooks/usePromoSettings';
 import { TreatmentType } from '@/lib/recovery-data';
 import { useHealingPhases } from '@/hooks/useHealingPhases';
 import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp, Bell, Phone, Navigation, Clipboard } from 'lucide-react';
