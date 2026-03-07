@@ -559,9 +559,9 @@ const ClientHome = () => {
         <div
           className="relative mb-6 animate-fade-up rounded-3xl overflow-hidden"
           style={{
-            background: 'rgba(255,255,255,0.88)',
+            background: 'linear-gradient(145deg, rgba(255,215,228,0.92) 0%, rgba(255,230,240,0.88) 50%, rgba(255,242,247,0.85) 100%)',
             backdropFilter: 'blur(20px)',
-            boxShadow: '0 12px 40px rgba(212,175,55,0.20), 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)',
+            boxShadow: '0 12px 40px rgba(180,120,140,0.22), 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)',
             border: '1.5px solid rgba(212,175,55,0.25)',
           }}
         >
