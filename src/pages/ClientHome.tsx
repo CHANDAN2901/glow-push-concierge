@@ -629,8 +629,8 @@ const ClientHome = () => {
 
         {/* ─── INSTRUCTIONS CARD ─── */}
         <div
-          className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, #ff074d 0%, #ff4d7a 40%, #ff8da6 70%, #ffb3c6 100%)', backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden card-pink-shimmer"
+          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
           <div className="px-7 py-9 text-right" dir="rtl">
             {/* Clipboard icon */}
