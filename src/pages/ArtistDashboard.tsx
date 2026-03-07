@@ -346,7 +346,7 @@ const ArtistDashboard = () => {
   const [promoTitle, setPromoTitle] = useState('');
   const [promoDescription, setPromoDescription] = useState('');
   const [promoButtonText, setPromoButtonText] = useState('');
-  const [promoButtonUrl, setPromoButtonUrl] = useState('');
+  
   const [savingPromo, setSavingPromo] = useState(false);
 
   // Sync promo form fields when data loads
