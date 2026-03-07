@@ -1156,7 +1156,70 @@ const ClientHome = () => {
           <InstallBanner />
         </div>
       </div>
+
+      {/* ─── PROMO DETAILS MODAL ─── */}
+      {showPromoModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => setShowPromoModal(false)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-sm rounded-3xl p-7 animate-in fade-in zoom-in-95 duration-200"
+            dir="rtl"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'rgba(255,255,255,0.92)',
+              backdropFilter: 'blur(24px)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(212,175,55,0.15)',
+              border: GOLD_BORDER,
+            }}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowPromoModal(false)}
+              className="absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
+              style={{ color: '#8B7355' }}
+            >
+              ✕
+            </button>
+
+            <div className="text-center">
+              <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
+                <Sparkles className="w-7 h-7" style={{ color: '#B8860B' }} />
+              </div>
+              <h2 className="text-xl font-bold mb-3" style={{ fontFamily: TITLE_FONT }}>
+                <GoldText>{promo.title}</GoldText>
+              </h2>
+              <p className="text-sm leading-relaxed mb-7" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+                {promo.description}
+              </p>
+
+              <a
+                href={`https://wa.me/${(artistBusinessPhone || artistPhone || '').replace(/[^0-9+]/g, '')}?text=${encodeURIComponent(
+                  lang === 'en'
+                    ? `Hi! I saw the offer in the app: ${promo.title}, and I'd love to hear more details!`
+                    : `היי! ראיתי באפליקציה את ההטבה: ${promo.title}, ואשמח לשמוע עוד פרטים!`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setShowPromoModal(false)}
+                className="w-full inline-flex items-center justify-center gap-3 py-4 rounded-2xl text-sm font-bold no-underline transition-all hover:brightness-105 active:scale-[0.97]"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(38 55% 42%), hsl(40 45% 32%))',
+                  color: '#fff',
+                  fontFamily: FBAHAVA,
+                  boxShadow: '0 6px 24px -4px hsla(38, 55%, 42%, 0.5)',
+                }}
+              >
+                <MessageCircle className="w-5 h-5" />
+                {lang === 'en' ? 'Send message to artist' : 'שלחי הודעה למאפרת'}
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+};
+
   );
 };
 
