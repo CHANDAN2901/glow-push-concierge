@@ -2887,17 +2887,6 @@ const ArtistDashboard = () => {
                     style={{ border: '1px solid hsl(38 55% 62%)' }}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Button Link (URL)' : 'קישור כפתור (URL)'}</Label>
-                  <Input
-                    value={promoButtonUrl}
-                    onChange={(e) => setPromoButtonUrl(e.target.value)}
-                    dir="ltr"
-                    placeholder="https://wa.me/972..."
-                    className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
-                    style={{ border: '1px solid hsl(38 55% 62%)' }}
-                  />
-                </div>
 
                 <Button
                   onClick={async () => {
