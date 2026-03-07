@@ -45,6 +45,7 @@ import WelcomeTour from '@/components/WelcomeTour';
 import DailyGrowthEngine from '@/components/DailyGrowthEngine';
 import ReferralVoucherEditor from '@/components/ReferralVoucherEditor';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
+import { usePromoSettings } from '@/hooks/usePromoSettings';
 import {
   Dialog,
   DialogContent,
@@ -54,6 +55,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
