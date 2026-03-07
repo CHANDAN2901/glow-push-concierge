@@ -717,14 +717,32 @@ const ClientHome = () => {
               </span>
             </div>
           )}
-          <div className="flex items-center justify-between">
-            <button onClick={() => handleDayChange(viewingDay - 1)} className="w-10 h-10 rounded-full flex items-center justify-center transition-colors" style={{ background: 'rgba(212,175,55,0.08)' }}>
-              <ChevronRight className="w-4 h-4" style={{ color: '#B8860B' }} />
+          <div className="flex items-center justify-center gap-6">
+            <button
+              onClick={() => handleDayChange(viewingDay - 1)}
+              className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+              style={{
+                background: 'rgba(180, 60, 100, 0.08)',
+                border: '1.5px solid rgba(180, 60, 100, 0.2)',
+              }}
+            >
+              <ChevronRight className="w-5 h-5" style={{ color: '#B43C64' }} />
             </button>
 
-            <div className={`relative flex items-center justify-center transition-all duration-500 ${glowRing ? 'scale-105' : ''}`}
-              style={glowRing ? { filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.5))' } : undefined}
+            <div
+              className={`relative flex items-center justify-center transition-all duration-500 ${glowRing ? 'scale-105' : ''}`}
+              style={{
+                ...(glowRing ? { filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.5))' } : {}),
+              }}
             >
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: '#ffffff',
+                  border: '3px solid rgba(212,175,55,0.3)',
+                  boxShadow: '0 12px 35px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(212,175,55,0.15), inset 0 -2px 6px rgba(0,0,0,0.04)',
+                }}
+              />
               <CircularProgress percentage={(viewingDay / 30) * 100} size={160} strokeWidth={5} />
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <GoldText className="text-5xl" style={{ fontFamily: 'var(--font-serif)', fontWeight: 300 }}>{viewingDay}</GoldText>
@@ -734,8 +752,15 @@ const ClientHome = () => {
               </div>
             </div>
 
-            <button onClick={() => handleDayChange(viewingDay + 1)} className="w-10 h-10 rounded-full flex items-center justify-center transition-colors" style={{ background: 'rgba(212,175,55,0.08)' }}>
-              <ChevronLeft className="w-4 h-4" style={{ color: '#B8860B' }} />
+            <button
+              onClick={() => handleDayChange(viewingDay + 1)}
+              className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+              style={{
+                background: 'rgba(180, 60, 100, 0.08)',
+                border: '1.5px solid rgba(180, 60, 100, 0.2)',
+              }}
+            >
+              <ChevronLeft className="w-5 h-5" style={{ color: '#B43C64' }} />
             </button>
           </div>
 
