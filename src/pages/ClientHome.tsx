@@ -337,6 +337,7 @@ const ClientHome = () => {
   const artistProfileId = searchParams.get('artist_id') || localStorage.getItem(LS_ARTIST_ID) || '';
 
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useHealingPhases(treatment);
+  const { promo } = usePromoSettings(artistProfileId || undefined);
 
   const validClientId = isUUID(clientId) ? clientId : undefined;
   const gallery = useClientGallery(validClientId, artistProfileId || undefined);
