@@ -519,13 +519,17 @@ const ClientHome = () => {
   return (
     <div
       className="min-h-screen pb-32"
+      style={{
+        background: 'linear-gradient(168deg, #efc2d9 0%, #f2cfe0 18%, #f7dce9 36%, #fbeaf2 54%, #fdf3f7 72%, #fff8fa 88%, #ffffff 100%)',
+        backgroundAttachment: 'fixed',
+      }}
     >
       {/* ─── HEADER ─── */}
       <header
         className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl"
         style={{
-          background: 'linear-gradient(180deg, hsla(350,45%,95%,0.95) 0%, hsla(350,40%,94%,0.9) 100%)',
-          borderBottom: '1px solid rgba(212,175,55,0.2)',
+          background: 'linear-gradient(180deg, rgba(239,194,217,0.95) 0%, rgba(242,210,228,0.9) 100%)',
+          borderBottom: '1px solid rgba(239,194,217,0.4)',
           boxShadow: '0 2px 16px rgba(212,175,55,0.06)',
         }}
       >
@@ -855,38 +859,87 @@ const ClientHome = () => {
 
         {/* ─── REFERRAL CARD ─── */}
         <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up overflow-hidden relative text-center card-pink-shimmer"
-          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          className="rounded-3xl p-6 mb-5 animate-fade-up overflow-hidden relative text-center"
+          style={{
+            background: 'linear-gradient(155deg, rgba(239,194,217,0.95) 0%, rgba(242,210,228,0.9) 30%, rgba(248,230,241,0.88) 55%, rgba(253,243,249,0.92) 80%, rgba(255,250,252,0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 8px 40px rgba(200,140,170,0.2), 0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.7)',
+            border: '1.5px solid rgba(239,194,217,0.6)',
+          }}
           dir={lang === 'he' ? 'rtl' : 'ltr'}
         >
-          <div className="flex flex-col items-center gap-2 mb-4">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
-              <Gift className="w-7 h-7" style={{ color: '#B8860B' }} />
+          {/* Glossy shine overlay */}
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, transparent 40%, rgba(255,255,255,0.15) 60%, transparent 100%)',
+            borderRadius: 'inherit',
+          }} />
+          <div className="relative z-[1]">
+            {/* Greeting text */}
+            <p
+              className="text-lg font-bold mb-3"
+              style={{
+                fontFamily: TITLE_FONT,
+                background: 'linear-gradient(135deg, #d4629a 0%, #efc2d9 30%, #c94f88 50%, #f0c8dd 75%, #b8407a 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 3s ease-in-out infinite',
+              }}
+            >
+              {lang === 'en' ? `Hello client,` : 'שלום לקוחה,'}
+            </p>
+            <div className="flex flex-col items-center gap-2 mb-4">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(239,194,217,0.5), rgba(200,100,150,0.2))' }}>
+                <Gift className="w-7 h-7" style={{ color: '#c94f88' }} />
+              </div>
+              <h2 className="text-xl font-bold" style={{ fontFamily: TITLE_FONT }}>
+                <span style={{
+                  background: 'linear-gradient(135deg, #a03d6e 0%, #d4629a 35%, #8b2d5c 50%, #efc2d9 75%, #7a2450 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}>{lang === 'en' ? 'Bring a friend, get a gift!' : 'הביאי חברה, קבלי מתנה!'}</span>
+              </h2>
             </div>
-            <h2 className="text-xl font-bold" style={{ fontFamily: TITLE_FONT }}>
-              <GoldText>{lang === 'en' ? 'Bring a friend, get a gift!' : 'הביאי חברה, קבלי מתנה!'}</GoldText>
-            </h2>
-          </div>
-          <p className="text-sm leading-relaxed mb-5 max-w-xs mx-auto" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
-            {lang === 'en' ? voucherTextEn : voucherTextHe}
-          </p>
-          <div className="flex items-center justify-center mb-5">
-            <div className="px-8 py-3 rounded-2xl" style={{ ...goldBtnStyle }}>
-              <span className="font-bold text-xl tracking-[0.15em]">{referralCode}</span>
+            <p className="text-sm leading-relaxed mb-5 max-w-xs mx-auto" style={{ fontFamily: FBAHAVA, color: '#8b4d6e' }}>
+              {lang === 'en' ? voucherTextEn : voucherTextHe}
+            </p>
+            <div className="flex items-center justify-center mb-5">
+              <div className="px-8 py-3 rounded-2xl" style={{
+                background: 'linear-gradient(135deg, #c94f88 0%, #efc2d9 30%, #d4629a 50%, #f0c8dd 75%, #b8407a 100%)',
+                backgroundSize: '200% 100%',
+                boxShadow: '0 4px 20px rgba(201,79,136,0.35), inset 0 1px 0 rgba(255,255,255,0.5)',
+                border: 'none',
+                borderRadius: '16px',
+                color: '#ffffff',
+                fontWeight: 700,
+              }}>
+                <span className="font-bold text-xl tracking-[0.15em]">{referralCode}</span>
+              </div>
             </div>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(
+                (lang === 'en' ? voucherWaEn : voucherWaHe).replace(/\[CODE\]/g, referralCode)
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2.5 w-full py-3.5 text-sm font-bold no-underline transition-all hover:opacity-90 active:scale-[0.97] rounded-2xl"
+              style={{
+                background: 'linear-gradient(135deg, #c94f88 0%, #efc2d9 30%, #d4629a 50%, #f0c8dd 75%, #b8407a 100%)',
+                backgroundSize: '200% 100%',
+                boxShadow: '0 4px 20px rgba(201,79,136,0.35), inset 0 1px 0 rgba(255,255,255,0.5)',
+                border: 'none',
+                borderRadius: '16px',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontFamily: FBAHAVA,
+              }}
+            >
+              <MessageCircle className="w-5 h-5" />
+              {lang === 'en' ? 'Share via WhatsApp' : 'שתפי בוואטסאפ'}
+            </a>
           </div>
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(
-              (lang === 'en' ? voucherWaEn : voucherWaHe).replace(/\[CODE\]/g, referralCode)
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2.5 w-full py-3.5 text-sm font-bold no-underline transition-all hover:opacity-90 active:scale-[0.97] rounded-2xl"
-            style={{ ...goldBtnStyle, fontFamily: FBAHAVA }}
-          >
-            <MessageCircle className="w-5 h-5" />
-            {lang === 'en' ? 'Share via WhatsApp' : 'שתפי בוואטסאפ'}
-          </a>
         </div>
 
         {/* ─── CONTACT & QUICK LINKS ─── */}
