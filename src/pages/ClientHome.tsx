@@ -338,6 +338,7 @@ const ClientHome = () => {
 
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useHealingPhases(treatment);
   const { promo } = usePromoSettings(artistProfileId || undefined);
+  const [showPromoModal, setShowPromoModal] = useState(false);
 
   const validClientId = isUUID(clientId) ? clientId : undefined;
   const gallery = useClientGallery(validClientId, artistProfileId || undefined);
