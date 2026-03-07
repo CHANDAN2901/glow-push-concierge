@@ -927,7 +927,7 @@ const ClientHome = () => {
         {/* ─── SHARED GALLERY ─── */}
         <div id="gallery" className="scroll-mt-20" />
         <div
-          className="rounded-3xl p-6 mb-8 animate-fade-up"
+          className="rounded-3xl p-6 mb-8 animate-fade-up card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
           dir="rtl"
         >
