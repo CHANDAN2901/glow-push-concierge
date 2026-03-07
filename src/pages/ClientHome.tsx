@@ -82,10 +82,10 @@ const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-
 const METALLIC_GOLD_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
 const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)';
 const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.35)';
-const CARD_BG = 'rgba(255,255,255,0.85)';
-const CARD_SHADOW = '0 4px 24px rgba(212,175,55,0.08), 0 1px 6px rgba(0,0,0,0.03)';
+const CARD_BG = 'linear-gradient(145deg, rgba(255,220,230,0.92) 0%, rgba(255,235,243,0.88) 50%, rgba(255,245,248,0.85) 100%)';
+const CARD_SHADOW = '0 8px 32px rgba(180,120,140,0.18), 0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)';
 const FBAHAVA = "'FB Ahava', 'Assistant', sans-serif";
-const TITLE_FONT = "'Frank Ruhl Libre', 'FB Ahava', serif";
+const TITLE_FONT = FBAHAVA;
 
 const GoldText = ({ children, className = '', style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
   <span
@@ -212,10 +212,11 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
       className="w-full rounded-2xl p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up"
       style={{
         animationDelay: '50ms',
-        background: status === 'subscribed' ? 'hsl(142 50% 94%)' : CARD_BG,
+        background: status === 'subscribed' ? 'linear-gradient(145deg, rgba(200,240,220,0.9) 0%, rgba(220,250,235,0.85) 100%)' : CARD_BG,
         border: status === 'subscribed' ? '2px solid hsl(142 60% 50%)' : GOLD_BORDER,
         color: status === 'subscribed' ? 'hsl(142 60% 30%)' : '#7A5C2E',
         backdropFilter: 'blur(12px)',
+        fontFamily: FBAHAVA,
       }}
     >
       {status === 'loading' ? (
@@ -559,9 +560,9 @@ const ClientHome = () => {
         <div
           className="relative mb-6 animate-fade-up rounded-3xl overflow-hidden"
           style={{
-            background: 'rgba(255,255,255,0.88)',
+            background: 'linear-gradient(145deg, rgba(255,215,228,0.92) 0%, rgba(255,230,240,0.88) 50%, rgba(255,242,247,0.85) 100%)',
             backdropFilter: 'blur(20px)',
-            boxShadow: '0 12px 40px rgba(212,175,55,0.20), 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)',
+            boxShadow: '0 12px 40px rgba(180,120,140,0.22), 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)',
             border: '1.5px solid rgba(212,175,55,0.25)',
           }}
         >
@@ -604,9 +605,9 @@ const ClientHome = () => {
         <div
           className="mb-5 animate-fade-up delay-100 rounded-2xl overflow-hidden"
           style={{
-            background: 'rgba(255,255,255,0.88)',
+            background: 'linear-gradient(145deg, rgba(255,215,228,0.92) 0%, rgba(255,230,240,0.88) 50%, rgba(255,242,247,0.85) 100%)',
             backdropFilter: 'blur(20px)',
-            boxShadow: '0 10px 32px rgba(212,175,55,0.16), 0 3px 10px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)',
+            boxShadow: '0 10px 32px rgba(180,120,140,0.20), 0 3px 10px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)',
             border: '1.5px solid rgba(212,175,55,0.25)',
           }}
         >
