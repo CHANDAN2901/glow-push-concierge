@@ -212,10 +212,11 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
       className="w-full rounded-2xl p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up"
       style={{
         animationDelay: '50ms',
-        background: status === 'subscribed' ? 'hsl(142 50% 94%)' : CARD_BG,
+        background: status === 'subscribed' ? 'linear-gradient(145deg, rgba(200,240,220,0.9) 0%, rgba(220,250,235,0.85) 100%)' : CARD_BG,
         border: status === 'subscribed' ? '2px solid hsl(142 60% 50%)' : GOLD_BORDER,
         color: status === 'subscribed' ? 'hsl(142 60% 30%)' : '#7A5C2E',
         backdropFilter: 'blur(12px)',
+        fontFamily: FBAHAVA,
       }}
     >
       {status === 'loading' ? (
