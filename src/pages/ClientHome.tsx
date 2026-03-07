@@ -555,18 +555,64 @@ const ClientHome = () => {
         {/* ─── GREETING CARD ─── */}
         <div
           className="relative mb-5 animate-fade-up rounded-3xl overflow-hidden"
-          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          style={{
+            background: 'radial-gradient(circle at top, #fff8e8 0%, rgba(255,255,255,0.92) 70%)',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 10px 30px rgba(212,175,55,0.25)',
+            border: GOLD_BORDER,
+          }}
         >
           <div className="py-8 px-6 text-center">
             <h1
-              className="font-bold tracking-wide mb-3"
-              style={{ fontFamily: FBAHAVA, fontSize: '32px', lineHeight: 1.5 }}
+              className="font-bold tracking-wide mb-2 hd-shimmer-text"
+              style={{
+                fontFamily: FBAHAVA,
+                fontSize: '28px',
+                lineHeight: 1.5,
+                background: 'linear-gradient(90deg, #caa64b, #f6e27a, #caa64b)',
+                backgroundSize: '200% 100%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                filter: 'drop-shadow(0 0 8px rgba(212,175,55,0.4))',
+              }}
             >
-              <GoldText>{getTimeGreeting(clientName)} ✨</GoldText>
+              ✨ {getTimeGreeting(clientName)} ✨
             </h1>
+            <p className="text-sm mt-1.5" style={{ color: '#b79a3a', fontFamily: FBAHAVA }}>
+              {lang === 'en' ? 'A new day on your Glow journey' : 'יום חדש למסע ה-Glow שלך'}
+            </p>
             <span className="sr-only" data-client-identity-source={identity.source}>
               {`client-identity-source:${identity.source}|client-id:${clientId || 'none'}|client-name:${clientName || 'none'}`}
             </span>
+          </div>
+        </div>
+
+        {/* ─── PROGRESS CARD ─── */}
+        <div
+          className="mb-5 animate-fade-up delay-100 rounded-2xl overflow-hidden"
+          style={{
+            background: '#ffffff',
+            boxShadow: '0 8px 25px rgba(212,175,55,0.2)',
+            border: GOLD_BORDER,
+          }}
+        >
+          <div className="px-5 py-4 flex items-center gap-4">
+            <span className="text-lg font-bold" style={{ color: '#b79a3a', fontFamily: FBAHAVA }}>
+              {lang === 'en' ? `Day ${viewingDay}` : `יום ${viewingDay}`}
+            </span>
+            <div className="flex-1">
+              <div className="w-full rounded-xl overflow-hidden" style={{ height: '6px', background: 'rgba(212,175,55,0.12)' }}>
+                <div
+                  className="h-full rounded-xl transition-all duration-700 ease-out"
+                  style={{
+                    width: `${Math.min(100, (viewingDay / 30) * 100)}%`,
+                    background: 'linear-gradient(90deg, #d4af37, #f3e29c)',
+                  }}
+                />
+              </div>
+            </div>
+            <span className="text-xs" style={{ color: '#b79a3a', fontFamily: FBAHAVA }}>{viewingDay}/30</span>
           </div>
         </div>
 
