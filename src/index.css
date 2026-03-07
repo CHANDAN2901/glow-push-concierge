@@ -154,7 +154,6 @@
     position: relative;
     z-index: 1;
   }
-  }
 
   /* Smooth tab content transitions — disabled to prevent removeChild crashes */
 
@@ -187,6 +186,11 @@
   [dir="rtl"] {
     text-align: right;
   }
+}
+
+@keyframes sparkle-fade {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
 }
 
 @layer utilities {
