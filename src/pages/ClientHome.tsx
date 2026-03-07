@@ -70,9 +70,9 @@ try {
 // Time-based greeting (forced Hebrew for client recovery flow consistency)
 function getTimeGreeting(name: string): string {
   const hour = new Date().getHours();
-  if (hour < 12) return `בוקר טוב, ${name} ☀️`;
-  if (hour < 18) return `צהריים טובים, ${name} 🌸`;
-  return `ערב טוב, ${name} 🌙`;
+  if (hour < 12) return `בוקר זוהר, ${name}`;
+  if (hour < 18) return `צהריים זוהרים, ${name}`;
+  return `ערב זוהר, ${name}`;
 }
 
 const MILESTONE_DAYS = [7, 14, 21, 30];
