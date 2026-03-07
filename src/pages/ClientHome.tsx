@@ -528,8 +528,8 @@ const ClientHome = () => {
       <header
         className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl"
         style={{
-          background: 'linear-gradient(180deg, hsla(350,45%,95%,0.95) 0%, hsla(350,40%,94%,0.9) 100%)',
-          borderBottom: '1px solid rgba(212,175,55,0.2)',
+          background: 'linear-gradient(180deg, rgba(239,194,217,0.95) 0%, rgba(242,210,228,0.9) 100%)',
+          borderBottom: '1px solid rgba(239,194,217,0.4)',
           boxShadow: '0 2px 16px rgba(212,175,55,0.06)',
         }}
       >
