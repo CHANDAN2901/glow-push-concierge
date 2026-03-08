@@ -801,9 +801,9 @@ const ClientHome = () => {
               <div
                 className="absolute inset-0 rounded-full"
                 style={{
-                  background: '#ffffff',
-                  border: '3px solid rgba(212,175,55,0.3)',
-                  boxShadow: '0 12px 35px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(212,175,55,0.15), inset 0 -2px 6px rgba(0,0,0,0.04)',
+                  background: 'rgba(40,28,30,0.85)',
+                  border: '3px solid rgba(212,175,55,0.45)',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.3), 0 4px 16px rgba(212,175,55,0.2), 0 0 20px rgba(212,175,55,0.12), inset 0 -2px 6px rgba(0,0,0,0.1)',
                 }}
               />
               <CircularProgress percentage={(viewingDay / 30) * 100} size={160} strokeWidth={5} />
