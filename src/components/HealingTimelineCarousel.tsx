@@ -152,20 +152,14 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
       }}
     >
       {/* Section title */}
-      <div
-        className="px-6 py-3 mb-4 flex items-center gap-2 rounded-2xl mx-4"
-        style={{
-          background: 'linear-gradient(135deg, #ff074d 0%, #ff4d7a 40%, #ff8da6 70%, #ffb3c6 100%)',
-        }}
-      >
+      <div className="px-6 mb-4 flex items-center gap-2">
         <span className="text-lg">✨</span>
         <h2
           className="text-lg tracking-wider"
           style={{
-            color: '#ffffff',
+            color: 'hsl(30 15% 22%)',
             fontFamily: 'var(--font-serif)',
-            fontWeight: 500,
-            textShadow: '0 1px 4px rgba(0,0,0,0.15)',
+            fontWeight: 300,
           }}
         >
           {isHe ? 'מסע ההחלמה שלך' : 'Your Healing Journey'}
