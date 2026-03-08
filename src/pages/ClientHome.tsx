@@ -648,80 +648,111 @@ const ClientHome = () => {
           </div>
         </div>
 
-        {/* ─── INSTRUCTIONS CARD ─── */}
+        {/* ─── CURRENT TREATMENT STATUS ─── */}
         <div
           className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
-          <div className="px-7 py-9 text-right" dir="rtl">
-            {/* Clipboard icon */}
-            <div className="flex justify-center mb-5">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(139,101,8,0.12), rgba(212,175,55,0.10))' }}>
-                <Clipboard className="w-7 h-7" style={{ color: '#8B6508', strokeWidth: 1.4 }} />
+          <div className="px-6 py-8 text-center" dir="rtl">
+            {/* Large status circle */}
+            <div className="relative w-32 h-32 mx-auto mb-5">
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: '#ffffff',
+                  border: '4px solid transparent',
+                  borderImage: METALLIC_GOLD_GRADIENT,
+                  borderImageSlice: 1,
+                  boxShadow: '0 12px 40px rgba(212,175,55,0.25), 0 4px 16px rgba(0,0,0,0.08), inset 0 0 20px rgba(212,175,55,0.05)',
+                }}
+              />
+              <div className="absolute inset-1 rounded-full" style={{ border: '3px solid rgba(212,175,55,0.3)' }} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xs mb-0.5" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
+                  {lang === 'en' ? 'Day' : 'יום'}
+                </span>
+                <GoldText className="text-4xl" style={{ fontFamily: 'var(--font-serif)', fontWeight: 700 }}>
+                  {viewingDay}
+                </GoldText>
               </div>
             </div>
 
-            {/* Title – gold gradient */}
-            <h2 className="text-[22px] font-semibold mb-5 leading-relaxed text-center" style={{ fontFamily: FBAHAVA }}>
-              <GoldText>ברוכה הבאה ליומן ההחלמה שלך</GoldText>
+            {/* Phase title */}
+            <h2 className="text-lg font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
+              <GoldText>
+                {lang === 'en'
+                  ? `Day ${viewingDay}: ${content.titleEn}`
+                  : `יום ${viewingDay}: ${content.title}`}
+              </GoldText>
             </h2>
 
-            {/* Body – matte black for readability */}
-            <p className="text-[17px] leading-[2] mb-2" style={{ fontFamily: FBAHAVA, color: '#2A2118' }}>
-              יצרתי את האזור האישי הזה במיוחד עבורך, כדי ללוות אותך יום אחר יום עד לתוצאה המושלמת.
+            {/* "This is how it should look" */}
+            <p className="text-sm leading-relaxed mb-4" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+              {lang === 'en' ? 'This is how it should look today' : 'ככה זה אמור להיראות היום'}
             </p>
-
-            <p className="text-[17px] leading-[2] mb-6" style={{ fontFamily: FBAHAVA, color: '#2A2118' }}>
-              מה מחכה לך כאן?
-            </p>
-
-            {/* List with gold separator lines */}
-            <div className="mb-7">
-              {/* Item 1 */}
-              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
-              <div className="flex items-start gap-3 py-4 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
-                <CalendarCheck className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
-                <span style={{ color: '#2A2118' }}>
-                  <strong style={{ color: '#2A2118' }}>הנחיות מדויקות:</strong>{' '}
-                  מותאמות בדיוק ליום ההחלמה שלך.
-                </span>
-              </div>
-              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
-
-              {/* Item 2 */}
-              <div className="flex items-start gap-3 py-4 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
-                <Camera className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
-                <span style={{ color: '#2A2118' }}>
-                  <strong style={{ color: '#2A2118' }}>מעקב אישי:</strong>{' '}
-                  העלי תמונות מהירות כדי שאוכל ללוות אותך.
-                </span>
-              </div>
-              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
-
-              {/* Item 3 */}
-              <div className="flex items-start gap-3 py-4 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
-                <MessageCircle className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
-                <span style={{ color: '#2A2118' }}>
-                  <strong style={{ color: '#2A2118' }}>קשר ישיר:</strong>{' '}
-                  צריכה אותי? אני במרחק לחיצה.
-                </span>
-              </div>
-              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
-            </div>
 
             {/* Treatment badge */}
-            <div className="flex justify-center">
-              <span
-                className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full text-[15px]"
-                style={{ background: 'rgba(139,101,8,0.06)', border: '1px solid rgba(139,101,8,0.18)', fontFamily: FBAHAVA }}
-              >
-                <GoldText style={{ fontWeight: 500 }}>
-                  {treatment === 'lips' ? '👄' : '✍️'}{' '}
-                  {lang === 'en'
-                    ? `Treatment: ${treatment === 'lips' ? 'Lips' : 'Brows'} ✨`
-                    : `סוג הטיפול: ${treatment === 'lips' ? 'שפתיים' : 'גבות'} ✨`}
-                </GoldText>
-              </span>
+            <span
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-[13px]"
+              style={{ background: 'rgba(139,101,8,0.06)', border: '1px solid rgba(139,101,8,0.18)', fontFamily: FBAHAVA }}
+            >
+              <GoldText style={{ fontWeight: 500 }}>
+                {treatment === 'lips' ? '👄' : '✍️'}{' '}
+                {lang === 'en'
+                  ? `${treatment === 'lips' ? 'Lip' : 'Brow'} Recovery`
+                  : `החלמת ${treatment === 'lips' ? 'שפתיים' : 'גבות'}`}
+              </GoldText>
+            </span>
+          </div>
+        </div>
+
+        {/* ─── DAILY ACTIONS ─── */}
+        <div className="grid grid-cols-2 gap-3 mb-5 animate-fade-up delay-150" dir="rtl">
+          {/* Daily Check-in */}
+          <button
+            onClick={() => {
+              const galleryEl = document.getElementById('gallery');
+              if (galleryEl) galleryEl.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="rounded-2xl p-5 text-center transition-all hover:scale-[1.02] active:scale-[0.97] card-pink-shimmer"
+            style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          >
+            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 4px 16px rgba(212,175,55,0.35)' }}>
+              <Camera className="w-6 h-6 text-white" strokeWidth={1.8} />
+            </div>
+            <h3 className="text-sm font-bold mb-1" style={{ fontFamily: TITLE_FONT }}>
+              <GoldText>{lang === 'en' ? 'Daily Check-in' : 'תיעוד יומי'}</GoldText>
+            </h3>
+            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+              {lang === 'en' ? 'Photograph and upload to the shared gallery' : 'צלמי את אזור הטיפול והעלי לגלריה המשותפת'}
+            </p>
+          </button>
+
+          {/* Moisture Tracker */}
+          <div
+            className="rounded-2xl p-5 text-center card-pink-shimmer"
+            style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          >
+            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(100,180,230,0.2), rgba(60,140,200,0.15))' }}>
+              <span className="text-2xl">💧</span>
+            </div>
+            <h3 className="text-sm font-bold mb-1" style={{ fontFamily: TITLE_FONT }}>
+              <GoldText>{lang === 'en' ? 'Moisture Tracker' : 'מעקב לחות'}</GoldText>
+            </h3>
+            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+              {lang === 'en' ? 'Next: apply moisturizer / drink water' : 'הטיימר הבא: מריחת מלחח / שתיית מים'}
+            </p>
+            {/* Mini progress bar */}
+            <div className="mt-3 w-full rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(212,175,55,0.1)' }}>
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: '65%',
+                  background: 'linear-gradient(90deg, #64B4E6, #3C8CC8)',
+                  boxShadow: '0 0 6px rgba(100,180,230,0.4)',
+                  transition: 'width 0.5s ease',
+                }}
+              />
             </div>
           </div>
         </div>
