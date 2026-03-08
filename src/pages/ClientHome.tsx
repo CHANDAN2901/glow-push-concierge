@@ -852,7 +852,7 @@ const ClientHome = () => {
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
                 <Phone className="w-4.5 h-4.5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
               </div>
-              <span className="text-[11px]" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Call' : 'חייגי'}</span>
+              <span className="text-[11px]" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Call' : 'חייגי'}</span>
             </a>
             {/* Waze */}
             <a
