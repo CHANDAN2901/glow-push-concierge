@@ -169,7 +169,7 @@ const Pricing = () => {
           <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
           <h1
             className="text-3xl md:text-5xl font-serif font-bold tracking-wider animate-fade-up"
-            style={{ color: GOLD_DARK, animationFillMode: 'both' }}
+            style={{ color: GOLD_TEXT, animationFillMode: 'both' }}
           >
             {isHe ? 'בחרי את המסלול שמתאים לקליניקה שלך' : 'Choose the Perfect Plan for Your Clinic'}
           </h1>
