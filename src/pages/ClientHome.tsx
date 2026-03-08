@@ -731,8 +731,7 @@ const ClientHome = () => {
               const galleryEl = document.getElementById('gallery');
               if (galleryEl) galleryEl.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="rounded-2xl p-5 text-center transition-all hover:scale-[1.02] active:scale-[0.97] card-pink-shimmer"
-            style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+            className="rounded-2xl p-5 text-center transition-all hover:scale-[1.02] active:scale-[0.97] client-glass-card"
           >
             <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 4px 16px rgba(212,175,55,0.35)' }}>
               <Camera className="w-6 h-6 text-white" strokeWidth={1.8} />
