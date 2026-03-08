@@ -662,19 +662,8 @@ const ArtistDashboard = () => {
     }
   }, [user, userProfileId, showOnboarding]);
 
-  // Smart Alert System — Red Flag fields
-  const RED_FLAG_FIELDS: (keyof HealthDeclarationData)[] = ['pregnancy', 'roaccutane', 'bloodThinners', 'autoimmune', 'g6pd'];
-  
-  const getRedFlags = (data: HealthDeclarationData): string[] => {
-    const labels: Record<string, string> = {
-      pregnancy: lang === 'en' ? 'Pregnancy' : 'הריון',
-      roaccutane: lang === 'en' ? 'Roaccutane' : 'רואקוטן',
-      bloodThinners: lang === 'en' ? 'Blood Thinners' : 'מדללי דם',
-      autoimmune: lang === 'en' ? 'Autoimmune' : 'מחלות אוטואימוניות',
-      g6pd: lang === 'en' ? 'G6PD Deficiency' : 'חוסר G6PD',
-    };
-    return RED_FLAG_FIELDS.filter(f => data[f] === true).map(f => labels[f] || f);
-  };
+  // Dynamic health questions for risk calculation
+  const { questions: healthQuestionsData } = useHealthQuestions();
 
   // Helper: get declaration data for a client (DB first, then localStorage fallback)
   const getDeclarationData = (name: string): HealthDeclarationData | null => {
@@ -685,22 +674,27 @@ const ArtistDashboard = () => {
     return healthDeclarations[name] || null;
   };
 
+  // Check if a declaration EXISTS for this client (not just signed)
   const hasSignedDeclaration = (name: string): boolean => {
     const dbDecl = dbDeclarations[name];
-    if (dbDecl) return dbDecl.is_signed;
+    if (dbDecl) return true; // declaration exists in DB
     return !!healthDeclarations[name];
   };
 
+  // Dynamic risk level using admin-configured question severity
+  const getClientRiskLevel = (name: string): 'red' | 'yellow' | 'green' => {
+    const dbDecl = dbDeclarations[name];
+    if (!dbDecl?.form_data) return 'green';
+    const answers: Record<string, boolean> = (dbDecl.form_data as any).answers || {};
+    return calculateDynamicRiskLevel(answers, healthQuestionsData);
+  };
+
   const clientHasRedFlags = (name: string): boolean => {
-    const decl = getDeclarationData(name);
-    if (!decl) return false;
-    return RED_FLAG_FIELDS.some(f => decl[f] === true);
+    return getClientRiskLevel(name) === 'red';
   };
 
   const clientIsSafe = (name: string): boolean => {
-    const decl = getDeclarationData(name);
-    if (!decl) return false;
-    return !RED_FLAG_FIELDS.some(f => decl[f] === true);
+    return getClientRiskLevel(name) === 'green';
   };
 
   // Build unique health form link for a client
