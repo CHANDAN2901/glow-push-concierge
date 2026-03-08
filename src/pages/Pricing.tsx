@@ -356,7 +356,7 @@ const Pricing = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: `${GOLD}66` }}>
+          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: GOLD_BORDER }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
               <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'תנאי ביטול למסלולי Pro ו-Elite (מנוי חודשי)' : 'Cancellation Terms for Pro & Elite (Monthly)'}
