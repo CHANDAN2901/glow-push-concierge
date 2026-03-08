@@ -681,7 +681,7 @@ const ClientHome = () => {
 
             {/* "This is how it should look" */}
             <p className="text-sm leading-relaxed mb-5" style={{ fontFamily: FBAHAVA, color: BODY_TEXT, fontWeight: 600 }}>
-              {lang === 'en' ? 'This is how it should look today' : 'ככה זה אמור להיראות היום'}
+              {lang === 'en' ? 'Your recovery day' : 'יום ההחלמה שלך'}
             </p>
 
 
