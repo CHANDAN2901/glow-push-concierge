@@ -1044,9 +1044,9 @@ const ClientHome = () => {
         <div
           className="fixed bottom-0 left-0 right-0 z-[60]"
           style={{
-            background: 'linear-gradient(180deg, rgba(80,55,60,0.97) 0%, rgba(70,48,52,0.99) 100%)',
+            background: 'linear-gradient(180deg, rgba(240,208,213,0.97) 0%, rgba(234,200,205,0.99) 100%)',
             backdropFilter: 'blur(24px)',
-            boxShadow: '0 -8px 32px rgba(0,0,0,0.3), 0 -1px 0 rgba(212,175,55,0.3)',
+            boxShadow: '0 -8px 32px rgba(0,0,0,0.08), 0 -1px 0 rgba(212,175,55,0.3)',
             borderTop: '2px solid rgba(212,175,55,0.35)',
           }}
         >
