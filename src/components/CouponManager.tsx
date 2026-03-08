@@ -87,6 +87,7 @@ export default function CouponManager() {
       setCode(''); setLabel(''); setDiscountPercent(''); setFreeMonths('');
       setExpirationDate(undefined); setMaxUses(''); setDiscountType('percentage');
       setNewUsersOnly(false);
+      fetchCoupons();
     }
     setCreating(false);
   };
