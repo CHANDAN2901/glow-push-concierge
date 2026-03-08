@@ -224,7 +224,7 @@ const Pricing = () => {
               <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
               <h1
                 className="text-3xl md:text-5xl font-bold tracking-wider animate-fade-up"
-                style={{ color: '#000000', animationFillMode: 'both' }}
+                style={{ color: TEXT_DARK, animationFillMode: 'both' }}
               >
                 {isHe ? 'בחרי את המסלול שמתאים לקליניקה שלך' : 'Choose the Perfect Plan for Your Clinic'}
               </h1>
@@ -232,7 +232,7 @@ const Pricing = () => {
             </div>
             <p
               className="text-base md:text-lg max-w-xl mx-auto leading-relaxed animate-fade-up"
-              style={{ color: '#5C4A3A', animationDelay: '120ms', animationFillMode: 'both' }}
+              style={{ color: TEXT_DARK, animationDelay: '120ms', animationFillMode: 'both' }}
             >
               {isHe ? 'הכלים הדיגיטליים המתקדמים ביותר למאפרות שמכוונות רחוק.' : 'Advanced digital tools for ambitious PMU artists.'}
             </p>
