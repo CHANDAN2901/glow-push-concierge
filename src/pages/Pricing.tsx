@@ -113,21 +113,23 @@ const Pricing = () => {
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier]?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
+  const BG_GRADIENT = 'linear-gradient(160deg, #F5D5D5 0%, #F0D0D5 30%, #E8C0C8 60%, #E0B8C0 100%)';
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #D4A0A0 0%, #C49090 40%, #B8847A 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: BG_GRADIENT }}>
         <div className="animate-pulse font-serif" style={{ color: GOLD }}>טוען...</div>
       </div>
     );
   }
 
   const BOKEH_CIRCLES = [
-    { size: 180, top: '8%', left: '10%', color: '#F0C0B0', opacity: 0.5, blur: 60, delay: 0 },
-    { size: 120, top: '25%', right: '5%', color: '#E8B0A0', opacity: 0.4, blur: 60, delay: 1.5 },
-    { size: 200, top: '50%', left: '60%', color: '#FFD0C0', opacity: 0.45, blur: 60, delay: 0.8 },
-    { size: 90, top: '70%', left: '15%', color: '#F5C5B5', opacity: 0.5, blur: 60, delay: 2.2 },
-    { size: 140, top: '85%', right: '20%', color: '#F0C0B0', opacity: 0.4, blur: 60, delay: 1.2 },
-    { size: 100, top: '40%', left: '80%', color: '#E8B0A0', opacity: 0.6, blur: 60, delay: 3 },
+    { size: 200, top: '5%', left: '8%', color: 'rgba(255,225,210,0.5)', blur: 70, delay: 0 },
+    { size: 140, top: '20%', right: '3%', color: 'rgba(240,200,190,0.4)', blur: 60, delay: 1.5 },
+    { size: 220, top: '45%', left: '55%', color: 'rgba(255,215,200,0.35)', blur: 80, delay: 0.8 },
+    { size: 100, top: '65%', left: '12%', color: 'rgba(245,210,200,0.45)', blur: 65, delay: 2.2 },
+    { size: 160, top: '80%', right: '15%', color: 'rgba(255,220,205,0.4)', blur: 70, delay: 1.2 },
+    { size: 120, top: '35%', left: '78%', color: 'rgba(240,195,185,0.5)', blur: 60, delay: 3 },
   ];
 
   return (
