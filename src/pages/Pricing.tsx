@@ -310,11 +310,12 @@ const Pricing = () => {
 
               <Link
                 to="/auth"
-                className="w-full inline-flex items-center justify-center py-4 rounded-full text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-lg hover:scale-[1.01]"
+                className="w-full inline-flex items-center justify-center py-4 rounded-full text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:brightness-110"
                 style={{
-                  background: GOLD_GRADIENT,
+                  background: `linear-gradient(135deg, #E8C878 0%, #D4A855 40%, #C49A3C 70%, #B8902E 100%)`,
                   color: '#FFFFFF',
-                  boxShadow: '0 4px 16px rgba(212,168,85,0.35)',
+                  boxShadow: '0 6px 20px rgba(212,168,85,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.15)',
                 }}
               >
                 {cta}
