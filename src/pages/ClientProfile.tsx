@@ -4,7 +4,14 @@ import {
   Phone, MessageCircle, Instagram, Heart, Camera, FileText,
   PenLine, Calendar, ChevronRight, User, Sparkles, ArrowUp,
   LifeBuoy, HelpCircle, Eye, Send, Play, Mic, Bell,
+  ShieldCheck, AlertTriangle, AlertCircle,
 } from 'lucide-react';
+import DeclarationViewer from '@/components/DeclarationViewer';
+import { useHealthQuestions } from '@/hooks/useHealthQuestions';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
 
 import ClientSharedGallery from '@/components/ClientSharedGallery';
 import { useClientGallery } from '@/hooks/useClientGallery';
