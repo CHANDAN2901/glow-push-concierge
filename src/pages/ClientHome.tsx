@@ -1155,47 +1155,53 @@ const ClientHome = () => {
         <div
           className="fixed bottom-0 left-0 right-0 z-[60]"
           style={{
-            background: 'linear-gradient(180deg, hsla(350,45%,95%,0.97) 0%, hsla(350,40%,94%,0.99) 100%)',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '0 -2px 20px rgba(212,175,55,0.08)',
-            borderTop: '1px solid rgba(212,175,55,0.15)',
+            background: 'linear-gradient(180deg, rgba(255,252,245,0.98) 0%, rgba(255,248,235,0.99) 100%)',
+            backdropFilter: 'blur(24px)',
+            boxShadow: '0 -4px 24px rgba(212,175,55,0.12), 0 -1px 0 rgba(212,175,55,0.2)',
+            borderTop: '2px solid rgba(212,175,55,0.25)',
           }}
         >
-          <div className="max-w-md mx-auto px-3 pt-2 pb-4 flex items-end justify-around">
-            {/* Left 1: Aftercare */}
+          {/* Gold shimmer line at top of nav */}
+          <div className="h-[2px] w-full" style={{ background: METALLIC_GOLD_GRADIENT }} />
+          <div className="max-w-md mx-auto px-3 pt-2.5 pb-4 flex items-end justify-around">
+            {/* Aftercare */}
             <a
               href="#care"
-              className="flex flex-col items-center gap-1 py-2 text-[11px] transition-all hover:opacity-80 active:scale-[0.93]"
-              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '56px' }}
+              className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <Heart className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D4AF37' }} />
-              <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה שלי'}</span>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
+                <Heart className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
+              </div>
+              <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה'}</span>
             </a>
 
-            {/* Left 2: Ask Artist (replaces Emergency) */}
+            {/* Ask Artist */}
             <a
               href={`https://wa.me/${artistBusinessPhone || artistPhone || ''}?text=${encodeURIComponent(
                 lang === 'en' ? `Hi! I have a question about my treatment (Day ${actualDay}) ✨` : `היי! יש לי שאלה לגבי הטיפול (יום ${actualDay}) ✨`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-col items-center gap-1 py-2 text-[11px] transition-all hover:opacity-80 active:scale-[0.93]"
-              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '56px' }}
+              className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <MessageCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D4AF37' }} />
-              <span>{lang === 'en' ? 'Ask Artist' : 'שאלה למאפרת'}</span>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
+                <MessageCircle className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
+              </div>
+              <span>{lang === 'en' ? 'Message' : 'הודעה'}</span>
             </a>
 
             {/* Center FAB: Camera */}
-            <div className="flex flex-col items-center -mt-6">
+            <div className="flex flex-col items-center -mt-7">
               <button
                 onClick={() => bottomFileRef.current?.click()}
                 disabled={bottomUploading}
-                className="w-16 h-16 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 disabled:opacity-50 shadow-lg"
+                className="w-[68px] h-[68px] rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                 style={{
                   background: METALLIC_GOLD_GRADIENT,
                   backgroundSize: '200% 100%',
-                  boxShadow: '0 6px 24px rgba(212,175,55,0.5), 0 2px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(249,242,149,0.6)',
+                  boxShadow: '0 8px 28px rgba(212,175,55,0.5), 0 3px 10px rgba(0,0,0,0.12), inset 0 1px 0 rgba(249,242,149,0.6), 0 0 0 4px rgba(255,252,245,0.95)',
                 }}
               >
                 {bottomUploading ? (
@@ -1204,30 +1210,34 @@ const ClientHome = () => {
                   <Camera className="w-7 h-7 text-white" strokeWidth={1.8} />
                 )}
               </button>
-              <span className="text-[10px] mt-1" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
+              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#8B6914', fontFamily: FBAHAVA }}>
                 {bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Photo' : 'צילום')}
               </span>
             </div>
             <input ref={bottomFileRef} type="file" accept="image/*" className="hidden" onChange={handleBottomUpload} />
 
-            {/* Right 1: FAQ */}
+            {/* FAQ */}
             <a
               href="#faq"
-              className="flex flex-col items-center gap-1 py-2 text-[11px] transition-all hover:opacity-80 active:scale-[0.93]"
-              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '56px' }}
+              className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <HelpCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D4AF37' }} />
+              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
+                <HelpCircle className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
+              </div>
               <span>{lang === 'en' ? 'FAQ' : 'שאלות'}</span>
             </a>
 
-            {/* Right 2: Gallery */}
+            {/* Gallery */}
             {validClientId && (
               <a
                 href="#gallery"
-                className="flex flex-col items-center gap-1 py-2 text-[11px] transition-all hover:opacity-80 active:scale-[0.93]"
-                style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '56px' }}
+                className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+                style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
               >
-                <Heart className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D4AF37' }} />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
+                  <Heart className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
+                </div>
                 <span>{lang === 'en' ? 'Gallery' : 'גלריה'}</span>
               </a>
             )}
