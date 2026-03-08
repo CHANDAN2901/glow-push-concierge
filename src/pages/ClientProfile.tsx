@@ -443,10 +443,26 @@ const ClientProfile = () => {
   };
 
   // Health status display
+  const [showDeclViewer, setShowDeclViewer] = useState(false);
+  const { questions: healthQuestions } = useHealthQuestions();
   const healthSigned = healthDecl?.is_signed ?? false;
   const healthDate = healthDecl?.created_at
     ? new Date(healthDecl.created_at).toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-US')
     : null;
+
+  // Compute traffic-light risk from form_data answers + questions
+  const computedRiskLevel = useMemo(() => {
+    if (!healthDecl?.form_data || !healthQuestions.length) return 'green';
+    const answers: Record<string, boolean> = (healthDecl.form_data as any).answers || {};
+    let worst: 'green' | 'yellow' | 'red' = 'green';
+    for (const q of healthQuestions) {
+      if (answers[q.id]) {
+        if (q.risk_level === 'red') return 'red';
+        if (q.risk_level === 'yellow') worst = 'yellow';
+      }
+    }
+    return worst;
+  }, [healthDecl, healthQuestions]);
 
   return (
     <div className="min-h-screen bg-background pb-28" dir={lang === 'he' ? 'rtl' : 'ltr'}>
