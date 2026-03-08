@@ -46,6 +46,7 @@ import DailyGrowthEngine from '@/components/DailyGrowthEngine';
 import ReferralVoucherEditor from '@/components/ReferralVoucherEditor';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
 import { usePromoSettings } from '@/hooks/usePromoSettings';
+import { useHealthQuestions, calculateDynamicRiskLevel } from '@/hooks/useHealthQuestions';
 import {
   Dialog,
   DialogContent,
