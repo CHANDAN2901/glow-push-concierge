@@ -730,7 +730,7 @@ const ClientHome = () => {
             }}
             className="rounded-2xl p-5 text-center transition-all hover:scale-[1.02] active:scale-[0.97] client-glass-card"
           >
-            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 4px 16px rgba(212,175,55,0.35)' }}>
+            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 4px 20px rgba(212,175,55,0.5), 0 0 16px rgba(212,175,55,0.3)' }}>
               <Camera className="w-6 h-6 text-white" strokeWidth={1.8} />
             </div>
             <h3 className="text-sm font-bold mb-1" style={{ fontFamily: TITLE_FONT }}>
