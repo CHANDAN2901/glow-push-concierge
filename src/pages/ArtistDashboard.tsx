@@ -1757,16 +1757,41 @@ const ArtistDashboard = () => {
                   const isSafe = clientIsSafe(selectedClient.name);
 
                   if (signed) {
+                    const risk = getClientRiskLevel(selectedClient.name);
+                    const riskColors = {
+                      red: { bg: 'hsl(0 80% 95%)', border: '#ef4444', text: '#dc2626' },
+                      yellow: { bg: 'hsl(45 80% 92%)', border: '#eab308', text: '#a16207' },
+                      green: { bg: 'hsl(142 60% 93%)', border: '#22c55e', text: '#16a34a' },
+                    };
+                    const rc = riskColors[risk];
+                    const riskLabel = risk === 'red'
+                      ? (lang === 'en' ? 'Medical Warning' : 'התוויית נגד רפואית')
+                      : risk === 'yellow'
+                        ? (lang === 'en' ? 'Requires Attention' : 'דורש תשומת לב')
+                        : (lang === 'en' ? 'All Clear' : 'תקין — ללא ממצאים');
                     return (
-                      <button
-                        type="button"
-                        onClick={() => setViewDeclarationFor(selectedClient.name)}
-                        className="w-full flex items-center justify-center gap-2.5 py-3 rounded-full text-sm font-bold tracking-wide transition-all active:scale-[0.98] bg-green-500 text-white shadow-[0_4px_20px_hsl(142_71%_45%/0.3)]"
-                      >
-                        <ClipboardCheck className="w-4 h-4" strokeWidth={2} />
-                        {lang === 'en' ? '✅ Health Declaration Signed — View' : '✅ הצהרת בריאות חתומה — צפייה'}
-                        {hasFlags && <AlertTriangle className="w-4 h-4 text-yellow-200" />}
-                      </button>
+                      <div className="rounded-2xl overflow-hidden border p-4 space-y-3" style={{ backgroundColor: rc.bg, borderColor: rc.border }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ border: `2px solid ${rc.border}`, backgroundColor: 'white' }}>
+                            {risk === 'red' ? <AlertTriangle className="w-5 h-5" style={{ color: rc.text }} /> : risk === 'yellow' ? <ShieldAlert className="w-5 h-5" style={{ color: rc.text }} /> : <ShieldCheck className="w-5 h-5" style={{ color: rc.text }} />}
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-bold" style={{ color: rc.text }}>{riskLabel}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {lang === 'en' ? 'Declaration submitted' : 'הצהרת בריאות הוגשה'}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setViewDeclarationFor(selectedClient.name)}
+                          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold tracking-wide transition-all active:scale-[0.97]"
+                          style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                        >
+                          <Eye className="w-4 h-4" strokeWidth={2} />
+                          {lang === 'en' ? 'View Full Health Declaration' : 'צפייה בהצהרת הבריאות המלאה'}
+                        </button>
+                      </div>
                     );
                   }
 
