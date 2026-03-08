@@ -1174,11 +1174,9 @@ const ClientHome = () => {
             <a
               href="#care"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
-                <Heart className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
-              </div>
+              <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: 'drop-shadow(0 1px 3px rgba(212,175,55,0.4))' }} />
               <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה'}</span>
             </a>
 
@@ -1190,16 +1188,14 @@ const ClientHome = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
-                <MessageCircle className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
-              </div>
+              <MessageCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: 'drop-shadow(0 1px 3px rgba(212,175,55,0.4))' }} />
               <span>{lang === 'en' ? 'Message' : 'הודעה'}</span>
             </a>
 
             {/* Center FAB: Camera */}
-            <div className="flex flex-col items-center -mt-7">
+            <div className="flex flex-col items-center -mt-8">
               <button
                 onClick={() => bottomFileRef.current?.click()}
                 disabled={bottomUploading}
@@ -1208,10 +1204,10 @@ const ClientHome = () => {
                 {bottomUploading ? (
                   <span className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
                 ) : (
-                  <Camera className="w-7 h-7 text-white" strokeWidth={1.8} />
+                  <Camera className="w-7 h-7 text-white" strokeWidth={1.8} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' }} />
                 )}
               </button>
-              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#8B6914', fontFamily: FBAHAVA }}>
+              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
                 {bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Photo' : 'צילום')}
               </span>
             </div>
@@ -1221,11 +1217,9 @@ const ClientHome = () => {
             <a
               href="#faq"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
-                <HelpCircle className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
-              </div>
+              <HelpCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: 'drop-shadow(0 1px 3px rgba(212,175,55,0.4))' }} />
               <span>{lang === 'en' ? 'FAQ' : 'שאלות'}</span>
             </a>
 
@@ -1234,11 +1228,9 @@ const ClientHome = () => {
               <a
                 href="#gallery"
                 className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-                style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
+                style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '52px' }}
               >
-                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
-                  <Heart className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
-                </div>
+                <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: 'drop-shadow(0 1px 3px rgba(212,175,55,0.4))' }} />
                 <span>{lang === 'en' ? 'Gallery' : 'גלריה'}</span>
               </a>
             )}
