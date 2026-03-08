@@ -736,7 +736,7 @@ const ClientHome = () => {
             <h3 className="text-sm font-bold mb-1" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Daily Check-in' : 'תיעוד יומי'}</GoldText>
             </h3>
-            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: BODY_TEXT }}>
               {lang === 'en' ? 'Photograph and upload to the shared gallery' : 'צלמי את אזור הטיפול והעלי לגלריה המשותפת'}
             </p>
           </button>
