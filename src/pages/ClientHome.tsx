@@ -687,25 +687,8 @@ const ClientHome = () => {
 
           </div>
 
-          {/* Camera FAB overlapping bottom edge */}
-          <div className="flex flex-col items-center -mb-10 relative z-10">
-            <button
-              onClick={() => bottomFileRef.current?.click()}
-              disabled={bottomUploading}
-              className="w-[76px] h-[76px] rounded-full flex items-center justify-center disabled:opacity-50 gold-sphere-btn"
-            >
-              {bottomUploading ? (
-                <span className="animate-spin w-7 h-7 border-2 border-white border-t-transparent rounded-full" />
-              ) : (
-                <Camera className="w-8 h-8 text-white" strokeWidth={1.8} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' }} />
-              )}
-            </button>
-            <span className="text-xs mt-1.5 font-bold" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>
-              {bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Daily Check-in' : 'תיעוד יומי - צילום')}
-            </span>
-          </div>
         </div>
-        <div className="h-8" /> {/* Spacer for FAB overlap */}
+
 
         {/* ─── DAILY ACTIONS ─── */}
         <div className="grid grid-cols-2 gap-3 mb-5 animate-fade-up delay-150" dir="rtl">
