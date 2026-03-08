@@ -172,31 +172,16 @@ const Pricing = () => {
       {/* Header */}
       <div className="pt-20 pb-10 px-4 flex justify-center">
         <div
-          className="rounded-2xl p-8 md:p-10 text-center max-w-lg w-full"
-          style={{
-            background: 'rgba(210,160,165,0.45)',
-            border: '2.5px solid transparent',
-            borderImage: `${GOLD_GRADIENT} 1`,
-            borderImageSlice: 1,
-            borderRadius: '16px',
-            boxShadow: `0 0 18px rgba(212,175,55,0.25), 0 8px 32px -4px rgba(212,175,55,0.15)`,
-          }}
-        >
-          {/* Use a wrapper to get actual rounded corners with gold gradient border */}
-        </div>
-      </div>
-      <div className="px-4 flex justify-center -mt-10 pb-10" style={{ marginTop: '-1px' }}>
-        <div
           className="rounded-2xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
           style={{
-            background: 'rgba(210,160,165,0.45)',
+            background: 'rgba(200,145,155,0.5)',
             boxShadow: `0 0 18px rgba(212,175,55,0.25), 0 8px 32px -4px rgba(212,175,55,0.15)`,
           }}
         >
-          {/* Gold ombré border overlay */}
+          {/* Gold ombré border */}
           <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-            border: '2.5px solid transparent',
-            background: `linear-gradient(rgba(210,160,165,0.45), rgba(210,160,165,0.45)) padding-box, ${GOLD_GRADIENT} border-box`,
+            border: '3px solid transparent',
+            background: `linear-gradient(rgba(200,145,155,0.5), rgba(200,145,155,0.5)) padding-box, ${GOLD_GRADIENT} border-box`,
             borderRadius: 'inherit',
           }} />
           <div className="relative z-10">
