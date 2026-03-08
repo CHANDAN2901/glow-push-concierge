@@ -922,6 +922,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     )}
                   </div>
                 )}
+                </div>
               </div>
             );
           })
