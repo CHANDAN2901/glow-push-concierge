@@ -854,8 +854,8 @@ const ClientHome = () => {
               </>
             ) : (
               <>
-                <Check className="w-5 h-5 text-green-300" />
-                {lang === 'en' ? 'I finished today\'s care' : '✅ סיימתי את הטיפול היומי'}
+                <Check className="w-5 h-5" />
+                {lang === 'en' ? "I finished today's care routine" : '✅ סיימתי את הטיפול היומי'}
               </>
             )}
           </button>
