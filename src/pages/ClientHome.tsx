@@ -620,31 +620,49 @@ const ClientHome = () => {
 
         {/* ─── PROGRESS CARD ─── */}
         <div
-          className="mb-5 animate-fade-up delay-100 rounded-2xl overflow-hidden"
-          style={{
-            background: 'linear-gradient(145deg, rgba(255,215,228,0.92) 0%, rgba(255,230,240,0.88) 50%, rgba(255,242,247,0.85) 100%)',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '0 10px 32px rgba(180,120,140,0.20), 0 3px 10px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)',
-            border: '1.5px solid rgba(212,175,55,0.25)',
-          }}
+          className="mb-5 animate-fade-up delay-100 rounded-2xl overflow-hidden client-glass-card"
         >
           <div className="px-5 py-4 flex items-center gap-4">
-            <span className="text-lg font-bold" style={{ color: '#b79a3a', fontFamily: FBAHAVA }}>
+            <span className="text-lg font-bold hd-shimmer-text" style={{
+              fontFamily: FBAHAVA,
+              background: GOLD_TEXT_GRADIENT,
+              backgroundSize: '200% 100%',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
               {lang === 'en' ? `Day ${viewingDay}` : `יום ${viewingDay}`}
             </span>
             <div className="flex-1">
-              <div className="w-full rounded-xl overflow-hidden" style={{ height: '6px', background: 'rgba(212,175,55,0.10)' }}>
+              <div className="w-full rounded-xl overflow-hidden relative" style={{ height: '8px', background: 'rgba(212,175,55,0.08)' }}>
                 <div
-                  className="h-full rounded-xl transition-all duration-700 ease-out"
+                  className="h-full rounded-xl transition-all duration-700 ease-out relative"
                   style={{
                     width: `${Math.min(100, (viewingDay / 30) * 100)}%`,
-                    background: 'linear-gradient(90deg, #d4af37, #f3e29c)',
-                    boxShadow: '0 0 8px rgba(212,175,55,0.4)',
+                    background: METALLIC_GOLD_GRADIENT,
+                    backgroundSize: '200% 100%',
+                    boxShadow: '0 0 12px rgba(212,175,55,0.5), 0 0 4px rgba(212,175,55,0.3)',
                   }}
-                />
+                >
+                  {/* Sparkling indicator */}
+                  <div
+                    className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full"
+                    style={{
+                      background: 'radial-gradient(circle, #F9F295 0%, #D4AF37 60%, #B8860B 100%)',
+                      boxShadow: '0 0 8px rgba(249,242,149,0.8), 0 0 16px rgba(212,175,55,0.5)',
+                      animation: 'sparkle-fade 1.5s ease-in-out infinite',
+                    }}
+                  />
+                </div>
               </div>
             </div>
-            <span className="text-xs" style={{ color: '#b79a3a', fontFamily: FBAHAVA }}>{viewingDay}/30</span>
+            <span className="text-xs font-semibold" style={{
+              background: GOLD_TEXT_GRADIENT,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              fontFamily: FBAHAVA,
+            }}>{viewingDay}/30</span>
           </div>
         </div>
 
