@@ -64,7 +64,7 @@ export default function CouponManager() {
       return;
     }
     setCreating(true);
-    const payload: Record<string, any> = {
+    const payload = {
       code: code.trim().toUpperCase(),
       label: label.trim() || code.trim().toUpperCase(),
       discount_type: discountType,
@@ -76,7 +76,7 @@ export default function CouponManager() {
       current_uses: 0,
     };
 
-    const { error } = await supabase.from('promo_codes').insert(payload);
+    const { error } = await supabase.from('promo_codes').insert(payload as any);
     if (error) {
       toast({ title: 'שגיאה ביצירת קופון', description: error.message, variant: 'destructive' });
     } else {
