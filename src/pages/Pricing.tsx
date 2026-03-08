@@ -134,7 +134,7 @@ const Pricing = () => {
 
   return (
     <div
-      className="min-h-screen relative overflow-hidden"
+      className="min-h-screen relative overflow-hidden font-['fbahava',sans-serif]"
       dir={isHe ? 'rtl' : 'ltr'}
       style={{ background: BG_GRADIENT }}
     >
