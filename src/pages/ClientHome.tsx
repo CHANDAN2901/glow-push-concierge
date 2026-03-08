@@ -81,9 +81,12 @@ const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-
 /* ─── Shared style constants ─── */
 const METALLIC_GOLD_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
 const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)';
-const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.35)';
-const CARD_BG = 'linear-gradient(145deg, rgba(255,220,230,0.92) 0%, rgba(255,235,243,0.88) 50%, rgba(255,245,248,0.85) 100%)';
-const CARD_SHADOW = '0 8px 32px rgba(180,120,140,0.18), 0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.08)';
+const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.45)';
+const CARD_BG = 'linear-gradient(145deg, rgba(60,40,45,0.55) 0%, rgba(80,55,60,0.5) 50%, rgba(60,40,45,0.5) 100%)';
+const CARD_SHADOW = '0 12px 40px rgba(0,0,0,0.25), 0 4px 12px rgba(0,0,0,0.15), 0 0 0 1px rgba(212,175,55,0.15)';
+const BODY_TEXT = '#E8D5C4';
+const SUBTEXT_COLOR = '#D4B896';
+const GOLD_ICON_GLOW = 'drop-shadow(0 0 8px rgba(212,175,55,0.6)) drop-shadow(0 2px 4px rgba(212,175,55,0.4))';
 const FBAHAVA = "'FB Ahava', 'Assistant', sans-serif";
 const TITLE_FONT = FBAHAVA;
 
