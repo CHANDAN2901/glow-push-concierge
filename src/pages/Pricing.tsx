@@ -113,31 +113,38 @@ const Pricing = () => {
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier]?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
+  const BG_GRADIENT = 'linear-gradient(160deg, #F5D5D5 0%, #F0D0D5 30%, #E8C0C8 60%, #E0B8C0 100%)';
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #D4A0A0 0%, #C49090 40%, #B8847A 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: BG_GRADIENT }}>
         <div className="animate-pulse font-serif" style={{ color: GOLD }}>טוען...</div>
       </div>
     );
   }
 
   const BOKEH_CIRCLES = [
-    { size: 180, top: '8%', left: '10%', color: '#F0C0B0', opacity: 0.5, blur: 60, delay: 0 },
-    { size: 120, top: '25%', right: '5%', color: '#E8B0A0', opacity: 0.4, blur: 60, delay: 1.5 },
-    { size: 200, top: '50%', left: '60%', color: '#FFD0C0', opacity: 0.45, blur: 60, delay: 0.8 },
-    { size: 90, top: '70%', left: '15%', color: '#F5C5B5', opacity: 0.5, blur: 60, delay: 2.2 },
-    { size: 140, top: '85%', right: '20%', color: '#F0C0B0', opacity: 0.4, blur: 60, delay: 1.2 },
-    { size: 100, top: '40%', left: '80%', color: '#E8B0A0', opacity: 0.6, blur: 60, delay: 3 },
+    { size: 200, top: '5%', left: '8%', color: 'rgba(255,225,210,0.5)', blur: 70, delay: 0 },
+    { size: 140, top: '20%', right: '3%', color: 'rgba(240,200,190,0.4)', blur: 60, delay: 1.5 },
+    { size: 220, top: '45%', left: '55%', color: 'rgba(255,215,200,0.35)', blur: 80, delay: 0.8 },
+    { size: 100, top: '65%', left: '12%', color: 'rgba(245,210,200,0.45)', blur: 65, delay: 2.2 },
+    { size: 160, top: '80%', right: '15%', color: 'rgba(255,220,205,0.4)', blur: 70, delay: 1.2 },
+    { size: 120, top: '35%', left: '78%', color: 'rgba(240,195,185,0.5)', blur: 60, delay: 3 },
   ];
 
   return (
     <div
       className="min-h-screen relative overflow-hidden"
       dir={isHe ? 'rtl' : 'ltr'}
-      style={{
-        background: 'linear-gradient(135deg, #D4A0A0 0%, #C49090 40%, #B8847A 100%)',
-      }}
+      style={{ background: BG_GRADIENT }}
     >
+      {/* Shimmer overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 30% 20%, rgba(212,168,85,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, rgba(212,168,85,0.04) 0%, transparent 40%)',
+        }}
+      />
       {/* Bokeh floating circles */}
       {BOKEH_CIRCLES.map((b, i) => (
         <div
@@ -147,20 +154,19 @@ const Pricing = () => {
             width: b.size,
             height: b.size,
             top: b.top,
-            left: b.left,
+            left: (b as any).left,
             right: (b as any).right,
             background: b.color,
-            opacity: (b as any).opacity ?? 0.4,
             filter: `blur(${b.blur}px)`,
-            animation: `bokeh-float 6s ease-in-out ${b.delay}s infinite alternate`,
+            animation: `bokeh-float 7s ease-in-out ${b.delay}s infinite alternate`,
           }}
         />
       ))}
       <style>{`
         @keyframes bokeh-float {
-          0% { transform: translateY(0) scale(1); opacity: 0.7; }
-          50% { transform: translateY(-15px) scale(1.08); opacity: 1; }
-          100% { transform: translateY(5px) scale(0.95); opacity: 0.6; }
+          0% { transform: translateY(0) scale(1); opacity: 0.8; }
+          50% { transform: translateY(-18px) scale(1.06); opacity: 1; }
+          100% { transform: translateY(8px) scale(0.94); opacity: 0.6; }
         }
       `}</style>
       {/* Header */}
@@ -191,8 +197,8 @@ const Pricing = () => {
       {user && (
         <div className="mx-auto px-4 max-w-lg mb-8">
           <div
-            className="rounded-2xl p-6 space-y-4 text-center"
-            style={{ background: '#FFFFFF', border: `2px solid ${GOLD}`, boxShadow: `0 4px 24px -4px ${GOLD}26` }}
+            className="rounded-2xl p-6 space-y-4 text-center backdrop-blur-xl"
+            style={{ background: 'rgba(255,255,255,0.75)', border: `2px solid ${GOLD}`, boxShadow: `0 8px 32px -4px rgba(212,168,85,0.15), 0 0 0 1px rgba(212,168,85,0.1)` }}
           >
             <h2
               className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
@@ -238,16 +244,16 @@ const Pricing = () => {
           return (
             <div
               key={plan.id}
-              className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
+              className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center backdrop-blur-xl"
               style={{
                 border: isElite ? `2px solid ${GOLD}` : `1px solid ${GOLD_BORDER}`,
                 background: isElite
-                  ? `linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 100%)`
-                  : '#FFFFFF',
+                  ? 'rgba(255,253,245,0.85)'
+                  : 'rgba(255,255,255,0.75)',
                 boxShadow: isElite
-                  ? `0 0 20px rgba(201,168,76,0.3)`
-                  : '0 2px 16px -4px rgba(0,0,0,0.05)',
-                borderRadius: '16px',
+                  ? `0 0 24px rgba(201,168,76,0.25), 0 8px 40px -8px rgba(212,168,85,0.2), inset 0 1px 0 rgba(255,255,255,0.6)`
+                  : '0 4px 24px -4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+                borderRadius: '20px',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
@@ -304,11 +310,12 @@ const Pricing = () => {
 
               <Link
                 to="/auth"
-                className="w-full inline-flex items-center justify-center py-4 rounded-full text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-lg hover:scale-[1.01]"
+                className="w-full inline-flex items-center justify-center py-4 rounded-full text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:brightness-110"
                 style={{
-                  background: GOLD_GRADIENT,
+                  background: `linear-gradient(135deg, #E8C878 0%, #D4A855 40%, #C49A3C 70%, #B8902E 100%)`,
                   color: '#FFFFFF',
-                  boxShadow: '0 4px 16px rgba(212,168,85,0.35)',
+                  boxShadow: '0 6px 20px rgba(212,168,85,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.15)',
                 }}
               >
                 {cta}
@@ -341,7 +348,7 @@ const Pricing = () => {
         </div>
 
         <Accordion type="single" collapsible className="space-y-3">
-          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: GOLD_BORDER }}>
+          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden backdrop-blur-xl" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.7)' }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
               <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'מדיניות ביטול מיוחדת למסלול המייסדות (VIP)' : 'Special Cancellation Policy for Founders (VIP)'}
@@ -356,7 +363,7 @@ const Pricing = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: GOLD_BORDER }}>
+          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden backdrop-blur-xl" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.7)' }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
               <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'תנאי ביטול למסלולי Pro ו-Elite (מנוי חודשי)' : 'Cancellation Terms for Pro & Elite (Monthly)'}
