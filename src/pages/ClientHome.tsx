@@ -1126,7 +1126,7 @@ const ClientHome = () => {
                   </AccordionTrigger>
                   <AccordionContent
                     className="text-sm leading-[1.85] pb-5 text-right"
-                    style={{ color: '#333333', fontFamily: FBAHAVA, fontWeight: 400, direction: 'rtl' }}
+                    style={{ color: BODY_TEXT, fontFamily: FBAHAVA, fontWeight: 400, direction: 'rtl' }}
                   >
                     {faq.a}
                   </AccordionContent>
