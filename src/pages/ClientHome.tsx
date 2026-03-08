@@ -864,7 +864,7 @@ const ClientHome = () => {
             {lang === 'en' ? voucherTextEn : voucherTextHe}
           </p>
           <div className="flex items-center justify-center mb-5">
-            <div className="px-8 py-3 rounded-2xl" style={{ ...goldBtnStyle }}>
+            <div className="px-8 py-3 rounded-2xl" style={{ background: 'linear-gradient(135deg, #e8b8c0 0%, #d69da9 30%, #c4838f 60%, #d69da9 80%, #e8b8c0 100%)', backgroundSize: '200% 100%', color: '#fff', border: 'none', boxShadow: '0 4px 15px rgba(214,157,169,0.45), inset 0 1px 0 rgba(255,255,255,0.35)' }}>
               <span className="font-bold text-xl tracking-[0.15em]">{referralCode}</span>
             </div>
           </div>
