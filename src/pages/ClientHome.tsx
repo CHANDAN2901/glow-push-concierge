@@ -680,7 +680,7 @@ const ClientHome = () => {
                   boxShadow: '0 12px 40px rgba(0,0,0,0.3), 0 4px 16px rgba(212,175,55,0.2), 0 0 24px rgba(212,175,55,0.15), inset 0 0 20px rgba(212,175,55,0.08)',
                 }}
               />
-              <div className="absolute inset-1 rounded-full" style={{ border: '3px solid rgba(212,175,55,0.3)' }} />
+              <div className="absolute inset-1 rounded-full" style={{ border: '3px solid rgba(212,175,55,0.4)' }} />
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-xs mb-0.5" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
                   {lang === 'en' ? 'Day' : 'יום'}
