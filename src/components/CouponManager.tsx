@@ -46,6 +46,7 @@ export default function CouponManager() {
   const [freeMonths, setFreeMonths] = useState('');
   const [expirationDate, setExpirationDate] = useState<Date | undefined>();
   const [maxUses, setMaxUses] = useState('');
+  const [newUsersOnly, setNewUsersOnly] = useState(false);
   const [creating, setCreating] = useState(false);
 
   const fetchCoupons = async () => {
