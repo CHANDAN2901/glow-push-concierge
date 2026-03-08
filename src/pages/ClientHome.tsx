@@ -619,30 +619,7 @@ const ClientHome = () => {
         <div
           className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden client-glass-card"
         >
-          <div className="px-6 py-8 text-center" dir="rtl">
-            {/* Large status circle */}
-            <div className="relative w-32 h-32 mx-auto mb-5">
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: 'rgba(40,28,30,0.8)',
-                  border: '4px solid transparent',
-                  borderImage: METALLIC_GOLD_GRADIENT,
-                  borderImageSlice: 1,
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.3), 0 4px 16px rgba(212,175,55,0.2), 0 0 24px rgba(212,175,55,0.15), inset 0 0 20px rgba(212,175,55,0.08)',
-                }}
-              />
-              <div className="absolute inset-1 rounded-full" style={{ border: '3px solid rgba(212,175,55,0.4)' }} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs mb-0.5" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
-                  {lang === 'en' ? 'Day' : 'יום'}
-                </span>
-                <GoldText className="text-4xl" style={{ fontFamily: 'var(--font-serif)', fontWeight: 700 }}>
-                  {viewingDay}
-                </GoldText>
-              </div>
-            </div>
-
+          <div className="px-6 py-10 text-center" dir="rtl">
             {/* Phase title */}
             <h2 className="text-lg font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>
