@@ -509,7 +509,7 @@
 
 /* Deep dusty rose background with bokeh */
 .client-premium-bg {
-  background: linear-gradient(160deg, #8E6B70 0%, #A67B81 25%, #997278 50%, #8E6B70 75%, #7D5E63 100%);
+  background: linear-gradient(160deg, #d69da9 0%, #dba7b2 25%, #d69da9 50%, #d19aa6 75%, #cc929f 100%);
   position: relative;
 }
 .client-premium-bg::before {
