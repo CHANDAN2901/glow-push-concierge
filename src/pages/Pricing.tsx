@@ -308,7 +308,7 @@ const Pricing = () => {
                 style={{
                   background: GOLD_GRADIENT,
                   color: '#FFFFFF',
-                  boxShadow: `0 4px 16px ${GOLD}44`,
+                  boxShadow: '0 4px 16px rgba(212,168,85,0.35)',
                 }}
               >
                 {cta}
