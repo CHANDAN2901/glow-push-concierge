@@ -8,13 +8,21 @@ import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/use
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
+const GOLD = '#C9A84C';
+const GOLD_DARK = '#8B6914';
+const BG_WARM = '#FDF6F0';
+const BG_END = '#F5E6D3';
+const ROSE_BEIGE = '#E8C9B0';
+const TEXT_DARK = '#2C1810';
+const GOLD_GRADIENT = `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_DARK} 100%)`;
+const GOLD_GRADIENT_WIDE = `linear-gradient(90deg, ${GOLD_DARK}, ${GOLD}, ${ROSE_BEIGE}, ${GOLD}, ${GOLD_DARK})`;
+
 const iconMap: Record<string, React.ElementType> = {
   pro: Sparkles,
   elite: Star,
   'vip-3year': Crown,
 };
 
-/* ── Plan title renderer ── */
 const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
   const lastSpace = name.lastIndexOf(' ');
   const prefix = lastSpace > 0 ? name.slice(0, lastSpace) : '';
@@ -22,11 +30,11 @@ const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
 
   if (slug === 'elite' || slug === 'vip-3year') {
     return (
-      <h2 className="text-xl font-medium" style={{ color: '#333' }}>
+      <h2 className="text-xl font-medium" style={{ color: TEXT_DARK }}>
         <span className="font-light tracking-wide">{prefix} </span>
         <span
           className="font-serif font-bold bg-clip-text text-transparent"
-          style={{ backgroundImage: 'linear-gradient(135deg, #D4AF37, #F1D592)' }}
+          style={{ backgroundImage: GOLD_GRADIENT }}
         >
           {suffix}
         </span>
@@ -35,27 +43,26 @@ const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
   }
 
   return (
-    <h2 className="text-xl" style={{ color: '#333333' }}>
+    <h2 className="text-xl" style={{ color: TEXT_DARK }}>
       <span className="font-light tracking-wide">{prefix} </span>
       <span className="font-semibold">{suffix}</span>
     </h2>
   );
 };
 
-/* ── FOMO badge sub-component ── */
 const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; takenSpots: number; isHe: boolean }) => {
   if (totalSpots <= 0) return null;
   const remaining = Math.max(totalSpots - takenSpots, 0);
   const pct = Math.min((takenSpots / totalSpots) * 100, 100);
   const isUrgent = remaining <= 10;
 
-  const textColor = isUrgent ? '#C0392B' : '#B8860B';
+  const textColor = isUrgent ? '#C0392B' : GOLD_DARK;
   const barColor = isUrgent
     ? 'linear-gradient(90deg, #E74C3C, #C0392B)'
-    : 'linear-gradient(90deg, #D4AF37, #F9F295, #D4AF37)';
+    : GOLD_GRADIENT;
 
   return (
-    <div className="mb-4 rounded-xl px-4 py-3" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
+    <div className="mb-4 rounded-xl px-4 py-3" style={{ background: `${GOLD}12`, border: `1px solid ${GOLD}33` }}>
       <div className="flex items-center gap-2 mb-2">
         {isUrgent && <Flame className="w-4 h-4 animate-pulse" style={{ color: '#E74C3C' }} />}
         <span className="text-sm font-bold" style={{ color: textColor }}>
@@ -64,11 +71,8 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
             : `Only ${remaining} founding-price spots left!`}
         </span>
       </div>
-      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(212,175,55,0.15)' }}>
-        <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, background: barColor }}
-        />
+      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: `${GOLD}22` }}>
+        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: barColor }} />
       </div>
     </div>
   );
@@ -112,72 +116,62 @@ const Pricing = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF] flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground font-serif">טוען...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: `linear-gradient(180deg, ${BG_WARM} 0%, ${BG_END} 100%)` }}>
+        <div className="animate-pulse font-serif" style={{ color: GOLD }}>טוען...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF]" dir={isHe ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen" dir={isHe ? 'rtl' : 'ltr'} style={{ background: `linear-gradient(180deg, ${BG_WARM} 0%, ${BG_END} 100%)` }}>
       {/* Header */}
       <div className="pt-20 pb-10 text-center px-4">
-        <h1
-          className="text-3xl md:text-5xl font-serif font-light tracking-wider mb-4 animate-fade-up"
-          style={{ color: '#1a1a1a', animationFillMode: 'both' }}
-        >
-          {isHe ? 'בחרי את המסלול שמתאים לקליניקה שלך ✨' : 'Choose the Perfect Plan for Your Clinic ✨'}
-        </h1>
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
+          <h1
+            className="text-3xl md:text-5xl font-serif font-bold tracking-wider animate-fade-up"
+            style={{ color: GOLD_DARK, animationFillMode: 'both' }}
+          >
+            {isHe ? 'בחרי את המסלול שמתאים לקליניקה שלך' : 'Choose the Perfect Plan for Your Clinic'}
+          </h1>
+          <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
+        </div>
         <p
           className="text-base md:text-lg max-w-xl mx-auto leading-relaxed animate-fade-up"
-          style={{ color: '#888', animationDelay: '120ms', animationFillMode: 'both' }}
+          style={{ color: '#7A6B5D', animationDelay: '120ms', animationFillMode: 'both' }}
         >
           {isHe ? 'הכלים הדיגיטליים המתקדמים ביותר למאפרות שמכוונות רחוק.' : 'Advanced digital tools for ambitious PMU artists.'}
         </p>
         <div
           className="w-20 h-[2px] mx-auto mt-6 rounded-full animate-fade-up"
-          style={{
-            background: 'linear-gradient(90deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-            animationDelay: '200ms',
-            animationFillMode: 'both',
-          }}
+          style={{ background: GOLD_GRADIENT_WIDE, animationDelay: '200ms', animationFillMode: 'both' }}
         />
       </div>
 
-      {/* Personal Status Card — only for logged-in users */}
+      {/* Personal Status Card */}
       {user && (
         <div className="mx-auto px-4 max-w-lg mb-8">
           <div
             className="rounded-2xl p-6 space-y-4 text-center"
-            style={{
-              background: '#ffffff',
-              border: '2px solid #D4AF37',
-              boxShadow: '0 4px 24px -4px rgba(212, 175, 55, 0.15)',
-            }}
+            style={{ background: '#FFFFFF', border: `2px solid ${GOLD}`, boxShadow: `0 4px 24px -4px ${GOLD}26` }}
           >
             <h2
               className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
-              style={{ backgroundImage: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)' }}
+              style={{ backgroundImage: GOLD_GRADIENT }}
             >
               {t('sub.greeting').replace('{name}', displayName)}
             </h2>
-
             <div className="space-y-1.5">
-              <p className="text-sm font-medium" style={{ color: '#000000' }}>
+              <p className="text-sm font-medium" style={{ color: TEXT_DARK }}>
                 {t('sub.currentPlan').replace('{plan}', tierLabel)}
               </p>
-              <p className="text-sm font-medium" style={{ color: '#000000' }}>
+              <p className="text-sm font-medium" style={{ color: TEXT_DARK }}>
                 {t('sub.validUntil')}
               </p>
             </div>
-
             <button
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
-              style={{
-                border: '1.5px solid #D4AF37',
-                background: '#ffffff',
-                color: '#B8860B',
-              }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
+              style={{ border: `1.5px solid ${GOLD}`, background: 'transparent', color: GOLD_DARK }}
               onClick={() => navigate('/payment-history')}
             >
               <Receipt className="w-4 h-4" />
@@ -185,24 +179,14 @@ const Pricing = () => {
             </button>
           </div>
 
-          {/* Asymmetrical gold divider */}
+          {/* Gold divider */}
           <div className="pt-6">
-            <div
-              style={{
-                height: '3px',
-                width: '60%',
-                marginRight: 0,
-                marginLeft: 'auto',
-                borderRadius: '4px',
-                background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
-                boxShadow: '0 0 8px rgba(212,175,55,0.25)',
-              }}
-            />
+            <div style={{ height: '1px', width: '60%', marginRight: 0, marginLeft: 'auto', background: GOLD_GRADIENT_WIDE }} />
           </div>
         </div>
       )}
 
-      {/* Cards */}
+      {/* Plan Cards */}
       <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-8 max-w-lg">
         {plans.map((plan, idx) => {
           const Icon = iconMap[plan.slug] || Sparkles;
@@ -215,15 +199,16 @@ const Pricing = () => {
           return (
             <div
               key={plan.id}
-              className={`w-full rounded-3xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center ${isElite ? '' : 'bg-white'}`}
+              className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
               style={{
-                border: isElite ? '2px solid #D4AF37' : '1px solid rgba(212,175,55,0.25)',
+                border: isElite ? `2px solid ${GOLD}` : `1px solid ${GOLD}`,
                 background: isElite
-                  ? 'linear-gradient(180deg, #FFFDF5 0%, #FFF9E6 100%)'
-                  : '#ffffff',
+                  ? `linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 100%)`
+                  : '#FFFFFF',
                 boxShadow: isElite
-                  ? '0 6px 36px -8px rgba(212,175,55,0.28)'
-                  : '0 2px 16px -4px rgba(0,0,0,0.04)',
+                  ? `0 0 20px rgba(201,168,76,0.3)`
+                  : '0 2px 16px -4px rgba(0,0,0,0.05)',
+                borderRadius: '16px',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
@@ -231,11 +216,7 @@ const Pricing = () => {
               {isElite && badge && (
                 <span
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
-                  style={{
-                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                    color: '#5C4033',
-                    boxShadow: '0 2px 12px rgba(212,175,55,0.4)',
-                  }}
+                  style={{ background: GOLD_GRADIENT, color: '#FFFFFF', boxShadow: `0 2px 12px ${GOLD}66` }}
                 >
                   {badge}
                 </span>
@@ -243,7 +224,7 @@ const Pricing = () => {
 
               <div className={`flex items-center justify-center gap-2 ${isElite ? 'mt-4' : ''} mb-6`}>
                 <PlanTitle slug={plan.slug} name={name} />
-                <Icon className="w-5 h-5" style={{ color: '#D4AF37' }} />
+                <Icon className="w-5 h-5" style={{ color: GOLD }} />
               </div>
 
               <div className="mb-8">
@@ -251,15 +232,15 @@ const Pricing = () => {
                   <span
                     className="text-5xl font-serif font-bold"
                     style={{
-                      color: isElite ? undefined : '#333',
-                      backgroundImage: isElite ? 'linear-gradient(135deg, #B8860B, #D4AF37 40%, #F1D592)' : undefined,
+                      color: isElite ? undefined : TEXT_DARK,
+                      backgroundImage: isElite ? GOLD_GRADIENT : undefined,
                       WebkitBackgroundClip: isElite ? 'text' : undefined,
                       WebkitTextFillColor: isElite ? 'transparent' : undefined,
                     }}
                   >
                     {isHe ? `₪${plan.price_monthly.toLocaleString()}` : `$${plan.price_usd.toLocaleString()}`}
                   </span>
-                  <span className="text-sm" style={{ color: '#999' }}>
+                  <span className="text-sm" style={{ color: '#7A6B5D' }}>
                     {plan.slug === 'vip-3year' ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time') : (isHe ? '/ חודש' : '/ month')}
                   </span>
                 </div>
@@ -268,21 +249,11 @@ const Pricing = () => {
               <ul className="space-y-0 mb-10 flex-1">
                 {features.map((f, i) => (
                   <li key={i}>
-                    <div className="flex items-center justify-center gap-3 text-sm py-3" style={{ color: '#000000', fontWeight: 500 }}>
+                    <div className="flex items-center justify-center gap-3 text-sm py-3" style={{ color: TEXT_DARK, fontWeight: 500 }}>
                       <span>{f}</span>
                     </div>
                     {i < features.length - 1 && (
-                      <div
-                        style={{
-                          height: '3px',
-                          width: '60%',
-                          marginRight: 0,
-                          marginLeft: 'auto',
-                          borderRadius: '4px',
-                          background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
-                          boxShadow: '0 0 6px rgba(212,175,55,0.25)',
-                        }}
-                      />
+                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: `${GOLD}44` }} />
                     )}
                   </li>
                 ))}
@@ -294,11 +265,11 @@ const Pricing = () => {
 
               <Link
                 to="/auth"
-                className="w-full inline-flex items-center justify-center py-4 rounded-2xl text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-md hover:scale-[1.01]"
+                className="w-full inline-flex items-center justify-center py-4 rounded-full text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-lg hover:scale-[1.01]"
                 style={{
-                  border: '2px solid #333',
-                  color: '#333',
-                  background: 'transparent',
+                  background: GOLD_GRADIENT,
+                  color: '#FFFFFF',
+                  boxShadow: `0 4px 16px ${GOLD}44`,
                 }}
               >
                 {cta}
@@ -308,69 +279,54 @@ const Pricing = () => {
         })}
       </div>
 
-      <div className="text-center text-xs pb-10 px-4 space-y-2" style={{ color: '#bbb' }}>
+      {/* Footer links */}
+      <div className="text-center text-xs pb-10 px-4 space-y-2" style={{ color: '#9E8E7E' }}>
         <p>{isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}</p>
-        <Link to="/refund-policy" className="underline hover:text-foreground transition-colors">
+        <Link to="/refund-policy" className="underline hover:opacity-80 transition-opacity" style={{ color: GOLD_DARK }}>
           {isHe ? 'מדיניות ביטולים והחזרים' : 'Cancellation & Refund Policy'}
         </Link>
+      </div>
+
+      {/* Gold divider before policy */}
+      <div className="mx-auto max-w-lg px-4 pb-4">
+        <div style={{ height: '1px', background: GOLD_GRADIENT_WIDE }} />
       </div>
 
       {/* Cancellation & Refund Policy */}
       <div className="mx-auto px-4 pb-20 max-w-lg">
         <div className="text-center mb-8">
-          <h2
-            className="text-2xl md:text-3xl font-serif font-light tracking-wider mb-2"
-            style={{ color: '#1a1a1a' }}
-          >
+          <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-wider mb-2" style={{ color: GOLD_DARK }}>
             {isHe ? 'מדיניות ביטולים והחזרים כספיים' : 'Cancellation & Refund Policy'}
           </h2>
-          <div
-            className="w-16 h-[2px] mx-auto mt-4 rounded-full"
-            style={{ background: 'linear-gradient(90deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)' }}
-          />
+          <div className="w-16 h-[2px] mx-auto mt-4 rounded-full" style={{ background: GOLD_GRADIENT_WIDE }} />
         </div>
 
         <Accordion type="single" collapsible className="space-y-3">
-          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden" style={{ borderColor: 'rgba(212,175,55,0.25)' }}>
+          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: `${GOLD}66` }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
-              <span className="text-sm font-bold text-start" style={{ color: '#333' }}>
+              <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'מדיניות ביטול מיוחדת למסלול המייסדות (VIP)' : 'Special Cancellation Policy for Founders (VIP)'}
               </span>
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
-              <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#555' }}>
-                <p>
-                  <strong style={{ color: '#B8860B' }}>14 ימי התנסות ללא סיכון:</strong>{' '}
-                  ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.
-                </p>
-                <p>
-                  <strong style={{ color: '#B8860B' }}>גמישות מלאה גם בהמשך:</strong>{' '}
-                  ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.
-                </p>
-                <p>
-                  <strong style={{ color: '#B8860B' }}>איך מחושב ההחזר?</strong>{' '}
-                  במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.
-                </p>
+              <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
+                <p><strong style={{ color: GOLD_DARK }}>14 ימי התנסות ללא סיכון:</strong>{' '}ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.</p>
+                <p><strong style={{ color: GOLD_DARK }}>גמישות מלאה גם בהמשך:</strong>{' '}ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.</p>
+                <p><strong style={{ color: GOLD_DARK }}>איך מחושב ההחזר?</strong>{' '}במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.</p>
               </div>
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden" style={{ borderColor: 'rgba(212,175,55,0.25)' }}>
+          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: `${GOLD}66` }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
-              <span className="text-sm font-bold text-start" style={{ color: '#333' }}>
+              <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'תנאי ביטול למסלולי Pro ו-Elite (מנוי חודשי)' : 'Cancellation Terms for Pro & Elite (Monthly)'}
               </span>
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
-              <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#555' }}>
-                <p>
-                  <strong style={{ color: '#B8860B' }}>ביטול בכל רגע:</strong>{' '}
-                  ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.
-                </p>
-                <p>
-                  <strong style={{ color: '#B8860B' }}>ללא קנסות יציאה:</strong>{' '}
-                  לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.
-                </p>
+              <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
+                <p><strong style={{ color: GOLD_DARK }}>ביטול בכל רגע:</strong>{' '}ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.</p>
+                <p><strong style={{ color: GOLD_DARK }}>ללא קנסות יציאה:</strong>{' '}לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.</p>
               </div>
             </AccordionContent>
           </AccordionItem>
