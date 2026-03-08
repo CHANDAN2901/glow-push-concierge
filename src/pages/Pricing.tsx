@@ -197,8 +197,8 @@ const Pricing = () => {
       {user && (
         <div className="mx-auto px-4 max-w-lg mb-8">
           <div
-            className="rounded-2xl p-6 space-y-4 text-center"
-            style={{ background: '#FFFFFF', border: `2px solid ${GOLD}`, boxShadow: `0 4px 24px -4px ${GOLD}26` }}
+            className="rounded-2xl p-6 space-y-4 text-center backdrop-blur-xl"
+            style={{ background: 'rgba(255,255,255,0.75)', border: `2px solid ${GOLD}`, boxShadow: `0 8px 32px -4px rgba(212,168,85,0.15), 0 0 0 1px rgba(212,168,85,0.1)` }}
           >
             <h2
               className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
