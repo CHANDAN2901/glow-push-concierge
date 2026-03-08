@@ -4,7 +4,14 @@ import {
   Phone, MessageCircle, Instagram, Heart, Camera, FileText,
   PenLine, Calendar, ChevronRight, User, Sparkles, ArrowUp,
   LifeBuoy, HelpCircle, Eye, Send, Play, Mic, Bell,
+  ShieldCheck, AlertTriangle, AlertCircle,
 } from 'lucide-react';
+import DeclarationViewer from '@/components/DeclarationViewer';
+import { useHealthQuestions } from '@/hooks/useHealthQuestions';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
 
 import ClientSharedGallery from '@/components/ClientSharedGallery';
 import { useClientGallery } from '@/hooks/useClientGallery';
@@ -44,6 +51,7 @@ interface HealthDeclRow {
   is_signed: boolean;
   created_at: string;
   form_data: any;
+  signature_svg: string | null;
 }
 
 /* ── Test Push Button Component ── */
@@ -307,7 +315,7 @@ const ClientProfile = () => {
 
     supabase
       .from('health_declarations')
-      .select('id, is_signed, created_at, form_data')
+      .select('id, is_signed, created_at, form_data, signature_svg')
       .eq('client_id', resolvedId)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -435,10 +443,26 @@ const ClientProfile = () => {
   };
 
   // Health status display
+  const [showDeclViewer, setShowDeclViewer] = useState(false);
+  const { questions: healthQuestions } = useHealthQuestions();
   const healthSigned = healthDecl?.is_signed ?? false;
   const healthDate = healthDecl?.created_at
     ? new Date(healthDecl.created_at).toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-US')
     : null;
+
+  // Compute traffic-light risk from form_data answers + questions
+  const computedRiskLevel = useMemo(() => {
+    if (!healthDecl?.form_data || !healthQuestions.length) return 'green';
+    const answers: Record<string, boolean> = (healthDecl.form_data as any).answers || {};
+    let worst: 'green' | 'yellow' | 'red' = 'green';
+    for (const q of healthQuestions) {
+      if (answers[q.id]) {
+        if (q.risk_level === 'red') return 'red';
+        if (q.risk_level === 'yellow') worst = 'yellow';
+      }
+    }
+    return worst;
+  }, [healthDecl, healthQuestions]);
 
   return (
     <div className="min-h-screen bg-background pb-28" dir={lang === 'he' ? 'rtl' : 'ltr'}>
@@ -511,47 +535,89 @@ const ClientProfile = () => {
           title={lang === 'en' ? 'Health Declaration' : 'הצהרת בריאות'}
           delay="100"
         >
-          <div className="flex items-center gap-2 mb-4">
-            {loadingDecl ? (
-              <span className="text-xs text-muted-foreground">{lang === 'en' ? 'Loading...' : 'טוען...'}</span>
-            ) : (
-              <>
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-white`} style={{
-                  background: healthSigned ? GOLD_GRADIENT : GOLD,
-                }}>
-                  {healthSigned
-                    ? (lang === 'en' ? '✅ Signed' : '✅ חתום')
-                    : (lang === 'en' ? '⏳ Pending' : '⏳ ממתין')}
+          {loadingDecl ? (
+            <span className="text-xs text-muted-foreground">{lang === 'en' ? 'Loading...' : 'טוען...'}</span>
+          ) : !healthDecl ? (
+            /* State A: Not submitted */
+            <>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium" style={{ background: GOLD_BG_LIGHT, color: GOLD_DARK }}>
+                  ⏳ {lang === 'en' ? 'Pending' : 'ממתין'}
                 </span>
-                {healthDate && (
-                  <span className="text-xs font-light" style={{ color: BODY_COLOR }}>{healthDate}</span>
-                )}
-              </>
-            )}
-          </div>
+              </div>
+              <a
+                href={healthDeclWhatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90"
+                style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+              >
+                <Send className="w-4 h-4" />
+                {lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ'}
+              </a>
+            </>
+          ) : (
+            /* State B: Submitted */
+            <>
+              {/* Traffic light + status */}
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                  style={{
+                    backgroundColor: computedRiskLevel === 'red' ? 'hsl(0 80% 95%)' : computedRiskLevel === 'yellow' ? 'hsl(45 80% 92%)' : 'hsl(142 60% 93%)',
+                    border: `2px solid ${computedRiskLevel === 'red' ? '#ef4444' : computedRiskLevel === 'yellow' ? '#eab308' : '#22c55e'}`,
+                  }}
+                >
+                  {computedRiskLevel === 'red' ? (
+                    <AlertTriangle className="w-5 h-5 text-red-500" />
+                  ) : computedRiskLevel === 'yellow' ? (
+                    <AlertCircle className="w-5 h-5 text-yellow-500" />
+                  ) : (
+                    <ShieldCheck className="w-5 h-5 text-green-500" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold" style={{ color: HEADING_COLOR }}>
+                    {computedRiskLevel === 'red'
+                      ? (lang === 'en' ? 'Medical Contraindication' : 'התוויית נגד רפואית')
+                      : computedRiskLevel === 'yellow'
+                        ? (lang === 'en' ? 'Requires Attention' : 'דורש תשומת לב')
+                        : (lang === 'en' ? 'All Clear' : 'תקין — ללא ממצאים')}
+                  </p>
+                  <p className="text-xs" style={{ color: BODY_COLOR }}>
+                    {healthSigned ? '✅ ' : ''}
+                    {lang === 'en' ? 'Submitted' : 'הוגשה'} {healthDate}
+                  </p>
+                </div>
+              </div>
 
-          {!healthSigned && (
-            <a
-              href={healthDeclWhatsAppUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl text-white transition-all hover:opacity-90 mb-3"
-              style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
-            >
-              <Send className="w-4 h-4" />
-              {lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ'}
-            </a>
-          )}
-
-          {healthSigned && (
-            <button className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl text-white transition-all hover:opacity-90"
-              style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
-            >
-              <Eye className="w-4 h-4" />
-              {lang === 'en' ? 'View Full Declaration' : 'צפי בהצהרה המלאה'}
-            </button>
+              {/* View button */}
+              <button
+                onClick={() => setShowDeclViewer(true)}
+                className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
+                style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+              >
+                <Eye className="w-4 h-4" />
+                {lang === 'en' ? 'View Full Health Declaration' : 'צפייה בהצהרת הבריאות המלאה'}
+              </button>
+            </>
           )}
         </SectionCard>
+
+        {/* Declaration Viewer Modal */}
+        {showDeclViewer && healthDecl && (
+          <DeclarationViewer
+            clientName={name}
+            clientPhone={phone}
+            declarationData={healthDecl.form_data as any}
+            dbDeclaration={{
+              signature_svg: healthDecl.signature_svg,
+              created_at: healthDecl.created_at,
+              form_data: healthDecl.form_data,
+            }}
+            onClose={() => setShowDeclViewer(false)}
+          />
+        )}
 
         {/* ── Push Notifications ── */}
         <SectionCard
