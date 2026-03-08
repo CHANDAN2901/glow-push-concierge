@@ -170,27 +170,43 @@ const Pricing = () => {
         }
       `}</style>
       {/* Header */}
-      <div className="pt-20 pb-10 text-center px-4">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
-          <h1
-            className="text-3xl md:text-5xl font-bold tracking-wider animate-fade-up"
-            style={{ color: GOLD_TEXT, animationFillMode: 'both' }}
-          >
-            {isHe ? 'בחרי את המסלול שמתאים לקליניקה שלך' : 'Choose the Perfect Plan for Your Clinic'}
-          </h1>
-          <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
-        </div>
-        <p
-          className="text-base md:text-lg max-w-xl mx-auto leading-relaxed animate-fade-up"
-          style={{ color: '#7A6B5D', animationDelay: '120ms', animationFillMode: 'both' }}
-        >
-          {isHe ? 'הכלים הדיגיטליים המתקדמים ביותר למאפרות שמכוונות רחוק.' : 'Advanced digital tools for ambitious PMU artists.'}
-        </p>
+      <div className="pt-20 pb-10 px-4 flex justify-center">
         <div
-          className="w-20 h-[2px] mx-auto mt-6 rounded-full animate-fade-up"
-          style={{ background: GOLD_GRADIENT_WIDE, animationDelay: '200ms', animationFillMode: 'both' }}
-        />
+          className="rounded-2xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
+          style={{
+            background: 'rgba(200,145,155,0.5)',
+            boxShadow: `0 0 18px rgba(212,175,55,0.25), 0 8px 32px -4px rgba(212,175,55,0.15)`,
+          }}
+        >
+          {/* Gold ombré border */}
+          <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+            border: '3px solid transparent',
+            background: `linear-gradient(rgba(200,145,155,0.5), rgba(200,145,155,0.5)) padding-box, ${GOLD_GRADIENT} border-box`,
+            borderRadius: 'inherit',
+          }} />
+          <div className="relative z-10">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
+              <h1
+                className="text-3xl md:text-5xl font-bold tracking-wider animate-fade-up"
+                style={{ color: GOLD_TEXT, animationFillMode: 'both' }}
+              >
+                {isHe ? 'בחרי את המסלול שמתאים לקליניקה שלך' : 'Choose the Perfect Plan for Your Clinic'}
+              </h1>
+              <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
+            </div>
+            <p
+              className="text-base md:text-lg max-w-xl mx-auto leading-relaxed animate-fade-up"
+              style={{ color: '#5C4A3A', animationDelay: '120ms', animationFillMode: 'both' }}
+            >
+              {isHe ? 'הכלים הדיגיטליים המתקדמים ביותר למאפרות שמכוונות רחוק.' : 'Advanced digital tools for ambitious PMU artists.'}
+            </p>
+            <div
+              className="w-20 h-[2px] mx-auto mt-6 rounded-full animate-fade-up"
+              style={{ background: GOLD_GRADIENT_WIDE, animationDelay: '200ms', animationFillMode: 'both' }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Personal Status Card */}
