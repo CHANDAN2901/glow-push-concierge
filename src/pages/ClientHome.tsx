@@ -673,11 +673,11 @@ const ClientHome = () => {
               <div
                 className="absolute inset-0 rounded-full"
                 style={{
-                  background: '#ffffff',
+                  background: 'rgba(40,28,30,0.8)',
                   border: '4px solid transparent',
                   borderImage: METALLIC_GOLD_GRADIENT,
                   borderImageSlice: 1,
-                  boxShadow: '0 12px 40px rgba(212,175,55,0.25), 0 4px 16px rgba(0,0,0,0.08), inset 0 0 20px rgba(212,175,55,0.05)',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.3), 0 4px 16px rgba(212,175,55,0.2), 0 0 24px rgba(212,175,55,0.15), inset 0 0 20px rgba(212,175,55,0.08)',
                 }}
               />
               <div className="absolute inset-1 rounded-full" style={{ border: '3px solid rgba(212,175,55,0.3)' }} />
