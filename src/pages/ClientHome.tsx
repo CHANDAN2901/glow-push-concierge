@@ -1171,9 +1171,9 @@ const ClientHome = () => {
             <a
               href="#care"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#F3E5AB', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: 'drop-shadow(0 1px 3px rgba(212,175,55,0.4))' }} />
+              <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
               <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה'}</span>
             </a>
 
