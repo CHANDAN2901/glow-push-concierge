@@ -684,17 +684,6 @@ const ClientHome = () => {
               {lang === 'en' ? 'This is how it should look today' : 'ככה זה אמור להיראות היום'}
             </p>
 
-            {/* PMU Hero Photo */}
-            <div className="relative mx-auto mb-5 rounded-2xl overflow-hidden" style={{ maxWidth: '300px', border: '3px solid transparent', backgroundImage: METALLIC_GOLD_GRADIENT, backgroundOrigin: 'border-box', backgroundClip: 'border-box', boxShadow: '0 8px 32px rgba(212,175,55,0.3), 0 0 0 1px rgba(212,175,55,0.2)' }}>
-              <div className="rounded-[13px] overflow-hidden">
-                <img
-                  src={pmuHeroPhoto}
-                  alt={lang === 'en' ? 'PMU treatment result - defined brows and lips' : 'תוצאת טיפול PMU - גבות ושפתיים מוגדרות'}
-                  className="w-full aspect-[4/3] object-cover"
-                  loading="eager"
-                />
-              </div>
-            </div>
 
             {/* Treatment badge */}
             <span
