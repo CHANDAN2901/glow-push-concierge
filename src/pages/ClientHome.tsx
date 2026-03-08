@@ -785,11 +785,11 @@ const ClientHome = () => {
               onClick={() => handleDayChange(viewingDay - 1)}
               className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
               style={{
-                background: 'rgba(180, 60, 100, 0.08)',
-                border: '1.5px solid rgba(180, 60, 100, 0.2)',
+                background: 'rgba(212,175,55,0.1)',
+                border: '1.5px solid rgba(212,175,55,0.3)',
               }}
             >
-              <ChevronRight className="w-5 h-5" style={{ color: '#B43C64' }} />
+              <ChevronRight className="w-5 h-5" style={{ color: '#D4AF37' }} />
             </button>
 
             <div
