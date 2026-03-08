@@ -8,13 +8,13 @@ import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/use
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
-const GOLD = '#D4A855';
-const GOLD_TEXT = '#C49A3C';
-const GOLD_BORDER = 'rgba(212, 168, 85, 0.5)';
-const TEXT_ON_GOLD = '#7A5C1E';
-const TEXT_DARK = '#7A5C1E';
-const GOLD_GRADIENT = 'linear-gradient(135deg, #E8C878, #C49A3C, #D4A855)';
-const GOLD_GRADIENT_WIDE = `linear-gradient(90deg, #C49A3C, #E8C878, #D4A855, #E8C878, #C49A3C)`;
+const GOLD = '#C9B17E';
+const GOLD_TEXT = '#B5A07A';
+const GOLD_BORDER = 'rgba(201, 177, 126, 0.35)';
+const TEXT_ON_GOLD = '#8A7656';
+const TEXT_DARK = '#8A7656';
+const GOLD_GRADIENT = 'linear-gradient(135deg, #D9C9A0, #B5A07A, #C9B17E)';
+const GOLD_GRADIENT_WIDE = `linear-gradient(90deg, #B5A07A, #D9C9A0, #C9B17E, #D9C9A0, #B5A07A)`;
 
 const iconMap: Record<string, React.ElementType> = {
   pro: Sparkles,
@@ -312,10 +312,10 @@ const Pricing = () => {
                 to="/auth"
                 className="w-full inline-flex items-center justify-center py-4 rounded-full text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:brightness-110"
                 style={{
-                  background: `linear-gradient(135deg, #E8C878 0%, #D4A855 40%, #C49A3C 70%, #B8902E 100%)`,
+                  background: `linear-gradient(135deg, #D9C9A0 0%, #C9B17E 40%, #B5A07A 70%, #A8946E 100%)`,
                   color: '#FFFFFF',
-                  boxShadow: '0 6px 20px rgba(212,168,85,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                  boxShadow: '0 6px 20px rgba(201,177,126,0.3), inset 0 1px 0 rgba(255,255,255,0.3)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.12)',
                 }}
               >
                 {cta}
