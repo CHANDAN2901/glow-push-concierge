@@ -216,7 +216,7 @@ const Pricing = () => {
         >
           <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
             border: '3px solid transparent',
-            background: `linear-gradient(#D4A0A8, #D4A0A8) padding-box, ${GOLD_GRADIENT} border-box`,
+            background: `linear-gradient(135deg, #F5E6E8, #FFFFFF, #F0D5D8, #FAEEF0) padding-box, ${GOLD_GRADIENT} border-box`,
             borderRadius: 'inherit',
           }} />
           <div className="relative z-10">
