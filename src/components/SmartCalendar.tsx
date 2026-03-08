@@ -1084,7 +1084,14 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       {/* Health Declaration Detail Modal (small) */}
       {detailModalApt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="relative w-full max-w-md rounded-2xl bg-card shadow-2xl animate-fade-up overflow-hidden max-h-[85vh] overflow-y-auto">
+          <div
+            className="relative w-full max-w-md rounded-2xl p-[4px] animate-fade-up"
+            style={{
+              background: 'linear-gradient(135deg, #F5E6A3 0%, #D4AF37 20%, #B8860B 40%, #DAA520 60%, #D4AF37 80%, #F5E6A3 100%)',
+              boxShadow: '0 6px 28px rgba(212,175,55,0.35), 0 2px 8px rgba(184,134,11,0.25)',
+            }}
+          >
+          <div className="rounded-[12px] bg-card shadow-2xl overflow-hidden max-h-[85vh] overflow-y-auto">
             <button onClick={() => setDetailModalApt(null)} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors bg-card/80 backdrop-blur-sm">
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -1133,6 +1140,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                 </div>
               )}
             </div>
+          </div>
           </div>
         </div>
       )}
