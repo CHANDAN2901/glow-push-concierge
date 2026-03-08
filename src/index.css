@@ -563,15 +563,16 @@
   z-index: 0;
 }
 
-/* 3D Gold Sphere Camera Button */
+/* 3D Gold Sphere Camera Button — enhanced glow for dark bg */
 .gold-sphere-btn {
   background: radial-gradient(circle at 35% 35%, #FCF6BA 0%, #D4AF37 30%, #B38728 60%, #8B6508 100%);
   box-shadow:
-    0 8px 28px rgba(212,175,55,0.5),
-    0 3px 10px rgba(0,0,0,0.15),
+    0 8px 32px rgba(212,175,55,0.6),
+    0 3px 10px rgba(0,0,0,0.2),
+    0 0 24px rgba(212,175,55,0.4),
     inset 0 2px 4px rgba(249,242,149,0.8),
     inset 0 -3px 6px rgba(139,101,8,0.3),
-    0 0 0 4px rgba(255,252,245,0.95);
+    0 0 0 4px rgba(255,252,245,0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .gold-sphere-btn:hover {
