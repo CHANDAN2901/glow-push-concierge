@@ -830,7 +830,7 @@ const ClientHome = () => {
           <p className="text-center text-base mt-4 tracking-wider" style={{ fontFamily: TITLE_FONT }}>
             <GoldText>{lang === 'en' ? content.titleEn : content.title}</GoldText>
           </p>
-          <p className="text-center text-xs mt-1" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
+          <p className="text-center text-xs mt-1" style={{ color: SUBTEXT_COLOR, fontFamily: FBAHAVA }}>
             {treatment === 'lips'
               ? (lang === 'en' ? '💋 Lip Recovery' : '💋 החלמת שפתיים')
               : (lang === 'en' ? '✨ Brow Recovery' : '✨ החלמת גבות')}
