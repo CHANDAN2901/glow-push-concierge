@@ -571,13 +571,31 @@ const ClientHome = () => {
               animation: 'hd-bronze-shimmer 4s ease-in-out infinite',
             }}
           />
-          <div className="relative py-9 px-6 text-center">
+          {/* Bokeh sparkles */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  width: `${4 + i * 2}px`,
+                  height: `${4 + i * 2}px`,
+                  top: `${15 + i * 12}%`,
+                  left: `${10 + i * 14}%`,
+                  background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)',
+                  animation: `sparkle-fade ${2 + i * 0.5}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.3}s`,
+                }}
+              />
+            ))}
+          </div>
+          <div className="relative py-10 px-6 text-center">
             <h1
-              className="font-bold tracking-wide mb-2 hd-shimmer-text"
+              className="font-bold tracking-wide mb-3 hd-shimmer-text"
               style={{
                 fontFamily: FBAHAVA,
-                fontSize: '28px',
-                lineHeight: 1.5,
+                fontSize: '26px',
+                lineHeight: 1.6,
                 background: 'linear-gradient(90deg, #caa64b, #f6e27a, #caa64b)',
                 backgroundSize: '200% 100%',
                 WebkitBackgroundClip: 'text',
@@ -586,10 +604,13 @@ const ClientHome = () => {
                 filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.45))',
               }}
             >
-              ✨ {getTimeGreeting(clientName)} ✨
+              ✨ {lang === 'en' ? `Welcome to your healing journey, ${clientName}!` : `ברוכה הבאה למסע ההחלמה שלך, ${clientName}!`} ✨
             </h1>
-            <p className="text-sm mt-2" style={{ color: '#b79a3a', fontFamily: FBAHAVA, letterSpacing: '0.02em' }}>
-              {lang === 'en' ? 'A new day on your Glow journey' : 'יום חדש למסע ה-Glow שלך'}
+            <p className="text-sm mt-1" style={{ color: '#b79a3a', fontFamily: FBAHAVA, letterSpacing: '0.02em' }}>
+              {lang === 'en' ? 'Follow your progress daily' : 'עקבי אחר ההתקדמות שלך בכל יום'}
+            </p>
+            <p className="text-xs mt-2 opacity-70" style={{ color: '#b79a3a', fontFamily: FBAHAVA }}>
+              {getTimeGreeting(clientName)}
             </p>
             <span className="sr-only" data-client-identity-source={identity.source}>
               {`client-identity-source:${identity.source}|client-id:${clientId || 'none'}|client-name:${clientName || 'none'}`}
