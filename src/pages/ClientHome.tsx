@@ -27,6 +27,7 @@ import type { SharedGalleryPhoto } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL, STUDIO_NAME } from '@/lib/branding';
 import oritLogo from '@/assets/glowpush-logo.png';
 import heroLogo from '@/assets/glowpush-hero-logo.png';
+import pmuHeroPhoto from '@/assets/pmu-hero-closeup.jpg';
 
 // --- Client identity localStorage keys (exact launch-blocker keys) ---
 const LS_CLIENT_ID = 'glowpush_client_id';
