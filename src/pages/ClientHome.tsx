@@ -1051,13 +1051,13 @@ const ClientHome = () => {
           className="rounded-3xl p-6 mb-5 animate-fade-up client-glass-card"
           dir="rtl"
         >
-          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-1.5 mb-4 text-xs hover:underline underline-offset-2" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-1.5 mb-4 text-xs hover:underline underline-offset-2" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
             <ArrowUp className="w-3.5 h-3.5" />
             {lang === 'en' ? 'Back to top' : 'חזרה למעלה'}
           </button>
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
-              <HelpCircle className="w-5 h-5" style={{ color: '#B8860B' }} />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
+              <HelpCircle className="w-5 h-5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
             </div>
             <h2 className="text-xl tracking-wide" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Frequently Asked Questions' : 'שאלות נפוצות'}</GoldText>
