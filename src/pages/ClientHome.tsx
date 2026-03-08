@@ -926,8 +926,8 @@ const ClientHome = () => {
           dir={lang === 'he' ? 'rtl' : 'ltr'}
         >
           <div className="flex flex-col items-center gap-2 mb-4">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
-              <Gift className="w-7 h-7" style={{ color: '#B8860B' }} />
+            <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
+              <Gift className="w-7 h-7" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
             </div>
             <h2 className="text-xl font-bold" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Bring a friend, get a gift!' : 'הביאי חברה, קבלי מתנה!'}</GoldText>
