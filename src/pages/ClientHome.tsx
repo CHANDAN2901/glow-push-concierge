@@ -1121,7 +1121,7 @@ const ClientHome = () => {
         {/* Spacer */}
         <div className="pb-24 pt-4" />
 
-        {/* ─── BOTTOM NAVIGATION ─── */}
+        {/* ─── BOTTOM NAVIGATION (B2C Only) ─── */}
         <div
           className="fixed bottom-0 left-0 right-0 z-[60]"
           style={{
@@ -1131,31 +1131,26 @@ const ClientHome = () => {
             borderTop: '2px solid rgba(212,175,55,0.35)',
           }}
         >
-          {/* Gold shimmer line at top of nav */}
           <div className="h-[2px] w-full" style={{ background: METALLIC_GOLD_GRADIENT }} />
-          <div className="max-w-md mx-auto px-3 pt-2.5 pb-4 flex items-end justify-around">
-            {/* Aftercare */}
-            <a
-              href="#care"
-              className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
+          <div className="max-w-md mx-auto px-6 pt-3 pb-5 flex items-center justify-around">
+            {/* Home */}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex flex-col items-center gap-1.5 py-1 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '56px' }}
             >
               <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
-              <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה'}</span>
-            </a>
+              <span>{lang === 'en' ? 'Home' : 'בית'}</span>
+            </button>
 
-            {/* Ask Artist */}
+            {/* My Journey */}
             <a
-              href={`https://wa.me/${artistBusinessPhone || artistPhone || ''}?text=${encodeURIComponent(
-                lang === 'en' ? `Hi! I have a question about my treatment (Day ${actualDay}) ✨` : `היי! יש לי שאלה לגבי הטיפול (יום ${actualDay}) ✨`
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
+              href="#care"
+              className="flex flex-col items-center gap-1.5 py-1 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '56px' }}
             >
-              <MessageCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
-              <span>{lang === 'en' ? 'Message' : 'הודעה'}</span>
+              <Shield className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
+              <span>{lang === 'en' ? 'My Journey' : 'החלמה'}</span>
             </a>
 
             {/* Center FAB: Camera */}
@@ -1177,32 +1172,30 @@ const ClientHome = () => {
             </div>
             <input ref={bottomFileRef} type="file" accept="image/*" className="hidden" onChange={handleBottomUpload} />
 
+            {/* Messages */}
+            <a
+              href={`https://wa.me/${artistBusinessPhone || artistPhone || ''}?text=${encodeURIComponent(
+                lang === 'en' ? `Hi! I have a question about my treatment (Day ${actualDay}) ✨` : `היי! יש לי שאלה לגבי הטיפול (יום ${actualDay}) ✨`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5 py-1 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '56px' }}
+            >
+              <MessageCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
+              <span>{lang === 'en' ? 'Messages' : 'הודעות'}</span>
+            </a>
+
             {/* FAQ */}
             <a
               href="#faq"
-              className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
+              className="flex flex-col items-center gap-1.5 py-1 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '56px' }}
             >
               <HelpCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
-              <span>{lang === 'en' ? 'FAQ' : 'שאלות'}</span>
+              <span>{lang === 'en' ? 'FAQ' : 'שאלות נפוצות'}</span>
             </a>
-
-            {/* Gallery */}
-            {validClientId && (
-              <a
-                href="#gallery"
-                className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-                style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
-              >
-                <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
-                <span>{lang === 'en' ? 'Gallery' : 'גלריה'}</span>
-              </a>
-            )}
           </div>
-          {/* Tagline */}
-          <p className="text-center text-xs font-bold pb-2" style={{ color: '#5C400A', fontFamily: FBAHAVA, letterSpacing: '0.05em' }}>
-            Turn Happy Clients Into Marketers.
-          </p>
           <InstallBanner />
         </div>
       </div>
