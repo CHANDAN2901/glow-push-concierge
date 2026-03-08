@@ -620,20 +620,32 @@ const ClientHome = () => {
         <div
           className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden client-glass-card"
         >
-          <div className="px-6 py-10 text-center" dir="rtl">
+          <div className="px-6 pt-8 pb-6 text-center" dir="rtl">
             {/* Phase title */}
             <h2 className="text-lg font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>
                 {lang === 'en'
-                  ? `Day ${viewingDay}: ${content.titleEn}`
-                  : `יום ${viewingDay}: ${content.title}`}
+                  ? `✨ Day ${viewingDay}: ${content.titleEn} ✨`
+                  : `✨ יום ${viewingDay}: ${content.title} ✨`}
               </GoldText>
             </h2>
 
             {/* "This is how it should look" */}
-            <p className="text-sm leading-relaxed mb-4" style={{ fontFamily: FBAHAVA, color: BODY_TEXT }}>
+            <p className="text-sm leading-relaxed mb-5" style={{ fontFamily: FBAHAVA, color: BODY_TEXT, fontWeight: 600 }}>
               {lang === 'en' ? 'This is how it should look today' : 'ככה זה אמור להיראות היום'}
             </p>
+
+            {/* PMU Hero Photo */}
+            <div className="relative mx-auto mb-5 rounded-2xl overflow-hidden" style={{ maxWidth: '280px', border: '3px solid transparent', backgroundImage: METALLIC_GOLD_GRADIENT, backgroundOrigin: 'border-box', backgroundClip: 'border-box', boxShadow: '0 8px 32px rgba(212,175,55,0.3), 0 0 0 1px rgba(212,175,55,0.2)' }}>
+              <div className="rounded-[13px] overflow-hidden">
+                <img
+                  src={pmuHeroPhoto}
+                  alt={lang === 'en' ? 'PMU treatment result - defined brows and lips' : 'תוצאת טיפול PMU - גבות ושפתיים מוגדרות'}
+                  className="w-full aspect-square object-cover"
+                  loading="eager"
+                />
+              </div>
+            </div>
 
             {/* Treatment badge */}
             <span
