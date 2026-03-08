@@ -772,18 +772,22 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                   e.stopPropagation();
                   handleAppointmentCardClick(apt);
                 }}
-                className={`pointer-events-auto cursor-pointer bg-card rounded-2xl p-4 transition-all duration-500 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-12px_hsl(var(--foreground)/0.35)] ${
-                  hasRedFlag && !isCompleted
-                    ? 'border-2 border-destructive/50 bg-destructive/5'
-                    : isCompleted
-                    ? 'border border-accent/20 opacity-80'
-                    : apt.healthRiskLevel === 'yellow'
-                    ? 'border-2 border-yellow-500/40'
-                    : apt.healthFormStatus === 'pending'
-                    ? 'border-2 border-dashed border-muted-foreground/30'
-                    : 'border border-border'
-                }`}
+                className="pointer-events-auto cursor-pointer rounded-2xl p-[4px] transition-all duration-500 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-12px_hsl(var(--foreground)/0.35)]"
+                style={{
+                  background: hasRedFlag && !isCompleted
+                    ? 'linear-gradient(135deg, #E74C3C, #C0392B)'
+                    : 'linear-gradient(135deg, #F5E6A3 0%, #D4AF37 20%, #B8860B 40%, #DAA520 60%, #D4AF37 80%, #F5E6A3 100%)',
+                  boxShadow: hasRedFlag && !isCompleted
+                    ? '0 6px 28px rgba(231,76,60,0.3)'
+                    : '0 6px 28px rgba(212,175,55,0.3), 0 2px 8px rgba(184,134,11,0.2)',
+                }}
               >
+                <div
+                  className="rounded-[12px] p-4 relative overflow-hidden"
+                  style={{
+                    background: 'linear-gradient(135deg, #F5E0E4 0%, #FFFFFF 40%, #F0D0D5 70%, #E8C0C8 100%)',
+                  }}
+                >
                 <div className="flex items-start gap-3">
                   {/* Time pill + risk dot */}
                   <div className="flex flex-col items-center gap-1.5">
@@ -918,6 +922,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     )}
                   </div>
                 )}
+                </div>
               </div>
             );
           })
