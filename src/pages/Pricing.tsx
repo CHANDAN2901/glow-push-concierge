@@ -347,7 +347,7 @@ const Pricing = () => {
         </div>
 
         <Accordion type="single" collapsible className="space-y-3">
-          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: GOLD_BORDER }}>
+          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden backdrop-blur-xl" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.7)' }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
               <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'מדיניות ביטול מיוחדת למסלול המייסדות (VIP)' : 'Special Cancellation Policy for Founders (VIP)'}
