@@ -698,78 +698,35 @@ const ClientHome = () => {
           </div>
         </div>
 
-        {/* ─── DAY COUNTER ─── */}
-        <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up delay-200 client-glass-card"
-        >
-          {isPreviewing && (
-            <div className="text-center mb-3">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs" style={{ background: 'rgba(212,175,55,0.15)', color: '#F3E5AB', fontFamily: FBAHAVA }}>
-                {lang === 'en' ? `Previewing Day ${viewingDay}` : `תצוגה מקדימה — יום ${viewingDay}`}
-              </span>
-            </div>
-          )}
-          <div className="flex items-center justify-center gap-6">
-            <button
-              onClick={() => handleDayChange(viewingDay - 1)}
-              className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-              style={{
-                background: 'rgba(212,175,55,0.1)',
-                border: '1.5px solid rgba(212,175,55,0.3)',
-              }}
-            >
-              <ChevronRight className="w-5 h-5" style={{ color: '#D4AF37' }} />
-            </button>
-
-            <div
-              className={`relative flex items-center justify-center transition-all duration-500 ${glowRing ? 'scale-105' : ''}`}
-              style={{
-                ...(glowRing ? { filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.5))' } : {}),
-              }}
-            >
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: 'rgba(40,28,30,0.85)',
-                  border: '3px solid rgba(212,175,55,0.45)',
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.3), 0 4px 16px rgba(212,175,55,0.2), 0 0 20px rgba(212,175,55,0.12), inset 0 -2px 6px rgba(0,0,0,0.1)',
-                }}
-              />
-              <CircularProgress percentage={(viewingDay / 30) * 100} size={160} strokeWidth={5} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <GoldText className="text-5xl" style={{ fontFamily: 'var(--font-serif)', fontWeight: 300 }}>{viewingDay}</GoldText>
-                <p className="text-xs mt-1" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
-                  {t('client.day')} {viewingDay} {t('client.of')} 30
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => handleDayChange(viewingDay + 1)}
-              className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-              style={{
-                background: 'rgba(212,175,55,0.1)',
-                border: '1.5px solid rgba(212,175,55,0.3)',
-              }}
-            >
-              <ChevronLeft className="w-5 h-5" style={{ color: '#D4AF37' }} />
-            </button>
-          </div>
-
-          <p className="text-center text-base mt-4 tracking-wider" style={{ fontFamily: TITLE_FONT }}>
-            <GoldText>{lang === 'en' ? content.titleEn : content.title}</GoldText>
-          </p>
-          <p className="text-center text-xs mt-1" style={{ color: SUBTEXT_COLOR, fontFamily: FBAHAVA }}>
-            {treatment === 'lips'
-              ? (lang === 'en' ? '💋 Lip Recovery' : '💋 החלמת שפתיים')
-              : (lang === 'en' ? '✨ Brow Recovery' : '✨ החלמת גבות')}
-          </p>
-          {isPreviewing && (
-            <button onClick={() => handleDayChange(actualDay)} className="block mx-auto mt-2 text-xs underline underline-offset-2 hover:opacity-80" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
+        {/* ─── DAY NAVIGATION (minimal) ─── */}
+        <div className="flex items-center justify-center gap-4 mb-5 animate-fade-up delay-200">
+          <button
+            onClick={() => handleDayChange(viewingDay - 1)}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+            style={{ background: 'rgba(139,101,8,0.1)', border: '1.5px solid rgba(139,101,8,0.25)' }}
+          >
+            <ChevronRight className="w-4 h-4" style={{ color: '#8B6508' }} />
+          </button>
+          <span className="text-sm font-bold" style={{ fontFamily: FBAHAVA, color: '#5C400A' }}>
+            {isPreviewing
+              ? (lang === 'en' ? `Previewing Day ${viewingDay}` : `תצוגה מקדימה — יום ${viewingDay}`)
+              : (lang === 'en' ? `Day ${viewingDay} of 30` : `יום ${viewingDay} מתוך 30`)}
+          </span>
+          <button
+            onClick={() => handleDayChange(viewingDay + 1)}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+            style={{ background: 'rgba(139,101,8,0.1)', border: '1.5px solid rgba(139,101,8,0.25)' }}
+          >
+            <ChevronLeft className="w-4 h-4" style={{ color: '#8B6508' }} />
+          </button>
+        </div>
+        {isPreviewing && (
+          <div className="text-center mb-4">
+            <button onClick={() => handleDayChange(actualDay)} className="text-xs underline underline-offset-2 hover:opacity-80" style={{ color: '#8B6508', fontFamily: FBAHAVA }}>
               {lang === 'en' ? '← Back to Today' : '← חזרה להיום'}
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* ─── HEALING TIMELINE ─── */}
         <div id="care" className="scroll-mt-20" />
