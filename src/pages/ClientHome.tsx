@@ -507,7 +507,7 @@ const ClientHome = () => {
 
   if (phasesError) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #8E6B70 0%, #A67B81 50%, #7D5E63 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0D0D5' }}>
         <div className="max-w-sm text-center p-6 rounded-2xl bg-white border border-destructive/30">
           <p className="text-destructive font-medium mb-2">שגיאה בטעינת נתונים</p>
           <p className="text-xs text-muted-foreground">{phasesError}</p>
