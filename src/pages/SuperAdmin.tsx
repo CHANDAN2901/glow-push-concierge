@@ -428,7 +428,6 @@ const SuperAdmin = () => {
           {view === 'timeline' && <AdminHealingEditor />}
           {view === 'aftercare' && <AdminAftercareEditor />}
           {view === 'health-questions' && <HealthQuestionsEditor />}
-          {view === 'coupons' && <CouponManager />}
           {view === 'settings' && renderSettings()}
         </div>
       </main>
