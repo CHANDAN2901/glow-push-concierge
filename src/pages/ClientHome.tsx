@@ -496,10 +496,10 @@ const ClientHome = () => {
   /* ─── Loading / Error ─── */
   if (phasesLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #8E6B70 0%, #A67B81 50%, #7D5E63 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0D0D5' }}>
         <div className="flex flex-col items-center gap-3">
           <div className="animate-spin w-8 h-8 border-3 rounded-full" style={{ borderColor: '#D4AF37', borderTopColor: 'transparent' }} />
-          <p className="text-sm" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>טוען...</p>
+          <p className="text-sm" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>טוען...</p>
         </div>
       </div>
     );
