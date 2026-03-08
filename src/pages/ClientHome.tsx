@@ -84,8 +84,8 @@ const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #99
 const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.45)';
 const CARD_BG = 'linear-gradient(145deg, rgba(60,40,45,0.55) 0%, rgba(80,55,60,0.5) 50%, rgba(60,40,45,0.5) 100%)';
 const CARD_SHADOW = '0 12px 40px rgba(0,0,0,0.25), 0 4px 12px rgba(0,0,0,0.15), 0 0 0 1px rgba(212,175,55,0.15)';
-const BODY_TEXT = '#E8D5C4';
-const SUBTEXT_COLOR = '#D4B896';
+const BODY_TEXT = '#4A3520';
+const SUBTEXT_COLOR = '#6B5744';
 const GOLD_ICON_GLOW = 'drop-shadow(0 0 8px rgba(212,175,55,0.6)) drop-shadow(0 2px 4px rgba(212,175,55,0.4))';
 const FBAHAVA = "'FB Ahava', 'Assistant', sans-serif";
 const TITLE_FONT = FBAHAVA;
@@ -496,10 +496,10 @@ const ClientHome = () => {
   /* ─── Loading / Error ─── */
   if (phasesLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #8E6B70 0%, #A67B81 50%, #7D5E63 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0D0D5' }}>
         <div className="flex flex-col items-center gap-3">
           <div className="animate-spin w-8 h-8 border-3 rounded-full" style={{ borderColor: '#D4AF37', borderTopColor: 'transparent' }} />
-          <p className="text-sm" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>טוען...</p>
+          <p className="text-sm" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>טוען...</p>
         </div>
       </div>
     );
@@ -507,7 +507,7 @@ const ClientHome = () => {
 
   if (phasesError) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #8E6B70 0%, #A67B81 50%, #7D5E63 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0D0D5' }}>
         <div className="max-w-sm text-center p-6 rounded-2xl bg-white border border-destructive/30">
           <p className="text-destructive font-medium mb-2">שגיאה בטעינת נתונים</p>
           <p className="text-xs text-muted-foreground">{phasesError}</p>
@@ -527,9 +527,9 @@ const ClientHome = () => {
       <header
         className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl"
         style={{
-          background: 'linear-gradient(180deg, rgba(100,65,70,0.96) 0%, rgba(100,65,70,0.88) 100%)',
+          background: 'linear-gradient(180deg, rgba(240,208,213,0.96) 0%, rgba(240,208,213,0.88) 100%)',
           borderBottom: '2px solid rgba(212,175,55,0.35)',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.3), 0 0 12px rgba(212,175,55,0.1)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 0 12px rgba(212,175,55,0.06)',
         }}
       >
         <div className="max-w-md mx-auto">
@@ -698,78 +698,35 @@ const ClientHome = () => {
           </div>
         </div>
 
-        {/* ─── DAY COUNTER ─── */}
-        <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up delay-200 client-glass-card"
-        >
-          {isPreviewing && (
-            <div className="text-center mb-3">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs" style={{ background: 'rgba(212,175,55,0.15)', color: '#F3E5AB', fontFamily: FBAHAVA }}>
-                {lang === 'en' ? `Previewing Day ${viewingDay}` : `תצוגה מקדימה — יום ${viewingDay}`}
-              </span>
-            </div>
-          )}
-          <div className="flex items-center justify-center gap-6">
-            <button
-              onClick={() => handleDayChange(viewingDay - 1)}
-              className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-              style={{
-                background: 'rgba(212,175,55,0.1)',
-                border: '1.5px solid rgba(212,175,55,0.3)',
-              }}
-            >
-              <ChevronRight className="w-5 h-5" style={{ color: '#D4AF37' }} />
-            </button>
-
-            <div
-              className={`relative flex items-center justify-center transition-all duration-500 ${glowRing ? 'scale-105' : ''}`}
-              style={{
-                ...(glowRing ? { filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.5))' } : {}),
-              }}
-            >
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: 'rgba(40,28,30,0.85)',
-                  border: '3px solid rgba(212,175,55,0.45)',
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.3), 0 4px 16px rgba(212,175,55,0.2), 0 0 20px rgba(212,175,55,0.12), inset 0 -2px 6px rgba(0,0,0,0.1)',
-                }}
-              />
-              <CircularProgress percentage={(viewingDay / 30) * 100} size={160} strokeWidth={5} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <GoldText className="text-5xl" style={{ fontFamily: 'var(--font-serif)', fontWeight: 300 }}>{viewingDay}</GoldText>
-                <p className="text-xs mt-1" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
-                  {t('client.day')} {viewingDay} {t('client.of')} 30
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => handleDayChange(viewingDay + 1)}
-              className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-              style={{
-                background: 'rgba(212,175,55,0.1)',
-                border: '1.5px solid rgba(212,175,55,0.3)',
-              }}
-            >
-              <ChevronLeft className="w-5 h-5" style={{ color: '#D4AF37' }} />
-            </button>
-          </div>
-
-          <p className="text-center text-base mt-4 tracking-wider" style={{ fontFamily: TITLE_FONT }}>
-            <GoldText>{lang === 'en' ? content.titleEn : content.title}</GoldText>
-          </p>
-          <p className="text-center text-xs mt-1" style={{ color: SUBTEXT_COLOR, fontFamily: FBAHAVA }}>
-            {treatment === 'lips'
-              ? (lang === 'en' ? '💋 Lip Recovery' : '💋 החלמת שפתיים')
-              : (lang === 'en' ? '✨ Brow Recovery' : '✨ החלמת גבות')}
-          </p>
-          {isPreviewing && (
-            <button onClick={() => handleDayChange(actualDay)} className="block mx-auto mt-2 text-xs underline underline-offset-2 hover:opacity-80" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
+        {/* ─── DAY NAVIGATION (minimal) ─── */}
+        <div className="flex items-center justify-center gap-4 mb-5 animate-fade-up delay-200">
+          <button
+            onClick={() => handleDayChange(viewingDay - 1)}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+            style={{ background: 'rgba(139,101,8,0.1)', border: '1.5px solid rgba(139,101,8,0.25)' }}
+          >
+            <ChevronRight className="w-4 h-4" style={{ color: '#8B6508' }} />
+          </button>
+          <span className="text-sm font-bold" style={{ fontFamily: FBAHAVA, color: '#5C400A' }}>
+            {isPreviewing
+              ? (lang === 'en' ? `Previewing Day ${viewingDay}` : `תצוגה מקדימה — יום ${viewingDay}`)
+              : (lang === 'en' ? `Day ${viewingDay} of 30` : `יום ${viewingDay} מתוך 30`)}
+          </span>
+          <button
+            onClick={() => handleDayChange(viewingDay + 1)}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+            style={{ background: 'rgba(139,101,8,0.1)', border: '1.5px solid rgba(139,101,8,0.25)' }}
+          >
+            <ChevronLeft className="w-4 h-4" style={{ color: '#8B6508' }} />
+          </button>
+        </div>
+        {isPreviewing && (
+          <div className="text-center mb-4">
+            <button onClick={() => handleDayChange(actualDay)} className="text-xs underline underline-offset-2 hover:opacity-80" style={{ color: '#8B6508', fontFamily: FBAHAVA }}>
               {lang === 'en' ? '← Back to Today' : '← חזרה להיום'}
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* ─── HEALING TIMELINE ─── */}
         <div id="care" className="scroll-mt-20" />
@@ -805,7 +762,7 @@ const ClientHome = () => {
         <button
           onClick={handleSyncCalendar}
           className="w-full mb-5 py-3 rounded-2xl text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.97] animate-fade-up client-glass-card"
-          style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}
+          style={{ color: '#5C400A', fontFamily: FBAHAVA }}
         >
           <CalendarPlus className="w-4 h-4" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
           {lang === 'en' ? 'Sync Calendar Reminders 📅' : 'סנכרני תזכורות ליומן 📅'}
@@ -895,7 +852,7 @@ const ClientHome = () => {
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
                 <Phone className="w-4.5 h-4.5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
               </div>
-              <span className="text-[11px]" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Call' : 'חייגי'}</span>
+              <span className="text-[11px]" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Call' : 'חייגי'}</span>
             </a>
             {/* Waze */}
             <a
@@ -907,7 +864,7 @@ const ClientHome = () => {
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
                 <Navigation className="w-4.5 h-4.5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
               </div>
-              <span className="text-[11px]" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Navigate' : 'נווטי'}</span>
+              <span className="text-[11px]" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Navigate' : 'נווטי'}</span>
             </a>
             {/* WhatsApp */}
             <a
@@ -919,7 +876,7 @@ const ClientHome = () => {
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
                 <MessageCircle className="w-4.5 h-4.5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
               </div>
-              <span className="text-[11px]" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Chat' : 'וואטסאפ'}</span>
+              <span className="text-[11px]" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Chat' : 'וואטסאפ'}</span>
             </a>
             {/* Instagram */}
             <a
@@ -931,7 +888,7 @@ const ClientHome = () => {
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
                 <Instagram className="w-4.5 h-4.5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
               </div>
-              <span className="text-[11px]" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Inspire' : 'השראה'}</span>
+              <span className="text-[11px]" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Inspire' : 'השראה'}</span>
             </a>
           </div>
         </div>
@@ -980,7 +937,7 @@ const ClientHome = () => {
           className="rounded-3xl p-6 mb-5 animate-fade-up client-glass-card"
           dir="rtl"
         >
-          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-1.5 mb-4 text-xs hover:underline underline-offset-2" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-1.5 mb-4 text-xs hover:underline underline-offset-2" style={{ color: '#8B6508', fontFamily: FBAHAVA }}>
             <ArrowUp className="w-3.5 h-3.5" />
             {lang === 'en' ? 'Back to top' : 'חזרה למעלה'}
           </button>
@@ -1048,7 +1005,7 @@ const ClientHome = () => {
                   >
                     <span
                       className="font-bold text-right flex-1"
-                      style={{ color: '#F3E5AB' }}
+                      style={{ color: '#2A1810' }}
                     >
                       {faq.q}
                     </span>
@@ -1087,9 +1044,9 @@ const ClientHome = () => {
         <div
           className="fixed bottom-0 left-0 right-0 z-[60]"
           style={{
-            background: 'linear-gradient(180deg, rgba(80,55,60,0.97) 0%, rgba(70,48,52,0.99) 100%)',
+            background: 'linear-gradient(180deg, rgba(240,208,213,0.97) 0%, rgba(234,200,205,0.99) 100%)',
             backdropFilter: 'blur(24px)',
-            boxShadow: '0 -8px 32px rgba(0,0,0,0.3), 0 -1px 0 rgba(212,175,55,0.3)',
+            boxShadow: '0 -8px 32px rgba(0,0,0,0.08), 0 -1px 0 rgba(212,175,55,0.3)',
             borderTop: '2px solid rgba(212,175,55,0.35)',
           }}
         >
@@ -1100,9 +1057,9 @@ const ClientHome = () => {
             <a
               href="#care"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#F3E5AB', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+              <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
               <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה'}</span>
             </a>
 
@@ -1114,9 +1071,9 @@ const ClientHome = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#F3E5AB', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <MessageCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+              <MessageCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
               <span>{lang === 'en' ? 'Message' : 'הודעה'}</span>
             </a>
 
@@ -1133,7 +1090,7 @@ const ClientHome = () => {
                   <Camera className="w-7 h-7 text-white" strokeWidth={1.8} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' }} />
                 )}
               </button>
-              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
+              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>
                 {bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Photo' : 'צילום')}
               </span>
             </div>
@@ -1143,9 +1100,9 @@ const ClientHome = () => {
             <a
               href="#faq"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#F3E5AB', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <HelpCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+              <HelpCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
               <span>{lang === 'en' ? 'FAQ' : 'שאלות'}</span>
             </a>
 
@@ -1154,13 +1111,17 @@ const ClientHome = () => {
               <a
                 href="#gallery"
                 className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-                style={{ color: '#F3E5AB', fontFamily: FBAHAVA, minWidth: '52px' }}
+                style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
               >
-                <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+                <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
                 <span>{lang === 'en' ? 'Gallery' : 'גלריה'}</span>
               </a>
             )}
           </div>
+          {/* Tagline */}
+          <p className="text-center text-xs font-bold pb-2" style={{ color: '#5C400A', fontFamily: FBAHAVA, letterSpacing: '0.05em' }}>
+            Turn Happy Clients Into Marketers.
+          </p>
           <InstallBanner />
         </div>
       </div>
