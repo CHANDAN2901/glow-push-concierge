@@ -1479,7 +1479,7 @@ const ArtistDashboard = () => {
                   </p>
                   <p className="text-[10px] font-medium relative z-10" style={{ color: '#5C4033' }}>{metric.label}</p>
                   {metric.trend && (
-                    <p className="text-[10px] font-bold mt-1" style={{ color: '#22c55e' }}>
+                    <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
                       ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
                     </p>
                   )}
