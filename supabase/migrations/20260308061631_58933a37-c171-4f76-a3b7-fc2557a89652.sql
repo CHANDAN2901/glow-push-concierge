@@ -1,0 +1,1 @@
+ALTER TABLE public.promo_codes ADD COLUMN IF NOT EXISTS new_users_only boolean NOT NULL DEFAULT false;

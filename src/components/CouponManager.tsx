@@ -29,6 +29,7 @@ interface Coupon {
   max_uses: number | null;
   current_uses: number;
   is_active: boolean;
+  new_users_only: boolean;
   created_at: string;
 }
 
