@@ -2,7 +2,7 @@ import { LayoutDashboard, Users, Megaphone, Settings, MessageSquareText, Heart, 
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
-type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
+type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'coupons' | 'settings';
 
 interface AdminSidebarProps {
   active: AdminView;
