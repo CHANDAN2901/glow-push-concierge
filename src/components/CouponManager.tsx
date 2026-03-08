@@ -288,6 +288,13 @@ export default function CouponManager() {
                       <TableCell className="text-center text-sm font-medium">
                         {c.current_uses}{c.max_uses !== null ? `/${c.max_uses}` : ''}
                       </TableCell>
+                      <TableCell className="text-center text-sm">
+                        {c.new_users_only ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">✓ כן</span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-center">
                         <span className={cn(
                           'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold',
