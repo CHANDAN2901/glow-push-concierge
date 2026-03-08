@@ -169,8 +169,44 @@ const Pricing = () => {
           100% { transform: translateY(8px) scale(0.94); opacity: 0.6; }
         }
       `}</style>
+      {/* Personal Status Card */}
+      {user && (
+        <div className="mx-auto px-4 max-w-lg pt-20 pb-6">
+          <div
+            className="rounded-2xl p-6 space-y-4 text-center backdrop-blur-xl"
+            style={{ background: 'rgba(255,255,255,0.75)', border: `2px solid ${GOLD}`, boxShadow: `0 8px 32px -4px rgba(212,168,85,0.15), 0 0 0 1px rgba(212,168,85,0.1)` }}
+          >
+            <h2
+              className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
+              style={{ backgroundImage: GOLD_GRADIENT }}
+            >
+              {t('sub.greeting').replace('{name}', displayName)}
+            </h2>
+            <div className="space-y-1.5">
+              <p className="text-sm font-medium" style={{ color: TEXT_DARK }}>
+                {t('sub.currentPlan').replace('{plan}', tierLabel)}
+              </p>
+              <p className="text-sm font-medium" style={{ color: TEXT_DARK }}>
+                {t('sub.validUntil')}
+              </p>
+            </div>
+            <button
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
+              style={{ border: `1.5px solid ${GOLD_BORDER}`, background: 'transparent', color: GOLD_TEXT }}
+              onClick={() => navigate('/payment-history')}
+            >
+              <Receipt className="w-4 h-4" />
+              {t('sub.paymentHistory')}
+            </button>
+          </div>
+          <div className="pt-6">
+            <div style={{ height: '1px', width: '60%', marginRight: 0, marginLeft: 'auto', background: GOLD_GRADIENT_WIDE }} />
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="pt-20 pb-10 px-4 flex justify-center">
+      <div className={`${user ? 'pb-10' : 'pt-20 pb-10'} px-4 flex justify-center`}>
         <div
           className="rounded-2xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
           style={{
@@ -178,7 +214,6 @@ const Pricing = () => {
             boxShadow: `0 0 18px rgba(212,175,55,0.20), 0 8px 32px -4px rgba(180,120,130,0.25)`,
           }}
         >
-          {/* Gold ombré border */}
           <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
             border: '3px solid transparent',
             background: `linear-gradient(#D4A0A8, #D4A0A8) padding-box, ${GOLD_GRADIENT} border-box`,
@@ -208,44 +243,6 @@ const Pricing = () => {
           </div>
         </div>
       </div>
-
-      {/* Personal Status Card */}
-      {user && (
-        <div className="mx-auto px-4 max-w-lg mb-8">
-          <div
-            className="rounded-2xl p-6 space-y-4 text-center backdrop-blur-xl"
-            style={{ background: 'rgba(255,255,255,0.75)', border: `2px solid ${GOLD}`, boxShadow: `0 8px 32px -4px rgba(212,168,85,0.15), 0 0 0 1px rgba(212,168,85,0.1)` }}
-          >
-            <h2
-              className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
-              style={{ backgroundImage: GOLD_GRADIENT }}
-            >
-              {t('sub.greeting').replace('{name}', displayName)}
-            </h2>
-            <div className="space-y-1.5">
-              <p className="text-sm font-medium" style={{ color: TEXT_DARK }}>
-                {t('sub.currentPlan').replace('{plan}', tierLabel)}
-              </p>
-              <p className="text-sm font-medium" style={{ color: TEXT_DARK }}>
-                {t('sub.validUntil')}
-              </p>
-            </div>
-            <button
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
-              style={{ border: `1.5px solid ${GOLD_BORDER}`, background: 'transparent', color: GOLD_TEXT }}
-              onClick={() => navigate('/payment-history')}
-            >
-              <Receipt className="w-4 h-4" />
-              {t('sub.paymentHistory')}
-            </button>
-          </div>
-
-          {/* Gold divider */}
-          <div className="pt-6">
-            <div style={{ height: '1px', width: '60%', marginRight: 0, marginLeft: 'auto', background: GOLD_GRADIENT_WIDE }} />
-          </div>
-        </div>
-      )}
 
       {/* Plan Cards */}
       <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-8 max-w-lg">
