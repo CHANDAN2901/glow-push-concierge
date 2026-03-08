@@ -618,11 +618,17 @@ const ClientHome = () => {
 
         {/* ─── CURRENT TREATMENT STATUS ─── */}
         <div
-          className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden client-glass-card"
+          className="mb-5 rounded-3xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(255,250,248,0.72) 50%, rgba(255,255,255,0.68) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(212,175,55,0.4)',
+            boxShadow: '0 12px 40px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.12)',
+          }}
         >
-          <div className="px-6 pt-8 pb-6 text-center" dir="rtl">
+          <div className="px-6 pt-8 pb-8 text-center" dir="rtl">
             {/* Phase title */}
-            <h2 className="text-lg font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
+            <h2 className="text-xl font-bold mb-3" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>
                 {lang === 'en'
                   ? `✨ Day ${viewingDay}: ${content.titleEn} ✨`
@@ -630,18 +636,61 @@ const ClientHome = () => {
               </GoldText>
             </h2>
 
+            {/* ─── GOLD RING GRAPHIC ─── */}
+            <div className="relative mx-auto mb-5" style={{ width: '160px', height: '160px' }}>
+              {/* Outer gold ring */}
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: METALLIC_GOLD_GRADIENT,
+                  padding: '6px',
+                  boxShadow: '0 8px 32px rgba(212,175,55,0.35), 0 0 24px rgba(212,175,55,0.15)',
+                }}
+              >
+                <div className="w-full h-full rounded-full" style={{ background: 'rgba(255,255,255,0.85)' }} />
+              </div>
+              {/* Inner content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-sm font-bold" style={{ fontFamily: FBAHAVA, color: '#8B6508', letterSpacing: '0.1em' }}>
+                  {lang === 'en' ? 'DAY' : 'יום'}
+                </span>
+                <span
+                  className="font-bold leading-none"
+                  style={{
+                    fontSize: '52px',
+                    fontFamily: TITLE_FONT,
+                    background: METALLIC_GOLD_GRADIENT,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    filter: 'drop-shadow(0 2px 4px rgba(212,175,55,0.3))',
+                  }}
+                >
+                  {viewingDay}
+                </span>
+              </div>
+              {/* Left gold arrow */}
+              <div className="absolute top-1/2 -translate-y-1/2" style={{ left: '-18px' }}>
+                <ChevronRight className="w-6 h-6" style={{ color: '#D4AF37', filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.5))' }} />
+              </div>
+              {/* Right gold arrow */}
+              <div className="absolute top-1/2 -translate-y-1/2" style={{ right: '-18px' }}>
+                <ChevronLeft className="w-6 h-6" style={{ color: '#D4AF37', filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.5))' }} />
+              </div>
+            </div>
+
             {/* "This is how it should look" */}
             <p className="text-sm leading-relaxed mb-5" style={{ fontFamily: FBAHAVA, color: BODY_TEXT, fontWeight: 600 }}>
               {lang === 'en' ? 'This is how it should look today' : 'ככה זה אמור להיראות היום'}
             </p>
 
             {/* PMU Hero Photo */}
-            <div className="relative mx-auto mb-5 rounded-2xl overflow-hidden" style={{ maxWidth: '280px', border: '3px solid transparent', backgroundImage: METALLIC_GOLD_GRADIENT, backgroundOrigin: 'border-box', backgroundClip: 'border-box', boxShadow: '0 8px 32px rgba(212,175,55,0.3), 0 0 0 1px rgba(212,175,55,0.2)' }}>
+            <div className="relative mx-auto mb-5 rounded-2xl overflow-hidden" style={{ maxWidth: '300px', border: '3px solid transparent', backgroundImage: METALLIC_GOLD_GRADIENT, backgroundOrigin: 'border-box', backgroundClip: 'border-box', boxShadow: '0 8px 32px rgba(212,175,55,0.3), 0 0 0 1px rgba(212,175,55,0.2)' }}>
               <div className="rounded-[13px] overflow-hidden">
                 <img
                   src={pmuHeroPhoto}
                   alt={lang === 'en' ? 'PMU treatment result - defined brows and lips' : 'תוצאת טיפול PMU - גבות ושפתיים מוגדרות'}
-                  className="w-full aspect-square object-cover"
+                  className="w-full aspect-[4/3] object-cover"
                   loading="eager"
                 />
               </div>
@@ -660,7 +709,26 @@ const ClientHome = () => {
               </GoldText>
             </span>
           </div>
+
+          {/* Camera FAB overlapping bottom edge */}
+          <div className="flex flex-col items-center -mb-10 relative z-10">
+            <button
+              onClick={() => bottomFileRef.current?.click()}
+              disabled={bottomUploading}
+              className="w-[76px] h-[76px] rounded-full flex items-center justify-center disabled:opacity-50 gold-sphere-btn"
+            >
+              {bottomUploading ? (
+                <span className="animate-spin w-7 h-7 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                <Camera className="w-8 h-8 text-white" strokeWidth={1.8} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' }} />
+              )}
+            </button>
+            <span className="text-xs mt-1.5 font-bold" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>
+              {bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Daily Check-in' : 'תיעוד יומי - צילום')}
+            </span>
+          </div>
         </div>
+        <div className="h-8" /> {/* Spacer for FAB overlap */}
 
         {/* ─── DAILY ACTIONS ─── */}
         <div className="grid grid-cols-2 gap-3 mb-5 animate-fade-up delay-150" dir="rtl">
