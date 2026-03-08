@@ -86,7 +86,7 @@ export default function CouponManager() {
       toast({ title: 'קופון נוצר בהצלחה ✨' });
       setCode(''); setLabel(''); setDiscountPercent(''); setFreeMonths('');
       setExpirationDate(undefined); setMaxUses(''); setDiscountType('percentage');
-      fetchCoupons();
+      setNewUsersOnly(false);
     }
     setCreating(false);
   };
