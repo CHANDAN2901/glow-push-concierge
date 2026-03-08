@@ -1,8 +1,8 @@
-import { LayoutDashboard, Users, Megaphone, Settings, MessageSquareText, Heart, Stethoscope, CreditCard, ClipboardList, Sparkles, Pencil, HelpCircle, Crown, ListChecks, Ticket } from 'lucide-react';
+import { LayoutDashboard, Users, Megaphone, Settings, MessageSquareText, Heart, Stethoscope, CreditCard, ClipboardList, Sparkles, Pencil, HelpCircle, Crown, ListChecks } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
-type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'coupons' | 'settings';
+type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
 
 interface AdminSidebarProps {
   active: AdminView;
@@ -23,7 +23,6 @@ const navItems: { id: AdminView; label: string; labelHe: string; icon: React.Ele
   { id: 'health-questions', label: 'Health Questions', labelHe: 'שאלות הצהרת בריאות', icon: ClipboardList },
   { id: 'faq', label: 'FAQ & Help', labelHe: 'שאלות ותשובות / עזרה', icon: HelpCircle, path: '/admin/faq' },
   { id: 'faq-manager', label: 'FAQ Manager', labelHe: 'ניהול FAQ לנחיתה', icon: ListChecks, path: '/admin/faq-manager' },
-  { id: 'coupons', label: 'Coupons', labelHe: 'ניהול קופונים', icon: Ticket },
   { id: 'settings', label: 'Settings', labelHe: 'הגדרות', icon: Settings },
 ];
 

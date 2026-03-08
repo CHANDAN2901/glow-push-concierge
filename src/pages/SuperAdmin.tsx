@@ -25,7 +25,7 @@ import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
 import CouponManager from '@/components/CouponManager';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
 
-type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'coupons' | 'settings';
+type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
 
 /* ── dummy data ── */
 const artists = [
@@ -78,10 +78,6 @@ const SuperAdmin = () => {
   const { isAdmin, loading, roleLoading } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState<AdminView>('dashboard');
-  const [trialDays, setTrialDays] = useState('14');
-  const [litePrice, setLitePrice] = useState('89');
-  const [proPrice, setProPrice] = useState('129');
-  const [masterPrice, setMasterPrice] = useState('199');
   const [termsText, setTermsText] = useState('הריני מאשרת כי כל הפרטים שמסרתי בטופס זה הם נכונים ומדויקים. אני מבינה כי הטיפול מבוצע בהסכמתי המלאה, וכי הוסברו לי הסיכונים האפשריים, תהליך ההחלמה והוראות הטיפול בבית. ידוע לי שתוצאות הטיפול משתנות מאחת לאחת ותלויות גם בסוג העור ובשמירה על ההוראות.');
   const [healthQuestions, setHealthQuestions] = useState([
     'האם את בהריון או מניקה?',
@@ -284,34 +280,9 @@ const SuperAdmin = () => {
   };
 
   const renderSettings = () => (
-    <div className="space-y-6 max-w-3xl relative pb-20">
-      {/* Card A: Business Configuration */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <DollarSign className="w-5 h-5 text-accent" />
-          <h2 className="font-serif font-semibold text-lg">הגדרות עסקיות ומנויים</h2>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4" dir="rtl">
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">תקופת ניסיון (ימים)</label>
-            <Input type="number" value={trialDays} onChange={(e) => setTrialDays(e.target.value)} />
-          </div>
-          <div />
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">מחיר תוכנית Lite (₪)</label>
-            <Input type="number" value={litePrice} onChange={(e) => setLitePrice(e.target.value)} />
-          </div>
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">מחיר תוכנית Pro (₪)</label>
-            <Input type="number" value={proPrice} onChange={(e) => setProPrice(e.target.value)} />
-          </div>
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">מחיר תוכנית Master (₪)</label>
-            <Input type="number" value={masterPrice} onChange={(e) => setMasterPrice(e.target.value)} />
-          </div>
-        </div>
-      </div>
+    <div className="space-y-6 max-w-5xl relative pb-20">
+      {/* Coupon Management */}
+      <CouponManager />
 
       {/* Card B: Legal & Forms */}
       <div className="bg-card border border-border rounded-xl p-6">
@@ -453,7 +424,6 @@ const SuperAdmin = () => {
           {view === 'timeline' && <AdminHealingEditor />}
           {view === 'aftercare' && <AdminAftercareEditor />}
           {view === 'health-questions' && <HealthQuestionsEditor />}
-          {view === 'coupons' && <CouponManager />}
           {view === 'settings' && renderSettings()}
         </div>
       </main>

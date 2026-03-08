@@ -29,6 +29,7 @@ interface Coupon {
   max_uses: number | null;
   current_uses: number;
   is_active: boolean;
+  new_users_only: boolean;
   created_at: string;
 }
 
@@ -45,6 +46,7 @@ export default function CouponManager() {
   const [freeMonths, setFreeMonths] = useState('');
   const [expirationDate, setExpirationDate] = useState<Date | undefined>();
   const [maxUses, setMaxUses] = useState('');
+  const [newUsersOnly, setNewUsersOnly] = useState(false);
   const [creating, setCreating] = useState(false);
 
   const fetchCoupons = async () => {
@@ -72,6 +74,7 @@ export default function CouponManager() {
       free_months: discountType === 'free_months' ? parseInt(freeMonths) || 0 : 0,
       expiration_date: expirationDate ? format(expirationDate, 'yyyy-MM-dd') : null,
       max_uses: maxUses ? parseInt(maxUses) : null,
+      new_users_only: newUsersOnly,
       is_active: true,
       current_uses: 0,
     };
@@ -83,6 +86,7 @@ export default function CouponManager() {
       toast({ title: 'קופון נוצר בהצלחה ✨' });
       setCode(''); setLabel(''); setDiscountPercent(''); setFreeMonths('');
       setExpirationDate(undefined); setMaxUses(''); setDiscountType('percentage');
+      setNewUsersOnly(false);
       fetchCoupons();
     }
     setCreating(false);
@@ -209,6 +213,16 @@ export default function CouponManager() {
               dir="ltr"
             />
           </div>
+
+          <div className="col-span-1 md:col-span-2">
+            <div className="flex items-center justify-between gap-3 bg-muted/30 rounded-lg px-4 py-3">
+              <div>
+                <Label className="block">למשתמשות חדשות בלבד</Label>
+                <span className="text-xs text-muted-foreground">הקופון יהיה זמין רק לאמניות שנרשמות לראשונה</span>
+              </div>
+              <Switch checked={newUsersOnly} onCheckedChange={setNewUsersOnly} className="data-[state=checked]:bg-accent" />
+            </div>
+          </div>
         </div>
 
         <Button
@@ -245,6 +259,7 @@ export default function CouponManager() {
                   <TableHead>הנחה</TableHead>
                   <TableHead>תפוגה</TableHead>
                   <TableHead className="text-center">שימושים</TableHead>
+                  <TableHead className="text-center">חדשות בלבד</TableHead>
                   <TableHead className="text-center">סטטוס</TableHead>
                   <TableHead>פעולות</TableHead>
                 </TableRow>
@@ -273,6 +288,13 @@ export default function CouponManager() {
                       </TableCell>
                       <TableCell className="text-center text-sm font-medium">
                         {c.current_uses}{c.max_uses !== null ? `/${c.max_uses}` : ''}
+                      </TableCell>
+                      <TableCell className="text-center text-sm">
+                        {c.new_users_only ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">✓ כן</span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-center">
                         <span className={cn(

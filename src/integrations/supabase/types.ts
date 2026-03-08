@@ -757,6 +757,7 @@ export type Database = {
           is_active: boolean
           label: string
           max_uses: number | null
+          new_users_only: boolean
         }
         Insert: {
           code: string
@@ -771,6 +772,7 @@ export type Database = {
           is_active?: boolean
           label?: string
           max_uses?: number | null
+          new_users_only?: boolean
         }
         Update: {
           code?: string
@@ -785,6 +787,7 @@ export type Database = {
           is_active?: boolean
           label?: string
           max_uses?: number | null
+          new_users_only?: boolean
         }
         Relationships: []
       }
