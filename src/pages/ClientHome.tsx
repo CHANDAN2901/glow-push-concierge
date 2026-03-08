@@ -823,7 +823,7 @@ const ClientHome = () => {
                 border: '1.5px solid rgba(212,175,55,0.3)',
               }}
             >
-              <ChevronLeft className="w-5 h-5" style={{ color: '#B43C64' }} />
+              <ChevronLeft className="w-5 h-5" style={{ color: '#D4AF37' }} />
             </button>
           </div>
 
