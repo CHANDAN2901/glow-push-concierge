@@ -522,11 +522,11 @@ const ClientHome = () => {
     >
       {/* ─── HEADER ─── */}
       <header
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl"
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl"
         style={{
-          background: 'linear-gradient(180deg, hsla(350,45%,95%,0.95) 0%, hsla(350,40%,94%,0.9) 100%)',
-          borderBottom: '1px solid rgba(212,175,55,0.2)',
-          boxShadow: '0 2px 16px rgba(212,175,55,0.06)',
+          background: 'linear-gradient(180deg, rgba(246,225,228,0.96) 0%, rgba(246,225,228,0.88) 100%)',
+          borderBottom: '2px solid rgba(212,175,55,0.25)',
+          boxShadow: '0 4px 20px rgba(212,175,55,0.1)',
         }}
       >
         <div className="max-w-md mx-auto">
