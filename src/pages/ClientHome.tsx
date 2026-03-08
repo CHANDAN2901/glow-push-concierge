@@ -615,82 +615,11 @@ const ClientHome = () => {
           </div>
         </div>
 
-        {/* ─── PROGRESS CARD ─── */}
-        <div
-          className="mb-5 animate-fade-up delay-100 rounded-2xl overflow-hidden client-glass-card"
-        >
-          <div className="px-5 py-4 flex items-center gap-4">
-            <span className="text-lg font-bold hd-shimmer-text" style={{
-              fontFamily: FBAHAVA,
-              background: GOLD_TEXT_GRADIENT,
-              backgroundSize: '200% 100%',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              {lang === 'en' ? `Day ${viewingDay}` : `יום ${viewingDay}`}
-            </span>
-            <div className="flex-1">
-              <div className="w-full rounded-xl overflow-hidden relative" style={{ height: '8px', background: 'rgba(212,175,55,0.08)' }}>
-                <div
-                  className="h-full rounded-xl transition-all duration-700 ease-out relative"
-                  style={{
-                    width: `${Math.min(100, (viewingDay / 30) * 100)}%`,
-                    background: METALLIC_GOLD_GRADIENT,
-                    backgroundSize: '200% 100%',
-                    boxShadow: '0 0 12px rgba(212,175,55,0.5), 0 0 4px rgba(212,175,55,0.3)',
-                  }}
-                >
-                  {/* Sparkling indicator */}
-                  <div
-                    className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full"
-                    style={{
-                      background: 'radial-gradient(circle, #F9F295 0%, #D4AF37 60%, #B8860B 100%)',
-                      boxShadow: '0 0 8px rgba(249,242,149,0.8), 0 0 16px rgba(212,175,55,0.5)',
-                      animation: 'sparkle-fade 1.5s ease-in-out infinite',
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-            <span className="text-xs font-semibold" style={{
-              background: GOLD_TEXT_GRADIENT,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              fontFamily: FBAHAVA,
-            }}>{viewingDay}/30</span>
-          </div>
-        </div>
-
         {/* ─── CURRENT TREATMENT STATUS ─── */}
         <div
           className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden client-glass-card"
         >
-          <div className="px-6 py-8 text-center" dir="rtl">
-            {/* Large status circle */}
-            <div className="relative w-32 h-32 mx-auto mb-5">
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: 'rgba(40,28,30,0.8)',
-                  border: '4px solid transparent',
-                  borderImage: METALLIC_GOLD_GRADIENT,
-                  borderImageSlice: 1,
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.3), 0 4px 16px rgba(212,175,55,0.2), 0 0 24px rgba(212,175,55,0.15), inset 0 0 20px rgba(212,175,55,0.08)',
-                }}
-              />
-              <div className="absolute inset-1 rounded-full" style={{ border: '3px solid rgba(212,175,55,0.4)' }} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs mb-0.5" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
-                  {lang === 'en' ? 'Day' : 'יום'}
-                </span>
-                <GoldText className="text-4xl" style={{ fontFamily: 'var(--font-serif)', fontWeight: 700 }}>
-                  {viewingDay}
-                </GoldText>
-              </div>
-            </div>
-
+          <div className="px-6 py-10 text-center" dir="rtl">
             {/* Phase title */}
             <h2 className="text-lg font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>
