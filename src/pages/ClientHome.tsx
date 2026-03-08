@@ -685,18 +685,6 @@ const ClientHome = () => {
             </p>
 
 
-            {/* Treatment badge */}
-            <span
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-[13px]"
-              style={{ background: 'rgba(139,101,8,0.06)', border: '1px solid rgba(139,101,8,0.18)', fontFamily: FBAHAVA }}
-            >
-              <GoldText style={{ fontWeight: 500 }}>
-                {treatment === 'lips' ? '👄' : '✍️'}{' '}
-                {lang === 'en'
-                  ? `${treatment === 'lips' ? 'Lip' : 'Brow'} Recovery`
-                  : `החלמת ${treatment === 'lips' ? 'שפתיים' : 'גבות'}`}
-              </GoldText>
-            </span>
           </div>
 
           {/* Camera FAB overlapping bottom edge */}
