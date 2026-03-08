@@ -150,6 +150,7 @@ const Pricing = () => {
             left: b.left,
             right: (b as any).right,
             background: b.color,
+            opacity: (b as any).opacity ?? 0.4,
             filter: `blur(${b.blur}px)`,
             animation: `bokeh-float 6s ease-in-out ${b.delay}s infinite alternate`,
           }}
