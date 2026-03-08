@@ -8,14 +8,13 @@ import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/use
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
-const GOLD = '#C9A84C';
-const GOLD_DARK = '#8B6914';
-const BG_WARM = '#FDF6F0';
-const BG_END = '#F5E6D3';
-const ROSE_BEIGE = '#E8C9B0';
-const TEXT_DARK = '#2C1810';
-const GOLD_GRADIENT = `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_DARK} 100%)`;
-const GOLD_GRADIENT_WIDE = `linear-gradient(90deg, ${GOLD_DARK}, ${GOLD}, ${ROSE_BEIGE}, ${GOLD}, ${GOLD_DARK})`;
+const GOLD = '#D4A855';
+const GOLD_TEXT = '#C49A3C';
+const GOLD_BORDER = 'rgba(212, 168, 85, 0.5)';
+const TEXT_ON_GOLD = '#7A5C1E';
+const TEXT_DARK = '#7A5C1E';
+const GOLD_GRADIENT = 'linear-gradient(135deg, #E8C878, #C49A3C, #D4A855)';
+const GOLD_GRADIENT_WIDE = `linear-gradient(90deg, #C49A3C, #E8C878, #D4A855, #E8C878, #C49A3C)`;
 
 const iconMap: Record<string, React.ElementType> = {
   pro: Sparkles,
@@ -56,7 +55,7 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
   const pct = Math.min((takenSpots / totalSpots) * 100, 100);
   const isUrgent = remaining <= 10;
 
-  const textColor = isUrgent ? '#C0392B' : GOLD_DARK;
+  const textColor = isUrgent ? '#C0392B' : GOLD_TEXT;
   const barColor = isUrgent
     ? 'linear-gradient(90deg, #E74C3C, #C0392B)'
     : GOLD_GRADIENT;
@@ -116,19 +115,19 @@ const Pricing = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: `linear-gradient(180deg, ${BG_WARM} 0%, ${BG_END} 100%)` }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #D4A0A0 0%, #C49090 40%, #B8847A 100%)' }}>
         <div className="animate-pulse font-serif" style={{ color: GOLD }}>טוען...</div>
       </div>
     );
   }
 
   const BOKEH_CIRCLES = [
-    { size: 180, top: '8%', left: '10%', color: 'rgba(255,220,200,0.4)', blur: 70, delay: 0 },
-    { size: 120, top: '25%', right: '5%', color: 'rgba(255,200,180,0.3)', blur: 60, delay: 1.5 },
-    { size: 200, top: '50%', left: '60%', color: 'rgba(255,220,200,0.4)', blur: 80, delay: 0.8 },
-    { size: 90, top: '70%', left: '15%', color: 'rgba(255,200,180,0.3)', blur: 50, delay: 2.2 },
-    { size: 140, top: '85%', right: '20%', color: 'rgba(255,220,200,0.4)', blur: 65, delay: 1.2 },
-    { size: 100, top: '40%', left: '80%', color: 'rgba(255,200,180,0.3)', blur: 55, delay: 3 },
+    { size: 180, top: '8%', left: '10%', color: '#F0C0B0', opacity: 0.5, blur: 60, delay: 0 },
+    { size: 120, top: '25%', right: '5%', color: '#E8B0A0', opacity: 0.4, blur: 60, delay: 1.5 },
+    { size: 200, top: '50%', left: '60%', color: '#FFD0C0', opacity: 0.45, blur: 60, delay: 0.8 },
+    { size: 90, top: '70%', left: '15%', color: '#F5C5B5', opacity: 0.5, blur: 60, delay: 2.2 },
+    { size: 140, top: '85%', right: '20%', color: '#F0C0B0', opacity: 0.4, blur: 60, delay: 1.2 },
+    { size: 100, top: '40%', left: '80%', color: '#E8B0A0', opacity: 0.6, blur: 60, delay: 3 },
   ];
 
   return (
@@ -136,13 +135,7 @@ const Pricing = () => {
       className="min-h-screen relative overflow-hidden"
       dir={isHe ? 'rtl' : 'ltr'}
       style={{
-        background: `
-          radial-gradient(ellipse at 20% 50%, rgba(232,180,160,0.6) 0%, transparent 50%),
-          radial-gradient(ellipse at 80% 20%, rgba(220,160,140,0.5) 0%, transparent 40%),
-          radial-gradient(ellipse at 60% 80%, rgba(210,170,150,0.4) 0%, transparent 45%),
-          radial-gradient(ellipse at 40% 30%, rgba(240,200,180,0.5) 0%, transparent 35%),
-          linear-gradient(135deg, #E8C4B0 0%, #D4A090 40%, #C49080 100%)
-        `,
+        background: 'linear-gradient(135deg, #D4A0A0 0%, #C49090 40%, #B8847A 100%)',
       }}
     >
       {/* Bokeh floating circles */}
@@ -157,6 +150,7 @@ const Pricing = () => {
             left: b.left,
             right: (b as any).right,
             background: b.color,
+            opacity: (b as any).opacity ?? 0.4,
             filter: `blur(${b.blur}px)`,
             animation: `bokeh-float 6s ease-in-out ${b.delay}s infinite alternate`,
           }}
@@ -175,7 +169,7 @@ const Pricing = () => {
           <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
           <h1
             className="text-3xl md:text-5xl font-serif font-bold tracking-wider animate-fade-up"
-            style={{ color: GOLD_DARK, animationFillMode: 'both' }}
+            style={{ color: GOLD_TEXT, animationFillMode: 'both' }}
           >
             {isHe ? 'בחרי את המסלול שמתאים לקליניקה שלך' : 'Choose the Perfect Plan for Your Clinic'}
           </h1>
@@ -216,7 +210,7 @@ const Pricing = () => {
             </div>
             <button
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
-              style={{ border: `1.5px solid ${GOLD}`, background: 'transparent', color: GOLD_DARK }}
+              style={{ border: `1.5px solid ${GOLD_BORDER}`, background: 'transparent', color: GOLD_TEXT }}
               onClick={() => navigate('/payment-history')}
             >
               <Receipt className="w-4 h-4" />
@@ -246,7 +240,7 @@ const Pricing = () => {
               key={plan.id}
               className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
               style={{
-                border: isElite ? `2px solid ${GOLD}` : `1px solid ${GOLD}`,
+                border: isElite ? `2px solid ${GOLD}` : `1px solid ${GOLD_BORDER}`,
                 background: isElite
                   ? `linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 100%)`
                   : '#FFFFFF',
@@ -261,7 +255,7 @@ const Pricing = () => {
               {isElite && badge && (
                 <span
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
-                  style={{ background: GOLD_GRADIENT, color: '#FFFFFF', boxShadow: `0 2px 12px ${GOLD}66` }}
+                  style={{ background: GOLD_GRADIENT, color: '#FFFFFF', boxShadow: `0 2px 12px rgba(212,168,85,0.4)` }}
                 >
                   {badge}
                 </span>
@@ -314,7 +308,7 @@ const Pricing = () => {
                 style={{
                   background: GOLD_GRADIENT,
                   color: '#FFFFFF',
-                  boxShadow: `0 4px 16px ${GOLD}44`,
+                  boxShadow: '0 4px 16px rgba(212,168,85,0.35)',
                 }}
               >
                 {cta}
@@ -325,9 +319,9 @@ const Pricing = () => {
       </div>
 
       {/* Footer links */}
-      <div className="text-center text-xs pb-10 px-4 space-y-2" style={{ color: '#9E8E7E' }}>
+      <div className="text-center text-xs pb-10 px-4 space-y-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
         <p>{isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}</p>
-        <Link to="/refund-policy" className="underline hover:opacity-80 transition-opacity" style={{ color: GOLD_DARK }}>
+        <Link to="/refund-policy" className="underline hover:opacity-80 transition-opacity" style={{ color: GOLD }}>
           {isHe ? 'מדיניות ביטולים והחזרים' : 'Cancellation & Refund Policy'}
         </Link>
       </div>
@@ -340,14 +334,14 @@ const Pricing = () => {
       {/* Cancellation & Refund Policy */}
       <div className="mx-auto px-4 pb-20 max-w-lg">
         <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-wider mb-2" style={{ color: GOLD_DARK }}>
+          <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-wider mb-2" style={{ color: GOLD }}>
             {isHe ? 'מדיניות ביטולים והחזרים כספיים' : 'Cancellation & Refund Policy'}
           </h2>
           <div className="w-16 h-[2px] mx-auto mt-4 rounded-full" style={{ background: GOLD_GRADIENT_WIDE }} />
         </div>
 
         <Accordion type="single" collapsible className="space-y-3">
-          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: `${GOLD}66` }}>
+          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: GOLD_BORDER }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
               <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'מדיניות ביטול מיוחדת למסלול המייסדות (VIP)' : 'Special Cancellation Policy for Founders (VIP)'}
@@ -355,14 +349,14 @@ const Pricing = () => {
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
               <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
-                <p><strong style={{ color: GOLD_DARK }}>14 ימי התנסות ללא סיכון:</strong>{' '}ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.</p>
-                <p><strong style={{ color: GOLD_DARK }}>גמישות מלאה גם בהמשך:</strong>{' '}ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.</p>
-                <p><strong style={{ color: GOLD_DARK }}>איך מחושב ההחזר?</strong>{' '}במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>14 ימי התנסות ללא סיכון:</strong>{' '}ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>גמישות מלאה גם בהמשך:</strong>{' '}ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>איך מחושב ההחזר?</strong>{' '}במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.</p>
               </div>
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: `${GOLD}66` }}>
+          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden bg-white" style={{ borderColor: GOLD_BORDER }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
               <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'תנאי ביטול למסלולי Pro ו-Elite (מנוי חודשי)' : 'Cancellation Terms for Pro & Elite (Monthly)'}
@@ -370,8 +364,8 @@ const Pricing = () => {
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
               <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
-                <p><strong style={{ color: GOLD_DARK }}>ביטול בכל רגע:</strong>{' '}ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.</p>
-                <p><strong style={{ color: GOLD_DARK }}>ללא קנסות יציאה:</strong>{' '}לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>ביטול בכל רגע:</strong>{' '}ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>ללא קנסות יציאה:</strong>{' '}לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.</p>
               </div>
             </AccordionContent>
           </AccordionItem>
