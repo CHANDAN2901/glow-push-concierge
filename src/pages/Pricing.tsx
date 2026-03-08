@@ -364,8 +364,8 @@ const Pricing = () => {
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
               <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
-                <p><strong style={{ color: GOLD_DARK }}>ביטול בכל רגע:</strong>{' '}ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.</p>
-                <p><strong style={{ color: GOLD_DARK }}>ללא קנסות יציאה:</strong>{' '}לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>ביטול בכל רגע:</strong>{' '}ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>ללא קנסות יציאה:</strong>{' '}לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.</p>
               </div>
             </AccordionContent>
           </AccordionItem>
