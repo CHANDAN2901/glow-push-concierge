@@ -174,14 +174,14 @@ const Pricing = () => {
         <div
           className="rounded-2xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
           style={{
-            background: 'rgba(200,145,155,0.5)',
-            boxShadow: `0 0 18px rgba(212,175,55,0.25), 0 8px 32px -4px rgba(212,175,55,0.15)`,
+            background: '#D4A0A8',
+            boxShadow: `0 0 18px rgba(212,175,55,0.20), 0 8px 32px -4px rgba(180,120,130,0.25)`,
           }}
         >
           {/* Gold ombré border */}
           <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
             border: '3px solid transparent',
-            background: `linear-gradient(rgba(200,145,155,0.5), rgba(200,145,155,0.5)) padding-box, ${GOLD_GRADIENT} border-box`,
+            background: `linear-gradient(#D4A0A8, #D4A0A8) padding-box, ${GOLD_GRADIENT} border-box`,
             borderRadius: 'inherit',
           }} />
           <div className="relative z-10">
