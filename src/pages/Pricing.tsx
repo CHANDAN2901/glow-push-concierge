@@ -8,13 +8,13 @@ import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/use
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
-const GOLD = '#D4A855';
-const GOLD_TEXT = '#C49A3C';
-const GOLD_BORDER = 'rgba(212, 168, 85, 0.5)';
-const TEXT_ON_GOLD = '#7A5C1E';
-const TEXT_DARK = '#7A5C1E';
-const GOLD_GRADIENT = 'linear-gradient(135deg, #E8C878, #C49A3C, #D4A855)';
-const GOLD_GRADIENT_WIDE = `linear-gradient(90deg, #C49A3C, #E8C878, #D4A855, #E8C878, #C49A3C)`;
+const GOLD = '#C9B17E';
+const GOLD_TEXT = '#B5A07A';
+const GOLD_BORDER = 'rgba(201, 177, 126, 0.35)';
+const TEXT_ON_GOLD = '#8A7656';
+const TEXT_DARK = '#8A7656';
+const GOLD_GRADIENT = 'linear-gradient(135deg, #D9C9A0, #B5A07A, #C9B17E)';
+const GOLD_GRADIENT_WIDE = `linear-gradient(90deg, #B5A07A, #D9C9A0, #C9B17E, #D9C9A0, #B5A07A)`;
 
 const iconMap: Record<string, React.ElementType> = {
   pro: Sparkles,
