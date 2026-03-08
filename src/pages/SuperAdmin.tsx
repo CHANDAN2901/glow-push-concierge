@@ -78,10 +78,6 @@ const SuperAdmin = () => {
   const { isAdmin, loading, roleLoading } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState<AdminView>('dashboard');
-  const [trialDays, setTrialDays] = useState('14');
-  const [litePrice, setLitePrice] = useState('89');
-  const [proPrice, setProPrice] = useState('129');
-  const [masterPrice, setMasterPrice] = useState('199');
   const [termsText, setTermsText] = useState('הריני מאשרת כי כל הפרטים שמסרתי בטופס זה הם נכונים ומדויקים. אני מבינה כי הטיפול מבוצע בהסכמתי המלאה, וכי הוסברו לי הסיכונים האפשריים, תהליך ההחלמה והוראות הטיפול בבית. ידוע לי שתוצאות הטיפול משתנות מאחת לאחת ותלויות גם בסוג העור ובשמירה על ההוראות.');
   const [healthQuestions, setHealthQuestions] = useState([
     'האם את בהריון או מניקה?',
