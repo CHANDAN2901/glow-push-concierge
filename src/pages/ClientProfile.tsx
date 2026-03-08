@@ -51,6 +51,7 @@ interface HealthDeclRow {
   is_signed: boolean;
   created_at: string;
   form_data: any;
+  signature_svg: string | null;
 }
 
 /* ── Test Push Button Component ── */
