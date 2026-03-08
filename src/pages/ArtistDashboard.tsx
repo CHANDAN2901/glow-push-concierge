@@ -1469,7 +1469,6 @@ const ArtistDashboard = () => {
                     background: 'linear-gradient(135deg, #E8C0C8, #F5E0E4, #FFFFFF, #F0D0D5, #DEB0BA) padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
                     borderRadius: 'inherit',
                   }} />
-                >
                   <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#5C4033' }} strokeWidth={1.5} />
                   <p
                     className="text-xl font-extrabold mb-1 relative z-10"
