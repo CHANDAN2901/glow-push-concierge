@@ -319,9 +319,9 @@ const Pricing = () => {
       </div>
 
       {/* Footer links */}
-      <div className="text-center text-xs pb-10 px-4 space-y-2" style={{ color: '#9E8E7E' }}>
+      <div className="text-center text-xs pb-10 px-4 space-y-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
         <p>{isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}</p>
-        <Link to="/refund-policy" className="underline hover:opacity-80 transition-opacity" style={{ color: GOLD_DARK }}>
+        <Link to="/refund-policy" className="underline hover:opacity-80 transition-opacity" style={{ color: GOLD }}>
           {isHe ? 'מדיניות ביטולים והחזרים' : 'Cancellation & Refund Policy'}
         </Link>
       </div>
