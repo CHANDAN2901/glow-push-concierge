@@ -181,7 +181,7 @@ const Pricing = () => {
           {/* Gold ombré border */}
           <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
             border: '3px solid transparent',
-            background: `linear-gradient(rgba(200,145,155,0.5), rgba(200,145,155,0.5)) padding-box, ${GOLD_GRADIENT} border-box`,
+            background: `linear-gradient(#D4A0A8, #D4A0A8) padding-box, ${GOLD_GRADIENT} border-box`,
             borderRadius: 'inherit',
           }} />
           <div className="relative z-10">
