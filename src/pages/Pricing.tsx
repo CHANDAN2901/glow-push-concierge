@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Crown, Sparkles, Star, Flame, Receipt } from 'lucide-react';
+import { Crown, Sparkles, Star, Flame, Receipt, Gift, Camera, Coins, ArrowUp } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
@@ -9,18 +9,23 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
 const GOLD = '#D4A855';
+const GOLD_LIGHT = '#E8C878';
+const GOLD_BTN = '#C8A040';
 const GOLD_TEXT = '#C49A3C';
-const GOLD_BORDER = 'rgba(212, 168, 85, 0.5)';
-const TEXT_ON_GOLD = '#7A5C1E';
+const GOLD_BORDER = 'rgba(212, 168, 85, 0.3)';
 const TEXT_DARK = '#7A5C1E';
-const GOLD_GRADIENT = 'linear-gradient(135deg, #E8C878, #C49A3C, #D4A855)';
-const GOLD_GRADIENT_WIDE = `linear-gradient(90deg, #C49A3C, #E8C878, #D4A855, #E8C878, #C49A3C)`;
+const GOLD_GRADIENT = 'linear-gradient(135deg, #E8C878, #C8A040)';
+const GOLD_GRADIENT_WIDE = 'linear-gradient(90deg, #C49A3C, #E8C878, #D4A855, #E8C878, #C49A3C)';
+const CARD_SHADOW = '0 4px 20px rgba(180,120,100,0.15)';
+const CARD_SHADOW_ELITE = '0 8px 32px rgba(180,120,100,0.2), 0 0 24px rgba(212,168,85,0.2)';
 
 const iconMap: Record<string, React.ElementType> = {
   pro: Sparkles,
   elite: Star,
   'vip-3year': Crown,
 };
+
+const floatingIcons = [Gift, Camera, Coins, ArrowUp];
 
 const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
   const lastSpace = name.lastIndexOf(' ');
@@ -32,7 +37,7 @@ const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
       <h2 className="text-xl font-medium" style={{ color: TEXT_DARK }}>
         <span className="font-light tracking-wide">{prefix} </span>
         <span
-          className="font-serif font-bold bg-clip-text text-transparent"
+          className="font-bold bg-clip-text text-transparent"
           style={{ backgroundImage: GOLD_GRADIENT }}
         >
           {suffix}
@@ -83,6 +88,28 @@ const tierLabelMap: Record<string, { he: string; en: string }> = {
   master: { he: 'VIP – מייסדות', en: 'VIP – Founders' },
 };
 
+const BOKEH_CIRCLES = [
+  { size: 220, top: '3%', left: '5%', color: '#F0C0B8' },
+  { size: 150, top: '15%', left: '75%', color: '#E8B0A8' },
+  { size: 250, top: '35%', left: '50%', color: '#FFD0C8' },
+  { size: 100, top: '55%', left: '10%', color: 'rgba(255,220,210,0.5)' },
+  { size: 180, top: '65%', left: '80%', color: '#F0C0B8' },
+  { size: 120, top: '80%', left: '30%', color: '#E8B0A8' },
+  { size: 80, top: '25%', left: '25%', color: '#FFD0C8' },
+  { size: 160, top: '90%', left: '65%', color: 'rgba(255,220,210,0.5)' },
+];
+
+const SPARKLE_DOTS = [
+  { top: '12%', left: '18%', delay: 0 },
+  { top: '8%', left: '72%', delay: 1.2 },
+  { top: '30%', left: '90%', delay: 0.6 },
+  { top: '48%', left: '8%', delay: 2 },
+  { top: '62%', left: '85%', delay: 1.5 },
+  { top: '75%', left: '22%', delay: 0.3 },
+  { top: '88%', left: '55%', delay: 2.5 },
+  { top: '42%', left: '42%', delay: 1.8 },
+];
+
 const Pricing = () => {
   const navigate = useNavigate();
   const { lang, t } = useI18n();
@@ -113,39 +140,23 @@ const Pricing = () => {
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier]?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
-  const BG_GRADIENT = 'linear-gradient(160deg, #F5D5D5 0%, #F0D0D5 30%, #E8C0C8 60%, #E0B8C0 100%)';
-
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: BG_GRADIENT }}>
-        <div className="animate-pulse font-serif" style={{ color: GOLD }}>טוען...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#D4A5A0' }}>
+        <div className="animate-pulse" style={{ color: GOLD }}>טוען...</div>
       </div>
     );
   }
-
-  const BOKEH_CIRCLES = [
-    { size: 200, top: '5%', left: '8%', color: 'rgba(255,225,210,0.5)', blur: 70, delay: 0 },
-    { size: 140, top: '20%', right: '3%', color: 'rgba(240,200,190,0.4)', blur: 60, delay: 1.5 },
-    { size: 220, top: '45%', left: '55%', color: 'rgba(255,215,200,0.35)', blur: 80, delay: 0.8 },
-    { size: 100, top: '65%', left: '12%', color: 'rgba(245,210,200,0.45)', blur: 65, delay: 2.2 },
-    { size: 160, top: '80%', right: '15%', color: 'rgba(255,220,205,0.4)', blur: 70, delay: 1.2 },
-    { size: 120, top: '35%', left: '78%', color: 'rgba(240,195,185,0.5)', blur: 60, delay: 3 },
-  ];
 
   return (
     <div
       className="min-h-screen relative overflow-hidden font-['fbahava',sans-serif]"
       dir={isHe ? 'rtl' : 'ltr'}
-      style={{ background: BG_GRADIENT }}
+      style={{
+        background: 'radial-gradient(ellipse at 30% 20%, #E0B8B2 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, #DAAAA4 0%, transparent 50%), #D4A5A0',
+      }}
     >
-      {/* Shimmer overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at 30% 20%, rgba(212,168,85,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, rgba(212,168,85,0.04) 0%, transparent 40%)',
-        }}
-      />
-      {/* Bokeh floating circles */}
+      {/* Bokeh circles */}
       {BOKEH_CIRCLES.map((b, i) => (
         <div
           key={i}
@@ -154,23 +165,52 @@ const Pricing = () => {
             width: b.size,
             height: b.size,
             top: b.top,
-            left: (b as any).left,
-            right: (b as any).right,
+            left: b.left,
             background: b.color,
-            filter: `blur(${b.blur}px)`,
-            animation: `bokeh-float 7s ease-in-out ${b.delay}s infinite alternate`,
+            filter: 'blur(50px)',
+            animation: `bokeh-float 8s ease-in-out ${i * 0.8}s infinite alternate`,
           }}
         />
       ))}
+
+      {/* Golden sparkle dots */}
+      {SPARKLE_DOTS.map((s, i) => (
+        <div
+          key={`sparkle-${i}`}
+          className="absolute pointer-events-none"
+          style={{
+            top: s.top,
+            left: s.left,
+            width: 4,
+            height: 4,
+            borderRadius: '50%',
+            background: GOLD_LIGHT,
+            boxShadow: `0 0 6px ${GOLD_LIGHT}, 0 0 12px rgba(232,200,120,0.3)`,
+            animation: `sparkle-pulse 3s ease-in-out ${s.delay}s infinite`,
+          }}
+        />
+      ))}
+
+      {/* Gold sparkle icons in corners */}
+      <div className="absolute top-6 left-6 pointer-events-none" style={{ color: GOLD, opacity: 0.3 }}>✦</div>
+      <div className="absolute top-6 right-6 pointer-events-none" style={{ color: GOLD, opacity: 0.3 }}>✦</div>
+      <div className="absolute bottom-6 left-6 pointer-events-none" style={{ color: GOLD, opacity: 0.2 }}>✦</div>
+      <div className="absolute bottom-6 right-6 pointer-events-none" style={{ color: GOLD, opacity: 0.2 }}>✦</div>
+
       <style>{`
         @keyframes bokeh-float {
-          0% { transform: translateY(0) scale(1); opacity: 0.8; }
-          50% { transform: translateY(-18px) scale(1.06); opacity: 1; }
-          100% { transform: translateY(8px) scale(0.94); opacity: 0.6; }
+          0% { transform: translateY(0) scale(1); opacity: 0.7; }
+          50% { transform: translateY(-20px) scale(1.08); opacity: 1; }
+          100% { transform: translateY(10px) scale(0.92); opacity: 0.5; }
+        }
+        @keyframes sparkle-pulse {
+          0%, 100% { opacity: 0.3; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.3); }
         }
       `}</style>
+
       {/* Header */}
-      <div className="pt-20 pb-10 text-center px-4">
+      <div className="pt-20 pb-10 text-center px-4 relative z-10">
         <div className="flex items-center justify-center gap-2 mb-4">
           <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
           <h1
@@ -195,10 +235,14 @@ const Pricing = () => {
 
       {/* Personal Status Card */}
       {user && (
-        <div className="mx-auto px-4 max-w-lg mb-8">
+        <div className="mx-auto px-4 max-w-lg mb-8 relative z-10">
           <div
-            className="rounded-2xl p-6 space-y-4 text-center backdrop-blur-xl"
-            style={{ background: 'rgba(255,255,255,0.75)', border: `2px solid ${GOLD}`, boxShadow: `0 8px 32px -4px rgba(212,168,85,0.15), 0 0 0 1px rgba(212,168,85,0.1)` }}
+            className="rounded-[20px] p-6 space-y-4 text-center"
+            style={{
+              background: '#FFFFFF',
+              border: `1px solid ${GOLD_BORDER}`,
+              boxShadow: CARD_SHADOW,
+            }}
           >
             <h2
               className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
@@ -226,13 +270,13 @@ const Pricing = () => {
 
           {/* Gold divider */}
           <div className="pt-6">
-            <div style={{ height: '1px', width: '60%', marginRight: 0, marginLeft: 'auto', background: GOLD_GRADIENT_WIDE }} />
+            <div style={{ height: '1px', width: '60%', marginRight: 0, marginLeft: 'auto', background: `rgba(212,168,85,0.4)` }} />
           </div>
         </div>
       )}
 
       {/* Plan Cards */}
-      <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-8 max-w-lg">
+      <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-8 max-w-lg relative z-10">
         {plans.map((plan, idx) => {
           const Icon = iconMap[plan.slug] || Sparkles;
           const features = isHe ? plan.features_he : plan.features_en;
@@ -240,28 +284,39 @@ const Pricing = () => {
           const cta = isHe ? plan.cta_he : plan.cta_en;
           const badge = isHe ? plan.badge_he : plan.badge_en;
           const isElite = plan.is_highlighted;
+          const FloatingIcon = floatingIcons[idx % floatingIcons.length];
 
           return (
             <div
               key={plan.id}
-              className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center backdrop-blur-xl"
+              className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
               style={{
                 border: isElite ? `2px solid ${GOLD}` : `1px solid ${GOLD_BORDER}`,
-                background: isElite
-                  ? 'rgba(255,253,245,0.85)'
-                  : 'rgba(255,255,255,0.75)',
-                boxShadow: isElite
-                  ? `0 0 24px rgba(201,168,76,0.25), 0 8px 40px -8px rgba(212,168,85,0.2), inset 0 1px 0 rgba(255,255,255,0.6)`
-                  : '0 4px 24px -4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+                background: '#FFFFFF',
+                boxShadow: isElite ? CARD_SHADOW_ELITE : CARD_SHADOW,
                 borderRadius: '20px',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
             >
+              {/* Floating gold icon badge */}
+              <div
+                className="absolute -top-3 -end-3 flex items-center justify-center"
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '50%',
+                  background: GOLD_GRADIENT,
+                  boxShadow: '0 4px 12px rgba(200,160,64,0.35)',
+                }}
+              >
+                <FloatingIcon className="w-5 h-5 text-white" />
+              </div>
+
               {isElite && badge && (
                 <span
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
-                  style={{ background: GOLD_GRADIENT, color: '#FFFFFF', boxShadow: `0 2px 12px rgba(212,168,85,0.4)` }}
+                  style={{ background: GOLD_GRADIENT, color: '#FFFFFF', boxShadow: '0 2px 12px rgba(212,168,85,0.4)' }}
                 >
                   {badge}
                 </span>
@@ -272,20 +327,13 @@ const Pricing = () => {
                 <Icon className="w-5 h-5" style={{ color: GOLD }} />
               </div>
 
+              {/* Price pill badge */}
               <div className="mb-8">
-                <div className="flex items-baseline justify-center gap-1.5">
-                  <span
-                    className="text-5xl font-serif font-bold"
-                    style={{
-                      color: isElite ? undefined : TEXT_DARK,
-                      backgroundImage: isElite ? GOLD_GRADIENT : undefined,
-                      WebkitBackgroundClip: isElite ? 'text' : undefined,
-                      WebkitTextFillColor: isElite ? 'transparent' : undefined,
-                    }}
-                  >
+                <div className="inline-flex items-baseline gap-1.5 px-6 py-2 rounded-full" style={{ background: GOLD_GRADIENT }}>
+                  <span className="text-3xl font-bold text-white">
                     {isHe ? `₪${plan.price_monthly.toLocaleString()}` : `$${plan.price_usd.toLocaleString()}`}
                   </span>
-                  <span className="text-sm" style={{ color: '#7A6B5D' }}>
+                  <span className="text-sm text-white/80">
                     {plan.slug === 'vip-3year' ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time') : (isHe ? '/ חודש' : '/ month')}
                   </span>
                 </div>
@@ -295,10 +343,11 @@ const Pricing = () => {
                 {features.map((f, i) => (
                   <li key={i}>
                     <div className="flex items-center justify-center gap-3 text-sm py-3" style={{ color: TEXT_DARK, fontWeight: 500 }}>
+                      <span style={{ color: GOLD_BTN }}>✓</span>
                       <span>{f}</span>
                     </div>
                     {i < features.length - 1 && (
-                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: `${GOLD}44` }} />
+                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: 'rgba(212,168,85,0.4)' }} />
                     )}
                   </li>
                 ))}
@@ -310,12 +359,13 @@ const Pricing = () => {
 
               <Link
                 to="/auth"
-                className="w-full inline-flex items-center justify-center py-4 rounded-full text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:brightness-110"
+                className="w-full inline-flex items-center justify-center py-4 text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:brightness-110"
                 style={{
-                  background: `linear-gradient(135deg, #E8C878 0%, #D4A855 40%, #C49A3C 70%, #B8902E 100%)`,
+                  background: GOLD_GRADIENT,
                   color: '#FFFFFF',
-                  boxShadow: '0 6px 20px rgba(212,168,85,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                  borderRadius: '50px',
+                  boxShadow: '0 6px 20px rgba(200,160,64,0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.12)',
                 }}
               >
                 {cta}
@@ -326,7 +376,7 @@ const Pricing = () => {
       </div>
 
       {/* Footer links */}
-      <div className="text-center text-xs pb-10 px-4 space-y-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
+      <div className="text-center text-xs pb-10 px-4 space-y-2 relative z-10" style={{ color: 'rgba(255,255,255,0.7)' }}>
         <p>{isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}</p>
         <Link to="/refund-policy" className="underline hover:opacity-80 transition-opacity" style={{ color: GOLD }}>
           {isHe ? 'מדיניות ביטולים והחזרים' : 'Cancellation & Refund Policy'}
@@ -334,21 +384,21 @@ const Pricing = () => {
       </div>
 
       {/* Gold divider before policy */}
-      <div className="mx-auto max-w-lg px-4 pb-4">
-        <div style={{ height: '1px', background: GOLD_GRADIENT_WIDE }} />
+      <div className="mx-auto max-w-lg px-4 pb-4 relative z-10">
+        <div style={{ height: '1px', background: 'rgba(212,168,85,0.4)' }} />
       </div>
 
       {/* Cancellation & Refund Policy */}
-      <div className="mx-auto px-4 pb-20 max-w-lg">
+      <div className="mx-auto px-4 pb-20 max-w-lg relative z-10">
         <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-wider mb-2" style={{ color: GOLD }}>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-wider mb-2" style={{ color: GOLD }}>
             {isHe ? 'מדיניות ביטולים והחזרים כספיים' : 'Cancellation & Refund Policy'}
           </h2>
           <div className="w-16 h-[2px] mx-auto mt-4 rounded-full" style={{ background: GOLD_GRADIENT_WIDE }} />
         </div>
 
         <Accordion type="single" collapsible className="space-y-3">
-          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden backdrop-blur-xl" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.7)' }}>
+          <AccordionItem value="vip" className="border overflow-hidden" style={{ borderColor: GOLD_BORDER, background: '#FFFFFF', borderRadius: '20px', boxShadow: CARD_SHADOW }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
               <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'מדיניות ביטול מיוחדת למסלול המייסדות (VIP)' : 'Special Cancellation Policy for Founders (VIP)'}
@@ -363,7 +413,7 @@ const Pricing = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden backdrop-blur-xl" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.7)' }}>
+          <AccordionItem value="monthly" className="border overflow-hidden" style={{ borderColor: GOLD_BORDER, background: '#FFFFFF', borderRadius: '20px', boxShadow: CARD_SHADOW }}>
             <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
               <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                 {isHe ? 'תנאי ביטול למסלולי Pro ו-Elite (מנוי חודשי)' : 'Cancellation Terms for Pro & Elite (Monthly)'}
