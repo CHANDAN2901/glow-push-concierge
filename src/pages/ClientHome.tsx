@@ -558,7 +558,7 @@ const ClientHome = () => {
 
         {/* ─── GREETING CARD ─── */}
         <div
-          className="relative mb-6 animate-fade-up rounded-3xl overflow-hidden client-glass-card"
+          className="relative mb-6 rounded-3xl overflow-hidden client-glass-card"
         >
           {/* Shine sweep overlay */}
           <div
