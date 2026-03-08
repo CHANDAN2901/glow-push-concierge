@@ -2185,7 +2185,8 @@ const ArtistDashboard = () => {
                   const birthdayWeek = isBirthdayThisWeek(client.birthDate);
                   const needsRenewal = isRenewalDue(client.treatment, client.day);
                     const isSafe = clientIsSafe(client.name);
-                    const flags = hasFlags ? getRedFlags(getDeclarationData(client.name) as any || {}) : [];
+                    const risk = getClientRiskLevel(client.name);
+                    const flags = hasFlags ? [risk === 'red' ? (lang === 'en' ? 'Medical Warning' : 'התוויית נגד') : (lang === 'en' ? 'Attention' : 'תשומת לב')] : [];
                     return (
                       <div key={i} className={`rounded-3xl overflow-hidden transition-all cursor-pointer bg-white ${hasFlags ? 'border-2 border-destructive/30' : 'border border-border/60'}`}
                         style={{ boxShadow: '0 4px 20px -4px hsla(0, 0%, 0%, 0.08)' }}
