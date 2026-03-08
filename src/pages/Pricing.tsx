@@ -340,43 +340,52 @@ const Pricing = () => {
 
       {/* Cancellation & Refund Policy */}
       <div className="mx-auto px-4 pb-20 max-w-lg">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-wider mb-2" style={{ color: GOLD }}>
-            {isHe ? 'מדיניות ביטולים והחזרים כספיים' : 'Cancellation & Refund Policy'}
-          </h2>
-          <div className="w-16 h-[2px] mx-auto mt-4 rounded-full" style={{ background: GOLD_GRADIENT_WIDE }} />
+        <div
+          className="rounded-2xl p-6 md:p-8 backdrop-blur-xl"
+          style={{
+            background: 'rgba(255,255,255,0.75)',
+            border: `1.5px solid ${GOLD}`,
+            boxShadow: `0 8px 32px -4px rgba(212,175,55,0.12), 0 0 0 1px rgba(212,175,55,0.08)`,
+          }}
+        >
+          <div className="text-center mb-6">
+            <h2 className="text-xl md:text-2xl font-bold tracking-wider mb-2" style={{ color: GOLD_TEXT }}>
+              {isHe ? 'מדיניות ביטולים והחזרים כספיים' : 'Cancellation & Refund Policy'}
+            </h2>
+            <div className="w-16 h-[2px] mx-auto mt-3 rounded-full" style={{ background: GOLD_GRADIENT_WIDE }} />
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-3">
+            <AccordionItem value="vip" className="border rounded-xl overflow-hidden" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.6)' }}>
+              <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
+                <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
+                  {isHe ? 'מדיניות ביטול מיוחדת למסלול המייסדות (VIP)' : 'Special Cancellation Policy for Founders (VIP)'}
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5">
+                <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
+                  <p><strong style={{ color: GOLD_TEXT }}>14 ימי התנסות ללא סיכון:</strong>{' '}ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.</p>
+                  <p><strong style={{ color: GOLD_TEXT }}>גמישות מלאה גם בהמשך:</strong>{' '}ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.</p>
+                  <p><strong style={{ color: GOLD_TEXT }}>איך מחושב ההחזר?</strong>{' '}במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.</p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="monthly" className="border rounded-xl overflow-hidden" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.6)' }}>
+              <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
+                <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
+                  {isHe ? 'תנאי ביטול למסלולי Pro ו-Elite (מנוי חודשי)' : 'Cancellation Terms for Pro & Elite (Monthly)'}
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5">
+                <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
+                  <p><strong style={{ color: GOLD_TEXT }}>ביטול בכל רגע:</strong>{' '}ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.</p>
+                  <p><strong style={{ color: GOLD_TEXT }}>ללא קנסות יציאה:</strong>{' '}לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.</p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
-
-        <Accordion type="single" collapsible className="space-y-3">
-          <AccordionItem value="vip" className="border rounded-2xl overflow-hidden backdrop-blur-xl" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.7)' }}>
-            <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
-              <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
-                {isHe ? 'מדיניות ביטול מיוחדת למסלול המייסדות (VIP)' : 'Special Cancellation Policy for Founders (VIP)'}
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="px-5 pb-5">
-              <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
-                <p><strong style={{ color: GOLD_TEXT }}>14 ימי התנסות ללא סיכון:</strong>{' '}ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.</p>
-                <p><strong style={{ color: GOLD_TEXT }}>גמישות מלאה גם בהמשך:</strong>{' '}ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.</p>
-                <p><strong style={{ color: GOLD_TEXT }}>איך מחושב ההחזר?</strong>{' '}במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.</p>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="monthly" className="border rounded-2xl overflow-hidden backdrop-blur-xl" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.7)' }}>
-            <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
-              <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
-                {isHe ? 'תנאי ביטול למסלולי Pro ו-Elite (מנוי חודשי)' : 'Cancellation Terms for Pro & Elite (Monthly)'}
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="px-5 pb-5">
-              <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
-                <p><strong style={{ color: GOLD_TEXT }}>ביטול בכל רגע:</strong>{' '}ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.</p>
-                <p><strong style={{ color: GOLD_TEXT }}>ללא קנסות יציאה:</strong>{' '}לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.</p>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
       </div>
     </div>
   );
