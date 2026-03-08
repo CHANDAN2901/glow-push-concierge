@@ -750,6 +750,9 @@ export type Database = {
           created_at: string
           current_uses: number
           discount_percent: number | null
+          discount_type: string
+          expiration_date: string | null
+          free_months: number | null
           id: string
           is_active: boolean
           label: string
@@ -761,6 +764,9 @@ export type Database = {
           created_at?: string
           current_uses?: number
           discount_percent?: number | null
+          discount_type?: string
+          expiration_date?: string | null
+          free_months?: number | null
           id?: string
           is_active?: boolean
           label?: string
@@ -772,6 +778,9 @@ export type Database = {
           created_at?: string
           current_uses?: number
           discount_percent?: number | null
+          discount_type?: string
+          expiration_date?: string | null
+          free_months?: number | null
           id?: string
           is_active?: boolean
           label?: string
