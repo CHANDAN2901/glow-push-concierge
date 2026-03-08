@@ -122,8 +122,53 @@ const Pricing = () => {
     );
   }
 
+  const BOKEH_CIRCLES = [
+    { size: 180, top: '8%', left: '10%', color: 'rgba(255,220,200,0.4)', blur: 70, delay: 0 },
+    { size: 120, top: '25%', right: '5%', color: 'rgba(255,200,180,0.3)', blur: 60, delay: 1.5 },
+    { size: 200, top: '50%', left: '60%', color: 'rgba(255,220,200,0.4)', blur: 80, delay: 0.8 },
+    { size: 90, top: '70%', left: '15%', color: 'rgba(255,200,180,0.3)', blur: 50, delay: 2.2 },
+    { size: 140, top: '85%', right: '20%', color: 'rgba(255,220,200,0.4)', blur: 65, delay: 1.2 },
+    { size: 100, top: '40%', left: '80%', color: 'rgba(255,200,180,0.3)', blur: 55, delay: 3 },
+  ];
+
   return (
-    <div className="min-h-screen" dir={isHe ? 'rtl' : 'ltr'} style={{ background: `linear-gradient(180deg, ${BG_WARM} 0%, ${BG_END} 100%)` }}>
+    <div
+      className="min-h-screen relative overflow-hidden"
+      dir={isHe ? 'rtl' : 'ltr'}
+      style={{
+        background: `
+          radial-gradient(ellipse at 20% 50%, rgba(232,180,160,0.6) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 20%, rgba(220,160,140,0.5) 0%, transparent 40%),
+          radial-gradient(ellipse at 60% 80%, rgba(210,170,150,0.4) 0%, transparent 45%),
+          radial-gradient(ellipse at 40% 30%, rgba(240,200,180,0.5) 0%, transparent 35%),
+          linear-gradient(135deg, #E8C4B0 0%, #D4A090 40%, #C49080 100%)
+        `,
+      }}
+    >
+      {/* Bokeh floating circles */}
+      {BOKEH_CIRCLES.map((b, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            width: b.size,
+            height: b.size,
+            top: b.top,
+            left: b.left,
+            right: (b as any).right,
+            background: b.color,
+            filter: `blur(${b.blur}px)`,
+            animation: `bokeh-float 6s ease-in-out ${b.delay}s infinite alternate`,
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes bokeh-float {
+          0% { transform: translateY(0) scale(1); opacity: 0.7; }
+          50% { transform: translateY(-15px) scale(1.08); opacity: 1; }
+          100% { transform: translateY(5px) scale(0.95); opacity: 0.6; }
+        }
+      `}</style>
       {/* Header */}
       <div className="pt-20 pb-10 text-center px-4">
         <div className="flex items-center justify-center gap-2 mb-4">
