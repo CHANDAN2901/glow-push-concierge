@@ -518,7 +518,7 @@ const ClientHome = () => {
      ═══════════════════════════════════════════════════════════════ */
   return (
     <div
-      className="min-h-screen pb-32"
+      className="min-h-screen pb-32 client-premium-bg"
     >
       {/* ─── HEADER ─── */}
       <header
