@@ -1161,10 +1161,10 @@ const ClientHome = () => {
         <div
           className="fixed bottom-0 left-0 right-0 z-[60]"
           style={{
-            background: 'linear-gradient(180deg, rgba(255,252,245,0.98) 0%, rgba(255,248,235,0.99) 100%)',
+            background: 'linear-gradient(180deg, rgba(246,225,228,0.97) 0%, rgba(246,225,228,0.99) 100%)',
             backdropFilter: 'blur(24px)',
-            boxShadow: '0 -4px 24px rgba(212,175,55,0.12), 0 -1px 0 rgba(212,175,55,0.2)',
-            borderTop: '2px solid rgba(212,175,55,0.25)',
+            boxShadow: '0 -4px 24px rgba(212,175,55,0.15), 0 -1px 0 rgba(212,175,55,0.25)',
+            borderTop: '2px solid rgba(212,175,55,0.3)',
           }}
         >
           {/* Gold shimmer line at top of nav */}
