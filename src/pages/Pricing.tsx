@@ -136,10 +136,15 @@ const Pricing = () => {
     <div
       className="min-h-screen relative overflow-hidden"
       dir={isHe ? 'rtl' : 'ltr'}
-      style={{
-        background: 'linear-gradient(135deg, #D4A0A0 0%, #C49090 40%, #B8847A 100%)',
-      }}
+      style={{ background: BG_GRADIENT }}
     >
+      {/* Shimmer overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 30% 20%, rgba(212,168,85,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, rgba(212,168,85,0.04) 0%, transparent 40%)',
+        }}
+      />
       {/* Bokeh floating circles */}
       {BOKEH_CIRCLES.map((b, i) => (
         <div
@@ -149,20 +154,19 @@ const Pricing = () => {
             width: b.size,
             height: b.size,
             top: b.top,
-            left: b.left,
+            left: (b as any).left,
             right: (b as any).right,
             background: b.color,
-            opacity: (b as any).opacity ?? 0.4,
             filter: `blur(${b.blur}px)`,
-            animation: `bokeh-float 6s ease-in-out ${b.delay}s infinite alternate`,
+            animation: `bokeh-float 7s ease-in-out ${b.delay}s infinite alternate`,
           }}
         />
       ))}
       <style>{`
         @keyframes bokeh-float {
-          0% { transform: translateY(0) scale(1); opacity: 0.7; }
-          50% { transform: translateY(-15px) scale(1.08); opacity: 1; }
-          100% { transform: translateY(5px) scale(0.95); opacity: 0.6; }
+          0% { transform: translateY(0) scale(1); opacity: 0.8; }
+          50% { transform: translateY(-18px) scale(1.06); opacity: 1; }
+          100% { transform: translateY(8px) scale(0.94); opacity: 0.6; }
         }
       `}</style>
       {/* Header */}
