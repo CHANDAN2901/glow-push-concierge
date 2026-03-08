@@ -115,19 +115,19 @@ const Pricing = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: `linear-gradient(180deg, ${BG_WARM} 0%, ${BG_END} 100%)` }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #D4A0A0 0%, #C49090 40%, #B8847A 100%)' }}>
         <div className="animate-pulse font-serif" style={{ color: GOLD }}>טוען...</div>
       </div>
     );
   }
 
   const BOKEH_CIRCLES = [
-    { size: 180, top: '8%', left: '10%', color: 'rgba(255,220,200,0.4)', blur: 70, delay: 0 },
-    { size: 120, top: '25%', right: '5%', color: 'rgba(255,200,180,0.3)', blur: 60, delay: 1.5 },
-    { size: 200, top: '50%', left: '60%', color: 'rgba(255,220,200,0.4)', blur: 80, delay: 0.8 },
-    { size: 90, top: '70%', left: '15%', color: 'rgba(255,200,180,0.3)', blur: 50, delay: 2.2 },
-    { size: 140, top: '85%', right: '20%', color: 'rgba(255,220,200,0.4)', blur: 65, delay: 1.2 },
-    { size: 100, top: '40%', left: '80%', color: 'rgba(255,200,180,0.3)', blur: 55, delay: 3 },
+    { size: 180, top: '8%', left: '10%', color: '#F0C0B0', opacity: 0.5, blur: 60, delay: 0 },
+    { size: 120, top: '25%', right: '5%', color: '#E8B0A0', opacity: 0.4, blur: 60, delay: 1.5 },
+    { size: 200, top: '50%', left: '60%', color: '#FFD0C0', opacity: 0.45, blur: 60, delay: 0.8 },
+    { size: 90, top: '70%', left: '15%', color: '#F5C5B5', opacity: 0.5, blur: 60, delay: 2.2 },
+    { size: 140, top: '85%', right: '20%', color: '#F0C0B0', opacity: 0.4, blur: 60, delay: 1.2 },
+    { size: 100, top: '40%', left: '80%', color: '#E8B0A0', opacity: 0.6, blur: 60, delay: 3 },
   ];
 
   return (
