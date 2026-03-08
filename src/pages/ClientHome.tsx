@@ -926,8 +926,7 @@ const ClientHome = () => {
 
         {/* ─── REFERRAL CARD ─── */}
         <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up overflow-hidden relative text-center card-pink-shimmer"
-          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          className="rounded-3xl p-6 mb-5 animate-fade-up overflow-hidden relative text-center client-glass-card"
           dir={lang === 'he' ? 'rtl' : 'ltr'}
         >
           <div className="flex flex-col items-center gap-2 mb-4">
