@@ -536,18 +536,18 @@
   100% { opacity: 0.8; transform: translateY(3px) scale(0.98); }
 }
 
-/* Glassmorphism card with gold gradient border */
+/* Glassmorphism card with gold gradient border — dark tinted glass */
 .client-glass-card {
-  background: linear-gradient(145deg, rgba(255,255,255,0.75) 0%, rgba(255,240,245,0.65) 50%, rgba(255,255,255,0.7) 100%) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(145deg, rgba(60,40,45,0.55) 0%, rgba(80,55,60,0.5) 50%, rgba(60,40,45,0.5) 100%) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 2px solid transparent !important;
   background-clip: padding-box !important;
   position: relative;
   box-shadow:
-    0 8px 32px rgba(180,120,140,0.12),
-    0 2px 8px rgba(0,0,0,0.04),
-    0 0 0 1px rgba(212,175,55,0.1);
+    0 12px 40px rgba(0,0,0,0.25),
+    0 4px 12px rgba(0,0,0,0.15),
+    0 0 0 1px rgba(212,175,55,0.15);
 }
 .client-glass-card::before {
   content: '';
