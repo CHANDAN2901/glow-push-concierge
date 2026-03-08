@@ -1204,7 +1204,7 @@ const ClientHome = () => {
                   <Camera className="w-7 h-7 text-white" strokeWidth={1.8} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' }} />
                 )}
               </button>
-              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
+              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
                 {bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Photo' : 'צילום')}
               </span>
             </div>
