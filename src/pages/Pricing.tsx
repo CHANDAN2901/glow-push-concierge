@@ -326,16 +326,22 @@ const Pricing = () => {
       </div>
 
       {/* Footer links */}
-      <div className="text-center text-xs pb-10 px-4 space-y-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
-        <p>{isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}</p>
-        <Link to="/refund-policy" className="underline hover:opacity-80 transition-opacity" style={{ color: GOLD }}>
-          {isHe ? 'מדיניות ביטולים והחזרים' : 'Cancellation & Refund Policy'}
-        </Link>
-      </div>
-
-      {/* Gold divider before policy */}
-      <div className="mx-auto max-w-lg px-4 pb-4">
-        <div style={{ height: '1px', background: GOLD_GRADIENT_WIDE }} />
+      <div className="mx-auto px-4 pb-6 max-w-lg">
+        <div
+          className="rounded-2xl p-5 text-center backdrop-blur-xl"
+          style={{
+            background: 'rgba(255,255,255,0.75)',
+            border: `1.5px solid ${GOLD}`,
+            boxShadow: `0 8px 32px -4px rgba(212,175,55,0.12), 0 0 0 1px rgba(212,175,55,0.08)`,
+          }}
+        >
+          <p className="text-sm font-medium mb-2" style={{ color: TEXT_DARK }}>
+            {isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}
+          </p>
+          <Link to="/refund-policy" className="text-sm underline hover:opacity-80 transition-opacity font-semibold" style={{ color: GOLD_TEXT }}>
+            {isHe ? 'מדיניות ביטולים והחזרים' : 'Cancellation & Refund Policy'}
+          </Link>
+        </div>
       </div>
 
       {/* Cancellation & Refund Policy */}
