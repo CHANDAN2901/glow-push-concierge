@@ -258,6 +258,7 @@ export default function CouponManager() {
                   <TableHead>הנחה</TableHead>
                   <TableHead>תפוגה</TableHead>
                   <TableHead className="text-center">שימושים</TableHead>
+                  <TableHead className="text-center">חדשות בלבד</TableHead>
                   <TableHead className="text-center">סטטוס</TableHead>
                   <TableHead>פעולות</TableHead>
                 </TableRow>
