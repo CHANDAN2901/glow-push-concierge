@@ -819,7 +819,7 @@ const ClientHome = () => {
           <div className="absolute inset-0 pointer-events-none rounded-3xl" style={{ boxShadow: 'inset 0 0 30px rgba(212,175,55,0.08)' }} />
           {/* Corner badge */}
           <div className="absolute top-3 left-3">
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold" style={{ background: METALLIC_GOLD_GRADIENT, color: '#5C4033', fontFamily: FBAHAVA }}>
+            <span className="px-4 py-1.5 rounded-full text-xs font-bold" style={{ background: 'linear-gradient(135deg, #d69da9 0%, #cf8f9b 40%, #c4869a 70%, #cf8f9b 90%, #d69da9 100%)', color: '#fff', fontFamily: FBAHAVA, boxShadow: '0 4px 12px rgba(214,157,169,0.4), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(180,100,120,0.15)', textShadow: '0 1px 2px rgba(0,0,0,0.15)' }}>
               {promo.tag_text}
             </span>
           </div>
