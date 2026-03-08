@@ -174,8 +174,8 @@ const Pricing = () => {
         <div
           className="rounded-2xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
           style={{
-            background: 'rgba(200,145,155,0.5)',
-            boxShadow: `0 0 18px rgba(212,175,55,0.25), 0 8px 32px -4px rgba(212,175,55,0.15)`,
+            background: '#D4A0A8',
+            boxShadow: `0 0 18px rgba(212,175,55,0.20), 0 8px 32px -4px rgba(180,120,130,0.25)`,
           }}
         >
           {/* Gold ombré border */}
