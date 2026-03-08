@@ -747,8 +747,7 @@ const ClientHome = () => {
 
           {/* Moisture Tracker */}
           <div
-            className="rounded-2xl p-5 text-center card-pink-shimmer"
-            style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+            className="rounded-2xl p-5 text-center client-glass-card"
           >
             <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(100,180,230,0.2), rgba(60,140,200,0.15))' }}>
               <span className="text-2xl">💧</span>
