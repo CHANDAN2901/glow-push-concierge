@@ -905,7 +905,7 @@ const ClientHome = () => {
             <h2 className="text-xl font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{promo.title || (lang === 'en' ? 'Complete the Look Offer!' : 'מבצע להשלמת המראה!')}</GoldText>
             </h2>
-            <p className="text-sm leading-relaxed mb-6" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+            <p className="text-sm leading-relaxed mb-6" style={{ fontFamily: FBAHAVA, color: BODY_TEXT }}>
               {promo.description}
             </p>
             <button
