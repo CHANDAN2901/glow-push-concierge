@@ -751,7 +751,7 @@ const ClientHome = () => {
             <h3 className="text-sm font-bold mb-1" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>{lang === 'en' ? 'Moisture Tracker' : 'מעקב לחות'}</GoldText>
             </h3>
-            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: BODY_TEXT }}>
               {lang === 'en' ? 'Next: apply moisturizer / drink water' : 'הטיימר הבא: מריחת מלחח / שתיית מים'}
             </p>
             {/* Mini progress bar */}
