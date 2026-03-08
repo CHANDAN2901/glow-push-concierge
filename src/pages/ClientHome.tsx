@@ -668,8 +668,7 @@ const ClientHome = () => {
 
         {/* ─── CURRENT TREATMENT STATUS ─── */}
         <div
-          className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden card-pink-shimmer"
-          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden client-glass-card"
         >
           <div className="px-6 py-8 text-center" dir="rtl">
             {/* Large status circle */}
