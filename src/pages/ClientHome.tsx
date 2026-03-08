@@ -652,7 +652,7 @@ const ClientHome = () => {
               {/* Inner content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-sm font-bold" style={{ fontFamily: FBAHAVA, color: '#8B6508', letterSpacing: '0.1em' }}>
-                  {lang === 'en' ? 'DAY' : 'יום'}
+                  {lang === 'en' ? 'Your Healing Day' : 'יום ההחלמה שלך'}
                 </span>
                 <span
                   className="font-bold leading-none"
