@@ -1057,9 +1057,9 @@ const ClientHome = () => {
             <a
               href="#care"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#F3E5AB', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+              <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
               <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה'}</span>
             </a>
 
@@ -1071,9 +1071,9 @@ const ClientHome = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#F3E5AB', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <MessageCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+              <MessageCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
               <span>{lang === 'en' ? 'Message' : 'הודעה'}</span>
             </a>
 
@@ -1090,7 +1090,7 @@ const ClientHome = () => {
                   <Camera className="w-7 h-7 text-white" strokeWidth={1.8} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' }} />
                 )}
               </button>
-              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
+              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>
                 {bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Photo' : 'צילום')}
               </span>
             </div>
@@ -1100,9 +1100,9 @@ const ClientHome = () => {
             <a
               href="#faq"
               className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-              style={{ color: '#F3E5AB', fontFamily: FBAHAVA, minWidth: '52px' }}
+              style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <HelpCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+              <HelpCircle className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
               <span>{lang === 'en' ? 'FAQ' : 'שאלות'}</span>
             </a>
 
@@ -1111,13 +1111,17 @@ const ClientHome = () => {
               <a
                 href="#gallery"
                 className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
-                style={{ color: '#F3E5AB', fontFamily: FBAHAVA, minWidth: '52px' }}
+                style={{ color: '#5C400A', fontFamily: FBAHAVA, minWidth: '52px' }}
               >
-                <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+                <Heart className="w-6 h-6" strokeWidth={2} style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
                 <span>{lang === 'en' ? 'Gallery' : 'גלריה'}</span>
               </a>
             )}
           </div>
+          {/* Tagline */}
+          <p className="text-center text-xs font-bold pb-2" style={{ color: '#5C400A', fontFamily: FBAHAVA, letterSpacing: '0.05em' }}>
+            Turn Happy Clients Into Marketers.
+          </p>
           <InstallBanner />
         </div>
       </div>
