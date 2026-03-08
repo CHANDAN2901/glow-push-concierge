@@ -889,8 +889,7 @@ const ClientHome = () => {
         {/* ─── UPSELL CARD (Dynamic from DB) ─── */}
         {promo.is_enabled && (
         <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden card-pink-shimmer"
-          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: '0 10px 40px rgba(212,175,55,0.15), 0 4px 16px rgba(180,120,140,0.12)', border: '2px solid rgba(212,175,55,0.3)' }}
+          className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden client-glass-card"
         >
           {/* Illuminated glow border effect */}
           <div className="absolute inset-0 pointer-events-none rounded-3xl" style={{ boxShadow: 'inset 0 0 30px rgba(212,175,55,0.08)' }} />
