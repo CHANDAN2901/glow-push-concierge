@@ -284,34 +284,9 @@ const SuperAdmin = () => {
   };
 
   const renderSettings = () => (
-    <div className="space-y-6 max-w-3xl relative pb-20">
-      {/* Card A: Business Configuration */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <DollarSign className="w-5 h-5 text-accent" />
-          <h2 className="font-serif font-semibold text-lg">הגדרות עסקיות ומנויים</h2>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4" dir="rtl">
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">תקופת ניסיון (ימים)</label>
-            <Input type="number" value={trialDays} onChange={(e) => setTrialDays(e.target.value)} />
-          </div>
-          <div />
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">מחיר תוכנית Lite (₪)</label>
-            <Input type="number" value={litePrice} onChange={(e) => setLitePrice(e.target.value)} />
-          </div>
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">מחיר תוכנית Pro (₪)</label>
-            <Input type="number" value={proPrice} onChange={(e) => setProPrice(e.target.value)} />
-          </div>
-          <div>
-            <label className="text-sm font-medium mb-1.5 block">מחיר תוכנית Master (₪)</label>
-            <Input type="number" value={masterPrice} onChange={(e) => setMasterPrice(e.target.value)} />
-          </div>
-        </div>
-      </div>
+    <div className="space-y-6 max-w-5xl relative pb-20">
+      {/* Coupon Management */}
+      <CouponManager />
 
       {/* Card B: Legal & Forms */}
       <div className="bg-card border border-border rounded-xl p-6">
