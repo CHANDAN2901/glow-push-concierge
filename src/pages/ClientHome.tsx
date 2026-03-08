@@ -701,7 +701,7 @@ const ClientHome = () => {
             </h2>
 
             {/* "This is how it should look" */}
-            <p className="text-sm leading-relaxed mb-4" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+            <p className="text-sm leading-relaxed mb-4" style={{ fontFamily: FBAHAVA, color: BODY_TEXT }}>
               {lang === 'en' ? 'This is how it should look today' : 'ככה זה אמור להיראות היום'}
             </p>
 
