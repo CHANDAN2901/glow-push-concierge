@@ -74,6 +74,7 @@ export default function CouponManager() {
       free_months: discountType === 'free_months' ? parseInt(freeMonths) || 0 : 0,
       expiration_date: expirationDate ? format(expirationDate, 'yyyy-MM-dd') : null,
       max_uses: maxUses ? parseInt(maxUses) : null,
+      new_users_only: newUsersOnly,
       is_active: true,
       current_uses: 0,
     };
