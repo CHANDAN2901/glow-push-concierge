@@ -135,13 +135,7 @@ const Pricing = () => {
       className="min-h-screen relative overflow-hidden"
       dir={isHe ? 'rtl' : 'ltr'}
       style={{
-        background: `
-          radial-gradient(ellipse at 20% 50%, rgba(232,180,160,0.6) 0%, transparent 50%),
-          radial-gradient(ellipse at 80% 20%, rgba(220,160,140,0.5) 0%, transparent 40%),
-          radial-gradient(ellipse at 60% 80%, rgba(210,170,150,0.4) 0%, transparent 45%),
-          radial-gradient(ellipse at 40% 30%, rgba(240,200,180,0.5) 0%, transparent 35%),
-          linear-gradient(135deg, #E8C4B0 0%, #D4A090 40%, #C49080 100%)
-        `,
+        background: 'linear-gradient(135deg, #D4A0A0 0%, #C49090 40%, #B8847A 100%)',
       }}
     >
       {/* Bokeh floating circles */}
