@@ -23,6 +23,7 @@ const navItems: { id: AdminView; label: string; labelHe: string; icon: React.Ele
   { id: 'health-questions', label: 'Health Questions', labelHe: 'שאלות הצהרת בריאות', icon: ClipboardList },
   { id: 'faq', label: 'FAQ & Help', labelHe: 'שאלות ותשובות / עזרה', icon: HelpCircle, path: '/admin/faq' },
   { id: 'faq-manager', label: 'FAQ Manager', labelHe: 'ניהול FAQ לנחיתה', icon: ListChecks, path: '/admin/faq-manager' },
+  { id: 'coupons', label: 'Coupons', labelHe: 'ניהול קופונים', icon: Ticket },
   { id: 'settings', label: 'Settings', labelHe: 'הגדרות', icon: Settings },
 ];
 
