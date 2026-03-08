@@ -1051,8 +1051,7 @@ const ClientHome = () => {
         {/* ─── FAQ ─── */}
         <div id="faq" className="scroll-mt-20" />
         <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up card-pink-shimmer"
-          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          className="rounded-3xl p-6 mb-5 animate-fade-up client-glass-card"
           dir="rtl"
         >
           <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-1.5 mb-4 text-xs hover:underline underline-offset-2" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
