@@ -933,7 +933,7 @@ const ClientHome = () => {
               <GoldText>{lang === 'en' ? 'Bring a friend, get a gift!' : 'הביאי חברה, קבלי מתנה!'}</GoldText>
             </h2>
           </div>
-          <p className="text-sm leading-relaxed mb-5 max-w-xs mx-auto" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+          <p className="text-sm leading-relaxed mb-5 max-w-xs mx-auto" style={{ fontFamily: FBAHAVA, color: BODY_TEXT }}>
             {lang === 'en' ? voucherTextEn : voucherTextHe}
           </p>
           <div className="flex items-center justify-center mb-5">
