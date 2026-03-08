@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { usePromoSettings } from '@/hooks/usePromoSettings';
 import { TreatmentType } from '@/lib/recovery-data';
 import { useHealingPhases } from '@/hooks/useHealingPhases';
-import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp, Bell, Phone, Navigation, Clipboard } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp, Bell, Phone, Navigation } from 'lucide-react';
 import { subscribeToPush } from '@/lib/push-utils';
 import {
   Accordion,
@@ -571,13 +571,31 @@ const ClientHome = () => {
               animation: 'hd-bronze-shimmer 4s ease-in-out infinite',
             }}
           />
-          <div className="relative py-9 px-6 text-center">
+          {/* Bokeh sparkles */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  width: `${4 + i * 2}px`,
+                  height: `${4 + i * 2}px`,
+                  top: `${15 + i * 12}%`,
+                  left: `${10 + i * 14}%`,
+                  background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)',
+                  animation: `sparkle-fade ${2 + i * 0.5}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.3}s`,
+                }}
+              />
+            ))}
+          </div>
+          <div className="relative py-10 px-6 text-center">
             <h1
-              className="font-bold tracking-wide mb-2 hd-shimmer-text"
+              className="font-bold tracking-wide mb-3 hd-shimmer-text"
               style={{
                 fontFamily: FBAHAVA,
-                fontSize: '28px',
-                lineHeight: 1.5,
+                fontSize: '26px',
+                lineHeight: 1.6,
                 background: 'linear-gradient(90deg, #caa64b, #f6e27a, #caa64b)',
                 backgroundSize: '200% 100%',
                 WebkitBackgroundClip: 'text',
@@ -586,10 +604,13 @@ const ClientHome = () => {
                 filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.45))',
               }}
             >
-              ✨ {getTimeGreeting(clientName)} ✨
+              ✨ {lang === 'en' ? `Welcome to your healing journey, ${clientName}!` : `ברוכה הבאה למסע ההחלמה שלך, ${clientName}!`} ✨
             </h1>
-            <p className="text-sm mt-2" style={{ color: '#b79a3a', fontFamily: FBAHAVA, letterSpacing: '0.02em' }}>
-              {lang === 'en' ? 'A new day on your Glow journey' : 'יום חדש למסע ה-Glow שלך'}
+            <p className="text-sm mt-1" style={{ color: '#b79a3a', fontFamily: FBAHAVA, letterSpacing: '0.02em' }}>
+              {lang === 'en' ? 'Follow your progress daily' : 'עקבי אחר ההתקדמות שלך בכל יום'}
+            </p>
+            <p className="text-xs mt-2 opacity-70" style={{ color: '#b79a3a', fontFamily: FBAHAVA }}>
+              {getTimeGreeting(clientName)}
             </p>
             <span className="sr-only" data-client-identity-source={identity.source}>
               {`client-identity-source:${identity.source}|client-id:${clientId || 'none'}|client-name:${clientName || 'none'}`}
@@ -627,80 +648,111 @@ const ClientHome = () => {
           </div>
         </div>
 
-        {/* ─── INSTRUCTIONS CARD ─── */}
+        {/* ─── CURRENT TREATMENT STATUS ─── */}
         <div
           className="mb-5 animate-fade-up delay-100 rounded-3xl overflow-hidden card-pink-shimmer"
           style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
         >
-          <div className="px-7 py-9 text-right" dir="rtl">
-            {/* Clipboard icon */}
-            <div className="flex justify-center mb-5">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(139,101,8,0.12), rgba(212,175,55,0.10))' }}>
-                <Clipboard className="w-7 h-7" style={{ color: '#8B6508', strokeWidth: 1.4 }} />
+          <div className="px-6 py-8 text-center" dir="rtl">
+            {/* Large status circle */}
+            <div className="relative w-32 h-32 mx-auto mb-5">
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: '#ffffff',
+                  border: '4px solid transparent',
+                  borderImage: METALLIC_GOLD_GRADIENT,
+                  borderImageSlice: 1,
+                  boxShadow: '0 12px 40px rgba(212,175,55,0.25), 0 4px 16px rgba(0,0,0,0.08), inset 0 0 20px rgba(212,175,55,0.05)',
+                }}
+              />
+              <div className="absolute inset-1 rounded-full" style={{ border: '3px solid rgba(212,175,55,0.3)' }} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xs mb-0.5" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
+                  {lang === 'en' ? 'Day' : 'יום'}
+                </span>
+                <GoldText className="text-4xl" style={{ fontFamily: 'var(--font-serif)', fontWeight: 700 }}>
+                  {viewingDay}
+                </GoldText>
               </div>
             </div>
 
-            {/* Title – gold gradient */}
-            <h2 className="text-[22px] font-semibold mb-5 leading-relaxed text-center" style={{ fontFamily: FBAHAVA }}>
-              <GoldText>ברוכה הבאה ליומן ההחלמה שלך</GoldText>
+            {/* Phase title */}
+            <h2 className="text-lg font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
+              <GoldText>
+                {lang === 'en'
+                  ? `Day ${viewingDay}: ${content.titleEn}`
+                  : `יום ${viewingDay}: ${content.title}`}
+              </GoldText>
             </h2>
 
-            {/* Body – matte black for readability */}
-            <p className="text-[17px] leading-[2] mb-2" style={{ fontFamily: FBAHAVA, color: '#2A2118' }}>
-              יצרתי את האזור האישי הזה במיוחד עבורך, כדי ללוות אותך יום אחר יום עד לתוצאה המושלמת.
+            {/* "This is how it should look" */}
+            <p className="text-sm leading-relaxed mb-4" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+              {lang === 'en' ? 'This is how it should look today' : 'ככה זה אמור להיראות היום'}
             </p>
-
-            <p className="text-[17px] leading-[2] mb-6" style={{ fontFamily: FBAHAVA, color: '#2A2118' }}>
-              מה מחכה לך כאן?
-            </p>
-
-            {/* List with gold separator lines */}
-            <div className="mb-7">
-              {/* Item 1 */}
-              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
-              <div className="flex items-start gap-3 py-4 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
-                <CalendarCheck className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
-                <span style={{ color: '#2A2118' }}>
-                  <strong style={{ color: '#2A2118' }}>הנחיות מדויקות:</strong>{' '}
-                  מותאמות בדיוק ליום ההחלמה שלך.
-                </span>
-              </div>
-              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
-
-              {/* Item 2 */}
-              <div className="flex items-start gap-3 py-4 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
-                <Camera className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
-                <span style={{ color: '#2A2118' }}>
-                  <strong style={{ color: '#2A2118' }}>מעקב אישי:</strong>{' '}
-                  העלי תמונות מהירות כדי שאוכל ללוות אותך.
-                </span>
-              </div>
-              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
-
-              {/* Item 3 */}
-              <div className="flex items-start gap-3 py-4 text-[16px] leading-[1.9]" style={{ fontFamily: FBAHAVA }}>
-                <MessageCircle className="w-6 h-6 mt-0.5 flex-shrink-0" style={{ color: '#8B6508', strokeWidth: 1.3 }} />
-                <span style={{ color: '#2A2118' }}>
-                  <strong style={{ color: '#2A2118' }}>קשר ישיר:</strong>{' '}
-                  צריכה אותי? אני במרחק לחיצה.
-                </span>
-              </div>
-              <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F3E5AB 50%, #D4AF37 70%, transparent 100%)' }} />
-            </div>
 
             {/* Treatment badge */}
-            <div className="flex justify-center">
-              <span
-                className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full text-[15px]"
-                style={{ background: 'rgba(139,101,8,0.06)', border: '1px solid rgba(139,101,8,0.18)', fontFamily: FBAHAVA }}
-              >
-                <GoldText style={{ fontWeight: 500 }}>
-                  {treatment === 'lips' ? '👄' : '✍️'}{' '}
-                  {lang === 'en'
-                    ? `Treatment: ${treatment === 'lips' ? 'Lips' : 'Brows'} ✨`
-                    : `סוג הטיפול: ${treatment === 'lips' ? 'שפתיים' : 'גבות'} ✨`}
-                </GoldText>
-              </span>
+            <span
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-[13px]"
+              style={{ background: 'rgba(139,101,8,0.06)', border: '1px solid rgba(139,101,8,0.18)', fontFamily: FBAHAVA }}
+            >
+              <GoldText style={{ fontWeight: 500 }}>
+                {treatment === 'lips' ? '👄' : '✍️'}{' '}
+                {lang === 'en'
+                  ? `${treatment === 'lips' ? 'Lip' : 'Brow'} Recovery`
+                  : `החלמת ${treatment === 'lips' ? 'שפתיים' : 'גבות'}`}
+              </GoldText>
+            </span>
+          </div>
+        </div>
+
+        {/* ─── DAILY ACTIONS ─── */}
+        <div className="grid grid-cols-2 gap-3 mb-5 animate-fade-up delay-150" dir="rtl">
+          {/* Daily Check-in */}
+          <button
+            onClick={() => {
+              const galleryEl = document.getElementById('gallery');
+              if (galleryEl) galleryEl.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="rounded-2xl p-5 text-center transition-all hover:scale-[1.02] active:scale-[0.97] card-pink-shimmer"
+            style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          >
+            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 4px 16px rgba(212,175,55,0.35)' }}>
+              <Camera className="w-6 h-6 text-white" strokeWidth={1.8} />
+            </div>
+            <h3 className="text-sm font-bold mb-1" style={{ fontFamily: TITLE_FONT }}>
+              <GoldText>{lang === 'en' ? 'Daily Check-in' : 'תיעוד יומי'}</GoldText>
+            </h3>
+            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+              {lang === 'en' ? 'Photograph and upload to the shared gallery' : 'צלמי את אזור הטיפול והעלי לגלריה המשותפת'}
+            </p>
+          </button>
+
+          {/* Moisture Tracker */}
+          <div
+            className="rounded-2xl p-5 text-center card-pink-shimmer"
+            style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          >
+            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(100,180,230,0.2), rgba(60,140,200,0.15))' }}>
+              <span className="text-2xl">💧</span>
+            </div>
+            <h3 className="text-sm font-bold mb-1" style={{ fontFamily: TITLE_FONT }}>
+              <GoldText>{lang === 'en' ? 'Moisture Tracker' : 'מעקב לחות'}</GoldText>
+            </h3>
+            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+              {lang === 'en' ? 'Next: apply moisturizer / drink water' : 'הטיימר הבא: מריחת מלחח / שתיית מים'}
+            </p>
+            {/* Mini progress bar */}
+            <div className="mt-3 w-full rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(212,175,55,0.1)' }}>
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: '65%',
+                  background: 'linear-gradient(90deg, #64B4E6, #3C8CC8)',
+                  boxShadow: '0 0 6px rgba(100,180,230,0.4)',
+                  transition: 'width 0.5s ease',
+                }}
+              />
             </div>
           </div>
         </div>
@@ -802,8 +854,8 @@ const ClientHome = () => {
               </>
             ) : (
               <>
-                <Check className="w-5 h-5 text-green-300" />
-                {lang === 'en' ? 'I finished today\'s care' : '✅ סיימתי את הטיפול היומי'}
+                <Check className="w-5 h-5" />
+                {lang === 'en' ? "I finished today's care routine" : '✅ סיימתי את הטיפול היומי'}
               </>
             )}
           </button>
@@ -823,31 +875,36 @@ const ClientHome = () => {
         {promo.is_enabled && (
         <div
           className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden card-pink-shimmer"
-          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: '0 10px 40px rgba(212,175,55,0.15), 0 4px 16px rgba(180,120,140,0.12)', border: '2px solid rgba(212,175,55,0.3)' }}
         >
+          {/* Illuminated glow border effect */}
+          <div className="absolute inset-0 pointer-events-none rounded-3xl" style={{ boxShadow: 'inset 0 0 30px rgba(212,175,55,0.08)' }} />
           {/* Corner badge */}
           <div className="absolute top-3 left-3">
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold" style={{ background: 'rgba(212,175,55,0.12)', color: '#B8860B', fontFamily: FBAHAVA }}>
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold" style={{ background: METALLIC_GOLD_GRADIENT, color: '#5C4033', fontFamily: FBAHAVA }}>
               {promo.tag_text}
             </span>
           </div>
-          <div className="pt-6 text-center">
-            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
-              <Sparkles className="w-6 h-6" style={{ color: '#B8860B' }} />
+          {/* Sparkle decorations */}
+          <div className="absolute top-4 right-4 text-lg opacity-60" style={{ animation: 'sparkle-fade 2s ease-in-out infinite' }}>⭐</div>
+          <div className="absolute bottom-6 left-6 text-sm opacity-40" style={{ animation: 'sparkle-fade 2.5s ease-in-out infinite 0.5s' }}>✨</div>
+          <div className="pt-8 text-center relative">
+            <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 6px 24px rgba(212,175,55,0.4)' }}>
+              <Gift className="w-8 h-8 text-white" strokeWidth={1.5} />
             </div>
             <h2 className="text-xl font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
-              <GoldText>{promo.title}</GoldText>
+              <GoldText>{promo.title || (lang === 'en' ? 'Complete the Look Offer!' : 'מבצע להשלמת המראה!')}</GoldText>
             </h2>
-            <p className="text-sm leading-relaxed mb-5" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+            <p className="text-sm leading-relaxed mb-6" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
               {promo.description}
             </p>
             <button
               onClick={() => setShowPromoModal(true)}
-              className="inline-flex items-center justify-center gap-2 px-8 py-3 text-sm transition-all hover:opacity-90 active:scale-[0.97] rounded-2xl cursor-pointer"
-              style={{ ...goldBtnStyle, fontFamily: FBAHAVA, border: 'none' }}
+              className="inline-flex items-center justify-center gap-2.5 px-10 py-3.5 text-sm font-bold transition-all hover:brightness-105 active:scale-[0.97] rounded-2xl cursor-pointer"
+              style={{ ...goldBtnStyle, fontFamily: FBAHAVA, border: 'none', fontSize: '15px' }}
             >
-              <Sparkles className="w-4 h-4" />
-              {promo.button_text}
+              <Sparkles className="w-4.5 h-4.5" />
+              {promo.button_text || (lang === 'en' ? 'Book Now' : 'הזמיני עכשיו')}
             </button>
           </div>
         </div>
@@ -1098,47 +1155,53 @@ const ClientHome = () => {
         <div
           className="fixed bottom-0 left-0 right-0 z-[60]"
           style={{
-            background: 'linear-gradient(180deg, hsla(350,45%,95%,0.97) 0%, hsla(350,40%,94%,0.99) 100%)',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '0 -2px 20px rgba(212,175,55,0.08)',
-            borderTop: '1px solid rgba(212,175,55,0.15)',
+            background: 'linear-gradient(180deg, rgba(255,252,245,0.98) 0%, rgba(255,248,235,0.99) 100%)',
+            backdropFilter: 'blur(24px)',
+            boxShadow: '0 -4px 24px rgba(212,175,55,0.12), 0 -1px 0 rgba(212,175,55,0.2)',
+            borderTop: '2px solid rgba(212,175,55,0.25)',
           }}
         >
-          <div className="max-w-md mx-auto px-3 pt-2 pb-4 flex items-end justify-around">
-            {/* Left 1: Aftercare */}
+          {/* Gold shimmer line at top of nav */}
+          <div className="h-[2px] w-full" style={{ background: METALLIC_GOLD_GRADIENT }} />
+          <div className="max-w-md mx-auto px-3 pt-2.5 pb-4 flex items-end justify-around">
+            {/* Aftercare */}
             <a
               href="#care"
-              className="flex flex-col items-center gap-1 py-2 text-[11px] transition-all hover:opacity-80 active:scale-[0.93]"
-              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '56px' }}
+              className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <Heart className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D4AF37' }} />
-              <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה שלי'}</span>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
+                <Heart className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
+              </div>
+              <span>{lang === 'en' ? 'Aftercare' : 'ההחלמה'}</span>
             </a>
 
-            {/* Left 2: Ask Artist (replaces Emergency) */}
+            {/* Ask Artist */}
             <a
               href={`https://wa.me/${artistBusinessPhone || artistPhone || ''}?text=${encodeURIComponent(
                 lang === 'en' ? `Hi! I have a question about my treatment (Day ${actualDay}) ✨` : `היי! יש לי שאלה לגבי הטיפול (יום ${actualDay}) ✨`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-col items-center gap-1 py-2 text-[11px] transition-all hover:opacity-80 active:scale-[0.93]"
-              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '56px' }}
+              className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <MessageCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D4AF37' }} />
-              <span>{lang === 'en' ? 'Ask Artist' : 'שאלה למאפרת'}</span>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
+                <MessageCircle className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
+              </div>
+              <span>{lang === 'en' ? 'Message' : 'הודעה'}</span>
             </a>
 
             {/* Center FAB: Camera */}
-            <div className="flex flex-col items-center -mt-6">
+            <div className="flex flex-col items-center -mt-7">
               <button
                 onClick={() => bottomFileRef.current?.click()}
                 disabled={bottomUploading}
-                className="w-16 h-16 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 disabled:opacity-50 shadow-lg"
+                className="w-[68px] h-[68px] rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                 style={{
                   background: METALLIC_GOLD_GRADIENT,
                   backgroundSize: '200% 100%',
-                  boxShadow: '0 6px 24px rgba(212,175,55,0.5), 0 2px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(249,242,149,0.6)',
+                  boxShadow: '0 8px 28px rgba(212,175,55,0.5), 0 3px 10px rgba(0,0,0,0.12), inset 0 1px 0 rgba(249,242,149,0.6), 0 0 0 4px rgba(255,252,245,0.95)',
                 }}
               >
                 {bottomUploading ? (
@@ -1147,30 +1210,34 @@ const ClientHome = () => {
                   <Camera className="w-7 h-7 text-white" strokeWidth={1.8} />
                 )}
               </button>
-              <span className="text-[10px] mt-1" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
+              <span className="text-[10px] mt-1 font-semibold" style={{ color: '#8B6914', fontFamily: FBAHAVA }}>
                 {bottomUploading ? (lang === 'en' ? 'Uploading...' : 'מעלה...') : (lang === 'en' ? 'Photo' : 'צילום')}
               </span>
             </div>
             <input ref={bottomFileRef} type="file" accept="image/*" className="hidden" onChange={handleBottomUpload} />
 
-            {/* Right 1: FAQ */}
+            {/* FAQ */}
             <a
               href="#faq"
-              className="flex flex-col items-center gap-1 py-2 text-[11px] transition-all hover:opacity-80 active:scale-[0.93]"
-              style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '56px' }}
+              className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+              style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
             >
-              <HelpCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D4AF37' }} />
+              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
+                <HelpCircle className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
+              </div>
               <span>{lang === 'en' ? 'FAQ' : 'שאלות'}</span>
             </a>
 
-            {/* Right 2: Gallery */}
+            {/* Gallery */}
             {validClientId && (
               <a
                 href="#gallery"
-                className="flex flex-col items-center gap-1 py-2 text-[11px] transition-all hover:opacity-80 active:scale-[0.93]"
-                style={{ color: '#B8860B', fontFamily: FBAHAVA, minWidth: '56px' }}
+                className="flex flex-col items-center gap-1.5 py-2 text-[10px] font-semibold transition-all hover:scale-105 active:scale-[0.93]"
+                style={{ color: '#8B6914', fontFamily: FBAHAVA, minWidth: '52px' }}
               >
-                <Heart className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D4AF37' }} />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)' }}>
+                  <Heart className="w-4.5 h-4.5" strokeWidth={1.8} style={{ color: '#D4AF37' }} />
+                </div>
                 <span>{lang === 'en' ? 'Gallery' : 'גלריה'}</span>
               </a>
             )}
