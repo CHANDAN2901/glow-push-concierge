@@ -349,9 +349,9 @@ const Pricing = () => {
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
               <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
-                <p><strong style={{ color: GOLD_DARK }}>14 ימי התנסות ללא סיכון:</strong>{' '}ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.</p>
-                <p><strong style={{ color: GOLD_DARK }}>גמישות מלאה גם בהמשך:</strong>{' '}ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.</p>
-                <p><strong style={{ color: GOLD_DARK }}>איך מחושב ההחזר?</strong>{' '}במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>14 ימי התנסות ללא סיכון:</strong>{' '}ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>גמישות מלאה גם בהמשך:</strong>{' '}ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.</p>
+                <p><strong style={{ color: GOLD_TEXT }}>איך מחושב ההחזר?</strong>{' '}במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.</p>
               </div>
             </AccordionContent>
           </AccordionItem>
