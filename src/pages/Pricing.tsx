@@ -244,18 +244,19 @@ const Pricing = () => {
           return (
             <div
               key={plan.id}
-              className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
+              className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center backdrop-blur-xl"
               style={{
                 border: isElite ? `2px solid ${GOLD}` : `1px solid ${GOLD_BORDER}`,
                 background: isElite
-                  ? `linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 100%)`
-                  : '#FFFFFF',
+                  ? 'rgba(255,253,245,0.85)'
+                  : 'rgba(255,255,255,0.75)',
                 boxShadow: isElite
-                  ? `0 0 20px rgba(201,168,76,0.3)`
-                  : '0 2px 16px -4px rgba(0,0,0,0.05)',
-                borderRadius: '16px',
+                  ? `0 0 24px rgba(201,168,76,0.25), 0 8px 40px -8px rgba(212,168,85,0.2), inset 0 1px 0 rgba(255,255,255,0.6)`
+                  : '0 4px 24px -4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+                borderRadius: '20px',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
+              }}
               }}
             >
               {isElite && badge && (
