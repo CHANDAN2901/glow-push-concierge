@@ -212,6 +212,16 @@ export default function CouponManager() {
               dir="ltr"
             />
           </div>
+
+          <div className="col-span-1 md:col-span-2">
+            <div className="flex items-center justify-between gap-3 bg-muted/30 rounded-lg px-4 py-3">
+              <div>
+                <Label className="block">למשתמשות חדשות בלבד</Label>
+                <span className="text-xs text-muted-foreground">הקופון יהיה זמין רק לאמניות שנרשמות לראשונה</span>
+              </div>
+              <Switch checked={newUsersOnly} onCheckedChange={setNewUsersOnly} className="data-[state=checked]:bg-accent" />
+            </div>
+          </div>
         </div>
 
         <Button
