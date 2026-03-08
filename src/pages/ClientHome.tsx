@@ -879,7 +879,8 @@ const ClientHome = () => {
         <button
           onClick={handleSyncCalendar}
           className="w-full mb-5 py-3 rounded-2xl text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.97] animate-fade-up"
-          style={{ background: CARD_BG, backdropFilter: 'blur(12px)', border: GOLD_BORDER, color: '#8B6914', fontFamily: FBAHAVA }}
+          style={{ color: '#8B6914', fontFamily: FBAHAVA }}
+          className="w-full mb-5 py-3 rounded-2xl text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.97] animate-fade-up client-glass-card"
         >
           <CalendarPlus className="w-4 h-4" style={{ color: '#B8860B' }} />
           {lang === 'en' ? 'Sync Calendar Reminders 📅' : 'סנכרני תזכורות ליומן 📅'}
