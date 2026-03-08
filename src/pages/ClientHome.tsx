@@ -1203,12 +1203,7 @@ const ClientHome = () => {
               <button
                 onClick={() => bottomFileRef.current?.click()}
                 disabled={bottomUploading}
-                className="w-[68px] h-[68px] rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-                style={{
-                  background: METALLIC_GOLD_GRADIENT,
-                  backgroundSize: '200% 100%',
-                  boxShadow: '0 8px 28px rgba(212,175,55,0.5), 0 3px 10px rgba(0,0,0,0.12), inset 0 1px 0 rgba(249,242,149,0.6), 0 0 0 4px rgba(255,252,245,0.95)',
-                }}
+                className="w-[72px] h-[72px] rounded-full flex items-center justify-center disabled:opacity-50 gold-sphere-btn"
               >
                 {bottomUploading ? (
                   <span className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
