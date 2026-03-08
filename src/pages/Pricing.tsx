@@ -334,7 +334,7 @@ const Pricing = () => {
       {/* Cancellation & Refund Policy */}
       <div className="mx-auto px-4 pb-20 max-w-lg">
         <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-wider mb-2" style={{ color: GOLD_DARK }}>
+          <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-wider mb-2" style={{ color: GOLD }}>
             {isHe ? 'מדיניות ביטולים והחזרים כספיים' : 'Cancellation & Refund Policy'}
           </h2>
           <div className="w-16 h-[2px] mx-auto mt-4 rounded-full" style={{ background: GOLD_GRADIENT_WIDE }} />
