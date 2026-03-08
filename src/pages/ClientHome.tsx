@@ -216,7 +216,8 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
       className={`w-full rounded-2xl p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up ${status !== 'subscribed' ? 'client-glass-card' : ''}`}
       style={{
         animationDelay: '50ms',
-        background: status === 'subscribed' ? 'linear-gradient(145deg, rgba(200,240,220,0.9) 0%, rgba(220,250,235,0.85) 100%)' : 'linear-gradient(135deg, #e8b8c0 0%, #d69da9 30%, #c4838f 60%, #d69da9 80%, #e8b8c0 100%)',
+        background: status === 'subscribed' ? 'linear-gradient(145deg, rgba(200,240,220,0.9) 0%, rgba(220,250,235,0.85) 100%)' : 'linear-gradient(135deg, #ecc4cb 0%, #e0adb6 18%, #d69da9 38%, #c98a96 58%, #d69da9 75%, #e8bcc4 90%, #f0cfd5 100%)',
+        backgroundSize: status === 'subscribed' ? undefined : '200% 100%',
         border: status === 'subscribed' ? '2px solid hsl(142 60% 50%)' : undefined,
         boxShadow: status === 'subscribed' ? undefined : '0 4px 15px rgba(214,157,169,0.3), inset 0 1px 0 rgba(255,255,255,0.3)',
         color: status === 'subscribed' ? 'hsl(142 60% 30%)' : '#7A5C2E',
