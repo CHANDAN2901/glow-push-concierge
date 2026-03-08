@@ -232,7 +232,7 @@ const Pricing = () => {
             </div>
             <p
               className="text-base md:text-lg max-w-xl mx-auto leading-relaxed animate-fade-up"
-              style={{ color: '#5C4A3A', animationDelay: '120ms', animationFillMode: 'both' }}
+              style={{ color: TEXT_DARK, animationDelay: '120ms', animationFillMode: 'both' }}
             >
               {isHe ? 'הכלים הדיגיטליים המתקדמים ביותר למאפרות שמכוונות רחוק.' : 'Advanced digital tools for ambitious PMU artists.'}
             </p>
