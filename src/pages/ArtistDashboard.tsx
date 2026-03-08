@@ -1455,26 +1455,30 @@ const ArtistDashboard = () => {
               ].map((metric, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl p-4 text-center animate-fade-up"
+                  className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden"
                   style={{
-                    background: 'rgba(255,255,255,0.55)',
-                    backdropFilter: 'blur(16px)',
-                    border: '1px solid hsl(var(--gold) / 0.3)',
-                    boxShadow: '0 4px 24px hsla(0, 0%, 0%, 0.06)',
+                    background: 'linear-gradient(135deg, #E8C0C8 0%, #F5E0E4 30%, #FFFFFF 50%, #F0D0D5 70%, #DEB0BA 100%)',
+                    boxShadow: '0 0 20px rgba(212,175,55,0.15), 0 4px 24px rgba(180,120,130,0.15)',
                     animationDelay: `${i * 0.08}s`,
                     opacity: 0,
                   }}
                 >
-                  <metric.icon className="w-5 h-5 mx-auto mb-2 text-accent" strokeWidth={1.5} />
+                  {/* Gold ombré border */}
+                  <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                    border: '3px solid transparent',
+                    background: 'linear-gradient(135deg, #E8C0C8, #F5E0E4, #FFFFFF, #F0D0D5, #DEB0BA) padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                    borderRadius: 'inherit',
+                  }} />
+                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#5C4033' }} strokeWidth={1.5} />
                   <p
-                    className="text-xl font-extrabold mb-1"
-                    style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+                    className="text-xl font-extrabold mb-1 relative z-10"
+                    style={{ color: '#5C4033' }}
                   >
                     {metric.value}
                   </p>
-                  <p className="text-[10px] font-medium text-muted-foreground">{metric.label}</p>
+                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#5C4033' }}>{metric.label}</p>
                   {metric.trend && (
-                    <p className="text-[10px] font-bold mt-1" style={{ color: '#22c55e' }}>
+                    <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
                       ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
                     </p>
                   )}
