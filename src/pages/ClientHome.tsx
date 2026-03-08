@@ -527,9 +527,9 @@ const ClientHome = () => {
       <header
         className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl"
         style={{
-          background: 'linear-gradient(180deg, rgba(246,225,228,0.96) 0%, rgba(246,225,228,0.88) 100%)',
-          borderBottom: '2px solid rgba(212,175,55,0.25)',
-          boxShadow: '0 4px 20px rgba(212,175,55,0.1)',
+          background: 'linear-gradient(180deg, rgba(100,65,70,0.96) 0%, rgba(100,65,70,0.88) 100%)',
+          borderBottom: '2px solid rgba(212,175,55,0.35)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.3), 0 0 12px rgba(212,175,55,0.1)',
         }}
       >
         <div className="max-w-md mx-auto">
