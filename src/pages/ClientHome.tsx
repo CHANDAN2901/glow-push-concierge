@@ -987,10 +987,10 @@ const ClientHome = () => {
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all hover:scale-[1.03] active:scale-[0.97] client-glass-card"
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
-                <MessageCircle className="w-4.5 h-4.5" style={{ color: '#B8860B' }} />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
+                <MessageCircle className="w-4.5 h-4.5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
               </div>
-              <span className="text-[11px]" style={{ color: '#8B6914', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Chat' : 'וואטסאפ'}</span>
+              <span className="text-[11px]" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Chat' : 'וואטסאפ'}</span>
             </a>
             {/* Instagram */}
             <a
