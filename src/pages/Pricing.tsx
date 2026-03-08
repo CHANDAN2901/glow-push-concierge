@@ -257,7 +257,6 @@ const Pricing = () => {
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
-              }}
             >
               {isElite && badge && (
                 <span
