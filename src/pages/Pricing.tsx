@@ -55,7 +55,7 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
   const pct = Math.min((takenSpots / totalSpots) * 100, 100);
   const isUrgent = remaining <= 10;
 
-  const textColor = isUrgent ? '#C0392B' : GOLD_DARK;
+  const textColor = isUrgent ? '#C0392B' : GOLD_TEXT;
   const barColor = isUrgent
     ? 'linear-gradient(90deg, #E74C3C, #C0392B)'
     : GOLD_GRADIENT;
