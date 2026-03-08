@@ -315,7 +315,7 @@ const ClientProfile = () => {
 
     supabase
       .from('health_declarations')
-      .select('id, is_signed, created_at, form_data')
+      .select('id, is_signed, created_at, form_data, signature_svg')
       .eq('client_id', resolvedId)
       .order('created_at', { ascending: false })
       .limit(1)
