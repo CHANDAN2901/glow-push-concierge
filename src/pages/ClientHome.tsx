@@ -836,7 +836,7 @@ const ClientHome = () => {
               : (lang === 'en' ? '✨ Brow Recovery' : '✨ החלמת גבות')}
           </p>
           {isPreviewing && (
-            <button onClick={() => handleDayChange(actualDay)} className="block mx-auto mt-2 text-xs underline underline-offset-2 hover:opacity-80" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
+            <button onClick={() => handleDayChange(actualDay)} className="block mx-auto mt-2 text-xs underline underline-offset-2 hover:opacity-80" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
               {lang === 'en' ? '← Back to Today' : '← חזרה להיום'}
             </button>
           )}
