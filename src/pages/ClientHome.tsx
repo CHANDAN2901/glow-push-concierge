@@ -775,7 +775,7 @@ const ClientHome = () => {
         >
           {isPreviewing && (
             <div className="text-center mb-3">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs" style={{ background: 'rgba(212,175,55,0.1)', color: '#8B6914', fontFamily: FBAHAVA }}>
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs" style={{ background: 'rgba(212,175,55,0.15)', color: '#F3E5AB', fontFamily: FBAHAVA }}>
                 {lang === 'en' ? `Previewing Day ${viewingDay}` : `תצוגה מקדימה — יום ${viewingDay}`}
               </span>
             </div>
