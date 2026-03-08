@@ -1420,7 +1420,8 @@ const ArtistDashboard = () => {
                 </div>
                 <div className="space-y-2">
                   {redFlagClients.map((c, i) => {
-                    const flags = getRedFlags(getDeclarationData(c.name)!);
+                    const risk = getClientRiskLevel(c.name);
+                    const flags = risk === 'red' ? [lang === 'en' ? 'Medical Warning' : 'התוויית נגד רפואית'] : risk === 'yellow' ? [lang === 'en' ? 'Requires Attention' : 'דורש תשומת לב'] : [];
                     return (
                       <div
                         key={i}
