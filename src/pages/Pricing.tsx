@@ -240,7 +240,7 @@ const Pricing = () => {
               key={plan.id}
               className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
               style={{
-                border: isElite ? `2px solid ${GOLD}` : `1px solid ${GOLD}`,
+                border: isElite ? `2px solid ${GOLD}` : `1px solid ${GOLD_BORDER}`,
                 background: isElite
                   ? `linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 100%)`
                   : '#FFFFFF',
