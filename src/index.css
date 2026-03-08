@@ -578,11 +578,12 @@
 .gold-sphere-btn:hover {
   transform: scale(1.08);
   box-shadow:
-    0 12px 36px rgba(212,175,55,0.6),
-    0 4px 14px rgba(0,0,0,0.18),
+    0 12px 40px rgba(212,175,55,0.7),
+    0 4px 14px rgba(0,0,0,0.25),
+    0 0 32px rgba(212,175,55,0.5),
     inset 0 2px 4px rgba(249,242,149,0.8),
     inset 0 -3px 6px rgba(139,101,8,0.3),
-    0 0 20px rgba(212,175,55,0.3);
+    0 0 24px rgba(212,175,55,0.4);
 }
 .gold-sphere-btn:active {
   transform: scale(0.95);
