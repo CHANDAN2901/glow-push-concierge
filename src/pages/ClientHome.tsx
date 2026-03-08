@@ -809,7 +809,7 @@ const ClientHome = () => {
               <CircularProgress percentage={(viewingDay / 30) * 100} size={160} strokeWidth={5} />
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <GoldText className="text-5xl" style={{ fontFamily: 'var(--font-serif)', fontWeight: 300 }}>{viewingDay}</GoldText>
-                <p className="text-xs mt-1" style={{ color: '#B8860B', fontFamily: FBAHAVA }}>
+                <p className="text-xs mt-1" style={{ color: '#F3E5AB', fontFamily: FBAHAVA }}>
                   {t('client.day')} {viewingDay} {t('client.of')} 30
                 </p>
               </div>
