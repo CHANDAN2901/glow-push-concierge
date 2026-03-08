@@ -966,7 +966,6 @@ const ClientHome = () => {
               href={`tel:${artistBusinessPhone || artistPhone || ''}`}
               className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all hover:scale-[1.03] active:scale-[0.97] client-glass-card"
             >
-            >
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
                 <Phone className="w-4.5 h-4.5" style={{ color: '#B8860B' }} />
               </div>
