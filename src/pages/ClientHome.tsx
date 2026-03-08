@@ -875,31 +875,36 @@ const ClientHome = () => {
         {promo.is_enabled && (
         <div
           className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden card-pink-shimmer"
-          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: CARD_SHADOW, border: GOLD_BORDER }}
+          style={{ background: CARD_BG, backdropFilter: 'blur(16px)', boxShadow: '0 10px 40px rgba(212,175,55,0.15), 0 4px 16px rgba(180,120,140,0.12)', border: '2px solid rgba(212,175,55,0.3)' }}
         >
+          {/* Illuminated glow border effect */}
+          <div className="absolute inset-0 pointer-events-none rounded-3xl" style={{ boxShadow: 'inset 0 0 30px rgba(212,175,55,0.08)' }} />
           {/* Corner badge */}
           <div className="absolute top-3 left-3">
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold" style={{ background: 'rgba(212,175,55,0.12)', color: '#B8860B', fontFamily: FBAHAVA }}>
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold" style={{ background: METALLIC_GOLD_GRADIENT, color: '#5C4033', fontFamily: FBAHAVA }}>
               {promo.tag_text}
             </span>
           </div>
-          <div className="pt-6 text-center">
-            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
-              <Sparkles className="w-6 h-6" style={{ color: '#B8860B' }} />
+          {/* Sparkle decorations */}
+          <div className="absolute top-4 right-4 text-lg opacity-60" style={{ animation: 'sparkle-fade 2s ease-in-out infinite' }}>⭐</div>
+          <div className="absolute bottom-6 left-6 text-sm opacity-40" style={{ animation: 'sparkle-fade 2.5s ease-in-out infinite 0.5s' }}>✨</div>
+          <div className="pt-8 text-center relative">
+            <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 6px 24px rgba(212,175,55,0.4)' }}>
+              <Gift className="w-8 h-8 text-white" strokeWidth={1.5} />
             </div>
             <h2 className="text-xl font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
-              <GoldText>{promo.title}</GoldText>
+              <GoldText>{promo.title || (lang === 'en' ? 'Complete the Look Offer!' : 'מבצע להשלמת המראה!')}</GoldText>
             </h2>
-            <p className="text-sm leading-relaxed mb-5" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
+            <p className="text-sm leading-relaxed mb-6" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
               {promo.description}
             </p>
             <button
               onClick={() => setShowPromoModal(true)}
-              className="inline-flex items-center justify-center gap-2 px-8 py-3 text-sm transition-all hover:opacity-90 active:scale-[0.97] rounded-2xl cursor-pointer"
-              style={{ ...goldBtnStyle, fontFamily: FBAHAVA, border: 'none' }}
+              className="inline-flex items-center justify-center gap-2.5 px-10 py-3.5 text-sm font-bold transition-all hover:brightness-105 active:scale-[0.97] rounded-2xl cursor-pointer"
+              style={{ ...goldBtnStyle, fontFamily: FBAHAVA, border: 'none', fontSize: '15px' }}
             >
-              <Sparkles className="w-4 h-4" />
-              {promo.button_text}
+              <Sparkles className="w-4.5 h-4.5" />
+              {promo.button_text || (lang === 'en' ? 'Book Now' : 'הזמיני עכשיו')}
             </button>
           </div>
         </div>
