@@ -899,7 +899,7 @@ const ClientHome = () => {
           <div className="absolute top-4 right-4 text-lg opacity-60" style={{ animation: 'sparkle-fade 2s ease-in-out infinite' }}>⭐</div>
           <div className="absolute bottom-6 left-6 text-sm opacity-40" style={{ animation: 'sparkle-fade 2.5s ease-in-out infinite 0.5s' }}>✨</div>
           <div className="pt-8 text-center relative">
-            <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 6px 24px rgba(212,175,55,0.4)' }}>
+            <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 6px 28px rgba(212,175,55,0.5), 0 0 16px rgba(212,175,55,0.3)' }}>
               <Gift className="w-8 h-8 text-white" strokeWidth={1.5} />
             </div>
             <h2 className="text-xl font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
