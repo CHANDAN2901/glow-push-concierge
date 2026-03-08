@@ -1470,7 +1470,7 @@ const ArtistDashboard = () => {
                     borderRadius: 'inherit',
                   }} />
                 >
-                  <metric.icon className="w-5 h-5 mx-auto mb-2 text-accent" strokeWidth={1.5} />
+                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#5C4033' }} strokeWidth={1.5} />
                   <p
                     className="text-xl font-extrabold mb-1"
                     style={{ background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
