@@ -603,10 +603,10 @@ const ClientHome = () => {
             >
               ✨ {lang === 'en' ? `Welcome to your healing journey, ${clientName}!` : `ברוכה הבאה למסע ההחלמה שלך, ${clientName}!`} ✨
             </h1>
-            <p className="text-sm mt-1" style={{ color: '#b79a3a', fontFamily: FBAHAVA, letterSpacing: '0.02em' }}>
+            <p className="text-sm mt-1" style={{ color: SUBTEXT_COLOR, fontFamily: FBAHAVA, letterSpacing: '0.02em' }}>
               {lang === 'en' ? 'Follow your progress daily' : 'עקבי אחר ההתקדמות שלך בכל יום'}
             </p>
-            <p className="text-xs mt-2 opacity-70" style={{ color: '#b79a3a', fontFamily: FBAHAVA }}>
+            <p className="text-xs mt-2 opacity-80" style={{ color: SUBTEXT_COLOR, fontFamily: FBAHAVA }}>
               {getTimeGreeting(clientName)}
             </p>
             <span className="sr-only" data-client-identity-source={identity.source}>
