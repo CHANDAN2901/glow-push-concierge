@@ -1119,7 +1119,7 @@ const ClientHome = () => {
                   >
                     <span
                       className="font-bold text-right flex-1"
-                      style={{ color: '#000000' }}
+                      style={{ color: '#F3E5AB' }}
                     >
                       {faq.q}
                     </span>
