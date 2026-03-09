@@ -116,7 +116,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
           }}
         >
           <MessageCircle className="w-5 h-5" />
-          שתפי בוואטסאפ
+          {isHe ? 'שתפי בוואטסאפ' : 'Share on WhatsApp'}
         </a>
       </div>
 
