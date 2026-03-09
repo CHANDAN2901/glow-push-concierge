@@ -15,57 +15,75 @@ const goldColor = 'hsl(38, 65%, 55%)';
 
 type FaqCategory = 'client_app' | 'general' | 'photos';
 
-const HELP_CATEGORIES: { key: FaqCategory; label: string }[] = [
-  { key: 'client_app', label: 'אפליקציית הלקוחות' },
-  { key: 'general', label: 'שימוש שוטף' },
-  { key: 'photos', label: 'תמונות וקולאז\'' },
+const HELP_CATEGORIES: { key: FaqCategory; label_he: string; label_en: string }[] = [
+  { key: 'client_app', label_he: 'אפליקציית הלקוחות', label_en: 'Client App' },
+  { key: 'general', label_he: 'שימוש שוטף', label_en: 'General Use' },
+  { key: 'photos', label_he: 'תמונות וקולאז\'', label_en: 'Photos & Collage' },
 ];
 
-const categorizeHelpFaq = (q: string): FaqCategory => {
-  const lower = q.toLowerCase();
-  if (lower.includes('לקוח') || lower.includes('קישור') || lower.includes('התחבר') || lower.includes('הורד') || lower.includes('פוש') || lower.includes('התראות') || lower.includes('תזכורת'))
-    return 'client_app';
-  if (lower.includes('תמונ') || lower.includes('קולאז') || lower.includes('גלריה') || lower.includes('לוגו'))
-    return 'photos';
-  return 'general';
-};
-
-const FAQ_ITEMS = [
+const FAQ_ITEMS: { q_he: string; a_he: string; q_en: string; a_en: string; cat: FaqCategory }[] = [
   {
-    q: 'איך מעלים לוגו?',
-    a: 'גשי ללשונית "לקוחות" בדשבורד, גללי למטה לאזור "הגדרות סטודיו" והדביקי את כתובת ה-URL של הלוגו שלך. הלוגו יופיע בכרטיס הביקור הדיגיטלי ובטופס הרפואי.',
+    cat: 'photos',
+    q_he: 'איך מעלים לוגו?',
+    a_he: 'גשי ללשונית "לקוחות" בדשבורד, גללי למטה לאזור "הגדרות סטודיו" והדביקי את כתובת ה-URL של הלוגו שלך. הלוגו יופיע בכרטיס הביקור הדיגיטלי ובטופס הרפואי.',
+    q_en: 'How do I upload a logo?',
+    a_en: 'Go to the "Clients" tab in the dashboard, scroll down to the "Studio Settings" section, and paste your logo URL. The logo will appear on your digital business card and health form.',
   },
   {
-    q: 'איך שולחים טופס ללקוחה?',
-    a: 'בלשונית "לקוחות", לחצי על "הצהרת בריאות" ליד שם הלקוחה. מלאי את הטופס יחד איתה או שלחי לה קישור. הטופס כולל חתימה דיגיטלית ונשמר אוטומטית.',
+    cat: 'client_app',
+    q_he: 'איך שולחים טופס ללקוחה?',
+    a_he: 'בלשונית "לקוחות", לחצי על "הצהרת בריאות" ליד שם הלקוחה. מלאי את הטופס יחד איתה או שלחי לה קישור. הטופס כולל חתימה דיגיטלית ונשמר אוטומטית.',
+    q_en: 'How do I send a form to a client?',
+    a_en: 'In the "Clients" tab, click "Health Declaration" next to the client\'s name. Fill out the form with her or send her a link. The form includes a digital signature and is saved automatically.',
   },
   {
-    q: 'איך משנים סיסמה?',
-    a: 'בשלב זה, ניתן לאפס סיסמה דרך מסך ההתחברות — לחצי על "שכחתי סיסמה" והזיני את כתובת המייל שלך. קישור לאיפוס יישלח אלייך.',
+    cat: 'general',
+    q_he: 'איך משנים סיסמה?',
+    a_he: 'בשלב זה, ניתן לאפס סיסמה דרך מסך ההתחברות — לחצי על "שכחתי סיסמה" והזיני את כתובת המייל שלך. קישור לאיפוס יישלח אלייך.',
+    q_en: 'How do I change my password?',
+    a_en: 'You can reset your password from the login screen — click "Forgot Password" and enter your email. A reset link will be sent to you.',
   },
   {
-    q: 'איך שולחים תזכורת החלמה ללקוחה?',
-    a: 'המערכת שולחת תזכורות החלמה וטאצ׳ אפ באופן אוטומטי לכל לקוחה. בלשונית "לקוחות" תוכלי לראות את סטטוס האוטומציה ליד כל לקוחה.',
+    cat: 'client_app',
+    q_he: 'איך שולחים תזכורת החלמה ללקוחה?',
+    a_he: 'המערכת שולחת תזכורות החלמה וטאצ׳ אפ באופן אוטומטי לכל לקוחה. בלשונית "לקוחות" תוכלי לראות את סטטוס האוטומציה ליד כל לקוחה.',
+    q_en: 'How do I send healing reminders to a client?',
+    a_en: 'The system sends healing reminders and touch-ups automatically to every client. In the "Clients" tab, you can see the automation status next to each client.',
   },
   {
-    q: 'האם הלקוחה צריכה להוריד אפליקציה שתופסת מקום בטלפון?',
-    a: 'ממש לא! Glow Push עובדת בטכנולוגיית רשת. הלקוחה מקבלת ממך לינק אישי בוואטסאפ. כשהיא תפתח אותו, המערכת תציע לה לשמור את האפליקציה על מסך הבית כדי לקבל התראות פוש (Push), ללא צורך בהורדה מחנות האפליקציות.',
+    cat: 'client_app',
+    q_he: 'האם הלקוחה צריכה להוריד אפליקציה שתופסת מקום בטלפון?',
+    a_he: 'ממש לא! Glow Push עובדת בטכנולוגיית רשת. הלקוחה מקבלת ממך לינק אישי בוואטסאפ. כשהיא תפתח אותו, המערכת תציע לה לשמור את האפליקציה על מסך הבית כדי לקבל התראות פוש (Push), ללא צורך בהורדה מחנות האפליקציות.',
+    q_en: 'Does the client need to download an app?',
+    a_en: 'Not at all! Glow Push works as a web app. The client receives a personal link via WhatsApp. When she opens it, the system offers to save the app to her home screen for push notifications — no app store download needed.',
   },
   {
-    q: 'מה קורה אם לקוחה מחקה בטעות את ההודעה ואיבדה את הקישור שלה?',
-    a: 'פשוט מאוד. היכנסי לכרטיס הלקוחה שלה באזור הניהול, ולחצי על כפתור "שלחי קישור התחברות". הלינק יישלח אליה שוב מיד.',
+    cat: 'client_app',
+    q_he: 'מה קורה אם לקוחה מחקה בטעות את ההודעה ואיבדה את הקישור שלה?',
+    a_he: 'פשוט מאוד. היכנסי לכרטיס הלקוחה שלה באזור הניהול, ולחצי על כפתור "שלחי קישור התחברות". הלינק יישלח אליה שוב מיד.',
+    q_en: 'What if a client accidentally deleted the message and lost her link?',
+    a_en: 'Simple. Go to her client card in the management area and click "Send Login Link". The link will be sent to her again immediately.',
   },
   {
-    q: 'איך עובד מנגנון "חברה מביאה חברה"?',
-    a: 'במסך הראשי יש לך כפתור ייעודי. לחיצה עליו תייצר לך קישור אישי שאותו תוכלי לשלוח לחברות למקצוע. ברגע שחברה נרשמת דרך הקישור שלך, המערכת תזהה זאת אוטומטית ושתיכן תתוגמלו בהטבה!',
+    cat: 'general',
+    q_he: 'איך עובד מנגנון "חברה מביאה חברה"?',
+    a_he: 'במסך הראשי יש לך כפתור ייעודי. לחיצה עליו תייצר לך קישור אישי שאותו תוכלי לשלוח לחברות למקצוע. ברגע שחברה נרשמת דרך הקישור שלך, המערכת תזהה זאת אוטומטית ושתיכן תתוגמלו בהטבה!',
+    q_en: 'How does the "Refer a Friend" feature work?',
+    a_en: 'On the main screen there\'s a dedicated button. Clicking it generates a personal link you can send to colleagues. Once a friend signs up through your link, the system automatically detects it and you both get rewarded!',
   },
   {
-    q: 'מי יכול לראות את תמונות ההחלמה של הלקוחות שלי?',
-    a: 'הפרטיות היא מעל הכל. התמונות מאובטחות וגלויות אך ורק לך (המאפרת) וללקוחה עצמה. אף לקוחה אחרת לא יכולה לראות גלריה שאינה שלה.',
+    cat: 'photos',
+    q_he: 'מי יכול לראות את תמונות ההחלמה של הלקוחות שלי?',
+    a_he: 'הפרטיות היא מעל הכל. התמונות מאובטחות וגלויות אך ורק לך (המאפרת) וללקוחה עצמה. אף לקוחה אחרת לא יכולה לראות גלריה שאינה שלה.',
+    q_en: 'Who can see my clients\' healing photos?',
+    a_en: 'Privacy comes first. Photos are secured and visible only to you (the artist) and the client herself. No other client can see a gallery that isn\'t hers.',
   },
   {
-    q: 'איך הלוגו שלי מופיע על הקולאז׳ים?',
-    a: 'בהגדרות הפרופיל שלך תוכלי להעלות את לוגו הקליניקה. ברגע שהוא מוזן למערכת, Glow Push "תטביע" אותו אוטומטית ובצורה יוקרתית על כל קולאז׳ שתייצרי דרך האפליקציה.',
+    cat: 'photos',
+    q_he: 'איך הלוגו שלי מופיע על הקולאז׳ים?',
+    a_he: 'בהגדרות הפרופיל שלך תוכלי להעלות את לוגו הקליניקה. ברגע שהוא מוזן למערכת, Glow Push "תטביע" אותו אוטומטית ובצורה יוקרתית על כל קולאז׳ שתייצרי דרך האפליקציה.',
+    q_en: 'How does my logo appear on collages?',
+    a_en: 'In your profile settings, you can upload your clinic logo. Once it\'s in the system, Glow Push will automatically stamp it elegantly on every collage you create through the app.',
   },
 ];
 
@@ -164,20 +182,20 @@ export default function HelpCenter({ onClose }: Props) {
                   border: `1.5px solid ${goldColor}40`,
                 }}
               >
-                {cat.label}
+                {isHe ? cat.label_he : cat.label_en}
               </button>
             );
           })}
         </div>
 
         <Accordion type="single" collapsible className="space-y-2">
-          {FAQ_ITEMS.filter((item) => categorizeHelpFaq(item.q) === helpCategory).map((item, i) => (
+          {FAQ_ITEMS.filter((item) => item.cat === helpCategory).map((item, i) => (
             <AccordionItem key={i} value={`faq-${i}`} className="border border-border rounded-xl px-4 overflow-hidden">
               <AccordionTrigger className="text-sm font-medium text-start py-4 hover:no-underline">
-                {item.q}
+                {isHe ? item.q_he : item.q_en}
               </AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4">
-                {item.a}
+                {isHe ? item.a_he : item.a_en}
               </AccordionContent>
             </AccordionItem>
           ))}
