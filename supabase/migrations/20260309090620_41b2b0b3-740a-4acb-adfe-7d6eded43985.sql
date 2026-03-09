@@ -1,0 +1,1 @@
+ALTER TABLE public.clients ADD COLUMN medical_exception_approved boolean NOT NULL DEFAULT false;

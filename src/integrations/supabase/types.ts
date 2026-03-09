@@ -204,6 +204,7 @@ export type Database = {
           email: string | null
           full_name: string
           id: string
+          medical_exception_approved: boolean
           phone: string | null
           push_opted_in: boolean
           referral_code: string | null
@@ -217,6 +218,7 @@ export type Database = {
           email?: string | null
           full_name: string
           id?: string
+          medical_exception_approved?: boolean
           phone?: string | null
           push_opted_in?: boolean
           referral_code?: string | null
@@ -230,6 +232,7 @@ export type Database = {
           email?: string | null
           full_name?: string
           id?: string
+          medical_exception_approved?: boolean
           phone?: string | null
           push_opted_in?: boolean
           referral_code?: string | null
