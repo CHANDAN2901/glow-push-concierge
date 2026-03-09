@@ -1485,7 +1485,8 @@ const ArtistDashboard = () => {
                           <span className="text-[10px] text-destructive/70 truncate">{flags.join(', ')}</span>
                         </div>
                         <button
-                          onClick={(e) => { e.stopPropagation(); approveException(c                 className="shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
+                          onClick={(e) => { e.stopPropagation(); approveException(c); }}
+                          className="shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
                         >
                           {lang === 'en' ? 'Approve' : 'אישור החרגה'}
                         </button>
