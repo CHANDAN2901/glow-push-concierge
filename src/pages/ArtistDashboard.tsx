@@ -2936,7 +2936,7 @@ const ArtistDashboard = () => {
                   }}
                 >
                   {savingCard ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
-                  {savingCard ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמור שינויים')}
+                  {savingCard ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמירת שינויים')}
                 </Button>
               </div>
             </div>
