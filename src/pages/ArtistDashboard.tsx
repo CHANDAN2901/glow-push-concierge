@@ -2877,7 +2877,7 @@ const ArtistDashboard = () => {
                   setSavingBusiness(false);
                 }}
                 disabled={savingBusiness}
-                className="w-full h-12 rounded-full font-bold text-sm tracking-wide"
+                className="w-full mt-2 h-12 rounded-full font-bold text-sm tracking-wide"
                 style={{
                   background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
                   color: '#5C4033',
@@ -2886,7 +2886,7 @@ const ArtistDashboard = () => {
                 }}
               >
                 {savingBusiness ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
-                {savingBusiness ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save' : 'שמור')}
+                {savingBusiness ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמירת שינויים')}
               </Button>
             </div>
 
@@ -2936,7 +2936,7 @@ const ArtistDashboard = () => {
                   }}
                 >
                   {savingCard ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
-                  {savingCard ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמור שינויים')}
+                  {savingCard ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמירת שינויים')}
                 </Button>
               </div>
             </div>
