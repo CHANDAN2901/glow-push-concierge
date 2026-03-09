@@ -188,9 +188,9 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       const { data: { publicUrl } } = supabase.storage.from('portfolio').getPublicUrl(path);
       setCustomLogo(publicUrl);
       await supabase.from('profiles').update({ logo_url: publicUrl }).eq('id', artistId);
-      toast({ title: 'הלוגו עודכן בהצלחה ✅' });
+      toast({ title: isHe ? 'הלוגו עודכן בהצלחה ✅' : 'Logo updated ✅' });
     } catch (err: any) {
-      toast({ title: 'שגיאה בהעלאת לוגו', description: err?.message, variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בהעלאת לוגו' : 'Logo upload failed', description: err?.message, variant: 'destructive' });
     }
   };
 
