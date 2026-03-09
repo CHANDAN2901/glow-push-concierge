@@ -22,6 +22,8 @@ interface DigitalCardProps {
 const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, previewIg, previewFacebook }: DigitalCardProps = {}) => {
   const [searchParams] = useSearchParams();
   const [profileError, setProfileError] = useState(false);
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
 
   const name = previewName || searchParams.get('name') || 'Orit Aharoni';
   const phone = previewPhone || searchParams.get('phone') || WHATSAPP_NUMBER;
