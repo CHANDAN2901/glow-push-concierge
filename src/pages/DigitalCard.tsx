@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Phone, MessageCircle, Instagram, Facebook } from 'lucide-react';
 import heroBg from '@/assets/card-hero-bg.jpg';
 import defaultLogo from '@/assets/glowpush-logo.png';
+import { useI18n } from '@/lib/i18n';
 
 const WHATSAPP_NUMBER = '972508855329';
 const WHATSAPP_MESSAGE = 'היי! הגעתי דרך הכרטיס הדיגיטלי, אשמח לקבל פרטים ולתאם תור ✨';
@@ -21,6 +22,8 @@ interface DigitalCardProps {
 const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, previewIg, previewFacebook }: DigitalCardProps = {}) => {
   const [searchParams] = useSearchParams();
   const [profileError, setProfileError] = useState(false);
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
 
   const name = previewName || searchParams.get('name') || 'Orit Aharoni';
   const phone = previewPhone || searchParams.get('phone') || WHATSAPP_NUMBER;
@@ -69,7 +72,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
 
         <div className="text-center mt-1">
           <h1 className="text-2xl font-extralight tracking-widest text-foreground">{name}</h1>
-          <h2 className="text-sm text-muted-foreground mt-1 tracking-wider font-light">אמנית איפור קבוע</h2>
+          <h2 className="text-sm text-muted-foreground mt-1 tracking-wider font-light">{isHe ? 'אמנית איפור קבוע' : 'Permanent Makeup Artist'}</h2>
         </div>
       </div>
 
@@ -78,24 +81,24 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
         <CircleButton
           href={whatsappUrl}
           icon={<MessageCircle className="w-7 h-7" />}
-          label="שלחי הודעה בוואטסאפ"
+          label={isHe ? 'שלחי הודעה בוואטסאפ' : 'Message on WhatsApp'}
         />
         <CircleButton
           href={telUrl}
           icon={<Phone className="w-7 h-7" />}
-          label="התקשרי עכשיו"
+          label={isHe ? 'התקשרי עכשיו' : 'Call Now'}
           isPhone
         />
         <CircleButton
           href={fbUrl || '#'}
           icon={<Facebook className="w-7 h-7" />}
-          label="פייסבוק"
+          label={isHe ? 'פייסבוק' : 'Facebook'}
           disabled={!fbUrl}
         />
         <CircleButton
           href={igUrl || '#'}
           icon={<Instagram className="w-7 h-7" />}
-          label="אינסטגרם"
+          label={isHe ? 'אינסטגרם' : 'Instagram'}
           disabled={!igUrl}
         />
       </div>
@@ -113,7 +116,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
           }}
         >
           <MessageCircle className="w-5 h-5" />
-          שתפי בוואטסאפ
+          {isHe ? 'שתפי בוואטסאפ' : 'Share on WhatsApp'}
         </a>
       </div>
 
