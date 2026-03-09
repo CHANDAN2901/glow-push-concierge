@@ -353,7 +353,7 @@ export default function TimelineSettings() {
                   }}
                 >
                   {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
-                  {saving ? 'שומר…' : 'שמור שינויים'}
+                  {saving ? (isHe ? 'שומר…' : 'Saving…') : (isHe ? 'שמירת שינויים' : 'Save Changes')}
                 </Button>
               </div>
             </div>

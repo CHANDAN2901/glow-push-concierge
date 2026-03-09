@@ -3012,8 +3012,9 @@ const ArtistDashboard = () => {
                   <Textarea
                     value={promoDescription}
                     onChange={(e) => setPromoDescription(e.target.value)}
-                    dir="rtl"
+                    dir={lang === 'en' ? 'ltr' : 'rtl'}
                     rows={4}
+                    placeholder={lang === 'en' ? 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.' : 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.'}
                     className="rounded-2xl bg-white text-sm px-4 py-3 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
                     style={{ border: '1px solid hsl(38 55% 62%)' }}
                   />
