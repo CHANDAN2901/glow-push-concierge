@@ -2747,7 +2747,7 @@ const ArtistDashboard = () => {
             </div>
 
             {/* Card — Digital Card Settings */}
-            <div className="rounded-3xl p-5 bg-card" style={{ boxShadow: '0 6px 32px -8px hsla(0, 0%, 0%, 0.1)' }}>
+            <div className="rounded-3xl p-5 bg-card" style={{ border: '3px solid transparent', backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box', boxShadow: '0 8px 32px -4px rgba(212, 175, 55, 0.35), 0 4px 16px -2px rgba(0, 0, 0, 0.1)' }}>
               <div className="flex items-center gap-3 mb-3">
                 <Smartphone className="w-5 h-5 text-accent" strokeWidth={1.5} />
                 <h2 className="font-bold text-xl tracking-wide text-foreground">{lang === 'en' ? 'Digital Card Settings' : 'הגדרות כרטיס דיגיטלי'}</h2>
