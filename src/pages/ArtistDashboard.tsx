@@ -3033,7 +3033,7 @@ const ArtistDashboard = () => {
                 </p>
               </div>
             </div>
-          </div>
+
 
             {/* Notification & Automation Upgrade */}
             <NotificationUpgradeSection
