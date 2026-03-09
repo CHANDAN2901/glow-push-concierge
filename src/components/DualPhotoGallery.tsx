@@ -508,7 +508,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           }}
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? 'שומר...' : 'שמור לתיק לקוחה'}
+          {saving ? (isHe ? 'שומר...' : 'Saving...') : (isHe ? 'שמור לתיק לקוחה' : 'Save to client file')}
         </button>
 
         <button
@@ -522,7 +522,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           }}
         >
           {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-          {downloading ? 'מוריד...' : 'הורדה לגלריה'}
+          {downloading ? (isHe ? 'מוריד...' : 'Downloading...') : (isHe ? 'הורדה לגלריה' : 'Download')}
         </button>
       </div>
     </div>
