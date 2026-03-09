@@ -411,11 +411,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       >
         {/* BEFORE half (left) */}
         <div className="absolute inset-y-0 left-0 w-1/2">
-          <CollageHalf src={before} label="לפני" onClear={() => setBefore(null)} onFileSelect={setFile('before')} active={activeHalf === 'before'} onSelect={() => setActiveHalf('before')} />
+          <CollageHalf src={before} label={isHe ? 'לפני' : 'Before'} onClear={() => setBefore(null)} onFileSelect={setFile('before')} active={activeHalf === 'before'} onSelect={() => setActiveHalf('before')} />
         </div>
         {/* AFTER half (right) */}
         <div className="absolute inset-y-0 right-0 w-1/2">
-          <CollageHalf src={after} label="אחרי ✨" onClear={() => setAfter(null)} onFileSelect={setFile('after')} active={activeHalf === 'after'} onSelect={() => setActiveHalf('after')} />
+          <CollageHalf src={after} label={isHe ? 'אחרי ✨' : 'After ✨'} onClear={() => setAfter(null)} onFileSelect={setFile('after')} active={activeHalf === 'after'} onSelect={() => setActiveHalf('after')} />
         </div>
         {/* Gold divider */}
         <div className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 z-10 pointer-events-none" style={{ backgroundColor: GOLD }} />
