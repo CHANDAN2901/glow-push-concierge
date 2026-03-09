@@ -2269,7 +2269,8 @@ const ArtistDashboard = () => {
                   const aftercare = getMessageForDay(client?.day ?? 0);
                   const sentKey = `${client.name}-day${aftercare?.day ?? client?.day ?? 0}`;
                   const lastSent = waSentLog[sentKey];
-                  const hasFlags = clientHasRedFlags(client.name) && !approclienclient.medicalExceptionApproved          const birthdayWeek = isBirthdayThisWeek(client.birthDate);
+                  const hasFlags = clientHasRedFlags(client.name) && !client.medicalExceptionApproved;
+                  const birthdayWeek = isBirthdayThisWeek(client.birthDate);
                   const needsRenewal = isRenewalDue(client.treatment, client.day);
                     const isSafe = clientIsSafe(client.name);
                     const risk = getClientRiskLevel(client.name);
