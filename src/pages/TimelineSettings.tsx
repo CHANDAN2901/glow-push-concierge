@@ -246,7 +246,7 @@ export default function TimelineSettings() {
                             boxShadow: '0 2px 8px hsl(38 55% 50% / 0.25)',
                           }}
                         >
-                          {step.isCustom ? `שלב מותאם ${step.step_index + 1}` : step.dayLabel}
+                          {step.isCustom ? (isHe ? `שלב מותאם ${step.step_index + 1}` : `Custom Step ${step.step_index + 1}`) : (isHe ? step.dayLabel : step.dayLabel.replace('יום', 'Day').replace('ימים', 'Days'))}
                         </div>
                       </div>
                       {step.isCustom && (
