@@ -2914,7 +2914,126 @@ const ArtistDashboard = () => {
                   {savingPromo ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמירת שינויים')}
                 </Button>
               </div>
+
+              {/* Live Phone Preview */}
+              <div className="mt-8">
+                <Label className="text-sm font-semibold text-foreground mb-4 block">
+                  {lang === 'en' ? 'Live Client Preview' : 'תצוגה מקדימה אצל הלקוחה'}
+                </Label>
+                {/* Phone mockup frame */}
+                <div
+                  className="relative mx-auto"
+                  style={{
+                    width: '280px',
+                    borderRadius: '36px',
+                    padding: '12px',
+                    background: 'linear-gradient(145deg, #2c2c2e 0%, #1c1c1e 50%, #3a3a3c 100%)',
+                    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1)',
+                  }}
+                >
+                  {/* Notch */}
+                  <div
+                    className="absolute top-[14px] left-1/2 -translate-x-1/2 w-[80px] h-[24px] rounded-full z-20"
+                    style={{ background: '#1c1c1e' }}
+                  />
+                  {/* Inner screen */}
+                  <div
+                    className="relative overflow-hidden"
+                    style={{
+                      borderRadius: '28px',
+                      background: 'linear-gradient(135deg, #F8E8EC 0%, #F0D0D5 30%, #E8C0C8 60%, #F0D0D5 80%, #F8E8EC 100%)',
+                      minHeight: '380px',
+                    }}
+                  >
+                    {/* Status bar */}
+                    <div className="flex items-center justify-between px-6 pt-8 pb-2 text-[10px] font-semibold" style={{ color: '#5C400A' }}>
+                      <span>9:41</span>
+                      <div className="flex items-center gap-1">
+                        <span>📶</span>
+                        <span>🔋</span>
+                      </div>
+                    </div>
+
+                    {/* Promo card preview */}
+                    <div className="px-4 pt-2 pb-6">
+                      <div
+                        className="relative rounded-2xl p-5 overflow-hidden"
+                        style={{
+                          background: 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.6) 100%)',
+                          backdropFilter: 'blur(20px)',
+                          border: '1.5px solid rgba(212,175,55,0.3)',
+                          boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                        }}
+                      >
+                        {/* Tag badge */}
+                        <div className="absolute top-3 left-3">
+                          <span
+                            className="px-3 py-1 rounded-full text-[10px] font-bold"
+                            style={{
+                              background: 'linear-gradient(135deg, #d69da9 0%, #cf8f9b 40%, #c4869a 70%, #cf8f9b 90%, #d69da9 100%)',
+                              color: '#fff',
+                              boxShadow: '0 4px 12px rgba(214,157,169,0.4)',
+                            }}
+                          >
+                            {promoTagText || 'פינוק ללקוחות ✨'}
+                          </span>
+                        </div>
+                        {/* Sparkle deco */}
+                        <div className="absolute top-3 right-3 text-sm opacity-60">⭐</div>
+                        
+                        <div className="pt-6 text-center">
+                          {/* Gift icon */}
+                          <div
+                            className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center"
+                            style={{
+                              background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
+                              boxShadow: '0 4px 16px rgba(212,175,55,0.4)',
+                            }}
+                          >
+                            <Gift className="w-6 h-6 text-white" strokeWidth={1.5} />
+                          </div>
+                          {/* Title */}
+                          <h3
+                            className="text-base font-bold mb-1.5"
+                            style={{
+                              background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent',
+                              backgroundClip: 'text',
+                            }}
+                          >
+                            {promoTitle || 'להשלמת המראה'}
+                          </h3>
+                          {/* Description */}
+                          <p
+                            className="text-[11px] leading-relaxed mb-4 px-2"
+                            style={{ color: '#4A3520' }}
+                          >
+                            {promoDescription || 'אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה'}
+                          </p>
+                          {/* CTA Button */}
+                          <div
+                            className="px-6 py-2.5 rounded-xl text-xs font-bold mx-auto inline-flex items-center gap-1.5"
+                            style={{
+                              background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
+                              color: '#4A3520',
+                              boxShadow: '0 4px 16px rgba(212,175,55,0.35)',
+                            }}
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                            {promoButtonText || 'הזמיני עכשיו'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-center text-xs text-muted-foreground mt-3">
+                  {lang === 'en' ? 'This is how clients see your promotion' : 'כך הלקוחות שלך יראו את ההטבה'}
+                </p>
+              </div>
             </div>
+
 
             {/* Notification & Automation Upgrade */}
             <NotificationUpgradeSection
