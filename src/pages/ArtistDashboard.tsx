@@ -2990,7 +2990,8 @@ const ArtistDashboard = () => {
                   <Input
                     value={promoTagText}
                     onChange={(e) => setPromoTagText(e.target.value)}
-                    dir="rtl"
+                    dir={lang === 'en' ? 'ltr' : 'rtl'}
+                    placeholder={lang === 'en' ? 'Exclusive for Returning Clients ✨' : 'פינוק ללקוחות חוזרות ✨'}
                     className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
                     style={{ border: '1px solid hsl(38 55% 62%)' }}
                   />
