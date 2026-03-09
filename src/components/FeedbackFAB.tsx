@@ -18,9 +18,14 @@ const TOPICS = [
 ];
 
 export default function FeedbackFAB() {
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", topic: "", message: "" });
+
+  // Hide on landing/marketing pages
+  const hiddenRoutes = ["/", "/pricing", "/auth", "/legal", "/privacy", "/terms", "/refund-policy"];
+  if (hiddenRoutes.includes(location.pathname)) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
