@@ -2408,13 +2408,13 @@ const ArtistDashboard = () => {
                     </div>
                   );
                 })}
-              </div>
                 {/* Infinite scroll sentinel */}
                 {clientListFilter === 'all' && !clientSearchQuery && hasMoreClients && (
                   <div ref={loadMoreSentinelRef} className="flex justify-center py-4">
                     {loadingMoreClients && <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />}
                   </div>
                 )}
+              </div>
                 );
               })()}
             </div>
