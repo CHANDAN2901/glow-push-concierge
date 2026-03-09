@@ -2216,10 +2216,25 @@ const ArtistDashboard = () => {
                 if (filteredClients.length === 0) {
                   if (searchQ) {
                     return (
-                      <div className="text-center py-12">
-                        <span className="text-4xl mb-3 block">🔍</span>
-                        <p className="text-sm text-muted-foreground">{lang === 'en' ? 'No clients found' : 'לא נמצאו לקוחות'}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{lang === 'en' ? 'Try a different search term' : 'נסי מילת חיפוש אחרת'}</p>
+                      <div className="flex flex-col items-center justify-center py-16 px-6">
+                        <div
+                          className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
+                          style={{
+                            background: 'linear-gradient(135deg, #F0D0D5 0%, #FDF6E3 100%)',
+                            border: '2px solid hsl(38 55% 62% / 0.25)',
+                          }}
+                        >
+                          <Search className="w-7 h-7" style={{ color: '#C4A265' }} />
+                        </div>
+                        <p
+                          className="text-base font-bold mb-1.5"
+                          style={{ color: '#B8860B' }}
+                        >
+                          {lang === 'en' ? 'No clients found' : 'לא נמצאו לקוחות'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {lang === 'en' ? 'Try a different search term' : 'נסי מילת חיפוש אחרת'}
+                        </p>
                       </div>
                     );
                   }
