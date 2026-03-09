@@ -3119,7 +3119,11 @@ const ArtistDashboard = () => {
                               boxShadow: '0 4px 12px rgba(214,157,169,0.4)',
                             }}
                           >
-                            {promoTagText || (lang === 'en' ? 'Exclusive for Returning Clients ✨' : 'פינוק ללקוחות ✨')}
+                            {(() => {
+                              const v = promoTagText || 'פינוק ללקוחות חוזרות ✨';
+                              if (lang === 'en' && (v === 'פינוק ללקוחות חוזרות ✨' || v === 'פינוק ללקוחות ✨')) return 'Exclusive for Returning Clients ✨';
+                              return v;
+                            })()}
                           </span>
                         </div>
                         {/* Sparkle deco */}
@@ -3146,14 +3150,22 @@ const ArtistDashboard = () => {
                               backgroundClip: 'text',
                             }}
                           >
-                            {promoTitle || (lang === 'en' ? 'Complete Your Look' : 'להשלמת המראה')}
+                            {(() => {
+                              const v = promoTitle || 'להשלמת המראה';
+                              if (lang === 'en' && v === 'להשלמת המראה') return 'Complete Your Look';
+                              return v;
+                            })()}
                           </h3>
                           {/* Description */}
                           <p
                             className="text-[11px] leading-relaxed mb-4 px-2"
                             style={{ color: '#4A3520' }}
                           >
-                            {promoDescription || (lang === 'en' ? 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.' : 'אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה')}
+                            {(() => {
+                              const v = promoDescription || 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.';
+                              if (lang === 'en' && (v.startsWith('אהבת את הגבות') || v === 'אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה')) return 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.';
+                              return v;
+                            })()}
                           </p>
                           {/* CTA Button */}
                           <div
@@ -3165,7 +3177,11 @@ const ArtistDashboard = () => {
                             }}
                           >
                             <Sparkles className="w-3.5 h-3.5" />
-                            {promoButtonText || (lang === 'en' ? 'Details & Booking' : 'הזמיני עכשיו')}
+                            {(() => {
+                              const v = promoButtonText || 'לפרטים ותיאום 💋';
+                              if (lang === 'en' && (v === 'לפרטים ותיאום 💋' || v === 'הזמיני עכשיו')) return 'Details & Booking';
+                              return v;
+                            })()}
                           </div>
                         </div>
                       </div>
