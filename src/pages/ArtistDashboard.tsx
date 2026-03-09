@@ -1623,49 +1623,6 @@ const ArtistDashboard = () => {
               })()}
             </div>
 
-            {/* ===== Promo Card Preview (View-Only) ===== */}
-            {promo.is_enabled && (
-              <div
-                className="rounded-3xl p-6 animate-fade-up relative overflow-hidden"
-                style={{
-                  background: 'rgba(255,255,255,0.88)',
-                  backdropFilter: 'blur(16px)',
-                  boxShadow: '0 4px 24px rgba(212,175,55,0.08), 0 1px 6px rgba(0,0,0,0.03)',
-                  border: '1.5px solid rgba(212,175,55,0.35)',
-                }}
-              >
-                <div className="absolute top-3 left-3">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold" style={{ background: 'rgba(212,175,55,0.12)', color: '#B8860B' }}>
-                    {promo.tag_text}
-                  </span>
-                </div>
-                <div className="pt-6 text-center">
-                  <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(184,134,11,0.1))' }}>
-                    <Sparkles className="w-6 h-6" style={{ color: '#B8860B' }} />
-                  </div>
-                  <h2 className="text-xl font-bold mb-2">
-                    <span style={{ background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                      {promo.title}
-                    </span>
-                  </h2>
-                  <p className="text-sm leading-relaxed mb-5" style={{ color: '#8B7355' }}>
-                    {promo.description}
-                  </p>
-                  <div
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3 text-sm rounded-2xl font-bold"
-                    style={{
-                      background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
-                      backgroundSize: '200% 100%',
-                      color: '#4A3520',
-                      boxShadow: '0 4px 20px rgba(212,175,55,0.4), 0 1px 3px rgba(0,0,0,0.08)',
-                    }}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    {promo.button_text}
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* ===== Referral CTA ===== */}
             <div className="animate-fade-up mt-6 flex justify-center" style={{ animationDelay: '0.45s', opacity: 0 }}>
