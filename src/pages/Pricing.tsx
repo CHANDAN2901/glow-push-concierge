@@ -383,9 +383,9 @@ const Pricing = () => {
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-5">
                 <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
-                  <p><strong style={{ color: GOLD_TEXT }}>14 ימי התנסות ללא סיכון:</strong>{' '}ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.</p>
-                  <p><strong style={{ color: GOLD_TEXT }}>גמישות מלאה גם בהמשך:</strong>{' '}ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.</p>
-                  <p><strong style={{ color: GOLD_TEXT }}>איך מחושב ההחזר?</strong>{' '}במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.</p>
+                  <p><strong style={{ color: GOLD_TEXT }}>{isHe ? '14 ימי התנסות ללא סיכון:' : '14-Day Risk-Free Trial:'}</strong>{' '}{isHe ? 'ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.' : 'Canceling within 14 days of purchase entitles you to a full refund.'}</p>
+                  <p><strong style={{ color: GOLD_TEXT }}>{isHe ? 'גמישות מלאה גם בהמשך:' : 'Full Flexibility:'}</strong>{' '}{isHe ? 'ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.' : 'You can cancel your subscription at any time, even after the initial 14 days.'}</p>
+                  <p><strong style={{ color: GOLD_TEXT }}>{isHe ? 'איך מחושב ההחזר?' : 'How is the refund calculated?'}</strong>{' '}{isHe ? 'במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.' : 'If you cancel after the trial period, your usage will be recalculated based on the regular Elite plan monthly rate (149 ILS/month). This amount will be deducted from your one-time payment, and the remaining balance will be refunded to you.'}</p>
                 </div>
               </AccordionContent>
             </AccordionItem>
