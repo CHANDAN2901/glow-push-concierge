@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Phone, MessageCircle, Instagram, Facebook } from 'lucide-react';
 import heroBg from '@/assets/card-hero-bg.jpg';
 import defaultLogo from '@/assets/glowpush-logo.png';
+import { useI18n } from '@/lib/i18n';
 
 const WHATSAPP_NUMBER = '972508855329';
 const WHATSAPP_MESSAGE = 'היי! הגעתי דרך הכרטיס הדיגיטלי, אשמח לקבל פרטים ולתאם תור ✨';
