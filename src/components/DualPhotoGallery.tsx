@@ -5,6 +5,7 @@ import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { supabase } from '@/integrations/supabase/client';
 import { Slider } from '@/components/ui/slider';
+import { useI18n } from '@/lib/i18n';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
