@@ -2143,28 +2143,38 @@ const ArtistDashboard = () => {
                 ))}
               </div>
 
-              {/* Search bar */}
-              {clientListFilter === 'all' && (
-                <div className="relative mb-4">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  <input
-                    type="text"
-                    value={clientSearchQuery}
-                    onChange={(e) => setClientSearchQuery(e.target.value)}
-                    placeholder={lang === 'en' ? 'Search by name or phone...' : 'חיפוש לפי שם או טלפון...'}
-                    className="w-full h-11 rounded-2xl border border-border/60 bg-background pr-10 pl-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                    dir="rtl"
-                  />
-                  {clientSearchQuery && (
-                    <button
-                      onClick={() => setClientSearchQuery('')}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              )}
+              {/* Search bar — always visible */}
+              <div className="relative mb-4">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#C4A265' }} />
+                <input
+                  type="text"
+                  value={clientSearchQuery}
+                  onChange={(e) => setClientSearchQuery(e.target.value)}
+                  placeholder={lang === 'en' ? 'Search by name or phone...' : 'חיפוש לפי שם או טלפון...'}
+                  className="w-full h-11 rounded-2xl bg-background pr-10 pl-10 text-sm placeholder:text-muted-foreground focus:outline-none transition-all"
+                  style={{
+                    border: '1.5px solid hsl(38 55% 62% / 0.35)',
+                    boxShadow: '0 2px 8px rgba(212,175,55,0.08)',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.border = '1.5px solid #D4AF37';
+                    e.currentTarget.style.boxShadow = '0 2px 12px rgba(212,175,55,0.18)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.border = '1.5px solid hsl(38 55% 62% / 0.35)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(212,175,55,0.08)';
+                  }}
+                  dir="rtl"
+                />
+                {clientSearchQuery && (
+                  <button
+                    onClick={() => setClientSearchQuery('')}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
 
               {(() => {
                 const now = new Date();
