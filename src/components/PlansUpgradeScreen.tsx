@@ -86,7 +86,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
       >
         <h2
           className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
-          style={{ backgroundImage: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)' }}
+          style={{ backgroundImage: 'linear-gradient(135deg, #5C400A 0%, #7A5C10 35%, #6B4F0E 50%, #8B6914 75%, #4A3308 100%)' }}
         >
           {isHe ? `היי ${displayName}, איזה כיף שאת איתנו! ✨` : `Hey ${displayName}, glad to have you! ✨`}
         </h2>
