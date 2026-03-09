@@ -563,6 +563,7 @@ export type Database = {
           cta_en: string
           cta_he: string
           currency: string
+          feature_keys: string[]
           features_en: string[]
           features_he: string[]
           id: string
@@ -584,6 +585,7 @@ export type Database = {
           cta_en?: string
           cta_he?: string
           currency?: string
+          feature_keys?: string[]
           features_en?: string[]
           features_he?: string[]
           id?: string
@@ -605,6 +607,7 @@ export type Database = {
           cta_en?: string
           cta_he?: string
           currency?: string
+          feature_keys?: string[]
           features_en?: string[]
           features_he?: string[]
           id?: string
