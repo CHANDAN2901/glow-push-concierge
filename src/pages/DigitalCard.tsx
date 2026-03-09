@@ -86,7 +86,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
         <CircleButton
           href={telUrl}
           icon={<Phone className="w-7 h-7" />}
-          label="התקשרי עכשיו"
+          label={isHe ? 'התקשרי עכשיו' : 'Call Now'}
           isPhone
         />
         <CircleButton

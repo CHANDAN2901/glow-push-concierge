@@ -3165,7 +3165,7 @@ const ArtistDashboard = () => {
                             }}
                           >
                             <Sparkles className="w-3.5 h-3.5" />
-                            {promoButtonText || 'הזמיני עכשיו'}
+                            {promoButtonText || (lang === 'en' ? 'Details & Booking' : 'הזמיני עכשיו')}
                           </div>
                         </div>
                       </div>
