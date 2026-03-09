@@ -92,7 +92,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
         <CircleButton
           href={fbUrl || '#'}
           icon={<Facebook className="w-7 h-7" />}
-          label="פייסבוק"
+          label={isHe ? 'פייסבוק' : 'Facebook'}
           disabled={!fbUrl}
         />
         <CircleButton
