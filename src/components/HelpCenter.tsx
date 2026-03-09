@@ -84,7 +84,7 @@ export default function HelpCenter({ onClose }: Props) {
   const [sent, setSent] = useState(false);
   const [helpCategory, setHelpCategory] = useState<FaqCategory>('client_app');
 
-  const SUPPORT_PHONE = '972501234567'; // placeholder — artist will provide real number
+  const SUPPORT_PHONE = '972508855329';
 
   const handleSubmit = async () => {
     if (!message.trim() || !user) return;
