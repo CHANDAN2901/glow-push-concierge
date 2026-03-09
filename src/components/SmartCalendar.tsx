@@ -936,29 +936,29 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50"
           onClick={() => setShowAddModal(false)}
         >
-          <div
-            className="relative w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col overflow-hidden"
-            style={{ maxHeight: 'min(90vh, 700px)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowAddModal(false)}
-              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
-            >
-              <X className="w-4 h-4 text-muted-foreground" />
-            </button>
-
-            {/* Header - Fixed */}
-            <div className="pt-8 pb-4 px-6 text-center border-b border-border flex-shrink-0">
-              <CalendarDays className="w-8 h-8 mx-auto mb-2 text-accent" />
-              <h2 className="font-serif font-bold text-lg">{isHe ? 'תור חדש' : 'New Appointment'}</h2>
-            </div>
-
-            {/* Scrollable Content */}
             <div
-              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-6 space-y-4"
-              style={{ WebkitOverflowScrolling: 'touch' }}
+              className="relative w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col min-h-0"
+              style={{ maxHeight: '90vh' }}
+              onClick={(e) => e.stopPropagation()}
             >
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+
+              {/* Header - Fixed */}
+              <div className="pt-8 pb-4 px-6 text-center border-b border-border flex-shrink-0">
+                <CalendarDays className="w-8 h-8 mx-auto mb-2 text-accent" />
+                <h2 className="font-serif font-bold text-lg">{isHe ? 'תור חדש' : 'New Appointment'}</h2>
+              </div>
+
+              {/* Scrollable Content */}
+              <div
+                className="flex-1 overflow-y-auto min-h-0 overscroll-contain p-6 space-y-4"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
               {/* Client search / autocomplete */}
               <div className="space-y-2 relative">
                 <Label className="text-xs font-medium">{isHe ? 'שם הלקוחה' : 'Client Name'}</Label>
