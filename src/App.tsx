@@ -34,6 +34,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import PaymentHistory from "./pages/PaymentHistory";
 import DevSwitcher from "./components/DevSwitcher";
 import CookieConsentBanner from "./components/CookieConsentBanner";
+import FeedbackFAB from "./components/FeedbackFAB";
 
 
 const queryClient = new QueryClient();
@@ -78,6 +79,7 @@ const App = () => (
           </ErrorBoundary>
           <DevSwitcher />
           <CookieConsentBanner />
+          <FeedbackFAB />
         </BrowserRouter>
       </I18nProvider>
     </TooltipProvider>
