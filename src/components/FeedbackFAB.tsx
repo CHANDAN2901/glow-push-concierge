@@ -64,7 +64,7 @@ export default function FeedbackFAB() {
           boxShadow: "0 8px 15px rgba(0,0,0,0.3), 0 0 12px rgba(212,175,55,0.4)",
         }}
       >
-        <MessageSquarePlus className="h-6 w-6 text-white drop-shadow" />
+        <Lightbulb className="h-6 w-6 text-white drop-shadow" />
       </button>
 
       {/* Modal */}
