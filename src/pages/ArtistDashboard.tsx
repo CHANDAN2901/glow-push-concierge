@@ -83,6 +83,7 @@ interface ClientEntry {
   afterImg: string;
   pushOptedIn?: boolean;
   birthDate?: string | null;
+  medicalExceptionApproved?: boolean;
 }
 
 interface SmartMessage {
@@ -738,15 +739,21 @@ const ArtistDashboard = () => {
     toast({ title: 'הודעה נשלחה בהצלחה ✉️' });
   };
 
-  // Approved exceptions
-  const [approvedExceptions, setApprovedExceptions] = useState<Record<string, boolean>>(() => {
-    try { const raw = localStorage.getItem('gp-approved-exceptions'); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
-  });
-
-  const approveException = (name: string) => {
-    const updated = { ...approvedExceptions, [name]: true };
-    setApprovedExceptions(updated);
-    localStorage.setItem('gp-approved-exceptions', JSON.stringify(updated));
+  // Approve medical exception — persist to DB
+  const approveException = async (clientEntry: ClientEntry) => {
+    if (clientEntry.dbId) {
+      const { error } = await supabase
+        .from('clients')
+        .update({ medical_exception_approved: true } as any)
+        .eq('id', clientEntry.dbId);
+      if (error) {
+        console.error('Failed to approve exception:', error);
+        toast({ title: lang === 'en' ? 'Failed to approve' : 'שגיאה באישור ההחרגה', variant: 'destructive' });
+        return;
+      }
+    }
+    // Update local state so it disappears immediately
+    setClients(prev => prev.map(c => c.dbId === clientEntry.dbId ? { ...c, medicalExceptionApproved: true } : c));
     toast({ title: lang === 'en' ? 'Exception approved ✅' : 'החרגה אושרה ✅' });
   };
 
@@ -825,7 +832,7 @@ const ArtistDashboard = () => {
   });
 
   // Clients with active (non-approved) red flags
-  const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !approvedExceptions[c.name]);
+  const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !c.medicalExceptionApproved);
 
 
   const sendSmartReminder = (client: ClientEntry) => {
@@ -972,7 +979,7 @@ const ArtistDashboard = () => {
       const to = from + CLIENTS_PAGE_SIZE - 1;
       const { data, error, count } = await supabase
         .from('clients')
-        .select('id, full_name, phone, email, treatment_type, treatment_date, created_at, push_opted_in, birth_date', { count: 'exact' })
+        .select('id, full_name, phone, email, treatment_type, treatment_date, created_at, push_opted_in, birth_date, medical_exception_approved', { count: 'exact' })
         .eq('artist_id', userProfileId)
         .order('created_at', { ascending: false })
         .range(from, to);
@@ -993,6 +1000,7 @@ const ArtistDashboard = () => {
             afterImg: '',
             pushOptedIn: c.push_opted_in || false,
             birthDate: c.birth_date || null,
+            medicalExceptionApproved: (c as any).medical_exception_approved || false,
           };
         });
         const totalCount = count ?? 0;
@@ -1477,7 +1485,7 @@ const ArtistDashboard = () => {
                           <span className="text-[10px] text-destructive/70 truncate">{flags.join(', ')}</span>
                         </div>
                         <button
-                          onClick={(e) => { e.stopPropagation(); approveException(c.name); }}
+                          onClick={(e) => { e.stopPropagation(); approveException(c); }}
                           className="shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
                         >
                           {lang === 'en' ? 'Approve' : 'אישור החרגה'}
@@ -1769,7 +1777,7 @@ const ArtistDashboard = () => {
                 {/* 2.5 Health Declaration Button */}
                 {(() => {
                   const signed = hasSignedDeclaration(selectedClient.name);
-                  const hasFlags = clientHasRedFlags(selectedClient.name) && !approvedExceptions[selectedClient.name];
+                  const hasFlags = clientHasRedFlags(selectedClient.name) && !selectedClient.medicalExceptionApproved;
                   const isSafe = clientIsSafe(selectedClient.name);
 
                   if (signed) {
@@ -2261,7 +2269,7 @@ const ArtistDashboard = () => {
                   const aftercare = getMessageForDay(client?.day ?? 0);
                   const sentKey = `${client.name}-day${aftercare?.day ?? client?.day ?? 0}`;
                   const lastSent = waSentLog[sentKey];
-                  const hasFlags = clientHasRedFlags(client.name) && !approvedExceptions[client.name];
+                  const hasFlags = clientHasRedFlags(client.name) && !client.medicalExceptionApproved;
                   const birthdayWeek = isBirthdayThisWeek(client.birthDate);
                   const needsRenewal = isRenewalDue(client.treatment, client.day);
                     const isSafe = clientIsSafe(client.name);
@@ -2309,7 +2317,7 @@ const ArtistDashboard = () => {
                                   <div className="mt-1.5 mr-12 space-y-1">
                                     <p className="text-[10px] font-bold text-destructive">{flags.join(' · ')}</p>
                                     <button
-                                      onClick={(e) => { e.stopPropagation(); approveException(client.name); }}
+                                      onClick={(e) => { e.stopPropagation(); approveException(client); }}
                                       className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
                                     >
                                       <ShieldCheck className="w-3 h-3" />
