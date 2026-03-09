@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import AdminSidebar from '@/components/AdminSidebar';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/lib/i18n';
 
 // Sprite positions for each default step (col, row in the sprite sheet)
 const STEP_SPRITES: { col: number; row: number }[] = [
@@ -43,6 +44,8 @@ export default function TimelineSettings() {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
   const [steps, setSteps] = useState<StepContent[]>(
     DEFAULT_STEPS.map((d, i) => ({ step_index: i, ...d }))
   );
@@ -175,10 +178,10 @@ export default function TimelineSettings() {
             </div>
             <div>
               <h1 className="text-2xl font-serif font-bold" style={{ color: 'hsl(30 15% 22%)' }}>
-                עריכת מסע ההחלמה
+                {isHe ? 'עריכת מסע ההחלמה' : 'Edit Healing Journey'}
               </h1>
               <p className="text-xs text-muted-foreground">
-                ערכי את הכותרות, הטקסטים והטיפים שמוצגים ללקוחות שלך
+                {isHe ? 'ערכי את הכותרות, הטקסטים והטיפים שמוצגים ללקוחות שלך' : 'Edit the titles, texts, and tips displayed to your clients'}
               </p>
             </div>
           </div>
@@ -199,7 +202,7 @@ export default function TimelineSettings() {
               >
                 <span className="text-lg mt-0.5">💡</span>
                 <p className="text-sm leading-relaxed" style={{ color: 'hsl(36 40% 30%)' }}>
-                  שיני את הטקסטים כאן וכל הלקוחות שלך יראו את העדכון מיד באפליקציה שלהן. אין צורך בידע טכני — פשוט כתבי ושמרי!
+                  {isHe ? 'שיני את הטקסטים כאן וכל הלקוחות שלך יראו את העדכון מיד באפליקציה שלהן. אין צורך בידע טכני — פשוט כתבי ושמרי!' : 'Update texts here and your clients will instantly see the changes in their app. No tech skills needed — just write and save!'}
                 </p>
               </div>
 
@@ -243,7 +246,7 @@ export default function TimelineSettings() {
                             boxShadow: '0 2px 8px hsl(38 55% 50% / 0.25)',
                           }}
                         >
-                          {step.isCustom ? `שלב מותאם ${step.step_index + 1}` : step.dayLabel}
+                          {step.isCustom ? (isHe ? `שלב מותאם ${step.step_index + 1}` : `Custom Step ${step.step_index + 1}`) : (isHe ? step.dayLabel : step.dayLabel.replace('יום', 'Day').replace('ימים', 'Days'))}
                         </div>
                       </div>
                       {step.isCustom && (
@@ -262,7 +265,7 @@ export default function TimelineSettings() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                          📌 כותרת בעברית
+                          📌 {isHe ? 'כותרת בעברית' : 'Hebrew Title'}
                         </label>
                         <Input
                           value={step.title_he}
@@ -275,7 +278,7 @@ export default function TimelineSettings() {
                       </div>
                       <div>
                         <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                          📌 Title in English
+                          📌 {isHe ? 'כותרת באנגלית' : 'English Title'}
                         </label>
                         <Input
                           value={step.title_en}
@@ -292,7 +295,7 @@ export default function TimelineSettings() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                          📋 הנחיות ללקוחה בעברית
+                          📋 {isHe ? 'הנחיות ללקוחה בעברית' : 'Hebrew Instructions'}
                         </label>
                         <Textarea
                           value={step.instruction_he}
@@ -305,7 +308,7 @@ export default function TimelineSettings() {
                       </div>
                       <div>
                         <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                          📋 Instructions in English
+                          📋 {isHe ? 'הנחיות ללקוחה באנגלית' : 'English Instructions'}
                         </label>
                         <Textarea
                           value={step.instruction_en}
@@ -333,7 +336,7 @@ export default function TimelineSettings() {
                   }}
                 >
                   <Plus className="w-5 h-5" />
-                  הוסיפי שלב מותאם אישית
+                  {isHe ? 'הוסיפי שלב מותאם אישית' : 'Add Custom Step'}
                 </button>
               </div>
 
@@ -350,7 +353,7 @@ export default function TimelineSettings() {
                   }}
                 >
                   {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
-                  {saving ? 'שומר…' : 'שמור שינויים'}
+                  {saving ? (isHe ? 'שומר…' : 'Saving…') : (isHe ? 'שמירת שינויים' : 'Save Changes')}
                 </Button>
               </div>
             </div>
