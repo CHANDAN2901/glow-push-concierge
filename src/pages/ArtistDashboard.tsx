@@ -641,6 +641,12 @@ const ArtistDashboard = () => {
   const [deleteAlsoAppointments, setDeleteAlsoAppointments] = useState(false);
   const [removeClientFromCalendar, setRemoveClientFromCalendar] = useState<string | null>(null);
   const [clientListFilter, setClientListFilter] = useState<'all' | 'birthdays' | 'renewal'>('all');
+  const [clientSearchQuery, setClientSearchQuery] = useState('');
+  const [clientsPage, setClientsPage] = useState(0);
+  const [hasMoreClients, setHasMoreClients] = useState(true);
+  const [loadingMoreClients, setLoadingMoreClients] = useState(false);
+  const CLIENTS_PAGE_SIZE = 20;
+  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
   const [birthdayWishClient, setBirthdayWishClient] = useState<ClientEntry | null>(null);
   const [renewalClient, setRenewalClient] = useState<ClientEntry | null>(null);
   const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string; review?: string; referral?: string; birthday_en?: string; renewal_en?: string; review_en?: string; referral_en?: string }>({});
