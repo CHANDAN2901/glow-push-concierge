@@ -59,28 +59,11 @@ export default function FeedbackFAB() {
         className="fixed bottom-24 left-4 z-[9999] flex h-14 w-14 items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
         style={{
           background: "linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.12), 0 1px 4px rgba(212,175,55,0.25)",
-          border: "2px solid",
-          borderImage: "linear-gradient(135deg, #BF953F, #FCF6BA, #B38728) 1",
-          borderRadius: "9999px",
-          borderImageSlice: 1,
+          border: "2.5px solid #D4AF37",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.15), 0 0 12px rgba(212,175,55,0.35)",
         }}
       >
-        {/* We use an inner span for proper border-radius with gradient border */}
-        <span
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background: "linear-gradient(135deg, #BF953F 0%, #FCF6BA 40%, #B38728 70%, #FBF5B7 100%)",
-          }}
-        />
-        <span
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            inset: "2.5px",
-            background: "linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%)",
-          }}
-        />
-        <MessageSquarePlus className="relative z-10 h-6 w-6 text-white drop-shadow" />
+        <MessageSquarePlus className="h-6 w-6 text-white drop-shadow" />
       </button>
 
       {/* Modal */}
