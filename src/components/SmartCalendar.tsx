@@ -933,11 +933,12 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       {/* Add Appointment Modal */}
       {showAddModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-0 pt-0 pb-24 sm:p-4"
+          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50"
           onClick={() => setShowAddModal(false)}
         >
           <div
-            className="relative w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col overflow-hidden max-h-[calc(100dvh-96px)] sm:max-h-[85vh]"
+            className="relative w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col"
+            style={{ maxHeight: 'calc(100dvh - 100px)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -953,7 +954,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
             </div>
 
             <div
-              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-6 pb-32 space-y-4"
+              className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-4"
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
               {/* Client search / autocomplete */}
