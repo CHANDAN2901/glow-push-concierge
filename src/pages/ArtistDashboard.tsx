@@ -1164,6 +1164,7 @@ const ArtistDashboard = () => {
               <BackButton
                 onClick={() => {
                   if (selectedClient) { setSelectedClient(null); }
+                  else if (subScreen === 'Referrals' || subScreen === 'הפניות') { setSubScreen(null); setActiveTab('home'); }
                   else if (subScreen) { setSubScreen(null); }
                 }}
               />
