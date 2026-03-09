@@ -81,7 +81,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
         <CircleButton
           href={whatsappUrl}
           icon={<MessageCircle className="w-7 h-7" />}
-          label="שלחי הודעה בוואטסאפ"
+          label={isHe ? 'שלחי הודעה בוואטסאפ' : 'Message on WhatsApp'}
         />
         <CircleButton
           href={telUrl}
