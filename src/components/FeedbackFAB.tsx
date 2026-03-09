@@ -109,17 +109,6 @@ export default function FeedbackFAB() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#5C4033" }}>אימייל</Label>
-                <Input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="your@email.com"
-                  className="text-right border-[hsl(38_30%_82%)]  focus-visible:ring-[#D4AF37]"
-                  dir="rtl"
-                />
-              </div>
 
               <div className="space-y-1.5">
                 <Label className="text-right block text-xs font-medium" style={{ color: "#5C4033" }}>נושא</Label>
