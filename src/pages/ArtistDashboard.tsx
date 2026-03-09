@@ -1777,7 +1777,8 @@ const ArtistDashboard = () => {
                 {/* 2.5 Health Declaration Button */}
                 {(() => {
                   const signed = hasSignedDeclaration(selectedClient.name);
-                  const hasFlags = clientHasRedFlags(selectedClient.name) && !approselecselecselectedClient.medicalExceptionApproved     const isSafe = clientIsSafe(selectedClient.name);
+                  const hasFlags = clientHasRedFlags(selectedClient.name) && !selectedClient.medicalExceptionApproved;
+                  const isSafe = clientIsSafe(selectedClient.name);
 
                   if (signed) {
                     const risk = getClientRiskLevel(selectedClient.name);
