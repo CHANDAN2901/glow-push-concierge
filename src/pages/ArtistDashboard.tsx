@@ -7,7 +7,7 @@ import {
   Plus, MessageCircle, Clock, MessageSquare, Copy, CheckCircle, Trash2, Calendar, Gift,
   Lock, Globe, Camera, Star, Zap, Crown, AlertTriangle, X, ClipboardCheck,
   Share2, Image, DollarSign, CalendarCheck, Eye, HelpCircle, Smartphone, ShieldCheck, ShieldAlert,
-  Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home, ScrollText, ArrowRight, Loader2,
+  Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home, ScrollText, ArrowRight, Loader2, Search,
 } from 'lucide-react';
 import defaultLogo from '@/assets/glowpush-logo.png';
 import BackButton from '@/components/BackButton';
@@ -641,6 +641,12 @@ const ArtistDashboard = () => {
   const [deleteAlsoAppointments, setDeleteAlsoAppointments] = useState(false);
   const [removeClientFromCalendar, setRemoveClientFromCalendar] = useState<string | null>(null);
   const [clientListFilter, setClientListFilter] = useState<'all' | 'birthdays' | 'renewal'>('all');
+  const [clientSearchQuery, setClientSearchQuery] = useState('');
+  const [clientsPage, setClientsPage] = useState(0);
+  const [hasMoreClients, setHasMoreClients] = useState(true);
+  const [loadingMoreClients, setLoadingMoreClients] = useState(false);
+  const CLIENTS_PAGE_SIZE = 20;
+  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
   const [birthdayWishClient, setBirthdayWishClient] = useState<ClientEntry | null>(null);
   const [renewalClient, setRenewalClient] = useState<ClientEntry | null>(null);
   const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string; review?: string; referral?: string; birthday_en?: string; renewal_en?: string; review_en?: string; referral_en?: string }>({});
@@ -957,17 +963,20 @@ const ArtistDashboard = () => {
     }
   };
 
-  // Fetch real clients from DB
-  const fetchClients = useCallback(async () => {
+  // Fetch real clients from DB with pagination
+  const fetchClients = useCallback(async (page = 0, append = false) => {
     if (!userProfileId) return;
     try {
-      const { data, error } = await supabase
+      const from = page * CLIENTS_PAGE_SIZE;
+      const to = from + CLIENTS_PAGE_SIZE - 1;
+      const { data, error, count } = await supabase
         .from('clients')
-        .select('id, full_name, phone, email, treatment_type, treatment_date, created_at, push_opted_in, birth_date')
+        .select('id, full_name, phone, email, treatment_type, treatment_date, created_at, push_opted_in, birth_date', { count: 'exact' })
         .eq('artist_id', userProfileId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(from, to);
       if (error) throw error;
-      if (data && data.length > 0) {
+      if (data) {
         const dbClients: ClientEntry[] = data.map(c => {
           const treatmentDate = c.treatment_date ? new Date(c.treatment_date) : new Date(c.created_at);
           const daysSince = Math.max(0, Math.floor((Date.now() - treatmentDate.getTime()) / (1000 * 60 * 60 * 24)));
@@ -985,20 +994,53 @@ const ArtistDashboard = () => {
             birthDate: c.birth_date || null,
           };
         });
-        setClients(prev => {
-          // Merge: DB clients first, then keep local-only ones
-          const dbIds = new Set(dbClients.map(c => c.dbId));
-          const dbNames = new Set(dbClients.map(c => c.name));
-          const localOnly = prev.filter(c => !c.dbId && !dbNames.has(c.name));
-          return [...dbClients, ...localOnly];
-        });
+        const totalCount = count ?? 0;
+        setHasMoreClients(from + data.length < totalCount);
+        if (append) {
+          setClients(prev => {
+            const existingIds = new Set(prev.map(c => c.dbId));
+            const newOnly = dbClients.filter(c => !existingIds.has(c.dbId));
+            return [...prev, ...newOnly];
+          });
+        } else {
+          setClients(prev => {
+            const dbIds = new Set(dbClients.map(c => c.dbId));
+            const dbNames = new Set(dbClients.map(c => c.name));
+            const localOnly = prev.filter(c => !c.dbId && !dbNames.has(c.name));
+            return [...dbClients, ...localOnly];
+          });
+        }
       }
     } catch (err) {
       console.error('Failed to fetch clients from DB:', err);
     }
   }, [userProfileId]);
 
-  useEffect(() => { fetchClients(); }, [fetchClients]);
+  const loadMoreClients = useCallback(async () => {
+    if (loadingMoreClients || !hasMoreClients) return;
+    setLoadingMoreClients(true);
+    const nextPage = clientsPage + 1;
+    await fetchClients(nextPage, true);
+    setClientsPage(nextPage);
+    setLoadingMoreClients(false);
+  }, [loadingMoreClients, hasMoreClients, clientsPage, fetchClients]);
+
+  useEffect(() => {
+    setClientsPage(0);
+    setHasMoreClients(true);
+    fetchClients(0, false);
+  }, [fetchClients]);
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    const el = loadMoreSentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) loadMoreClients();
+    }, { rootMargin: '200px' });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMoreClients]);
 
   // Fetch appointments for dynamic reminder messages
   const fetchAppointments = useCallback(async () => {
@@ -2101,6 +2143,29 @@ const ArtistDashboard = () => {
                 ))}
               </div>
 
+              {/* Search bar */}
+              {clientListFilter === 'all' && (
+                <div className="relative mb-4">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <input
+                    type="text"
+                    value={clientSearchQuery}
+                    onChange={(e) => setClientSearchQuery(e.target.value)}
+                    placeholder={lang === 'en' ? 'Search by name or phone...' : 'חיפוש לפי שם או טלפון...'}
+                    className="w-full h-11 rounded-2xl border border-border/60 bg-background pr-10 pl-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                    dir="rtl"
+                  />
+                  {clientSearchQuery && (
+                    <button
+                      onClick={() => setClientSearchQuery('')}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+
               {(() => {
                 const now = new Date();
                 const currentMonth = now.getMonth() + 1;
@@ -2122,29 +2187,48 @@ const ArtistDashboard = () => {
                   return parseInt(bd.slice(5, 7)) === currentMonth;
                 };
 
+                const searchQ = clientSearchQuery.toLowerCase().trim();
+                const searchFiltered = searchQ
+                  ? clients.filter(c =>
+                      c.name.toLowerCase().includes(searchQ) ||
+                      c.phone.replace(/\D/g, '').includes(searchQ.replace(/\D/g, ''))
+                    )
+                  : clients;
+
                 const filteredClients = clientListFilter === 'birthdays'
-                  ? clients
+                  ? searchFiltered
                       .filter(c => isBirthdayThisMonth(c.birthDate))
                       .sort((a, b) => parseInt(a.birthDate?.slice(8, 10) || '0') - parseInt(b.birthDate?.slice(8, 10) || '0'))
                   : clientListFilter === 'renewal'
-                  ? clients.filter(c => isRenewalDue(c.treatment, c.day))
-                  : clients;
+                  ? searchFiltered.filter(c => isRenewalDue(c.treatment, c.day))
+                  : searchFiltered;
 
-                if (clientListFilter !== 'all' && filteredClients.length === 0) {
-                  const emptyIcon = clientListFilter === 'birthdays' ? '🎂' : '🔄';
-                  const emptyTitle = clientListFilter === 'birthdays'
-                    ? (lang === 'en' ? 'No birthdays this month' : 'אין ימי הולדת החודש')
-                    : (lang === 'en' ? 'No renewal needed' : 'אין לקוחות לחידוש כרגע');
-                  const emptyDesc = clientListFilter === 'birthdays'
-                    ? (lang === 'en' ? 'Add birth dates to client profiles to see them here' : 'הוסיפי תאריכי לידה ללקוחות כדי לראות אותן כאן')
-                    : (lang === 'en' ? 'Clients needing renewal will appear here automatically' : 'לקוחות שעבר מספיק זמן מהטיפול יופיעו כאן אוטומטית');
-                  return (
-                    <div className="text-center py-12">
-                      <span className="text-4xl mb-3 block">{emptyIcon}</span>
-                      <p className="text-sm text-muted-foreground">{emptyTitle}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{emptyDesc}</p>
-                    </div>
-                  );
+                if (filteredClients.length === 0) {
+                  if (searchQ) {
+                    return (
+                      <div className="text-center py-12">
+                        <span className="text-4xl mb-3 block">🔍</span>
+                        <p className="text-sm text-muted-foreground">{lang === 'en' ? 'No clients found' : 'לא נמצאו לקוחות'}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{lang === 'en' ? 'Try a different search term' : 'נסי מילת חיפוש אחרת'}</p>
+                      </div>
+                    );
+                  }
+                  if (clientListFilter !== 'all') {
+                    const emptyIcon = clientListFilter === 'birthdays' ? '🎂' : '🔄';
+                    const emptyTitle = clientListFilter === 'birthdays'
+                      ? (lang === 'en' ? 'No birthdays this month' : 'אין ימי הולדת החודש')
+                      : (lang === 'en' ? 'No renewal needed' : 'אין לקוחות לחידוש כרגע');
+                    const emptyDesc = clientListFilter === 'birthdays'
+                      ? (lang === 'en' ? 'Add birth dates to client profiles to see them here' : 'הוסיפי תאריכי לידה ללקוחות כדי לראות אותן כאן')
+                      : (lang === 'en' ? 'Clients needing renewal will appear here automatically' : 'לקוחות שעבר מספיק זמן מהטיפול יופיעו כאן אוטומטית');
+                    return (
+                      <div className="text-center py-12">
+                        <span className="text-4xl mb-3 block">{emptyIcon}</span>
+                        <p className="text-sm text-muted-foreground">{emptyTitle}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{emptyDesc}</p>
+                      </div>
+                    );
+                  }
                 }
 
                 return (
@@ -2324,6 +2408,12 @@ const ArtistDashboard = () => {
                     </div>
                   );
                 })}
+                {/* Infinite scroll sentinel */}
+                {clientListFilter === 'all' && !clientSearchQuery && hasMoreClients && (
+                  <div ref={loadMoreSentinelRef} className="flex justify-center py-4">
+                    {loadingMoreClients && <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />}
+                  </div>
+                )}
               </div>
                 );
               })()}
