@@ -827,16 +827,6 @@ const ArtistDashboard = () => {
   // Clients with active (non-approved) red flags
   const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !approvedExceptions[c.name]);
 
-  // Memoized search-filtered clients for real-time filtering
-  const searchFilteredClients = useMemo(() => {
-    const q = clientSearchQuery.trim();
-    if (!q) return clients;
-    return clients.filter(c =>
-      c.name.includes(q) ||
-      c.name.toLowerCase().includes(q.toLowerCase()) ||
-      c.phone.replace(/\D/g, '').includes(q.replace(/\D/g, ''))
-    );
-  }, [clients, clientSearchQuery]);
 
   const sendSmartReminder = (client: ClientEntry) => {
     const clientDay = Number(client.day);
