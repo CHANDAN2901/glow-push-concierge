@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, HelpCircle, MessageCircle, AlertTriangle, ChevronDown, Send, Headphones, CheckCircle } from 'lucide-react';
+import { ArrowLeft, HelpCircle, MessageCircle, Send, Headphones } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
