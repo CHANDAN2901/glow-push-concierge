@@ -98,7 +98,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
         <CircleButton
           href={igUrl || '#'}
           icon={<Instagram className="w-7 h-7" />}
-          label="אינסטגרם"
+          label={isHe ? 'אינסטגרם' : 'Instagram'}
           disabled={!igUrl}
         />
       </div>
