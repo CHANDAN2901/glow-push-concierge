@@ -937,8 +937,8 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
           onClick={() => setShowAddModal(false)}
         >
           <div
-            className="relative w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col"
-            style={{ maxHeight: 'calc(100dvh - 100px)' }}
+            className="relative w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col overflow-hidden"
+            style={{ maxHeight: 'min(90vh, 700px)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -948,13 +948,15 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
 
-            <div className="pt-8 pb-4 px-6 text-center border-b border-border shrink-0">
+            {/* Header - Fixed */}
+            <div className="pt-8 pb-4 px-6 text-center border-b border-border flex-shrink-0">
               <CalendarDays className="w-8 h-8 mx-auto mb-2 text-accent" />
               <h2 className="font-serif font-bold text-lg">{isHe ? 'תור חדש' : 'New Appointment'}</h2>
             </div>
 
+            {/* Scrollable Content */}
             <div
-              className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-4"
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-6 space-y-4"
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
               {/* Client search / autocomplete */}
@@ -1132,7 +1134,8 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
               )}
             </div>
 
-            <div className="px-6 py-4 pb-8 border-t border-border shrink-0 bg-card rounded-b-2xl safe-area-pb">
+            {/* Footer - Fixed at bottom */}
+            <div className="px-6 py-4 border-t border-border flex-shrink-0 bg-card">
               <button
                 onClick={handleAdd}
                 disabled={!newName.trim()}
