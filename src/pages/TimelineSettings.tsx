@@ -178,10 +178,10 @@ export default function TimelineSettings() {
             </div>
             <div>
               <h1 className="text-2xl font-serif font-bold" style={{ color: 'hsl(30 15% 22%)' }}>
-                עריכת מסע ההחלמה
+                {isHe ? 'עריכת מסע ההחלמה' : 'Edit Healing Journey'}
               </h1>
               <p className="text-xs text-muted-foreground">
-                ערכי את הכותרות, הטקסטים והטיפים שמוצגים ללקוחות שלך
+                {isHe ? 'ערכי את הכותרות, הטקסטים והטיפים שמוצגים ללקוחות שלך' : 'Edit the titles, texts, and tips displayed to your clients'}
               </p>
             </div>
           </div>
@@ -202,7 +202,7 @@ export default function TimelineSettings() {
               >
                 <span className="text-lg mt-0.5">💡</span>
                 <p className="text-sm leading-relaxed" style={{ color: 'hsl(36 40% 30%)' }}>
-                  שיני את הטקסטים כאן וכל הלקוחות שלך יראו את העדכון מיד באפליקציה שלהן. אין צורך בידע טכני — פשוט כתבי ושמרי!
+                  {isHe ? 'שיני את הטקסטים כאן וכל הלקוחות שלך יראו את העדכון מיד באפליקציה שלהן. אין צורך בידע טכני — פשוט כתבי ושמרי!' : 'Update texts here and your clients will instantly see the changes in their app. No tech skills needed — just write and save!'}
                 </p>
               </div>
 
