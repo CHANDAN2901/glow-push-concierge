@@ -3153,7 +3153,7 @@ const ArtistDashboard = () => {
                             className="text-[11px] leading-relaxed mb-4 px-2"
                             style={{ color: '#4A3520' }}
                           >
-                            {promoDescription || 'אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה'}
+                            {promoDescription || (lang === 'en' ? 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.' : 'אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה')}
                           </p>
                           {/* CTA Button */}
                           <div
