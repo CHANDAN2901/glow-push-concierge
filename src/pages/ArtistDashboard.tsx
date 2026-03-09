@@ -2198,15 +2198,19 @@ const ArtistDashboard = () => {
                   return parseInt(bd.slice(5, 7)) === currentMonth;
                 };
 
-                const searchQ = clientSearchQuery.trim();
+                const searchQ = clientSearchQuery.trim().toLowerCase();
 
-                const filteredClients = clientListFilter === 'birthdays'
-                  ? searchFilteredClients
+                const baseClients = clientListFilter === 'birthdays'
+                  ? clients
                       .filter(c => isBirthdayThisMonth(c.birthDate))
                       .sort((a, b) => parseInt(a.birthDate?.slice(8, 10) || '0') - parseInt(b.birthDate?.slice(8, 10) || '0'))
                   : clientListFilter === 'renewal'
-                  ? searchFilteredClients.filter(c => isRenewalDue(c.treatment, c.day))
-                  : searchFilteredClients;
+                  ? clients.filter(c => isRenewalDue(c.treatment, c.day))
+                  : clients;
+
+                const displayedClients = searchQ
+                  ? baseClients.filter((client) => client.name.toLowerCase().includes(searchQ))
+                  : baseClients;
 
                 if (filteredClients.length === 0) {
                   if (searchQ) {
