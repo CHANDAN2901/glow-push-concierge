@@ -739,15 +739,21 @@ const ArtistDashboard = () => {
     toast({ title: 'הודעה נשלחה בהצלחה ✉️' });
   };
 
-  // Approved exceptions
-  const [approvedExceptions, setApprovedExceptions] = useState<Record<string, boolean>>(() => {
-    try { const raw = localStorage.getItem('gp-approved-exceptions'); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
-  });
-
-  const approveException = (name: string) => {
-    const updated = { ...approvedExceptions, [name]: true };
-    setApprovedExceptions(updated);
-    localStorage.setItem('gp-approved-exceptions', JSON.stringify(updated));
+  // Approve medical exception — persist to DB
+  const approveException = async (clientEntry: ClientEntry) => {
+    if (clientEntry.dbId) {
+      const { error } = await supabase
+        .from('clients')
+        .update({ medical_exception_approved: true } as any)
+        .eq('id', clientEntry.dbId);
+      if (error) {
+        console.error('Failed to approve exception:', error);
+        toast({ title: lang === 'en' ? 'Failed to approve' : 'שגיאה באישור ההחרגה', variant: 'destructive' });
+        return;
+      }
+    }
+    // Update local state so it disappears immediately
+    setClients(prev => prev.map(c => c.dbId === clientEntry.dbId ? { ...c, medicalExceptionApproved: true } : c));
     toast({ title: lang === 'en' ? 'Exception approved ✅' : 'החרגה אושרה ✅' });
   };
 
