@@ -44,6 +44,8 @@ export default function TimelineSettings() {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
   const [steps, setSteps] = useState<StepContent[]>(
     DEFAULT_STEPS.map((d, i) => ({ step_index: i, ...d }))
   );
