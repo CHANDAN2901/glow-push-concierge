@@ -1485,7 +1485,7 @@ const ArtistDashboard = () => {
                           <span className="text-[10px] text-destructive/70 truncate">{flags.join(', ')}</span>
                         </div>
                         <button
-                          onClick={(e) => { e.stopPropagation(); approveException(c); }}
+                          onClick={(e) => { e.stopPropagation(); approveException(c
                           className="shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
                         >
                           {lang === 'en' ? 'Approve' : 'אישור החרגה'}
@@ -1777,8 +1777,7 @@ const ArtistDashboard = () => {
                 {/* 2.5 Health Declaration Button */}
                 {(() => {
                   const signed = hasSignedDeclaration(selectedClient.name);
-                  const hasFlags = clientHasRedFlags(selectedClient.name) && !approvedExceptions[selectedClient.name];
-                  const isSafe = clientIsSafe(selectedClient.name);
+                  const hasFlags = clientHasRedFlags(selectedClient.name) && !approselectedClient.medicalExceptionApproved               const isSafe = clientIsSafe(selectedClient.name);
 
                   if (signed) {
                     const risk = getClientRiskLevel(selectedClient.name);
