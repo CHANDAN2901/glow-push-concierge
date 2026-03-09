@@ -479,7 +479,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         <div className="rounded-xl p-3 space-y-1.5" style={{ backgroundColor: '#faf8f2', border: `1px solid ${GOLD}30` }}>
           <div className="flex items-center gap-2">
             <Move className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
-            <span className="text-[11px] font-semibold" style={{ color: GOLD_DARK }}>גודל לוגו</span>
+            <span className="text-[11px] font-semibold" style={{ color: GOLD_DARK }}>{isHe ? 'גודל לוגו' : 'Logo size'}</span>
             <span className="text-[10px] font-medium ml-auto" style={{ color: GOLD_DARK }}>{logoSize}%</span>
           </div>
           <Slider
@@ -490,7 +490,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             step={1}
           />
           <p className="text-[9px] text-center" style={{ color: GOLD_DARK, opacity: 0.6 }}>
-            גררי את הלוגו על הקולאז׳ למיקום הרצוי
+            {isHe ? 'גררי את הלוגו על הקולאז׳ למיקום הרצוי' : 'Drag the logo on the collage to reposition'}
           </p>
         </div>
       )}
