@@ -2257,7 +2257,7 @@ const ArtistDashboard = () => {
 
                 return (
               <div className="space-y-4">
-                {filteredClients.map((client, i) => {
+                {displayedClients.map((client, i) => {
                   const aftercare = getMessageForDay(client?.day ?? 0);
                   const sentKey = `${client.name}-day${aftercare?.day ?? client?.day ?? 0}`;
                   const lastSent = waSentLog[sentKey];
