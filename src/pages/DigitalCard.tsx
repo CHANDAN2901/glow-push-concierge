@@ -72,7 +72,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
 
         <div className="text-center mt-1">
           <h1 className="text-2xl font-extralight tracking-widest text-foreground">{name}</h1>
-          <h2 className="text-sm text-muted-foreground mt-1 tracking-wider font-light">אמנית איפור קבוע</h2>
+          <h2 className="text-sm text-muted-foreground mt-1 tracking-wider font-light">{isHe ? 'אמנית איפור קבוע' : 'Permanent Makeup Artist'}</h2>
         </div>
       </div>
 
