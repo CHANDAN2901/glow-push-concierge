@@ -278,7 +278,7 @@ export default function TimelineSettings() {
                       </div>
                       <div>
                         <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                          📌 Title in English
+                          📌 {isHe ? 'כותרת באנגלית' : 'English Title'}
                         </label>
                         <Input
                           value={step.title_en}
