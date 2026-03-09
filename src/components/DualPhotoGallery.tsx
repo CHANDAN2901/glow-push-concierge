@@ -341,17 +341,17 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
   }, [before, after, resolvedLogo, logoPos, logoSize]);
 
   const handleSave = useCallback(async () => {
-    if (!clientId) { toast({ title: 'לא ניתן לשמור ללא תיק לקוחה', variant: 'destructive' }); return; }
-    if (!before || !after) { toast({ title: 'יש להעלות שתי תמונות', variant: 'destructive' }); return; }
+    if (!clientId) { toast({ title: isHe ? 'לא ניתן לשמור ללא תיק לקוחה' : 'Cannot save without a client file', variant: 'destructive' }); return; }
+    if (!before || !after) { toast({ title: isHe ? 'יש להעלות שתי תמונות' : 'Please upload both photos', variant: 'destructive' }); return; }
     setSaving(true);
     try {
       const canvas = await renderToCanvas();
       const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
       await uploadPhoto(dataUrl, { photoType: 'collage', label: 'Before & After' });
-      toast({ title: 'נשמר בתיק הלקוחה ✅' });
+      toast({ title: isHe ? 'נשמר בתיק הלקוחה ✅' : 'Saved to client file ✅' });
     } catch (err: any) {
       console.error('Save error:', err);
-      toast({ title: 'שגיאה בשמירה', description: err?.message || '', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בשמירה' : 'Save failed', description: err?.message || '', variant: 'destructive' });
     } finally { setSaving(false); }
   }, [renderToCanvas, clientId, uploadPhoto, before, after]);
 
