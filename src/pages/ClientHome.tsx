@@ -213,17 +213,43 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
     <button
       onClick={handleSubscribe}
       disabled={status === 'loading'}
-      className="w-full rounded-2xl p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up"
+      className="w-full rounded-2xl p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up relative overflow-hidden"
       style={{
         animationDelay: '50ms',
-        background: status === 'subscribed' ? 'linear-gradient(145deg, rgba(200,240,220,0.9) 0%, rgba(220,250,235,0.85) 100%)' : 'linear-gradient(135deg, #d69da9 0%, #cf8f9b 40%, #c4869a 70%, #cf8f9b 90%, #d69da9 100%)',
-        border: status === 'subscribed' ? '2px solid hsl(142 60% 50%)' : undefined,
-        boxShadow: status === 'subscribed' ? undefined : '0 6px 20px rgba(214,157,169,0.4), 0 2px 8px rgba(214,157,169,0.2), inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(180,100,120,0.15)',
+        background: status === 'subscribed'
+          ? 'linear-gradient(145deg, rgba(200,240,220,0.9) 0%, rgba(220,250,235,0.85) 100%)'
+          : 'linear-gradient(135deg, #E8C0C8 0%, #DEB0BA 40%, #d69da9 70%, #c4869a 100%)',
+        border: status === 'subscribed'
+          ? '2px solid hsl(142 60% 50%)'
+          : 'none',
+        padding: status === 'subscribed' ? undefined : '3px',
+        boxShadow: status === 'subscribed'
+          ? undefined
+          : '0 8px 24px rgba(191,149,63,0.25), 0 4px 12px rgba(214,157,169,0.3)',
         color: status === 'subscribed' ? 'hsl(142 60% 30%)' : '#fff',
-        backdropFilter: 'blur(12px)',
         fontFamily: FBAHAVA,
       }}
     >
+      {status !== 'subscribed' && (
+        <span
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          style={{
+            background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
+            zIndex: 0,
+          }}
+        />
+      )}
+      {status !== 'subscribed' && (
+        <span
+          className="absolute rounded-[13px] pointer-events-none"
+          style={{
+            inset: '3px',
+            background: 'linear-gradient(135deg, #E8C0C8 0%, #DEB0BA 40%, #d69da9 70%, #c4869a 100%)',
+            zIndex: 0,
+          }}
+        />
+      )}
+      <span className="relative z-10 flex items-center justify-center gap-3">
       {status === 'loading' ? (
         <span className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
       ) : (
@@ -234,6 +260,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
         : status === 'loading'
           ? (lang === 'en' ? 'Enabling...' : 'מפעילה...')
           : (lang === 'en' ? 'Enable notifications for recovery updates 🔔' : 'הפעילי התראות לקבלת עדכוני החלמה 🔔')}
+      </span>
     </button>
   );
 }
