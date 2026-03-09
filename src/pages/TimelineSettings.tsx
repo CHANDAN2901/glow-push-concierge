@@ -336,7 +336,7 @@ export default function TimelineSettings() {
                   }}
                 >
                   <Plus className="w-5 h-5" />
-                  הוסיפי שלב מותאם אישית
+                  {isHe ? 'הוסיפי שלב מותאם אישית' : 'Add Custom Step'}
                 </button>
               </div>
 
