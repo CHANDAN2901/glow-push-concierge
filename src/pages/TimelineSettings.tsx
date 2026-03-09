@@ -308,7 +308,7 @@ export default function TimelineSettings() {
                       </div>
                       <div>
                         <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                          📋 Instructions in English
+                          📋 {isHe ? 'הנחיות ללקוחה באנגלית' : 'English Instructions'}
                         </label>
                         <Textarea
                           value={step.instruction_en}
