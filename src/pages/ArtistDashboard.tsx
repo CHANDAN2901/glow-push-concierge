@@ -2315,7 +2315,7 @@ const ArtistDashboard = () => {
                                   <div className="mt-1.5 mr-12 space-y-1">
                                     <p className="text-[10px] font-bold text-destructive">{flags.join(' · ')}</p>
                                     <button
-                                      onClick={(e) => { e.stopPropagation(); approveException(client.name
+                                      onClick={(e) => { e.stopPropagation(); approveException(client); }}
                                       className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
                                     >
                                       <ShieldCheck className="w-3 h-3" />
