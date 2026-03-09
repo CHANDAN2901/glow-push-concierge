@@ -295,7 +295,7 @@ export default function TimelineSettings() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                          📋 הנחיות ללקוחה בעברית
+                          📋 {isHe ? 'הנחיות ללקוחה בעברית' : 'Hebrew Instructions'}
                         </label>
                         <Textarea
                           value={step.instruction_he}
