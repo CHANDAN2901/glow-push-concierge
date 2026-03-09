@@ -1,0 +1,1 @@
+ALTER TABLE public.pricing_plans ADD COLUMN feature_keys text[] NOT NULL DEFAULT '{}'::text[];
