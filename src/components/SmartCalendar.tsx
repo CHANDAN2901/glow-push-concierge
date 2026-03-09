@@ -1079,7 +1079,12 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
               <button
                 onClick={handleAdd}
                 disabled={!newName.trim()}
-                className="w-full py-3 rounded-full text-sm font-bold btn-metallic-gold disabled:opacity-50"
+                className="w-full py-3.5 rounded-full text-sm font-extrabold tracking-wide transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                style={{
+                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+                  color: '#5C4033',
+                  boxShadow: '0 4px 20px rgba(212,175,55,0.45), inset 0 1px 0 rgba(249,242,149,0.6)',
+                }}
               >
                 {isHe ? 'הוסיפי תור' : 'Add Appointment'}
               </button>
