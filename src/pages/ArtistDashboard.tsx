@@ -2241,35 +2241,6 @@ const ArtistDashboard = () => {
                         </div>
                       {/* Action Buttons Row */}
                       <div className="px-4 pb-4 flex items-center gap-2 flex-wrap">
-                        {(() => {
-                            const touchUpDay = 30;
-                            const daysLeft = touchUpDay - client.day;
-                            if (client.day >= touchUpDay) {
-                              return (
-                                <button
-                                  type="button"
-                                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-all btn-metallic-gold"
-                                   style={{ color: '#5C4033' }}
-                                >
-                                  <CheckCircle className="w-3.5 h-3.5 text-accent" />
-                                  {lang === 'en' ? '✅ Touch-up sent' : '✅ תזכורת טאצ׳ אפ נשלחה'}
-                                </button>
-                              );
-                            }
-                            return (
-                              <button
-                                type="button"
-                                className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-all btn-metallic-gold"
-                                 style={{ color: '#5C4033' }}
-                              >
-                                <Clock className="w-3.5 h-3.5 text-accent" />
-                                {lang === 'en'
-                                  ? `Touch-up in ${daysLeft}d`
-                                  : `טאצ׳ אפ בעוד ${daysLeft} ימים`}
-                              </button>
-                            );
-                          })()
-                        }
                         {lastSent && (
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                             <CheckCircle className="w-3 h-3 text-accent" />
