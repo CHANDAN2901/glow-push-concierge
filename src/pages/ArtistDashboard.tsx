@@ -83,6 +83,7 @@ interface ClientEntry {
   afterImg: string;
   pushOptedIn?: boolean;
   birthDate?: string | null;
+  medicalExceptionApproved?: boolean;
 }
 
 interface SmartMessage {
