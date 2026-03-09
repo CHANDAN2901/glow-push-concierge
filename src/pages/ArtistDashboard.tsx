@@ -963,17 +963,20 @@ const ArtistDashboard = () => {
     }
   };
 
-  // Fetch real clients from DB
-  const fetchClients = useCallback(async () => {
+  // Fetch real clients from DB with pagination
+  const fetchClients = useCallback(async (page = 0, append = false) => {
     if (!userProfileId) return;
     try {
-      const { data, error } = await supabase
+      const from = page * CLIENTS_PAGE_SIZE;
+      const to = from + CLIENTS_PAGE_SIZE - 1;
+      const { data, error, count } = await supabase
         .from('clients')
-        .select('id, full_name, phone, email, treatment_type, treatment_date, created_at, push_opted_in, birth_date')
+        .select('id, full_name, phone, email, treatment_type, treatment_date, created_at, push_opted_in, birth_date', { count: 'exact' })
         .eq('artist_id', userProfileId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(from, to);
       if (error) throw error;
-      if (data && data.length > 0) {
+      if (data) {
         const dbClients: ClientEntry[] = data.map(c => {
           const treatmentDate = c.treatment_date ? new Date(c.treatment_date) : new Date(c.created_at);
           const daysSince = Math.max(0, Math.floor((Date.now() - treatmentDate.getTime()) / (1000 * 60 * 60 * 24)));
@@ -991,20 +994,53 @@ const ArtistDashboard = () => {
             birthDate: c.birth_date || null,
           };
         });
-        setClients(prev => {
-          // Merge: DB clients first, then keep local-only ones
-          const dbIds = new Set(dbClients.map(c => c.dbId));
-          const dbNames = new Set(dbClients.map(c => c.name));
-          const localOnly = prev.filter(c => !c.dbId && !dbNames.has(c.name));
-          return [...dbClients, ...localOnly];
-        });
+        const totalCount = count ?? 0;
+        setHasMoreClients(from + data.length < totalCount);
+        if (append) {
+          setClients(prev => {
+            const existingIds = new Set(prev.map(c => c.dbId));
+            const newOnly = dbClients.filter(c => !existingIds.has(c.dbId));
+            return [...prev, ...newOnly];
+          });
+        } else {
+          setClients(prev => {
+            const dbIds = new Set(dbClients.map(c => c.dbId));
+            const dbNames = new Set(dbClients.map(c => c.name));
+            const localOnly = prev.filter(c => !c.dbId && !dbNames.has(c.name));
+            return [...dbClients, ...localOnly];
+          });
+        }
       }
     } catch (err) {
       console.error('Failed to fetch clients from DB:', err);
     }
   }, [userProfileId]);
 
-  useEffect(() => { fetchClients(); }, [fetchClients]);
+  const loadMoreClients = useCallback(async () => {
+    if (loadingMoreClients || !hasMoreClients) return;
+    setLoadingMoreClients(true);
+    const nextPage = clientsPage + 1;
+    await fetchClients(nextPage, true);
+    setClientsPage(nextPage);
+    setLoadingMoreClients(false);
+  }, [loadingMoreClients, hasMoreClients, clientsPage, fetchClients]);
+
+  useEffect(() => {
+    setClientsPage(0);
+    setHasMoreClients(true);
+    fetchClients(0, false);
+  }, [fetchClients]);
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    const el = loadMoreSentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) loadMoreClients();
+    }, { rootMargin: '200px' });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMoreClients]);
 
   // Fetch appointments for dynamic reminder messages
   const fetchAppointments = useCallback(async () => {
