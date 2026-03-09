@@ -621,6 +621,7 @@ const ArtistDashboard = () => {
   const [showDigitalCardPreview, setShowDigitalCardPreview] = useState(false);
   const [savingClient, setSavingClient] = useState(false);
   const [savingCard, setSavingCard] = useState(false);
+  const [savingBusiness, setSavingBusiness] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
   // Edit treatment note modal
   const [editingNote, setEditingNote] = useState<{ clientName: string; note: TreatmentNote } | null>(null);
