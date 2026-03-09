@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { TREATMENT_OPTIONS, getTreatmentLabel as getTreatmentLabelFn } from '@/lib/treatment-options';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
@@ -826,6 +826,17 @@ const ArtistDashboard = () => {
 
   // Clients with active (non-approved) red flags
   const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !approvedExceptions[c.name]);
+
+  // Memoized search-filtered clients for real-time filtering
+  const searchFilteredClients = useMemo(() => {
+    const q = clientSearchQuery.trim();
+    if (!q) return clients;
+    return clients.filter(c =>
+      c.name.includes(q) ||
+      c.name.toLowerCase().includes(q.toLowerCase()) ||
+      c.phone.replace(/\D/g, '').includes(q.replace(/\D/g, ''))
+    );
+  }, [clients, clientSearchQuery]);
 
   const sendSmartReminder = (client: ClientEntry) => {
     const clientDay = Number(client.day);
@@ -2197,21 +2208,15 @@ const ArtistDashboard = () => {
                   return parseInt(bd.slice(5, 7)) === currentMonth;
                 };
 
-                const searchQ = clientSearchQuery.toLowerCase().trim();
-                const searchFiltered = searchQ
-                  ? clients.filter(c =>
-                      c.name.toLowerCase().includes(searchQ) ||
-                      c.phone.replace(/\D/g, '').includes(searchQ.replace(/\D/g, ''))
-                    )
-                  : clients;
+                const searchQ = clientSearchQuery.trim();
 
                 const filteredClients = clientListFilter === 'birthdays'
-                  ? searchFiltered
+                  ? searchFilteredClients
                       .filter(c => isBirthdayThisMonth(c.birthDate))
                       .sort((a, b) => parseInt(a.birthDate?.slice(8, 10) || '0') - parseInt(b.birthDate?.slice(8, 10) || '0'))
                   : clientListFilter === 'renewal'
-                  ? searchFiltered.filter(c => isRenewalDue(c.treatment, c.day))
-                  : searchFiltered;
+                  ? searchFilteredClients.filter(c => isRenewalDue(c.treatment, c.day))
+                  : searchFilteredClients;
 
                 if (filteredClients.length === 0) {
                   if (searchQ) {
