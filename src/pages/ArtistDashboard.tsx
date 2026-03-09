@@ -621,6 +621,7 @@ const ArtistDashboard = () => {
   const [showDigitalCardPreview, setShowDigitalCardPreview] = useState(false);
   const [savingClient, setSavingClient] = useState(false);
   const [savingCard, setSavingCard] = useState(false);
+  const [savingBusiness, setSavingBusiness] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
   // Edit treatment note modal
   const [editingNote, setEditingNote] = useState<{ clientName: string; note: TreatmentNote } | null>(null);
@@ -2837,6 +2838,55 @@ const ArtistDashboard = () => {
                   style={{ border: '2px solid hsl(38 55% 62%)' }}
                 />
               </div>
+
+              <div className="h-px w-full bg-gradient-to-l from-transparent via-accent/20 to-transparent my-4" />
+
+              <Button
+                onClick={async () => {
+                  if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
+                  setSavingBusiness(true);
+                  try {
+                    let finalLogoUrl = logoUrl;
+
+                    // If logo is a base64 data URL, upload to Supabase storage first
+                    if (logoUrl && logoUrl.startsWith('data:')) {
+                      const blob = await fetch(logoUrl).then(r => r.blob());
+                      const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
+                      const path = `${userProfileId}/logo.${ext}`;
+                      const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
+                      if (uploadErr) throw uploadErr;
+                      const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+                      finalLogoUrl = urlData.publicUrl;
+                      setLogoUrl(finalLogoUrl);
+                      localStorage.setItem('gp-artist-logo', finalLogoUrl);
+                    }
+
+                    const { error } = await supabase.from('profiles').update({
+                      full_name: artistName || null,
+                      business_phone: artistPhone || null,
+                      logo_url: finalLogoUrl || null,
+                    } as any).eq('id', userProfileId);
+
+                    if (error) throw error;
+                    toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
+                  } catch (err: any) {
+                    console.error('Save business details error:', err);
+                    toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
+                  }
+                  setSavingBusiness(false);
+                }}
+                disabled={savingBusiness}
+                className="w-full h-12 rounded-full font-bold text-sm tracking-wide"
+                style={{
+                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+                  color: '#5C4033',
+                  border: '1px solid #B8860B',
+                  boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
+                }}
+              >
+                {savingBusiness ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
+                {savingBusiness ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save' : 'שמור')}
+              </Button>
             </div>
 
             {/* Card — Digital Card Settings */}
