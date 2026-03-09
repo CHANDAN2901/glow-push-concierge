@@ -2143,6 +2143,29 @@ const ArtistDashboard = () => {
                 ))}
               </div>
 
+              {/* Search bar */}
+              {clientListFilter === 'all' && (
+                <div className="relative mb-4">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <input
+                    type="text"
+                    value={clientSearchQuery}
+                    onChange={(e) => setClientSearchQuery(e.target.value)}
+                    placeholder={lang === 'en' ? 'Search by name or phone...' : 'חיפוש לפי שם או טלפון...'}
+                    className="w-full h-11 rounded-2xl border border-border/60 bg-background pr-10 pl-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                    dir="rtl"
+                  />
+                  {clientSearchQuery && (
+                    <button
+                      onClick={() => setClientSearchQuery('')}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+
               {(() => {
                 const now = new Date();
                 const currentMonth = now.getMonth() + 1;
