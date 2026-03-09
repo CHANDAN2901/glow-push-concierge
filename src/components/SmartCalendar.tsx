@@ -932,25 +932,36 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
 
       {/* Add Appointment Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowAddModal(false)}>
-          <div className="relative w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col overflow-hidden" style={{ maxHeight: '85dvh' }} onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowAddModal(false)} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-0 pt-0 pb-24 sm:p-4"
+          onClick={() => setShowAddModal(false)}
+        >
+          <div
+            className="relative w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col overflow-hidden max-h-[calc(100dvh-96px)] sm:max-h-[85vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+            >
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
+
             <div className="pt-8 pb-4 px-6 text-center border-b border-border shrink-0">
               <CalendarDays className="w-8 h-8 mx-auto mb-2 text-accent" />
               <h2 className="font-serif font-bold text-lg">{isHe ? 'תור חדש' : 'New Appointment'}</h2>
             </div>
-            <div 
-              className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-4"
-              style={{ WebkitOverflowScrolling: 'touch', minHeight: 0 }}
+
+            <div
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-6 pb-32 space-y-4"
+              style={{ WebkitOverflowScrolling: 'touch' }}
             >
               {/* Client search / autocomplete */}
               <div className="space-y-2 relative">
                 <Label className="text-xs font-medium">{isHe ? 'שם הלקוחה' : 'Client Name'}</Label>
                 <Input
                   value={selectedExistingClient ? selectedExistingClient.name : clientSearch}
-                  onChange={e => {
+                  onChange={(e) => {
                     if (selectedExistingClient) {
                       setSelectedExistingClient(null);
                       setNewPhone('');
@@ -965,47 +976,72 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                 />
                 {selectedExistingClient && (
                   <button
-                    onClick={() => { setSelectedExistingClient(null); setClientSearch(''); setNewName(''); setNewPhone(''); }}
+                    onClick={() => {
+                      setSelectedExistingClient(null);
+                      setClientSearch('');
+                      setNewName('');
+                      setNewPhone('');
+                    }}
                     className="absolute top-7 right-2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded"
                   >
                     ✕
                   </button>
                 )}
-                {showClientDropdown && !selectedExistingClient && filteredClients.length > 0 && clientSearch.trim().length > 0 && (
-                  <div className="absolute z-20 top-full mt-1 left-0 right-0 max-h-40 overflow-y-auto rounded-xl bg-card border border-border shadow-lg">
-                    {filteredClients.map(c => (
-                      <button
-                        key={c.id}
-                        onClick={() => {
-                          setSelectedExistingClient(c);
-                          setNewName(c.name);
-                          setNewPhone(c.phone || '');
-                          setClientSearch(c.name);
-                          setShowClientDropdown(false);
-                        }}
-                        className="w-full text-right px-4 py-2.5 text-sm hover:bg-muted/60 transition-colors flex items-center justify-between border-b border-border/50 last:border-0"
-                      >
-                        <span className="font-medium">{c.name}</span>
-                        {c.phone && <span className="text-[10px] text-muted-foreground" dir="ltr">{c.phone}</span>}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {showClientDropdown &&
+                  !selectedExistingClient &&
+                  filteredClients.length > 0 &&
+                  clientSearch.trim().length > 0 && (
+                    <div className="absolute z-20 top-full mt-1 left-0 right-0 max-h-40 overflow-y-auto rounded-xl bg-card border border-border shadow-lg">
+                      {filteredClients.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => {
+                            setSelectedExistingClient(c);
+                            setNewName(c.name);
+                            setNewPhone(c.phone || '');
+                            setClientSearch(c.name);
+                            setShowClientDropdown(false);
+                          }}
+                          className="w-full text-right px-4 py-2.5 text-sm hover:bg-muted/60 transition-colors flex items-center justify-between border-b border-border/50 last:border-0"
+                        >
+                          <span className="font-medium">{c.name}</span>
+                          {c.phone && (
+                            <span className="text-[10px] text-muted-foreground" dir="ltr">
+                              {c.phone}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
               </div>
 
               {/* Phone — hidden when existing client is selected */}
               {!selectedExistingClient && (
                 <div className="space-y-2">
                   <Label className="text-xs font-medium">{isHe ? 'טלפון' : 'Phone'}</Label>
-                  <Input value={newPhone} onChange={e => setNewPhone(e.target.value)} placeholder="050-0000000" dir="ltr" />
+                  <Input
+                    value={newPhone}
+                    onChange={(e) => setNewPhone(e.target.value)}
+                    placeholder="050-0000000"
+                    dir="ltr"
+                  />
                 </div>
               )}
 
               {/* Visit type — new / touch-up / consultation */}
               <div className="space-y-2">
                 <Label className="text-xs font-medium">{isHe ? 'סוג ביקור' : 'Visit Type'}</Label>
-                <Select value={newVisitType} onValueChange={(v) => { setNewVisitType(v as any); if (v === 'touchup') setNewAutoHealth(false); }}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={newVisitType}
+                  onValueChange={(v) => {
+                    setNewVisitType(v as any);
+                    if (v === 'touchup') setNewAutoHealth(false);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="new">{isHe ? '✨ טיפול חדש' : '✨ New Treatment'}</SelectItem>
                     <SelectItem value="touchup">{isHe ? '🔄 טאצ׳ אפ / חיזוק' : '🔄 Touch-up'}</SelectItem>
@@ -1018,7 +1054,9 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
               <div className="space-y-2">
                 <Label className="text-xs font-medium">{isHe ? 'אזור טיפול' : 'Treatment Area'}</Label>
                 <Select value={newType} onValueChange={(v) => setNewType(v as any)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="eyebrows">{isHe ? '✨ גבות' : '✨ Brows'}</SelectItem>
                     <SelectItem value="lips">{isHe ? '💋 שפתיים' : '💋 Lips'}</SelectItem>
@@ -1026,28 +1064,43 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label className="text-xs font-medium">{isHe ? 'תאריך' : 'Date'}</Label>
-                  <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} dir="ltr" />
+                  <Input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} dir="ltr" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-medium">{isHe ? 'שעה' : 'Time'}</Label>
                   <div className="flex items-center gap-1" dir="ltr">
-                    <Select value={newTime.split(':')[0] || '10'} onValueChange={(h) => setNewTime(`${h}:${newTime.split(':')[1] || '00'}`)}>
-                      <SelectTrigger className="w-[70px]"><SelectValue /></SelectTrigger>
+                    <Select
+                      value={newTime.split(':')[0] || '10'}
+                      onValueChange={(h) => setNewTime(`${h}:${newTime.split(':')[1] || '00'}`)}
+                    >
+                      <SelectTrigger className="w-[70px]">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
-                        {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map(h => (
-                          <SelectItem key={h} value={h}>{h}</SelectItem>
+                        {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map((h) => (
+                          <SelectItem key={h} value={h}>
+                            {h}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     <span className="text-sm font-bold">:</span>
-                    <Select value={newTime.split(':')[1] || '00'} onValueChange={(m) => setNewTime(`${newTime.split(':')[0] || '10'}:${m}`)}>
-                      <SelectTrigger className="w-[70px]"><SelectValue /></SelectTrigger>
+                    <Select
+                      value={newTime.split(':')[1] || '00'}
+                      onValueChange={(m) => setNewTime(`${newTime.split(':')[0] || '10'}:${m}`)}
+                    >
+                      <SelectTrigger className="w-[70px]">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
-                        {['00', '15', '30', '45'].map(m => (
-                          <SelectItem key={m} value={m}>{m}</SelectItem>
+                        {['00', '15', '30', '45'].map((m) => (
+                          <SelectItem key={m} value={m}>
+                            {m}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -1057,31 +1110,35 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
 
               {/* Auto health form checkbox — hidden for touch-ups */}
               {newVisitType !== 'touchup' && (
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/50 border border-border">
-                <Checkbox
-                  id="auto-health"
-                  checked={newAutoHealth}
-                  onCheckedChange={(checked) => setNewAutoHealth(checked === true)}
-                  className="mt-0.5"
-                />
-                <label htmlFor="auto-health" className="cursor-pointer">
-                  <p className="text-xs font-semibold">
-                    {isHe ? 'שלח הצהרת בריאות אוטומטית בוואטסאפ' : 'Auto-send Health Declaration via WhatsApp'}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
-                    {isHe ? 'הלקוחה תקבל הצהרת בריאות דיגיטלית למילוי לפני התור' : 'Client receives a digital health form to fill before the appointment'}
-                  </p>
-                </label>
-              </div>
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/50 border border-border">
+                  <Checkbox
+                    id="auto-health"
+                    checked={newAutoHealth}
+                    onCheckedChange={(checked) => setNewAutoHealth(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <label htmlFor="auto-health" className="cursor-pointer">
+                    <p className="text-xs font-semibold">
+                      {isHe ? 'שלח הצהרת בריאות אוטומטית בוואטסאפ' : 'Auto-send Health Declaration via WhatsApp'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      {isHe
+                        ? 'הלקוחה תקבל הצהרת בריאות דיגיטלית למילוי לפני התור'
+                        : 'Client receives a digital health form to fill before the appointment'}
+                    </p>
+                  </label>
+                </div>
               )}
             </div>
-            <div className="px-6 py-4 pb-28 border-t border-border shrink-0 bg-card rounded-b-2xl">
+
+            <div className="px-6 py-4 border-t border-border shrink-0 bg-card">
               <button
                 onClick={handleAdd}
                 disabled={!newName.trim()}
                 className="w-full py-3.5 rounded-full text-sm font-extrabold tracking-wide transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
                 style={{
-                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+                  background:
+                    'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
                   color: '#5C4033',
                   boxShadow: '0 4px 20px rgba(212,175,55,0.45), inset 0 1px 0 rgba(249,242,149,0.6)',
                 }}
