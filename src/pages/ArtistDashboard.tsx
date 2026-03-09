@@ -3146,7 +3146,7 @@ const ArtistDashboard = () => {
                               backgroundClip: 'text',
                             }}
                           >
-                            {promoTitle || 'להשלמת המראה'}
+                            {promoTitle || (lang === 'en' ? 'Complete Your Look' : 'להשלמת המראה')}
                           </h3>
                           {/* Description */}
                           <p
