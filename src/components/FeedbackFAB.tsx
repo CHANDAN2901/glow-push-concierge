@@ -56,7 +56,7 @@ export default function FeedbackFAB() {
       <button
         onClick={() => setOpen(true)}
         aria-label="שלחי משוב"
-        className="fixed bottom-6 left-6 z-40 flex h-14 w-14 items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
+        className="fixed bottom-24 left-4 z-[9999] flex h-14 w-14 items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
         style={{
           background: "linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%)",
           boxShadow: "0 4px 20px rgba(0,0,0,0.12), 0 1px 4px rgba(212,175,55,0.25)",

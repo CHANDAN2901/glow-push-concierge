@@ -184,61 +184,27 @@ export default function HelpCenter({ onClose }: Props) {
         </Accordion>
       </div>
 
-      {/* Section B: Report a Problem */}
+      {/* Section B: Support Team Contact */}
       <div className="rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center gap-2 mb-4">
-          <AlertTriangle className="w-5 h-5" style={{ color: goldColor }} />
+          <Headphones className="w-5 h-5" style={{ color: goldColor }} />
           <h2 className="font-sans font-bold text-sm tracking-wide">
-            {isHe ? 'דיווח על בעיה' : 'Report a Problem'}
+            {isHe ? 'צוות תמיכה' : 'Support Team'}
           </h2>
         </div>
-
-        {sent ? (
-          <div className="text-center py-6 space-y-3">
-            <CheckCircle className="w-10 h-10 mx-auto" style={{ color: goldColor }} />
-            <p className="text-sm font-medium">
-              {isHe ? 'הדיווח התקבל! הצוות הטכני יטפל בפנייתך בהקדם.' : 'Report received! Our team will handle it soon.'}
-            </p>
-            <button
-              onClick={() => setSent(false)}
-              className="text-xs font-medium hover:underline"
-              style={{ color: goldColor }}
-            >
-              {isHe ? 'שלחי דיווח נוסף' : 'Send another report'}
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder={isHe ? 'תארי את הבעיה...' : 'Describe the issue...'}
-              rows={4}
-              maxLength={1000}
-              className="w-full px-4 py-3 rounded-xl text-sm border border-border bg-background resize-none outline-none transition-all focus:ring-1 focus:ring-accent"
-              dir={isHe ? 'rtl' : 'ltr'}
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-muted-foreground">{message.length}/1000</span>
-              <button
-                onClick={handleSubmit}
-                disabled={!message.trim() || sending || !user}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-accent-foreground transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-                style={{ background: `linear-gradient(135deg, ${goldColor}, hsl(38, 50%, 70%))` }}
-              >
-                <Send className="w-4 h-4" />
-                {sending
-                  ? (isHe ? 'שולחת...' : 'Sending...')
-                  : (isHe ? 'שלחי דיווח לצוות הטכני' : 'Send Report')}
-              </button>
-            </div>
-            {!user && (
-              <p className="text-xs text-destructive">
-                {isHe ? 'יש להתחבר כדי לשלוח דיווח' : 'Please sign in to submit a report'}
-              </p>
-            )}
-          </div>
-        )}
+        <p className="text-sm text-muted-foreground mb-4">
+          {isHe
+            ? 'יש לך שאלה, הצעה או בקשה? שלחי לנו מייל ונחזור אלייך בהקדם:'
+            : 'Have a question, suggestion, or request? Email us and we\'ll get back to you:'}
+        </p>
+        <a
+          href="mailto:hello@glowpush.app"
+          className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl text-sm font-semibold text-white transition-all active:scale-95"
+          style={{ background: `linear-gradient(135deg, ${goldColor}, hsl(38, 50%, 70%))`, boxShadow: '0 4px 14px -3px rgba(212,175,55,0.35)' }}
+        >
+          <Send className="w-4 h-4" />
+          hello@glowpush.app
+        </a>
       </div>
 
       {/* Section C: Urgent Help */}
