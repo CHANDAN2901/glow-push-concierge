@@ -3119,7 +3119,7 @@ const ArtistDashboard = () => {
                               boxShadow: '0 4px 12px rgba(214,157,169,0.4)',
                             }}
                           >
-                            {promoTagText || 'פינוק ללקוחות ✨'}
+                            {promoTagText || (lang === 'en' ? 'Exclusive for Returning Clients ✨' : 'פינוק ללקוחות ✨')}
                           </span>
                         </div>
                         {/* Sparkle deco */}
