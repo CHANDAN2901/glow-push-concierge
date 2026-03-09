@@ -3,6 +3,7 @@ import { Camera, X, Calendar as CalendarIcon, Download, Sparkles } from 'lucide-
 import { format, isValid } from 'date-fns';
 import type { SharedGalleryPhoto } from '@/hooks/useClientGallery';
 import { toast } from '@/hooks/use-toast';
+import { useI18n } from '@/lib/i18n';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
@@ -23,20 +24,20 @@ interface ClientSharedGalleryProps {
 
 const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>(({ gallery }, ref) => {
   const { photos, loading, newCount, markAllSeen, uploadPhoto, resolvedArtistId } = gallery;
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
   const [selected, setSelected] = useState<SharedGalleryPhoto | null>(null);
   const [notifShown, setNotifShown] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Show notification when new photos arrive
   useEffect(() => {
     if (newCount > 0 && !notifShown) {
-      toast({ title: 'המאפרת שלך העלתה תמונה חדשה למסע ההחלמה! 📸✨' });
+      toast({ title: isHe ? 'המאפרת שלך העלתה תמונה חדשה למסע ההחלמה! 📸✨' : 'Your artist uploaded a new healing photo! 📸✨' });
       setNotifShown(true);
     }
-  }, [newCount, notifShown]);
+  }, [newCount, notifShown, isHe]);
 
-  // Mark all as seen when gallery is viewed
   useEffect(() => {
     if (newCount > 0 && photos.length > 0) {
       markAllSeen();
@@ -54,10 +55,10 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
         reader.readAsDataURL(file);
       });
       await uploadPhoto(base64, { photoType: 'healing', uploadedBy: 'client' });
-      toast({ title: 'התמונה הועלתה בהצלחה! 📸✨' });
+      toast({ title: isHe ? 'התמונה הועלתה בהצלחה! 📸✨' : 'Photo uploaded successfully! 📸✨' });
     } catch (err) {
       console.error('Client upload error:', err);
-      toast({ title: 'שגיאה בהעלאת התמונה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בהעלאת התמונה' : 'Photo upload failed', variant: 'destructive' });
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -81,9 +82,9 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast({ title: 'התמונה נשמרה! 📸' });
+      toast({ title: isHe ? 'התמונה נשמרה! 📸' : 'Photo saved! 📸' });
     } catch {
-      toast({ title: 'שגיאה בשמירה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בשמירה' : 'Save failed', variant: 'destructive' });
     }
   };
 
@@ -103,12 +104,11 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
     <div ref={ref}>
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
 
-      {/* New badge */}
       {newCount > 0 && (
         <div className="flex items-center justify-center gap-2 mb-3 p-2.5 rounded-2xl" style={{ background: 'hsl(40 50% 94%)' }}>
           <Sparkles className="w-4 h-4" style={{ color: GOLD_DARK }} />
           <span className="text-xs font-medium" style={{ color: GOLD_DARK }}>
-            {newCount} תמונות חדשות מהמאפרת שלך! ✨
+            {isHe ? `${newCount} תמונות חדשות מהמאפרת שלך! ✨` : `${newCount} new photos from your artist! ✨`}
           </span>
         </div>
       )}
@@ -117,14 +117,14 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
         <div className="text-center py-6">
           <Camera className="w-8 h-8 mx-auto mb-2 opacity-30" style={{ color: GOLD_DARK }} />
           <p className="text-xs font-serif" style={{ color: GOLD_DARK }}>
-            עדיין אין תמונות בגלריה 📸
+            {isHe ? 'עדיין אין תמונות בגלריה 📸' : 'No photos in the gallery yet 📸'}
           </p>
           <p className="text-[10px] mt-1" style={{ color: '#999' }}>
-            העלי תמונה כדי לתעד את תהליך ההחלמה שלך
+            {isHe ? 'העלי תמונה כדי לתעד את תהליך ההחלמה שלך' : 'Upload a photo to document your healing process'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-2.5" dir="rtl">
+        <div className="grid grid-cols-3 gap-2.5" dir={isHe ? 'rtl' : 'ltr'}>
           {sorted.map((photo) => {
             const isNew = !photo.seen_by_client && photo.uploaded_by === 'artist';
 
@@ -138,33 +138,30 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                 <div className="aspect-square overflow-hidden relative">
                   <img src={photo.public_url} alt="" className="w-full h-full object-cover" />
 
-                  {/* New badge */}
                   {isNew && (
                     <span
                       className="absolute top-1 left-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10 animate-pulse"
                       style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
                     >
-                      חדש ✨
+                      {isHe ? 'חדש ✨' : 'New ✨'}
                     </span>
                   )}
 
-                  {/* Day badge */}
                   {photo.day_number !== null && (
                     <span
                       className="absolute top-1 right-1 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
                       style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
                     >
-                      יום {photo.day_number}
+                      {isHe ? `יום ${photo.day_number}` : `Day ${photo.day_number}`}
                     </span>
                   )}
 
-                  {/* Client upload badge */}
                   {photo.uploaded_by === 'client' && (
                     <span
                       className="absolute bottom-1 left-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
                       style={{ background: 'hsl(350 50% 93%)', color: '#5C4033' }}
                     >
-                      שלי
+                      {isHe ? 'שלי' : 'Mine'}
                     </span>
                   )}
                 </div>
@@ -181,7 +178,6 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
         </div>
       )}
 
-      {/* Upload button — bottom of gallery */}
       <div className="flex flex-col items-center gap-1.5 mt-5 pt-4" style={{ borderTop: `1px solid ${GOLD}20` }}>
         <button
           onClick={() => fileRef.current?.click()}
@@ -190,10 +186,10 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
           style={{ background: GOLD_BTN_GRADIENT, color: '#5C4033', boxShadow: '0 4px 15px rgba(212,175,55,0.3)' }}
         >
           <Camera className="w-4 h-4" />
-          {uploading ? 'מעלה...' : 'העלאת תמונה 📸'}
+          {uploading ? (isHe ? 'מעלה...' : 'Uploading...') : (isHe ? 'העלאת תמונה 📸' : 'Upload Photo 📸')}
         </button>
         <p className="text-[10px] font-serif" style={{ color: '#999' }}>
-          צלמי תמונה ברורה של אזור הטיפול
+          {isHe ? 'צלמי תמונה ברורה של אזור הטיפול' : 'Take a clear photo of the treated area'}
         </p>
       </div>
 

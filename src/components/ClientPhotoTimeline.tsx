@@ -3,6 +3,7 @@ import { Camera, X, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
+import { useI18n } from '@/lib/i18n';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
@@ -14,6 +15,8 @@ interface ClientPhotoTimelineProps {
 
 const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) => {
   const { photos, loading, uploadPhoto, deletePhoto } = useClientGallery(clientId, artistId);
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
   const [selectedPhoto, setSelectedPhoto] = useState<typeof photos[0] | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -28,11 +31,11 @@ const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) =
         reader.onloadend = () => resolve(reader.result as string);
         reader.readAsDataURL(file);
       });
-      await uploadPhoto(base64, { photoType: 'healing', label: 'תמונת גלריה' });
-      toast({ title: 'התמונה נשמרה בגלריה ✨' });
+      await uploadPhoto(base64, { photoType: 'healing', label: isHe ? 'תמונת גלריה' : 'Gallery photo' });
+      toast({ title: isHe ? 'התמונה נשמרה בגלריה ✨' : 'Photo saved to gallery ✨' });
     } catch (err) {
       console.error('Upload error:', err);
-      toast({ title: 'שגיאה בהעלאת התמונה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בהעלאת התמונה' : 'Photo upload failed', variant: 'destructive' });
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -45,7 +48,7 @@ const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) =
       if (selectedPhoto?.id === id) setSelectedPhoto(null);
     } catch (err) {
       console.error('Delete error:', err);
-      toast({ title: 'שגיאה במחיקה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה במחיקה' : 'Delete failed', variant: 'destructive' });
     }
   };
 
@@ -61,7 +64,6 @@ const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) =
 
   return (
     <div className="space-y-4">
-      {/* Add photo button */}
       <div className="flex justify-center">
         <button
           onClick={() => fileRef.current?.click()}
@@ -74,7 +76,7 @@ const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) =
           }}
         >
           {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-          {uploading ? 'מעלה...' : 'הוסיפי תמונה לגלריה'}
+          {uploading ? (isHe ? 'מעלה...' : 'Uploading...') : (isHe ? 'הוסיפי תמונה לגלריה' : 'Add photo to gallery')}
         </button>
         <input
           ref={fileRef}
@@ -85,13 +87,12 @@ const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) =
         />
       </div>
 
-      {/* Gallery grid */}
       {sortedPhotos.length === 0 ? (
         <p className="text-center text-xs font-serif" style={{ color: GOLD_DARK }}>
-          עדיין אין תמונות בגלריה 📸
+          {isHe ? 'עדיין אין תמונות בגלריה 📸' : 'No photos in the gallery yet 📸'}
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-3" dir="rtl">
+        <div className="grid grid-cols-2 gap-3" dir={isHe ? 'rtl' : 'ltr'}>
           {sortedPhotos.map((photo, idx) => (
             <div
               key={photo.id}
@@ -105,7 +106,6 @@ const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) =
                   alt={photo.label || ''}
                   className="w-full h-full object-cover"
                 />
-                {/* Remove button */}
                 <button
                   onClick={(e) => { e.stopPropagation(); removePhoto(photo.id); }}
                   className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-sm z-10"
@@ -117,7 +117,7 @@ const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) =
                     className="absolute top-1.5 right-1.5 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
                     style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
                   >
-                    חדש
+                    {isHe ? 'חדש' : 'New'}
                   </span>
                 )}
               </div>
@@ -139,7 +139,6 @@ const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) =
         </div>
       )}
 
-      {/* Fullscreen preview */}
       {selectedPhoto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"

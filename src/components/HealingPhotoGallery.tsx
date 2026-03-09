@@ -4,6 +4,7 @@ import { Camera, X, Calendar as CalendarIcon, Download } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
+import { useI18n } from '@/lib/i18n';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
@@ -17,12 +18,13 @@ interface HealingPhotoGalleryProps {
 
 const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: HealingPhotoGalleryProps) => {
   const { photos, loading, fetchError, uploadPhoto, deletePhoto, resolvedArtistId } = useClientGallery(clientId, artistId);
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
   const [uploading, setUploading] = useState(false);
   const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Close lightbox on Escape key
   useEffect(() => {
     if (!lightboxUrl) return;
     const handler = (e: KeyboardEvent) => {
@@ -42,7 +44,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     const file = e.target.files?.[0];
     if (!file) return;
     if (!resolvedArtistId) {
-      const msg = 'טוען פרטי סטודיו, נסי שוב בעוד רגע';
+      const msg = isHe ? 'טוען פרטי סטודיו, נסי שוב בעוד רגע' : 'Loading studio details, please try again shortly';
       setUploadErrorMessage(msg);
       toast({ title: msg, variant: 'destructive' });
       e.target.value = '';
@@ -57,13 +59,13 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         reader.readAsDataURL(file);
       });
       const dayNum = getDayLabel(new Date().toISOString());
-      const label = dayNum !== null ? `יום ${dayNum}` : undefined;
+      const label = dayNum !== null ? (isHe ? `יום ${dayNum}` : `Day ${dayNum}`) : undefined;
       await uploadPhoto(base64, { photoType: 'healing', label, dayNumber: dayNum ?? undefined, uploadedBy: 'artist' });
-      toast({ title: 'נשמר בהצלחה ✅' });
+      toast({ title: isHe ? 'נשמר בהצלחה ✅' : 'Saved successfully ✅' });
     } catch (err: any) {
       const message = err?.message || 'Unknown upload error';
       setUploadErrorMessage(message);
-      toast({ title: `שגיאה בהעלאת התמונה: ${message}`, variant: 'destructive' });
+      toast({ title: isHe ? `שגיאה בהעלאת התמונה: ${message}` : `Upload failed: ${message}`, variant: 'destructive' });
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -74,7 +76,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
     try {
       await deletePhoto(id);
     } catch {
-      toast({ title: 'שגיאה במחיקה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה במחיקה' : 'Delete failed', variant: 'destructive' });
     }
   };
 
@@ -89,7 +91,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
       if (nav.canShare && nav.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: 'Healing Photo' });
-        toast({ title: 'נפתח חלון שיתוף ✅' });
+        toast({ title: isHe ? 'נפתח חלון שיתוף ✅' : 'Share dialog opened ✅' });
         return;
       }
 
@@ -101,12 +103,12 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
-      toast({ title: 'התמונה הורדה בהצלחה 📥' });
+      toast({ title: isHe ? 'התמונה הורדה בהצלחה 📥' : 'Photo downloaded 📥' });
     } catch (err: any) {
       if (err?.name === 'AbortError') return;
-      toast({ title: 'שגיאה בהורדה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בהורדה' : 'Download failed', variant: 'destructive' });
     }
-  }, [lightboxUrl]);
+  }, [lightboxUrl, isHe]);
 
   const sortedPhotos = [...photos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -120,7 +122,6 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
   return (
     <div className="space-y-4">
-      {/* Lightbox */}
       {lightboxUrl && createPortal(
         <div
           className="fixed inset-0 flex items-center justify-center"
@@ -158,7 +159,6 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         document.body
       )}
 
-      {/* Action buttons */}
       <div className="flex items-center justify-center gap-3 flex-wrap">
         <button
           onClick={() => fileRef.current?.click()}
@@ -167,7 +167,11 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           style={{ background: '#ffffff', border: `2.5px solid ${GOLD}`, color: GOLD_DARK }}
         >
           <Camera className="w-4 h-4" />
-          {uploading ? 'מעלה...' : !resolvedArtistId ? 'טוען פרופיל...' : 'הוסיפי תמונה'}
+          {uploading
+            ? (isHe ? 'מעלה...' : 'Uploading...')
+            : !resolvedArtistId
+              ? (isHe ? 'טוען פרופיל...' : 'Loading profile...')
+              : (isHe ? 'הוסיפי תמונה' : 'Add Photo')}
         </button>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAddPhoto} />
       </div>
@@ -179,15 +183,18 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         </div>
       )}
 
-      {/* Gallery grid */}
       {sortedPhotos.length === 0 ? (
         <div className="text-center py-8">
           <Camera className="w-10 h-10 mx-auto mb-3 opacity-30" style={{ color: GOLD_DARK }} />
-          <p className="text-sm font-serif" style={{ color: GOLD_DARK }}>עדיין אין תמונות החלמה 📸</p>
-          <p className="text-xs mt-1 font-light" style={{ color: '#888' }}>הוסיפי תמונות כדי לעקוב אחרי תהליך ההחלמה</p>
+          <p className="text-sm font-serif" style={{ color: GOLD_DARK }}>
+            {isHe ? 'עדיין אין תמונות החלמה 📸' : 'No healing photos yet 📸'}
+          </p>
+          <p className="text-xs mt-1 font-light" style={{ color: '#888' }}>
+            {isHe ? 'הוסיפי תמונות כדי לעקוב אחרי תהליך ההחלמה' : 'Add photos to track the healing process'}
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-2.5" dir="rtl">
+        <div className="grid grid-cols-3 gap-2.5" dir={isHe ? 'rtl' : 'ltr'}>
           {sortedPhotos.map((photo) => (
             <div
               key={photo.id}
@@ -205,11 +212,15 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
                 </button>
                 {photo.day_number !== null && (
                   <span className="absolute top-1 right-1 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
-                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}>יום {photo.day_number}</span>
+                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}>
+                    {isHe ? `יום ${photo.day_number}` : `Day ${photo.day_number}`}
+                  </span>
                 )}
                 {photo.photo_type === 'collage' && (
                   <span className="absolute bottom-1 right-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}>קולאז׳</span>
+                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}>
+                    {isHe ? 'קולאז׳' : 'Collage'}
+                  </span>
                 )}
               </div>
               <div className="px-1.5 py-1 flex items-center gap-1">

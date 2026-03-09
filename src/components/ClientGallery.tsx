@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Calendar as CalendarIcon, ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import { useI18n } from '@/lib/i18n';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
@@ -43,6 +44,8 @@ interface ClientGalleryProps {
 }
 
 const ClientGallery = ({ clientId }: ClientGalleryProps) => {
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [selected, setSelected] = useState<GalleryItem | null>(null);
 
@@ -72,7 +75,7 @@ const ClientGallery = ({ clientId }: ClientGalleryProps) => {
       <div className="text-center py-6">
         <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-40" style={{ color: GOLD_DARK }} />
         <p className="text-xs font-serif" style={{ color: GOLD_DARK }}>
-          עדיין אין תמונות בגלריה 📸
+          {isHe ? 'עדיין אין תמונות בגלריה 📸' : 'No photos in the gallery yet 📸'}
         </p>
       </div>
     );
@@ -80,7 +83,7 @@ const ClientGallery = ({ clientId }: ClientGalleryProps) => {
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-2" dir="rtl">
+      <div className="grid grid-cols-3 gap-2" dir={isHe ? 'rtl' : 'ltr'}>
         {sorted.map((item) => (
           <div
             key={item.id}
@@ -95,23 +98,20 @@ const ClientGallery = ({ clientId }: ClientGalleryProps) => {
                 className="w-full h-full object-cover"
               />
             </div>
-            {/* Type badge */}
             {item.type === 'collage' && (
               <span
                 className="absolute top-1 right-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
                 style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
               >
-                קולאז׳
+                {isHe ? 'קולאז׳' : 'Collage'}
               </span>
             )}
-            {/* Delete */}
             <button
               onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
               className="absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-sm z-10"
             >
               <X className="w-2.5 h-2.5" style={{ color: GOLD_DARK }} />
             </button>
-            {/* Date */}
             <div className="px-1.5 py-1 flex items-center gap-1">
               <CalendarIcon className="w-2.5 h-2.5 shrink-0" style={{ color: GOLD_DARK }} />
               <span className="text-[9px] font-serif font-semibold" style={{ color: '#333' }}>
@@ -122,7 +122,6 @@ const ClientGallery = ({ clientId }: ClientGalleryProps) => {
         ))}
       </div>
 
-      {/* Fullscreen preview */}
       {selected && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
@@ -142,7 +141,9 @@ const ClientGallery = ({ clientId }: ClientGalleryProps) => {
                 </span>
                 {selected.type === 'collage' && (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full mr-2"
-                    style={{ background: GOLD_GRADIENT, color: '#5C4033' }}>קולאז׳</span>
+                    style={{ background: GOLD_GRADIENT, color: '#5C4033' }}>
+                    {isHe ? 'קולאז׳' : 'Collage'}
+                  </span>
                 )}
               </div>
               <button

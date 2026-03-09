@@ -5,6 +5,7 @@ import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { supabase } from '@/integrations/supabase/client';
 import { Slider } from '@/components/ui/slider';
+import { useI18n } from '@/lib/i18n';
 
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
@@ -156,6 +157,8 @@ interface DualPhotoGalleryProps {
 }
 
 export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalleryProps) {
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
   const [before, setBefore] = useState<string | null>(null);
   const [after, setAfter] = useState<string | null>(null);
   const [activeHalf, setActiveHalf] = useState<'before' | 'after'>('before');
@@ -185,9 +188,9 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       const { data: { publicUrl } } = supabase.storage.from('portfolio').getPublicUrl(path);
       setCustomLogo(publicUrl);
       await supabase.from('profiles').update({ logo_url: publicUrl }).eq('id', artistId);
-      toast({ title: 'הלוגו עודכן בהצלחה ✅' });
+      toast({ title: isHe ? 'הלוגו עודכן בהצלחה ✅' : 'Logo updated ✅' });
     } catch (err: any) {
-      toast({ title: 'שגיאה בהעלאת לוגו', description: err?.message, variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בהעלאת לוגו' : 'Logo upload failed', description: err?.message, variant: 'destructive' });
     }
   };
 
@@ -338,22 +341,22 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
   }, [before, after, resolvedLogo, logoPos, logoSize]);
 
   const handleSave = useCallback(async () => {
-    if (!clientId) { toast({ title: 'לא ניתן לשמור ללא תיק לקוחה', variant: 'destructive' }); return; }
-    if (!before || !after) { toast({ title: 'יש להעלות שתי תמונות', variant: 'destructive' }); return; }
+    if (!clientId) { toast({ title: isHe ? 'לא ניתן לשמור ללא תיק לקוחה' : 'Cannot save without a client file', variant: 'destructive' }); return; }
+    if (!before || !after) { toast({ title: isHe ? 'יש להעלות שתי תמונות' : 'Please upload both photos', variant: 'destructive' }); return; }
     setSaving(true);
     try {
       const canvas = await renderToCanvas();
       const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
       await uploadPhoto(dataUrl, { photoType: 'collage', label: 'Before & After' });
-      toast({ title: 'נשמר בתיק הלקוחה ✅' });
+      toast({ title: isHe ? 'נשמר בתיק הלקוחה ✅' : 'Saved to client file ✅' });
     } catch (err: any) {
       console.error('Save error:', err);
-      toast({ title: 'שגיאה בשמירה', description: err?.message || '', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בשמירה' : 'Save failed', description: err?.message || '', variant: 'destructive' });
     } finally { setSaving(false); }
   }, [renderToCanvas, clientId, uploadPhoto, before, after]);
 
   const handleDownload = useCallback(async () => {
-    if (!before || !after) { toast({ title: 'יש להעלות שתי תמונות', variant: 'destructive' }); return; }
+    if (!before || !after) { toast({ title: isHe ? 'יש להעלות שתי תמונות' : 'Please upload both photos', variant: 'destructive' }); return; }
     setDownloading(true);
     try {
       const canvas = await renderToCanvas();
@@ -367,12 +370,12 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
-      toast({ title: 'הקולאז׳ הורד בהצלחה 📥' });
+      toast({ title: isHe ? 'הקולאז׳ הורד בהצלחה 📥' : 'Collage downloaded 📥' });
     } catch (err: any) {
       console.error('Download error:', err);
-      toast({ title: 'שגיאה בהורדה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בהורדה' : 'Download failed', variant: 'destructive' });
     } finally { setDownloading(false); }
-  }, [renderToCanvas, before, after]);
+  }, [renderToCanvas, before, after, isHe]);
 
   return (
     <div className="space-y-4">
@@ -408,11 +411,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       >
         {/* BEFORE half (left) */}
         <div className="absolute inset-y-0 left-0 w-1/2">
-          <CollageHalf src={before} label="לפני" onClear={() => setBefore(null)} onFileSelect={setFile('before')} active={activeHalf === 'before'} onSelect={() => setActiveHalf('before')} />
+          <CollageHalf src={before} label={isHe ? 'לפני' : 'Before'} onClear={() => setBefore(null)} onFileSelect={setFile('before')} active={activeHalf === 'before'} onSelect={() => setActiveHalf('before')} />
         </div>
         {/* AFTER half (right) */}
         <div className="absolute inset-y-0 right-0 w-1/2">
-          <CollageHalf src={after} label="אחרי ✨" onClear={() => setAfter(null)} onFileSelect={setFile('after')} active={activeHalf === 'after'} onSelect={() => setActiveHalf('after')} />
+          <CollageHalf src={after} label={isHe ? 'אחרי ✨' : 'After ✨'} onClear={() => setAfter(null)} onFileSelect={setFile('after')} active={activeHalf === 'after'} onSelect={() => setActiveHalf('after')} />
         </div>
         {/* Gold divider */}
         <div className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 z-10 pointer-events-none" style={{ backgroundColor: GOLD }} />
@@ -476,7 +479,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         <div className="rounded-xl p-3 space-y-1.5" style={{ backgroundColor: '#faf8f2', border: `1px solid ${GOLD}30` }}>
           <div className="flex items-center gap-2">
             <Move className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
-            <span className="text-[11px] font-semibold" style={{ color: GOLD_DARK }}>גודל לוגו</span>
+            <span className="text-[11px] font-semibold" style={{ color: GOLD_DARK }}>{isHe ? 'גודל לוגו' : 'Logo size'}</span>
             <span className="text-[10px] font-medium ml-auto" style={{ color: GOLD_DARK }}>{logoSize}%</span>
           </div>
           <Slider
@@ -487,7 +490,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             step={1}
           />
           <p className="text-[9px] text-center" style={{ color: GOLD_DARK, opacity: 0.6 }}>
-            גררי את הלוגו על הקולאז׳ למיקום הרצוי
+            {isHe ? 'גררי את הלוגו על הקולאז׳ למיקום הרצוי' : 'Drag the logo on the collage to reposition'}
           </p>
         </div>
       )}
@@ -505,7 +508,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           }}
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? 'שומר...' : 'שמור לתיק לקוחה'}
+          {saving ? (isHe ? 'שומר...' : 'Saving...') : (isHe ? 'שמור לתיק לקוחה' : 'Save to client file')}
         </button>
 
         <button
@@ -519,7 +522,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           }}
         >
           {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-          {downloading ? 'מוריד...' : 'הורדה לגלריה'}
+          {downloading ? (isHe ? 'מוריד...' : 'Downloading...') : (isHe ? 'הורדה לגלריה' : 'Download')}
         </button>
       </div>
     </div>
