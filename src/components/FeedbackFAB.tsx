@@ -62,11 +62,16 @@ export default function FeedbackFAB() {
       <button
         onClick={() => setOpen(true)}
         aria-label="שלחי משוב"
-        className="fixed bottom-24 left-4 z-[9999] flex h-14 w-14 items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
+        className="fixed z-[9999] flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
         style={{
+          bottom: 100,
+          left: 20,
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
           background: "linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%)",
           border: "2.5px solid #D4AF37",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.15), 0 0 12px rgba(212,175,55,0.35)",
+          boxShadow: "0 8px 15px rgba(0,0,0,0.3), 0 0 12px rgba(212,175,55,0.4)",
         }}
       >
         <MessageSquarePlus className="h-6 w-6 text-white drop-shadow" />
