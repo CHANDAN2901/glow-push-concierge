@@ -356,7 +356,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
   }, [renderToCanvas, clientId, uploadPhoto, before, after]);
 
   const handleDownload = useCallback(async () => {
-    if (!before || !after) { toast({ title: 'יש להעלות שתי תמונות', variant: 'destructive' }); return; }
+    if (!before || !after) { toast({ title: isHe ? 'יש להעלות שתי תמונות' : 'Please upload both photos', variant: 'destructive' }); return; }
     setDownloading(true);
     try {
       const canvas = await renderToCanvas();
@@ -370,12 +370,12 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
-      toast({ title: 'הקולאז׳ הורד בהצלחה 📥' });
+      toast({ title: isHe ? 'הקולאז׳ הורד בהצלחה 📥' : 'Collage downloaded 📥' });
     } catch (err: any) {
       console.error('Download error:', err);
-      toast({ title: 'שגיאה בהורדה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בהורדה' : 'Download failed', variant: 'destructive' });
     } finally { setDownloading(false); }
-  }, [renderToCanvas, before, after]);
+  }, [renderToCanvas, before, after, isHe]);
 
   return (
     <div className="space-y-4">
