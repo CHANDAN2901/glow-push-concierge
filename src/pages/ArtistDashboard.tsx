@@ -2212,7 +2212,7 @@ const ArtistDashboard = () => {
                   ? baseClients.filter((client) => client.name.toLowerCase().includes(searchQ))
                   : baseClients;
 
-                if (filteredClients.length === 0) {
+                if (displayedClients.length === 0) {
                   if (searchQ) {
                     return (
                       <div className="flex flex-col items-center justify-center py-16 px-6">
