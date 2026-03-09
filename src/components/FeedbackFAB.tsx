@@ -26,26 +26,17 @@ export default function FeedbackFAB() {
   const hiddenRoutes = ["/", "/pricing", "/auth", "/legal", "/privacy", "/terms", "/refund-policy"];
   if (hiddenRoutes.includes(location.pathname)) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.topic || !form.message.trim()) {
+    if (!form.name.trim() || !form.topic || !form.message.trim()) {
       toast({ title: "נא למלא את כל השדות", variant: "destructive" });
       return;
     }
 
-    setLoading(true);
-    const { error } = await supabase.from("user_feedback").insert({
-      name: form.name.trim(),
-      email: form.email.trim(),
-      topic: form.topic,
-      message: form.message.trim(),
-    });
-    setLoading(false);
-
-    if (error) {
-      toast({ title: "שגיאה בשליחה", description: error.message, variant: "destructive" });
-      return;
-    }
+    const topicLabel = TOPICS.find((t) => t.value === form.topic)?.label ?? form.topic;
+    const subject = encodeURIComponent(`New Feedback: ${topicLabel}`);
+    const body = encodeURIComponent(`Name: ${form.name.trim()}\n\nMessage: ${form.message.trim()}`);
+    window.open(`mailto:hello@glowpush.app?subject=${subject}&body=${body}`, "_self");
 
     setForm({ name: "", email: "", topic: "", message: "" });
     setOpen(false);
