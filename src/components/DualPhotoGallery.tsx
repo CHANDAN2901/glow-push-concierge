@@ -157,6 +157,8 @@ interface DualPhotoGalleryProps {
 }
 
 export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalleryProps) {
+  const { lang } = useI18n();
+  const isHe = lang === 'he';
   const [before, setBefore] = useState<string | null>(null);
   const [after, setAfter] = useState<string | null>(null);
   const [activeHalf, setActiveHalf] = useState<'before' | 'after'>('before');
