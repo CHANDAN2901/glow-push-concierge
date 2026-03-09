@@ -979,7 +979,7 @@ const ArtistDashboard = () => {
       const to = from + CLIENTS_PAGE_SIZE - 1;
       const { data, error, count } = await supabase
         .from('clients')
-        .select('id, full_name, phone, email, treatment_type, treatment_date, created_at, push_opted_in, birth_date', { count: 'exact' })
+        .select('id, full_name, phone, email, treatment_type, treatment_date, created_at, push_opted_in, birth_date, medical_exception_approved', { count: 'exact' })
         .eq('artist_id', userProfileId)
         .order('created_at', { ascending: false })
         .range(from, to);
