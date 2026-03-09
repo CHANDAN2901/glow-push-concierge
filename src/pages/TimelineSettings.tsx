@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import AdminSidebar from '@/components/AdminSidebar';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/lib/i18n';
 
 // Sprite positions for each default step (col, row in the sprite sheet)
 const STEP_SPRITES: { col: number; row: number }[] = [
