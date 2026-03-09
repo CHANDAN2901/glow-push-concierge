@@ -1132,7 +1132,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
               )}
             </div>
 
-            <div className="px-6 py-4 border-t border-border shrink-0 bg-card">
+            <div className="px-6 py-4 pb-8 border-t border-border shrink-0 bg-card rounded-b-2xl safe-area-pb">
               <button
                 onClick={handleAdd}
                 disabled={!newName.trim()}
