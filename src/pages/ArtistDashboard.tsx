@@ -832,7 +832,7 @@ const ArtistDashboard = () => {
   });
 
   // Clients with active (non-approved) red flags
-  const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !approvedExceptions[c.name]);
+  const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !c.medicalExceptionApproved);
 
 
   const sendSmartReminder = (client: ClientEntry) => {
