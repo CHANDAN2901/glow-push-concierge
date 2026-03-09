@@ -2187,13 +2187,21 @@ const ArtistDashboard = () => {
                   return parseInt(bd.slice(5, 7)) === currentMonth;
                 };
 
+                const searchQ = clientSearchQuery.toLowerCase().trim();
+                const searchFiltered = searchQ
+                  ? clients.filter(c =>
+                      c.name.toLowerCase().includes(searchQ) ||
+                      c.phone.replace(/\D/g, '').includes(searchQ.replace(/\D/g, ''))
+                    )
+                  : clients;
+
                 const filteredClients = clientListFilter === 'birthdays'
-                  ? clients
+                  ? searchFiltered
                       .filter(c => isBirthdayThisMonth(c.birthDate))
                       .sort((a, b) => parseInt(a.birthDate?.slice(8, 10) || '0') - parseInt(b.birthDate?.slice(8, 10) || '0'))
                   : clientListFilter === 'renewal'
-                  ? clients.filter(c => isRenewalDue(c.treatment, c.day))
-                  : clients;
+                  ? searchFiltered.filter(c => isRenewalDue(c.treatment, c.day))
+                  : searchFiltered;
 
                 if (clientListFilter !== 'all' && filteredClients.length === 0) {
                   const emptyIcon = clientListFilter === 'birthdays' ? '🎂' : '🔄';
