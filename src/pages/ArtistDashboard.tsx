@@ -1542,10 +1542,10 @@ const ArtistDashboard = () => {
               ].map((metric, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden"
+                  className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden transition-transform hover:-translate-y-1"
                   style={{
                     background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
-                    boxShadow: '0 4px 20px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.04)',
+                    boxShadow: '0 12px 32px rgba(180,130,100,0.18), 0 6px 16px rgba(212,175,55,0.12), 0 2px 6px rgba(0,0,0,0.06)',
                     animationDelay: `${i * 0.08}s`,
                     opacity: 0,
                   }}
