@@ -79,7 +79,7 @@ const App = () => (
           </ErrorBoundary>
           <DevSwitcher />
           <CookieConsentBanner />
-          <FeedbackFAB />
+          
         </BrowserRouter>
       </I18nProvider>
     </TooltipProvider>
