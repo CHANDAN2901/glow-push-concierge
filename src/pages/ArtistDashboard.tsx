@@ -1149,7 +1149,7 @@ const ArtistDashboard = () => {
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative">
+    <div className="min-h-screen flex flex-col relative" style={{ background: '#eac3bf' }}>
       {/* Subtle brand watermark */}
       <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none">
         <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.03]" />
@@ -1231,7 +1231,7 @@ const ArtistDashboard = () => {
       </header>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div id="main-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-24 bg-background">
+      <div id="main-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-24" style={{ background: '#eac3bf' }}>
         <div className="container mx-auto px-5 max-w-lg py-2">
 
         {/* ===== TRIAL COUNTDOWN BANNER ===== */}
@@ -1292,10 +1292,10 @@ const ArtistDashboard = () => {
             <div
               className="rounded-b-3xl px-5 pt-8 pb-6 -mx-5"
               style={{
-                background: 'linear-gradient(180deg, hsl(5 18% 87%) 0%, hsl(5 18% 87% / 0.6) 60%, transparent 100%)',
+                background: 'linear-gradient(180deg, rgba(234,195,191,0.6) 0%, transparent 100%)',
               }}
             >
-              <h1 className="text-2xl font-bold text-foreground tracking-wide mb-1">
+              <h1 className="text-2xl font-bold tracking-wide mb-1" style={{ color: '#3D3D3D' }}>
                 {(() => {
                   const hour = new Date().getHours();
                   const firstName = artistName ? artistName.split(' ')[0] : '';
@@ -1304,7 +1304,7 @@ const ArtistDashboard = () => {
                   return hour < 12 ? 'בוקר טוב! ✨' : hour < 17 ? 'צהריים טובים! ✨' : 'ערב טוב! ✨';
                 })()}
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm" style={{ color: '#555' }}>
                 {lang === 'en' ? "Here's your business overview" : 'הנה הסקירה העסקית שלך'}
               </p>
 
@@ -1326,7 +1326,7 @@ const ArtistDashboard = () => {
                   </button>
                   <div className="flex items-start gap-3">
                     <Sparkles className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                    <p className="text-sm font-bold text-foreground leading-relaxed pr-6">
+                    <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#3D3D3D' }}>
                       {lang === 'en'
                         ? `🔥 Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
                         : `🔥 שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
@@ -1510,26 +1510,26 @@ const ArtistDashboard = () => {
                   key={i}
                   className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden"
                   style={{
-                    background: 'linear-gradient(135deg, #E8C0C8 0%, #F5E0E4 30%, #FFFFFF 50%, #F0D0D5 70%, #DEB0BA 100%)',
-                    boxShadow: '0 0 20px rgba(212,175,55,0.15), 0 4px 24px rgba(180,120,130,0.15)',
+                    background: '#FFFFFF',
+                    boxShadow: '0 4px 20px rgba(212,175,55,0.15), 0 2px 12px rgba(0,0,0,0.06)',
                     animationDelay: `${i * 0.08}s`,
                     opacity: 0,
                   }}
                 >
-                  {/* Gold ombré border */}
+                  {/* Gold shimmer border */}
                   <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-                    border: '3px solid transparent',
-                    background: 'linear-gradient(135deg, #E8C0C8, #F5E0E4, #FFFFFF, #F0D0D5, #DEB0BA) padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                    border: '2.5px solid transparent',
+                    background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
                     borderRadius: 'inherit',
                   }} />
-                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#5C4033' }} strokeWidth={1.5} />
+                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#D4AF37' }} strokeWidth={1.5} />
                   <p
                     className="text-xl font-extrabold mb-1 relative z-10"
-                    style={{ color: '#5C4033' }}
+                    style={{ color: '#3D3D3D' }}
                   >
                     {metric.value}
                   </p>
-                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#5C4033' }}>{metric.label}</p>
+                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#555' }}>{metric.label}</p>
                   {metric.trend && (
                     <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
                       ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
@@ -1573,7 +1573,7 @@ const ArtistDashboard = () => {
               if (todayClients.length === 0) return null;
               return (
                 <div className="animate-fade-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
+                  <h3 className="text-2xl font-bold mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: '#3D3D3D' }}>
                     {lang === 'en' ? 'Your Appointments Today' : 'התורים שלך היום'}
                   </h3>
                   <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
@@ -1584,9 +1584,11 @@ const ArtistDashboard = () => {
                           key={i}
                           className="flex-shrink-0 w-36 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all hover:shadow-md cursor-pointer active:scale-95"
                           style={{
-                            background: 'linear-gradient(135deg, hsl(40 45% 97%), hsl(38 40% 93%))',
-                            border: '1px solid hsl(38 30% 82%)',
-                            boxShadow: '0 4px 16px hsla(38, 55%, 62%, 0.1)',
+                            background: '#FFFFFF',
+                            border: '2px solid',
+                            borderImage: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B) 1',
+                            boxShadow: '0 4px 16px rgba(212,175,55,0.12), 0 2px 8px rgba(0,0,0,0.05)',
+                            borderRadius: '1rem',
                           }}
                           onClick={() => { setSelectedClient(client); setActiveTab('clients'); }}
                         >
@@ -1613,7 +1615,7 @@ const ArtistDashboard = () => {
 
             {/* ── Active Healing Tracking ── */}
             <div className="animate-fade-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: '#3D3D3D' }}>
                 {lang === 'en' ? 'Active Healing Tracking' : 'מעקב החלמה פעיל'}
                 <HelpTooltip id="active-recovery" text="כאן תראי את הלקוחות בשלבי ההחלמה. המערכת תציג כפתור וואטסאפ באופן אוטומטי בימים בהם נדרש ליצור קשר לפי הפרוטוקול." />
               </h3>
@@ -1638,9 +1640,11 @@ const ArtistDashboard = () => {
                         key={i}
                         className="flex-shrink-0 w-32 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all hover:shadow-md"
                         style={{
-                          background: 'linear-gradient(135deg, hsl(40 45% 97%), hsl(38 40% 93%))',
-                          border: '1px solid hsl(38 30% 82%)',
-                          boxShadow: '0 4px 16px hsla(38, 55%, 62%, 0.1)',
+                          background: '#FFFFFF',
+                          border: '2px solid',
+                          borderImage: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B) 1',
+                          boxShadow: '0 4px 16px rgba(212,175,55,0.12), 0 2px 8px rgba(0,0,0,0.05)',
+                          borderRadius: '1rem',
                         }}
                       >
                         <button
@@ -1653,7 +1657,7 @@ const ArtistDashboard = () => {
                           >
                             {client.name.charAt(0)}
                           </div>
-                          <p className="text-xs font-semibold text-foreground truncate w-full text-center">{client.name}</p>
+                          <p className="text-xs font-semibold truncate w-full text-center" style={{ color: '#3D3D3D' }}>{client.name}</p>
                           <span
                             className="text-[11px] font-bold"
                             style={{ color: 'hsl(38 40% 45%)' }}
@@ -1683,18 +1687,18 @@ const ArtistDashboard = () => {
                 onClick={() => setActiveTab('bonuses')}
                 className="w-full max-w-md px-6 py-4 rounded-full font-bold text-lg shadow-lg transition-all active:scale-95 hover:scale-[1.02] flex items-center justify-center gap-2 relative overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, #E8C0C8 0%, #F5E0E4 30%, #FFFFFF 50%, #F0D0D5 70%, #DEB0BA 100%)',
-                  color: '#5C4033',
-                  boxShadow: '0 0 20px rgba(212,175,55,0.2), 0 6px 24px rgba(180,120,130,0.2)',
+                  background: '#FFFFFF',
+                  color: '#3D3D3D',
+                  boxShadow: '0 4px 20px rgba(212,175,55,0.2), 0 2px 12px rgba(0,0,0,0.06)',
                 }}
               >
-                {/* Gold ombré border */}
+                {/* Gold shimmer border */}
                 <div className="absolute inset-0 rounded-full pointer-events-none" style={{
-                  border: '3px solid transparent',
-                  background: 'linear-gradient(135deg, #E8C0C8, #F5E0E4, #FFFFFF, #F0D0D5, #DEB0BA) padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                  border: '2.5px solid transparent',
+                  background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
                   borderRadius: 'inherit',
                 }} />
-                <Gift className="w-5 h-5 relative z-10" />
+                <Gift className="w-5 h-5 relative z-10" style={{ color: '#D4AF37' }} />
                 <span className="relative z-10">{lang === 'en' ? 'Refer a Friend – Get ₪50 Gift! 🎁' : 'חברה מביאה חברה – קבלי 50₪ מתנה! 🎁'}</span>
               </button>
             </div>
