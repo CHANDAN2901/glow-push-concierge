@@ -362,10 +362,10 @@ const SuperAdmin = () => {
 
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border/50"
         style={{
-          background: 'linear-gradient(180deg, hsla(5, 18%, 87%, 0.85) 0%, hsla(5, 18%, 87%, 0.95) 100%)',
+          background: 'hsl(350 15% 12%)',
           backdropFilter: 'blur(16px) saturate(1.4)',
           WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-          boxShadow: '0 -4px 30px -6px hsla(0, 0%, 0%, 0.1)',
+          boxShadow: '0 -4px 30px -6px hsla(0, 0%, 0%, 0.25)',
         }}
       >
         <div className="flex items-center justify-around py-2.5 px-1">
@@ -383,19 +383,15 @@ const SuperAdmin = () => {
                 onClick={() => setView(tab.id)}
                 className="relative flex flex-col items-center gap-1.5 min-w-0 transition-all"
               >
-                <div
-                  className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-                    isActive
-                      ? 'shadow-[0_4px_16px_hsla(35,50%,30%,0.4),inset_0_2px_4px_hsla(45,60%,70%,0.6),inset_0_-2px_4px_hsla(30,40%,20%,0.3)] border border-black'
-                      : 'shadow-[0_2px_8px_hsla(35,50%,30%,0.2)] border border-transparent'
-                  }`}
-                  style={{
-                    background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-                  }}
+                <tab.icon
+                  className="w-5 h-5 transition-colors"
+                  style={{ color: isActive ? '#D4AF37' : '#DCAE96' }}
+                  strokeWidth={isActive ? 2.2 : 1.4}
+                />
+                <span
+                  className="text-[10px] tracking-wide truncate font-medium"
+                  style={{ color: isActive ? '#D4AF37' : 'hsl(350 10% 55%)' }}
                 >
-                  <tab.icon className="w-5 h-5 text-black" strokeWidth={isActive ? 2.2 : 1.8} />
-                </div>
-                <span className={`text-[10px] tracking-wide truncate ${isActive ? 'text-foreground font-bold' : 'text-foreground/60 font-medium'}`}>
                   {tab.label}
                 </span>
               </button>
