@@ -1149,13 +1149,17 @@ const ArtistDashboard = () => {
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{ background: 'radial-gradient(ellipse at center, #ffffff 0%, #f5dcd9 35%, #eac3bf 60%, #d4a29e 100%)' }}>
+    <div className="min-h-screen flex flex-col relative" style={{ background: 'linear-gradient(160deg, #F0C8CE 0%, #F4D2D7 20%, #EFC6CC 40%, #F2CDD3 60%, #EABFC6 80%, #E5B8C0 100%)' }}>
+      {/* Subtle diagonal line texture */}
+      <div className="fixed inset-0 z-0 pointer-events-none" style={{
+        backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 80px, rgba(212,175,55,0.03) 80px, rgba(212,175,55,0.03) 81px)`,
+      }} />
       {/* Subtle brand watermark */}
       <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none">
         <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.03]" />
       </div>
       {/* ===== FIXED TOP HEADER ===== */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'hsla(0, 0%, 100%, 0.85)', borderBottom: '1.5px solid hsl(38 30% 82%)' }}>
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'hsla(350, 40%, 95%, 0.88)', borderBottom: '1.5px solid hsl(38 40% 75%)' }}>
         <div className="relative w-full h-16 px-5">
 
           {/* Left side buttons (add, preview, back) */}
@@ -1311,22 +1315,28 @@ const ArtistDashboard = () => {
               {/* Celebration Banner */}
               {clients.length > 0 && !dismissedTouchup && (
                 <div
-                  className="relative mt-4 rounded-2xl p-4 shadow-[0_4px_20px_hsla(35,50%,30%,0.12)] animate-fade-up"
+                  className="relative mt-4 rounded-[2rem] p-5 animate-fade-up overflow-hidden"
                   style={{
-                    background: 'rgba(255,255,255,0.7)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1.5px solid hsl(var(--gold))',
+                    background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
+                    backdropFilter: 'blur(16px)',
+                    boxShadow: '0 4px 24px rgba(212,175,55,0.12), 0 2px 8px rgba(0,0,0,0.04)',
                   }}
                 >
+                  {/* Gold border overlay */}
+                  <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                    border: '2px solid transparent',
+                    background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
+                    borderRadius: 'inherit',
+                  }} />
                   <button
                     onClick={() => { localStorage.setItem('gp-dismiss-touchup', '1'); setDismissedTouchup(true); }}
-                    className="absolute top-3 left-3 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted/40 transition-colors"
+                    className="absolute top-3 left-3 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted/40 transition-colors z-10"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
-                  <div className="flex items-start gap-3">
-                    <Sparkles className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                    <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#3D3D3D' }}>
+                  <div className="flex items-start gap-3 relative z-10">
+                    <Sparkles className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#D4AF37' }} />
+                    <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#4A3520' }}>
                       {lang === 'en'
                         ? `🔥 Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
                         : `🔥 שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
@@ -1351,17 +1361,23 @@ const ArtistDashboard = () => {
             <div className="relative">
               <button
                 onClick={() => setShowDigitalCardPreview(true)}
-                className="w-full py-4 rounded-full font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] shadow-lg animate-fade-up"
+                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] animate-fade-up relative overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                  color: '#5C4033',
-                  boxShadow: '0 6px 24px rgba(212, 175, 55, 0.35)',
+                  background: 'linear-gradient(135deg, rgba(255,230,236,0.9) 0%, rgba(255,220,230,0.85) 50%, rgba(255,210,222,0.9) 100%)',
+                  color: '#4A3520',
+                  boxShadow: '0 6px 24px rgba(212, 175, 55, 0.15), 0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                <CreditCard className="w-5 h-5" />
-                {lang === 'en' ? '✨ My Digital Card' : '✨ הכרטיס הדיגיטלי שלי'}
+                {/* Gold border */}
+                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                  border: '2px solid transparent',
+                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
+                  borderRadius: 'inherit',
+                }} />
+                <CreditCard className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
+                <span className="relative z-10">{lang === 'en' ? '✨ My Digital Card' : '✨ הכרטיס הדיגיטלי שלי'}</span>
               </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
+              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
                   id="digital-card"
                   text={lang === 'en'
@@ -1375,18 +1391,22 @@ const ArtistDashboard = () => {
             <div className="relative">
               <button
                 onClick={() => navigate('/admin/timeline-settings')}
-                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
+                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
                 style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,250,0.8) 50%, rgba(255,255,255,0.75) 100%)',
+                  color: '#4A3520',
+                  boxShadow: '0 4px 20px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                <Pencil className="w-5 h-5" />
-                {lang === 'en' ? '✏️ Edit Healing Journey' : '✏️ עריכת מסע ההחלמה'}
+                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                  border: '2px solid transparent',
+                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
+                  borderRadius: 'inherit',
+                }} />
+                <Pencil className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
+                <span className="relative z-10">{lang === 'en' ? '✏️ Edit Healing Journey' : '✏️ עריכת מסע ההחלמה'}</span>
               </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
+              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
                   id="healing-journey"
                   text={lang === 'en'
@@ -1400,18 +1420,22 @@ const ArtistDashboard = () => {
             <div className="relative">
               <button
                 onClick={() => setShowHealthEditor(true)}
-                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
+                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
                 style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,250,0.8) 50%, rgba(255,255,255,0.75) 100%)',
+                  color: '#4A3520',
+                  boxShadow: '0 4px 20px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                <ClipboardCheck className="w-5 h-5" />
-                {lang === 'en' ? '📋 Edit Health Declaration' : '📋 עריכת הצהרת בריאות'}
+                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                  border: '2px solid transparent',
+                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
+                  borderRadius: 'inherit',
+                }} />
+                <ClipboardCheck className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
+                <span className="relative z-10">{lang === 'en' ? '📋 Edit Health Declaration' : '📋 עריכת הצהרת בריאות'}</span>
               </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
+              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
                   id="health-declaration"
                   text={lang === 'en'
@@ -1425,14 +1449,20 @@ const ArtistDashboard = () => {
             <button
               type="button"
               onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-              className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] border border-black"
+              className="w-full py-2.5 rounded-[2rem] text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
               style={{
-                background: 'hsl(36 50% 42%)',
-                color: '#fff',
+                background: 'linear-gradient(135deg, rgba(255,220,230,0.9), rgba(255,210,222,0.85))',
+                color: '#4A3520',
+                boxShadow: '0 2px 8px rgba(212,175,55,0.1)',
               }}
             >
-              <Eye className="w-3.5 h-3.5" />
-              {lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}
+              <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                border: '1.5px solid transparent',
+                background: 'transparent padding-box, linear-gradient(135deg, #D4AF37 0%, #E8D5A0 50%, #D4AF37 100%) border-box',
+                borderRadius: 'inherit',
+              }} />
+              <Eye className="w-3.5 h-3.5 relative z-10" style={{ color: '#B8860B' }} />
+              <span className="relative z-10">{lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}</span>
             </button>
 
 
@@ -1440,18 +1470,22 @@ const ArtistDashboard = () => {
             <div className="relative">
               <button
                 onClick={() => setShowVoucherEditor(true)}
-                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
+                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
                 style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,250,0.8) 50%, rgba(255,255,255,0.75) 100%)',
+                  color: '#4A3520',
+                  boxShadow: '0 4px 20px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                <Gift className="w-5 h-5" />
-                {lang === 'en' ? '🎁 Edit Referral Voucher' : '🎁 עריכת שובר חברות'}
+                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                  border: '2px solid transparent',
+                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
+                  borderRadius: 'inherit',
+                }} />
+                <Gift className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
+                <span className="relative z-10">{lang === 'en' ? '🎁 Edit Referral Voucher' : '🎁 עריכת שובר חברות'}</span>
               </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
+              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
                   id="referral-voucher"
                   text={lang === 'en'
@@ -1510,26 +1544,26 @@ const ArtistDashboard = () => {
                   key={i}
                   className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden"
                   style={{
-                    background: '#FFFFFF',
-                    boxShadow: '0 4px 20px rgba(212,175,55,0.15), 0 2px 12px rgba(0,0,0,0.06)',
+                    background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
+                    boxShadow: '0 4px 20px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.04)',
                     animationDelay: `${i * 0.08}s`,
                     opacity: 0,
                   }}
                 >
                   {/* Gold shimmer border */}
                   <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-                    border: '2.5px solid transparent',
-                    background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                    border: '2px solid transparent',
+                    background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
                     borderRadius: 'inherit',
                   }} />
-                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#D4AF37' }} strokeWidth={1.5} />
+                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.5} />
                   <p
                     className="text-xl font-extrabold mb-1 relative z-10"
-                    style={{ color: '#3D3D3D' }}
+                    style={{ color: '#4A3520' }}
                   >
                     {metric.value}
                   </p>
-                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#555' }}>{metric.label}</p>
+                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#7A5C50' }}>{metric.label}</p>
                   {metric.trend && (
                     <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
                       ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
@@ -3354,18 +3388,18 @@ const ArtistDashboard = () => {
       {/* ===== FIXED BOTTOM NAVIGATION BAR ===== */}
       <nav className="fixed bottom-0 left-0 right-0 z-[60] safe-area-bottom"
         style={{
-          background: 'hsla(0, 0%, 100%, 0.97)',
+          background: 'linear-gradient(180deg, hsla(350, 35%, 92%, 0.95) 0%, hsla(350, 40%, 90%, 0.98) 100%)',
           backdropFilter: 'blur(16px) saturate(1.4)',
           WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-          boxShadow: '0 -1px 0 hsl(38 30% 88%), 0 -4px 24px -6px hsla(38, 30%, 60%, 0.1)',
+          boxShadow: '0 -1px 0 hsl(38 40% 82%), 0 -4px 24px -6px hsla(350, 30%, 60%, 0.15)',
         }}
       >
-        <div className="container mx-auto max-w-lg flex items-start justify-between py-2 px-1 gap-0.5">
+        <div className="container mx-auto max-w-lg flex items-start justify-between py-2.5 px-2 gap-1">
           {[
-            { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'דשבורד', route: null },
+            { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'ראשי', route: null },
+            { id: 'push' as const, icon: Bell, label: lang === 'en' ? 'Push!' : 'רשנה', route: null },
             { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
-            { id: 'push' as const, icon: Bell, label: '!push', route: null },
-            { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוחות', route: null },
+            { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוהות', route: null },
             { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
           ].map((tab) => {
             const isActive = tab.route ? false : activeTab === tab.id;
@@ -3382,46 +3416,41 @@ const ArtistDashboard = () => {
                     setHealingJourneyClient(null);
                   }
                 }}
-                className="relative flex-1 flex flex-col items-center gap-1 min-w-0 transition-all py-1 px-0.5"
+                className="relative flex-1 flex flex-col items-center gap-1.5 min-w-0 transition-all py-1 px-0.5"
               >
-                {/* "New" badge for Upgrade */}
-                {isUpgrade && (
-                  <span
-                    className="absolute -top-1 -end-1 text-[8px] font-bold px-1.5 py-0.5 rounded-full z-10 animate-pulse"
-                    style={{
-                      background: 'linear-gradient(135deg, #D4AF37, #F9F295)',
-                      color: '#5C4033',
-                      boxShadow: '0 1px 6px rgba(212,175,55,0.4)',
-                    }}
-                  >
-                    NEW
-                  </span>
-                )}
+                {/* Active gold ring indicator */}
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
-                  style={isUpgrade ? {
-                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                    boxShadow: '0 3px 12px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(249, 242, 149, 0.5)',
-                  } : isActive ? {
-                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                    boxShadow: '0 3px 12px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(249, 242, 149, 0.5)',
-                  } : {
-                    background: 'linear-gradient(135deg, hsl(38 30% 82%), hsl(40 35% 90%))',
-                    boxShadow: '0 2px 8px hsla(38, 30%, 60%, 0.15)',
+                  className="w-12 h-12 rounded-full flex items-center justify-center transition-all relative"
+                  style={{
+                    background: isActive
+                      ? 'linear-gradient(135deg, rgba(255,230,236,0.95), rgba(255,220,230,0.9))'
+                      : isUpgrade
+                      ? 'linear-gradient(135deg, rgba(255,230,236,0.95), rgba(255,220,230,0.9))'
+                      : 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
+                    boxShadow: isActive
+                      ? '0 3px 12px rgba(212, 175, 55, 0.25), inset 0 1px 3px rgba(255,255,255,0.5)'
+                      : '0 2px 8px rgba(0,0,0,0.05), inset 0 1px 2px rgba(255,255,255,0.4)',
                   }}
                 >
+                  {/* Gold border ring */}
+                  <div className="absolute inset-0 rounded-full pointer-events-none" style={{
+                    border: isActive ? '2.5px solid transparent' : '1.5px solid transparent',
+                    background: `transparent padding-box, linear-gradient(135deg, ${isActive ? '#BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%' : '#D4AF37 0%, #E8D5A0 50%, #D4AF37 100%'}) border-box`,
+                    borderRadius: 'inherit',
+                  }} />
                   <tab.icon
-                    className="w-4.5 h-4.5"
-                    size={18}
+                    className="relative z-10"
+                    size={20}
                     strokeWidth={1.5}
-                    style={{ color: isActive || isUpgrade ? '#5C4033' : 'hsl(38 40% 40%)' }}
+                    style={{ color: isActive ? '#B8860B' : '#C4956A' }}
                   />
                 </div>
                 <span
-                  className="text-[9px] sm:text-[10px] leading-[1.05] tracking-tight text-center font-serif whitespace-normal max-w-[56px]"
+                  className="text-[9px] sm:text-[10px] leading-[1.05] tracking-tight text-center whitespace-normal max-w-[56px]"
                   style={{
-                    color: isUpgrade ? '#B8860B' : isActive ? '#5C4033' : 'hsl(0 0% 50%)',
-                    fontWeight: isActive || isUpgrade ? 600 : 300,
+                    color: isActive ? '#4A3520' : '#9B7B6B',
+                    fontWeight: isActive ? 700 : 400,
+                    fontFamily: "'Assistant', sans-serif",
                   }}
                 >
                   {tab.label}
