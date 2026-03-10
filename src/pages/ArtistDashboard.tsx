@@ -1365,7 +1365,7 @@ const ArtistDashboard = () => {
                 style={{
                   background: 'linear-gradient(135deg, rgba(255,230,236,0.9) 0%, rgba(255,220,230,0.85) 50%, rgba(255,210,222,0.9) 100%)',
                   color: '#4A3520',
-                  boxShadow: '0 6px 24px rgba(212, 175, 55, 0.15), 0 2px 8px rgba(0,0,0,0.04)',
+                  boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
                 }}
               >
                 {/* Gold border */}
