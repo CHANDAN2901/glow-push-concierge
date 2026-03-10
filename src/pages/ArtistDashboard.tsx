@@ -1420,18 +1420,22 @@ const ArtistDashboard = () => {
             <div className="relative">
               <button
                 onClick={() => setShowHealthEditor(true)}
-                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
+                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
                 style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,250,0.8) 50%, rgba(255,255,255,0.75) 100%)',
+                  color: '#4A3520',
+                  boxShadow: '0 4px 20px rgba(212,175,55,0.1), 0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                <ClipboardCheck className="w-5 h-5" />
-                {lang === 'en' ? '📋 Edit Health Declaration' : '📋 עריכת הצהרת בריאות'}
+                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                  border: '2px solid transparent',
+                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
+                  borderRadius: 'inherit',
+                }} />
+                <ClipboardCheck className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
+                <span className="relative z-10">{lang === 'en' ? '📋 Edit Health Declaration' : '📋 עריכת הצהרת בריאות'}</span>
               </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
+              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
                   id="health-declaration"
                   text={lang === 'en'
