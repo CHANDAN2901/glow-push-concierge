@@ -1304,7 +1304,7 @@ const ArtistDashboard = () => {
                   return hour < 12 ? 'בוקר טוב! ✨' : hour < 17 ? 'צהריים טובים! ✨' : 'ערב טוב! ✨';
                 })()}
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm" style={{ color: '#555' }}>
                 {lang === 'en' ? "Here's your business overview" : 'הנה הסקירה העסקית שלך'}
               </p>
 
