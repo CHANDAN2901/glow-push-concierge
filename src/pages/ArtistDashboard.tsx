@@ -1657,7 +1657,7 @@ const ArtistDashboard = () => {
                           >
                             {client.name.charAt(0)}
                           </div>
-                          <p className="text-xs font-semibold text-foreground truncate w-full text-center">{client.name}</p>
+                          <p className="text-xs font-semibold truncate w-full text-center" style={{ color: '#3D3D3D' }}>{client.name}</p>
                           <span
                             className="text-[11px] font-bold"
                             style={{ color: 'hsl(38 40% 45%)' }}
