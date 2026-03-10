@@ -1453,7 +1453,7 @@ const ArtistDashboard = () => {
               style={{
                 background: 'linear-gradient(135deg, rgba(255,220,230,0.9), rgba(255,210,222,0.85))',
                 color: '#4A3520',
-                boxShadow: '0 2px 8px rgba(212,175,55,0.1)',
+                boxShadow: '0 12px 32px rgba(160,100,80,0.18), 0 6px 16px rgba(180,120,90,0.12), 0 3px 8px rgba(212,175,55,0.08)',
               }}
             >
               <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
