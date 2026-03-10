@@ -1149,13 +1149,13 @@ const ArtistDashboard = () => {
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-background">
+    <div className="min-h-screen flex flex-col relative" style={{ background: '#FFFFFF' }}>
       {/* Subtle brand watermark */}
       <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none">
         <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.02]" />
       </div>
       {/* ===== FIXED TOP HEADER ===== */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'hsla(350, 45%, 95%, 0.88)', borderBottom: '1.5px solid hsl(38 30% 82%)' }}>
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'hsla(0, 0%, 100%, 0.85)', borderBottom: '1.5px solid hsl(38 30% 82%)' }}>
         <div className="relative w-full h-16 px-5">
 
           {/* Left side buttons (add, preview, back) */}
@@ -3383,46 +3383,22 @@ const ArtistDashboard = () => {
       {/* ===== FIXED BOTTOM NAVIGATION BAR ===== */}
       <nav className="fixed bottom-0 left-0 right-0 z-[60] safe-area-bottom"
         style={{
-          background: 'hsl(350 45% 95%)',
-          borderTop: '1.5px solid hsl(38 40% 78%)',
+          background: 'hsla(0, 0%, 100%, 0.97)',
+          backdropFilter: 'blur(16px) saturate(1.4)',
+          WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+          boxShadow: '0 -1px 0 hsl(38 30% 88%), 0 -4px 24px -6px hsla(38, 30%, 60%, 0.1)',
         }}
       >
-        <div className="container mx-auto max-w-lg flex items-end justify-between py-2 px-3 gap-0">
+        <div className="container mx-auto max-w-lg flex items-start justify-between py-2 px-1 gap-0.5">
           {[
-            { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'דשבורד', route: null, center: false },
-            { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null, center: false },
-            { id: 'push' as const, icon: Camera, label: '', route: null, center: true },
-            { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוחות', route: null, center: false },
-            { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing', center: false },
+            { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'דשבורד', route: null },
+            { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
+            { id: 'push' as const, icon: Bell, label: '!push', route: null },
+            { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוחות', route: null },
+            { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
           ].map((tab) => {
             const isActive = tab.route ? false : activeTab === tab.id;
-
-            // Center raised metallic gold button
-            if (tab.center) {
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id as any);
-                    setSubScreen(null);
-                    setHealingJourneyClient(null);
-                  }}
-                  className="relative flex flex-col items-center -mt-5"
-                >
-                  <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-95"
-                    style={{
-                      background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                      boxShadow: '0 6px 24px rgba(212, 175, 55, 0.5), 0 2px 8px rgba(0,0,0,0.12), inset 0 1px 0 rgba(249, 242, 149, 0.6)',
-                      border: '3px solid hsl(350 45% 95%)',
-                    }}
-                  >
-                    <tab.icon className="w-6 h-6" strokeWidth={1.5} style={{ color: '#3D2B1F' }} />
-                  </div>
-                </button>
-              );
-            }
-
+            const isUpgrade = tab.id === 'upgrade';
             return (
               <button
                 key={tab.id}
@@ -3435,18 +3411,46 @@ const ArtistDashboard = () => {
                     setHealingJourneyClient(null);
                   }
                 }}
-                className="flex-1 flex flex-col items-center gap-1 min-w-0 transition-all py-1"
+                className="relative flex-1 flex flex-col items-center gap-1 min-w-0 transition-all py-1 px-0.5"
               >
-                <tab.icon
-                  className="w-5 h-5"
-                  strokeWidth={isActive ? 1.8 : 1.2}
-                  style={{ color: isActive ? '#B8860B' : '#9B8A7B' }}
-                />
+                {/* "New" badge for Upgrade */}
+                {isUpgrade && (
+                  <span
+                    className="absolute -top-1 -end-1 text-[8px] font-bold px-1.5 py-0.5 rounded-full z-10 animate-pulse"
+                    style={{
+                      background: 'linear-gradient(135deg, #D4AF37, #F9F295)',
+                      color: '#5C4033',
+                      boxShadow: '0 1px 6px rgba(212,175,55,0.4)',
+                    }}
+                  >
+                    NEW
+                  </span>
+                )}
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+                  style={isUpgrade ? {
+                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+                    boxShadow: '0 3px 12px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(249, 242, 149, 0.5)',
+                  } : isActive ? {
+                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
+                    boxShadow: '0 3px 12px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(249, 242, 149, 0.5)',
+                  } : {
+                    background: 'linear-gradient(135deg, hsl(38 30% 82%), hsl(40 35% 90%))',
+                    boxShadow: '0 2px 8px hsla(38, 30%, 60%, 0.15)',
+                  }}
+                >
+                  <tab.icon
+                    className="w-4.5 h-4.5"
+                    size={18}
+                    strokeWidth={1.5}
+                    style={{ color: isActive || isUpgrade ? '#5C4033' : 'hsl(38 40% 40%)' }}
+                  />
+                </div>
                 <span
-                  className="text-[9px] sm:text-[10px] leading-[1.05] tracking-tight text-center font-sans whitespace-normal max-w-[56px]"
+                  className="text-[9px] sm:text-[10px] leading-[1.05] tracking-tight text-center font-serif whitespace-normal max-w-[56px]"
                   style={{
-                    color: isActive ? '#B8860B' : '#9B8A7B',
-                    fontWeight: isActive ? 700 : 400,
+                    color: isUpgrade ? '#B8860B' : isActive ? '#5C4033' : 'hsl(0 0% 50%)',
+                    fontWeight: isActive || isUpgrade ? 600 : 300,
                   }}
                 >
                   {tab.label}
