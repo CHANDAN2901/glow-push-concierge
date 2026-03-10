@@ -1159,7 +1159,7 @@ const ArtistDashboard = () => {
         <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.03]" />
       </div>
       {/* ===== FIXED TOP HEADER ===== */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'hsla(0, 0%, 100%, 0.85)', borderBottom: '1.5px solid hsl(38 30% 82%)' }}>
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'hsla(350, 40%, 95%, 0.88)', borderBottom: '1.5px solid hsl(38 40% 75%)' }}>
         <div className="relative w-full h-16 px-5">
 
           {/* Left side buttons (add, preview, back) */}
