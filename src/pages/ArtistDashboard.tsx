@@ -1361,17 +1361,23 @@ const ArtistDashboard = () => {
             <div className="relative">
               <button
                 onClick={() => setShowDigitalCardPreview(true)}
-                className="w-full py-4 rounded-full font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] shadow-lg animate-fade-up"
+                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] animate-fade-up relative overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                  color: '#5C4033',
-                  boxShadow: '0 6px 24px rgba(212, 175, 55, 0.35)',
+                  background: 'linear-gradient(135deg, rgba(255,230,236,0.9) 0%, rgba(255,220,230,0.85) 50%, rgba(255,210,222,0.9) 100%)',
+                  color: '#4A3520',
+                  boxShadow: '0 6px 24px rgba(212, 175, 55, 0.15), 0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                <CreditCard className="w-5 h-5" />
-                {lang === 'en' ? '✨ My Digital Card' : '✨ הכרטיס הדיגיטלי שלי'}
+                {/* Gold border */}
+                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                  border: '2px solid transparent',
+                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
+                  borderRadius: 'inherit',
+                }} />
+                <CreditCard className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
+                <span className="relative z-10">{lang === 'en' ? '✨ My Digital Card' : '✨ הכרטיס הדיגיטלי שלי'}</span>
               </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
+              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
                   id="digital-card"
                   text={lang === 'en'
