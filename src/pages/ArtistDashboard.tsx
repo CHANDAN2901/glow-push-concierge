@@ -1449,14 +1449,20 @@ const ArtistDashboard = () => {
             <button
               type="button"
               onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-              className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] border border-black"
+              className="w-full py-2.5 rounded-[2rem] text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
               style={{
-                background: 'hsl(36 50% 42%)',
-                color: '#fff',
+                background: 'linear-gradient(135deg, rgba(255,220,230,0.9), rgba(255,210,222,0.85))',
+                color: '#4A3520',
+                boxShadow: '0 2px 8px rgba(212,175,55,0.1)',
               }}
             >
-              <Eye className="w-3.5 h-3.5" />
-              {lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}
+              <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                border: '1.5px solid transparent',
+                background: 'transparent padding-box, linear-gradient(135deg, #D4AF37 0%, #E8D5A0 50%, #D4AF37 100%) border-box',
+                borderRadius: 'inherit',
+              }} />
+              <Eye className="w-3.5 h-3.5 relative z-10" style={{ color: '#B8860B' }} />
+              <span className="relative z-10">{lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}</span>
             </button>
 
 
