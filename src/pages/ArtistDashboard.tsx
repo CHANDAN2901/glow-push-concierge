@@ -1149,10 +1149,10 @@ const ArtistDashboard = () => {
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative">
+    <div className="min-h-screen flex flex-col relative" style={{ background: '#FFFFFF' }}>
       {/* Subtle brand watermark */}
       <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none">
-        <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.03]" />
+        <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.02]" />
       </div>
       {/* ===== FIXED TOP HEADER ===== */}
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'hsla(0, 0%, 100%, 0.85)', borderBottom: '1.5px solid hsl(38 30% 82%)' }}>
@@ -1286,54 +1286,22 @@ const ArtistDashboard = () => {
 
         {/* ===== HOME TAB ===== */}
         {activeTab === 'home' && !subScreen && (
-          <div className="space-y-6" style={{ margin: '-0.5rem -1.25rem', padding: '0 1.25rem 2rem' }}>
+          <div className="space-y-5" style={{ margin: '-0.5rem -1.25rem', padding: '0 1.25rem 2rem' }}>
 
-            {/* ── Motivational Header with gradient bg ── */}
-            <div
-              className="rounded-b-3xl px-5 pt-8 pb-6 -mx-5"
-              style={{
-                background: 'linear-gradient(180deg, hsl(5 18% 87%) 0%, hsl(5 18% 87% / 0.6) 60%, transparent 100%)',
-              }}
-            >
-              <h1 className="text-2xl font-bold text-foreground tracking-wide mb-1">
+            {/* ── Greeting Header ── */}
+            <div className="pt-8 pb-4 px-1">
+              <h1 className="text-2xl font-bold tracking-wide mb-1" style={{ color: '#3D2B1F' }}>
                 {(() => {
                   const hour = new Date().getHours();
                   const firstName = artistName ? artistName.split(' ')[0] : '';
-                  if (lang === 'en') return firstName ? `Hi ${firstName} 👋` : (hour < 12 ? 'Good Morning! ✨' : hour < 17 ? 'Good Afternoon! ✨' : 'Good Evening! ✨');
-                  if (firstName) return `היי ${firstName} 👋`;
-                  return hour < 12 ? 'בוקר טוב! ✨' : hour < 17 ? 'צהריים טובים! ✨' : 'ערב טוב! ✨';
+                  if (lang === 'en') return firstName ? `Hi ${firstName}` : (hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening');
+                  if (firstName) return `היי ${firstName}`;
+                  return hour < 12 ? 'בוקר טוב' : hour < 17 ? 'צהריים טובים' : 'ערב טוב';
                 })()}
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm" style={{ color: '#6B5E57' }}>
                 {lang === 'en' ? "Here's your business overview" : 'הנה הסקירה העסקית שלך'}
               </p>
-
-              {/* Celebration Banner */}
-              {clients.length > 0 && !dismissedTouchup && (
-                <div
-                  className="relative mt-4 rounded-2xl p-4 shadow-[0_4px_20px_hsla(35,50%,30%,0.12)] animate-fade-up"
-                  style={{
-                    background: 'rgba(255,255,255,0.7)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1.5px solid hsl(var(--gold))',
-                  }}
-                >
-                  <button
-                    onClick={() => { localStorage.setItem('gp-dismiss-touchup', '1'); setDismissedTouchup(true); }}
-                    className="absolute top-3 left-3 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted/40 transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="flex items-start gap-3">
-                    <Sparkles className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                    <p className="text-sm font-bold text-foreground leading-relaxed pr-6">
-                      {lang === 'en'
-                        ? `🔥 Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
-                        : `🔥 שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* ── Onboarding Checklist Widget ── */}
@@ -1347,189 +1315,33 @@ const ArtistDashboard = () => {
               userProfileId={userProfileId}
             />
 
-            {/* ── Digital Card Quick Action ── */}
-            <div className="relative">
-              <button
-                onClick={() => setShowDigitalCardPreview(true)}
-                className="w-full py-4 rounded-full font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] shadow-lg animate-fade-up"
-                style={{
-                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                  color: '#5C4033',
-                  boxShadow: '0 6px 24px rgba(212, 175, 55, 0.35)',
-                }}
-              >
-                <CreditCard className="w-5 h-5" />
-                {lang === 'en' ? '✨ My Digital Card' : '✨ הכרטיס הדיגיטלי שלי'}
-              </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
-                <HelpTooltip
-                  id="digital-card"
-                  text={lang === 'en'
-                    ? 'Your luxury digital business card — share it with clients via WhatsApp or social media in one tap.'
-                    : 'כרטיס ביקור דיגיטלי יוקרתי — שתפי אותו עם לקוחות בוואטסאפ או ברשתות בלחיצה אחת.'}
-                />
-              </span>
-            </div>
-
-            {/* TIMELINE SETTINGS BUTTON */}
-            <div className="relative">
-              <button
-                onClick={() => navigate('/admin/timeline-settings')}
-                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
-                style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
-                }}
-              >
-                <Pencil className="w-5 h-5" />
-                {lang === 'en' ? '✏️ Edit Healing Journey' : '✏️ עריכת מסע ההחלמה'}
-              </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
-                <HelpTooltip
-                  id="healing-journey"
-                  text={lang === 'en'
-                    ? 'Customize the 30-day healing timeline — edit daily care instructions, tips, and notifications for your clients.'
-                    : 'התאימי את ציר הזמן של 30 ימי ההחלמה — ערכי הוראות טיפול, טיפים והתראות לכל יום.'}
-                />
-              </span>
-            </div>
-
-            {/* HEALTH DECLARATION EDITOR BUTTON */}
-            <div className="relative">
-              <button
-                onClick={() => setShowHealthEditor(true)}
-                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
-                style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
-                }}
-              >
-                <ClipboardCheck className="w-5 h-5" />
-                {lang === 'en' ? '📋 Edit Health Declaration' : '📋 עריכת הצהרת בריאות'}
-              </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
-                <HelpTooltip
-                  id="health-declaration"
-                  text={lang === 'en'
-                    ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.'
-                    : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'}
-                />
-              </span>
-            </div>
-
-            {/* PREVIEW HEALTH DECLARATION TEMPLATE */}
-            <button
-              type="button"
-              onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-              className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] border border-black"
-              style={{
-                background: 'hsl(36 50% 42%)',
-                color: '#fff',
-              }}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              {lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}
-            </button>
-
-
-
-            <div className="relative">
-              <button
-                onClick={() => setShowVoucherEditor(true)}
-                className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] border-2"
-                style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 12px hsl(38 55% 50% / 0.15)',
-                }}
-              >
-                <Gift className="w-5 h-5" />
-                {lang === 'en' ? '🎁 Edit Referral Voucher' : '🎁 עריכת שובר חברות'}
-              </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3">
-                <HelpTooltip
-                  id="referral-voucher"
-                  text={lang === 'en'
-                    ? 'Customize the referral voucher text and WhatsApp message your clients see and share.'
-                    : 'התאימי את טקסט שובר ההפניה והודעת הוואטסאפ שהלקוחות שלך רואות ומשתפות.'}
-                />
-              </span>
-            </div>
-
-
-            {/* RED FLAG ALERT BANNER */}
-            {redFlagClients.length > 0 && (
-              <div className="rounded-xl border-2 border-destructive/40 bg-destructive/5 p-4 animate-fade-up">
-                <div className="flex items-center gap-2 mb-2">
-                  <ShieldAlert className="w-5 h-5 text-destructive" />
-                  <h3 className="text-sm font-bold text-destructive">
-                    {lang === 'en' ? `⚠️ ${redFlagClients.length} Client${redFlagClients.length > 1 ? 's' : ''} Require Attention` : `⚠️ ${redFlagClients.length} לקוחות דורשות תשומת לב`}
-                  </h3>
-                </div>
-                <div className="space-y-2">
-                  {redFlagClients.map((c, i) => {
-                    const risk = getClientRiskLevel(c.name);
-                    const flags = risk === 'red' ? [lang === 'en' ? 'Medical Warning' : 'התוויית נגד רפואית'] : risk === 'yellow' ? [lang === 'en' ? 'Requires Attention' : 'דורש תשומת לב'] : [];
-                    return (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-destructive/5 border border-destructive/20 cursor-pointer hover:bg-destructive/10 transition-colors"
-                        onClick={() => { setSelectedClient(c); setActiveTab('clients'); }}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <AlertTriangle className="w-3.5 h-3.5 text-destructive shrink-0" />
-                          <span className="text-xs font-semibold text-destructive truncate">{c.name}</span>
-                          <span className="text-[10px] text-destructive/70 truncate">{flags.join(', ')}</span>
-                        </div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); approveException(c); }}
-                          className="shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
-                        >
-                          {lang === 'en' ? 'Approve' : 'אישור החרגה'}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* ── Success Metric Cards (Glassmorphism) ── */}
-            <div className="grid grid-cols-3 gap-3">
+            {/* ── 1. Revenue & New Client Stats (2 columns) ── */}
+            <div className="grid grid-cols-2 gap-5">
               {[
                 { label: lang === 'en' ? 'Revenue' : 'הכנסות', value: '₪15,000', trend: '+12%', icon: DollarSign },
                 { label: lang === 'en' ? 'New Clients' : 'לקוחות חדשות', value: String(clients.length), trend: '+3', icon: Users },
-                { label: lang === 'en' ? 'Today' : 'היום', value: String(clients.filter(c => c.day === 0 || c.day === 1).length), trend: '', icon: CalendarCheck },
               ].map((metric, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden"
+                  className="rounded-2xl p-5 text-center animate-fade-up relative overflow-hidden"
                   style={{
-                    background: 'linear-gradient(135deg, #E8C0C8 0%, #F5E0E4 30%, #FFFFFF 50%, #F0D0D5 70%, #DEB0BA 100%)',
-                    boxShadow: '0 0 20px rgba(212,175,55,0.15), 0 4px 24px rgba(180,120,130,0.15)',
+                    background: '#FFFFFF',
+                    boxShadow: '0 6px 24px rgba(220, 174, 150, 0.2)',
                     animationDelay: `${i * 0.08}s`,
                     opacity: 0,
                   }}
                 >
-                  {/* Gold ombré border */}
+                  {/* Metallic gold border */}
                   <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-                    border: '3px solid transparent',
-                    background: 'linear-gradient(135deg, #E8C0C8, #F5E0E4, #FFFFFF, #F0D0D5, #DEB0BA) padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                    border: '2px solid transparent',
+                    background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
                     borderRadius: 'inherit',
                   }} />
-                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#5C4033' }} strokeWidth={1.5} />
-                  <p
-                    className="text-xl font-extrabold mb-1 relative z-10"
-                    style={{ color: '#5C4033' }}
-                  >
+                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.2} />
+                  <p className="text-2xl font-extrabold mb-1 relative z-10" style={{ color: '#3D2B1F' }}>
                     {metric.value}
                   </p>
-                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#5C4033' }}>{metric.label}</p>
+                  <p className="text-[11px] font-medium relative z-10" style={{ color: '#6B5E57' }}>{metric.label}</p>
                   {metric.trend && (
                     <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
                       ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
@@ -1539,33 +1351,81 @@ const ArtistDashboard = () => {
               ))}
             </div>
 
-            {/* ── Quick Template Edit Button on Home ── */}
+            {/* ── Celebration Banner ── */}
+            {clients.length > 0 && !dismissedTouchup && (
+              <div
+                className="relative rounded-2xl p-4 animate-fade-up"
+                style={{
+                  background: '#FFFFFF',
+                  boxShadow: '0 6px 24px rgba(220, 174, 150, 0.2)',
+                }}
+              >
+                <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                  border: '2px solid transparent',
+                  background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                  borderRadius: 'inherit',
+                }} />
+                <button
+                  onClick={() => { localStorage.setItem('gp-dismiss-touchup', '1'); setDismissedTouchup(true); }}
+                  className="absolute top-3 left-3 w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/40 transition-colors z-10"
+                  style={{ color: '#6B5E57' }}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+                <div className="flex items-start gap-3 relative z-10">
+                  <Sparkles className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#B8860B' }} strokeWidth={1.2} />
+                  <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#3D2B1F' }}>
+                    {lang === 'en'
+                      ? `Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
+                      : `שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ── Quick Template Edit Button ── */}
             <div className="flex justify-end">
               <button
                 onClick={() => setShowTemplateEditor(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-[1.02] active:scale-[0.98] border"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
                 style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 8px hsl(38 55% 50% / 0.12)',
+                  background: '#FFFFFF',
+                  border: '1.5px solid #D4AF37',
+                  color: '#3D2B1F',
+                  boxShadow: '0 2px 8px rgba(220, 174, 150, 0.15)',
                 }}
               >
-                <MessageSquare className="w-3.5 h-3.5" />
+                <MessageSquare className="w-3.5 h-3.5" style={{ color: '#B8860B' }} strokeWidth={1.2} />
                 {lang === 'en' ? 'Edit Growth Engine' : 'עריכת מנוע צמיחה יומי'}
               </button>
             </div>
 
-            {/* ── Daily Growth Engine ── */}
-            <DailyGrowthEngine
-              clients={clients}
-              artistName={artistName}
-              lang={lang as 'en' | 'he'}
-              onBirthdayClick={(client) => setBirthdayWishClient(client)}
-              onRenewalClick={(client) => setRenewalClient(client)}
-              reviewTemplate={customTemplates.review}
-              reviewTemplateEn={customTemplates.review_en}
-            />
+            {/* ── 2. Daily Growth Engine (Full Dusty Rose Background) ── */}
+            <div
+              className="rounded-2xl p-5 relative overflow-hidden"
+              style={{
+                background: '#DCAE96',
+                boxShadow: '0 6px 24px rgba(220, 174, 150, 0.25)',
+              }}
+            >
+              {/* Metallic gold border */}
+              <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                border: '2px solid transparent',
+                background: '#DCAE96 padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                borderRadius: 'inherit',
+              }} />
+              <div className="relative z-10">
+                <DailyGrowthEngine
+                  clients={clients}
+                  artistName={artistName}
+                  lang={lang as 'en' | 'he'}
+                  onBirthdayClick={(client) => setBirthdayWishClient(client)}
+                  onRenewalClick={(client) => setRenewalClient(client)}
+                  reviewTemplate={customTemplates.review}
+                  reviewTemplateEn={customTemplates.review_en}
+                />
+              </div>
+            </div>
 
             {/* ── Today's Appointments Carousel ── */}
             {(() => {
@@ -1573,34 +1433,38 @@ const ArtistDashboard = () => {
               if (todayClients.length === 0) return null;
               return (
                 <div className="animate-fade-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
+                  <h3 className="text-lg font-bold mb-4" style={{ color: '#3D2B1F' }}>
                     {lang === 'en' ? 'Your Appointments Today' : 'התורים שלך היום'}
                   </h3>
-                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
+                  <div className="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
                     {todayClients.map((client, i) => {
                       const signed = hasSignedDeclaration(client.name);
                       return (
                         <div
                           key={i}
-                          className="flex-shrink-0 w-36 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all hover:shadow-md cursor-pointer active:scale-95"
+                          className="flex-shrink-0 w-36 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all hover:shadow-md cursor-pointer active:scale-95 relative overflow-hidden"
                           style={{
-                            background: 'linear-gradient(135deg, hsl(40 45% 97%), hsl(38 40% 93%))',
-                            border: '1px solid hsl(38 30% 82%)',
-                            boxShadow: '0 4px 16px hsla(38, 55%, 62%, 0.1)',
+                            background: '#FFFFFF',
+                            boxShadow: '0 6px 24px rgba(220, 174, 150, 0.2)',
                           }}
                           onClick={() => { setSelectedClient(client); setActiveTab('clients'); }}
                         >
+                          <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                            border: '2px solid transparent',
+                            background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                            borderRadius: 'inherit',
+                          }} />
                           <div
-                            className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg"
-                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                            className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg relative z-10"
+                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#3D2B1F' }}
                           >
                             {client.name.charAt(0)}
                           </div>
-                          <p className="text-xs font-semibold text-foreground truncate w-full text-center">{client.name}</p>
-                          <p className="text-[10px] text-muted-foreground truncate w-full text-center">{client.treatment}</p>
+                          <p className="text-xs font-semibold truncate w-full text-center relative z-10" style={{ color: '#3D2B1F' }}>{client.name}</p>
+                          <p className="text-[10px] truncate w-full text-center relative z-10" style={{ color: '#6B5E57' }}>{client.treatment}</p>
                           {signed && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: 'hsl(142 76% 36%)' }}>
-                              <CheckCircle className="w-3 h-3" /> {lang === 'en' ? 'Signed' : 'חתום'}
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold relative z-10" style={{ color: 'hsl(142 76% 36%)' }}>
+                              <CheckCircle className="w-3 h-3" strokeWidth={1.2} /> {lang === 'en' ? 'Signed' : 'חתום'}
                             </span>
                           )}
                         </div>
@@ -1613,51 +1477,57 @@ const ArtistDashboard = () => {
 
             {/* ── Active Healing Tracking ── */}
             <div className="animate-fade-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: '#3D2B1F' }}>
                 {lang === 'en' ? 'Active Healing Tracking' : 'מעקב החלמה פעיל'}
-                <HelpTooltip id="active-recovery" text="כאן תראי את הלקוחות בשלבי ההחלמה. המערכת תציג כפתור וואטסאפ באופן אוטומטי בימים בהם נדרש ליצור קשר לפי הפרוטוקול." />
+                <HelpTooltip id="active-recovery" text={lang === 'en' ? 'Clients currently in their healing journey. WhatsApp buttons appear on days requiring contact per protocol.' : 'כאן תראי את הלקוחות בשלבי ההחלמה. המערכת תציג כפתור וואטסאפ באופן אוטומטי בימים בהם נדרש ליצור קשר לפי הפרוטוקול.'} />
               </h3>
               {(() => {
                 const healingClients = clients.filter(c => c.day >= 1 && c.day <= 30);
                 if (healingClients.length === 0) {
                   return (
                     <div
-                      className="rounded-2xl p-6 text-center"
-                      style={{ background: 'rgba(255,255,255,0.4)', border: '1px solid hsl(var(--gold) / 0.15)' }}
+                      className="rounded-2xl p-6 text-center relative overflow-hidden"
+                      style={{ background: '#FFFFFF', boxShadow: '0 6px 24px rgba(220, 174, 150, 0.15)' }}
                     >
-                      <p className="text-sm text-muted-foreground">
+                      <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                        border: '2px solid transparent',
+                        background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                        borderRadius: 'inherit',
+                      }} />
+                      <p className="text-sm relative z-10" style={{ color: '#6B5E57' }}>
                         {lang === 'en' ? 'No active healing processes' : 'אין תהליכי החלמה פעילים'}
                       </p>
                     </div>
                   );
                 }
                 return (
-                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
+                  <div className="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
                     {healingClients.map((client, i) => (
                       <div
                         key={i}
-                        className="flex-shrink-0 w-32 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all hover:shadow-md"
+                        className="flex-shrink-0 w-32 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all hover:shadow-md relative overflow-hidden"
                         style={{
-                          background: 'linear-gradient(135deg, hsl(40 45% 97%), hsl(38 40% 93%))',
-                          border: '1px solid hsl(38 30% 82%)',
-                          boxShadow: '0 4px 16px hsla(38, 55%, 62%, 0.1)',
+                          background: '#FFFFFF',
+                          boxShadow: '0 6px 24px rgba(220, 174, 150, 0.2)',
                         }}
                       >
+                        <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                          border: '2px solid transparent',
+                          background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                          borderRadius: 'inherit',
+                        }} />
                         <button
                           onClick={() => { setSelectedClient(client); setActiveTab('clients'); }}
-                          className="flex flex-col items-center gap-2 w-full active:scale-95"
+                          className="flex flex-col items-center gap-2 w-full active:scale-95 relative z-10"
                         >
                           <div
                             className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg"
-                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#3D2B1F' }}
                           >
                             {client.name.charAt(0)}
                           </div>
-                          <p className="text-xs font-semibold text-foreground truncate w-full text-center">{client.name}</p>
-                          <span
-                            className="text-[11px] font-bold"
-                            style={{ color: 'hsl(38 40% 45%)' }}
-                          >
+                          <p className="text-xs font-semibold truncate w-full text-center" style={{ color: '#3D2B1F' }}>{client.name}</p>
+                          <span className="text-[11px] font-bold" style={{ color: '#B8860B' }}>
                             {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}
                           </span>
                         </button>
@@ -1676,27 +1546,190 @@ const ArtistDashboard = () => {
               })()}
             </div>
 
-
-            {/* ===== Referral CTA ===== */}
-            <div className="animate-fade-up mt-6 flex justify-center" style={{ animationDelay: '0.45s', opacity: 0 }}>
+            {/* ── 3. Refer a Friend CTA ── */}
+            <div className="animate-fade-up flex justify-center" style={{ animationDelay: '0.45s', opacity: 0 }}>
               <button
                 onClick={() => setActiveTab('bonuses')}
-                className="w-full max-w-md px-6 py-4 rounded-full font-bold text-lg shadow-lg transition-all active:scale-95 hover:scale-[1.02] flex items-center justify-center gap-2 relative overflow-hidden"
+                className="w-full max-w-md px-6 py-4 rounded-full font-bold text-lg transition-all active:scale-95 hover:scale-[1.02] flex items-center justify-center gap-2.5 relative overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, #E8C0C8 0%, #F5E0E4 30%, #FFFFFF 50%, #F0D0D5 70%, #DEB0BA 100%)',
-                  color: '#5C4033',
-                  boxShadow: '0 0 20px rgba(212,175,55,0.2), 0 6px 24px rgba(180,120,130,0.2)',
+                  background: '#FFFFFF',
+                  color: '#3D2B1F',
+                  boxShadow: '0 6px 24px rgba(220, 174, 150, 0.25)',
                 }}
               >
-                {/* Gold ombré border */}
                 <div className="absolute inset-0 rounded-full pointer-events-none" style={{
-                  border: '3px solid transparent',
-                  background: 'linear-gradient(135deg, #E8C0C8, #F5E0E4, #FFFFFF, #F0D0D5, #DEB0BA) padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                  border: '2.5px solid transparent',
+                  background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
                   borderRadius: 'inherit',
                 }} />
-                <Gift className="w-5 h-5 relative z-10" />
-                <span className="relative z-10">{lang === 'en' ? 'Refer a Friend – Get ₪50 Gift! 🎁' : 'חברה מביאה חברה – קבלי 50₪ מתנה! 🎁'}</span>
+                <Gift className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.2} />
+                <span className="relative z-10">{lang === 'en' ? 'Refer a Friend – Get ₪50 Gift!' : 'חברה מביאה חברה – קבלי 50₪ מתנה!'}</span>
               </button>
+            </div>
+
+            {/* RED FLAG ALERT BANNER */}
+            {redFlagClients.length > 0 && (
+              <div className="rounded-xl border-2 border-destructive/40 bg-destructive/5 p-4 animate-fade-up">
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldAlert className="w-5 h-5 text-destructive" strokeWidth={1.2} />
+                  <h3 className="text-sm font-bold text-destructive">
+                    {lang === 'en' ? `${redFlagClients.length} Client${redFlagClients.length > 1 ? 's' : ''} Require Attention` : `${redFlagClients.length} לקוחות דורשות תשומת לב`}
+                  </h3>
+                </div>
+                <div className="space-y-2">
+                  {redFlagClients.map((c, i) => {
+                    const risk = getClientRiskLevel(c.name);
+                    const flags = risk === 'red' ? [lang === 'en' ? 'Medical Warning' : 'התוויית נגד רפואית'] : risk === 'yellow' ? [lang === 'en' ? 'Requires Attention' : 'דורש תשומת לב'] : [];
+                    return (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-destructive/5 border border-destructive/20 cursor-pointer hover:bg-destructive/10 transition-colors"
+                        onClick={() => { setSelectedClient(c); setActiveTab('clients'); }}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <AlertTriangle className="w-3.5 h-3.5 text-destructive shrink-0" strokeWidth={1.2} />
+                          <span className="text-xs font-semibold text-destructive truncate">{c.name}</span>
+                          <span className="text-[10px] text-destructive/70 truncate">{flags.join(', ')}</span>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); approveException(c); }}
+                          className="shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
+                        >
+                          {lang === 'en' ? 'Approve' : 'אישור החרגה'}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ── 4. Edit & Settings Buttons (Bottom) ── */}
+            <div className="space-y-4 pt-2">
+              {/* Digital Card */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowDigitalCardPreview(true)}
+                  className="w-full py-4 rounded-full font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] relative overflow-hidden"
+                  style={{
+                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
+                    color: '#3D2B1F',
+                    boxShadow: '0 6px 24px rgba(212, 175, 55, 0.35)',
+                  }}
+                >
+                  <CreditCard className="w-5 h-5" strokeWidth={1.2} />
+                  {lang === 'en' ? 'My Digital Card' : 'הכרטיס הדיגיטלי שלי'}
+                </button>
+                <span className="absolute top-1/2 -translate-y-1/2 left-3">
+                  <HelpTooltip
+                    id="digital-card"
+                    text={lang === 'en'
+                      ? 'Your luxury digital business card — share it with clients via WhatsApp or social media in one tap.'
+                      : 'כרטיס ביקור דיגיטלי יוקרתי — שתפי אותו עם לקוחות בוואטסאפ או ברשתות בלחיצה אחת.'}
+                  />
+                </span>
+              </div>
+
+              {/* Edit Healing Journey */}
+              <div className="relative">
+                <button
+                  onClick={() => navigate('/admin/timeline-settings')}
+                  className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
+                  style={{
+                    background: '#FFFFFF',
+                    color: '#3D2B1F',
+                    boxShadow: '0 6px 24px rgba(220, 174, 150, 0.2)',
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                    border: '2px solid transparent',
+                    background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                    borderRadius: 'inherit',
+                  }} />
+                  <Pencil className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.2} />
+                  <span className="relative z-10">{lang === 'en' ? 'Edit Healing Journey' : 'עריכת מסע ההחלמה'}</span>
+                </button>
+                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                  <HelpTooltip
+                    id="healing-journey"
+                    text={lang === 'en'
+                      ? 'Customize the 30-day healing timeline — edit daily care instructions, tips, and notifications for your clients.'
+                      : 'התאימי את ציר הזמן של 30 ימי ההחלמה — ערכי הוראות טיפול, טיפים והתראות לכל יום.'}
+                  />
+                </span>
+              </div>
+
+              {/* Edit Health Declaration */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowHealthEditor(true)}
+                  className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
+                  style={{
+                    background: '#FFFFFF',
+                    color: '#3D2B1F',
+                    boxShadow: '0 6px 24px rgba(220, 174, 150, 0.2)',
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                    border: '2px solid transparent',
+                    background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                    borderRadius: 'inherit',
+                  }} />
+                  <ClipboardCheck className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.2} />
+                  <span className="relative z-10">{lang === 'en' ? 'Edit Health Declaration' : 'עריכת הצהרת בריאות'}</span>
+                </button>
+                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                  <HelpTooltip
+                    id="health-declaration"
+                    text={lang === 'en'
+                      ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.'
+                      : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'}
+                  />
+                </span>
+              </div>
+
+              {/* Preview Health Declaration */}
+              <button
+                type="button"
+                onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
+                className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  background: '#3D2B1F',
+                  color: '#FFFFFF',
+                }}
+              >
+                <Eye className="w-3.5 h-3.5" strokeWidth={1.2} />
+                {lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}
+              </button>
+
+              {/* Edit Referral Voucher */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowVoucherEditor(true)}
+                  className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
+                  style={{
+                    background: '#FFFFFF',
+                    color: '#3D2B1F',
+                    boxShadow: '0 6px 24px rgba(220, 174, 150, 0.2)',
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                    border: '2px solid transparent',
+                    background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                    borderRadius: 'inherit',
+                  }} />
+                  <Gift className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.2} />
+                  <span className="relative z-10">{lang === 'en' ? 'Edit Referral Voucher' : 'עריכת שובר חברות'}</span>
+                </button>
+                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                  <HelpTooltip
+                    id="referral-voucher"
+                    text={lang === 'en'
+                      ? 'Customize the referral voucher text and WhatsApp message your clients see and share.'
+                      : 'התאימי את טקסט שובר ההפניה והודעת הוואטסאפ שהלקוחות שלך רואות ומשתפות.'}
+                  />
+                </span>
+              </div>
             </div>
 
           </div>
