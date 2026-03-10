@@ -3382,18 +3382,18 @@ const ArtistDashboard = () => {
       {/* ===== FIXED BOTTOM NAVIGATION BAR ===== */}
       <nav className="fixed bottom-0 left-0 right-0 z-[60] safe-area-bottom"
         style={{
-          background: 'hsla(0, 0%, 100%, 0.97)',
+          background: 'linear-gradient(180deg, hsla(350, 35%, 92%, 0.95) 0%, hsla(350, 40%, 90%, 0.98) 100%)',
           backdropFilter: 'blur(16px) saturate(1.4)',
           WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-          boxShadow: '0 -1px 0 hsl(38 30% 88%), 0 -4px 24px -6px hsla(38, 30%, 60%, 0.1)',
+          boxShadow: '0 -1px 0 hsl(38 40% 82%), 0 -4px 24px -6px hsla(350, 30%, 60%, 0.15)',
         }}
       >
-        <div className="container mx-auto max-w-lg flex items-start justify-between py-2 px-1 gap-0.5">
+        <div className="container mx-auto max-w-lg flex items-start justify-between py-2.5 px-2 gap-1">
           {[
-            { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'דשבורד', route: null },
+            { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'ראשי', route: null },
+            { id: 'push' as const, icon: Bell, label: lang === 'en' ? 'Push!' : 'רשנה', route: null },
             { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
-            { id: 'push' as const, icon: Bell, label: '!push', route: null },
-            { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוחות', route: null },
+            { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוהות', route: null },
             { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
           ].map((tab) => {
             const isActive = tab.route ? false : activeTab === tab.id;
@@ -3410,46 +3410,41 @@ const ArtistDashboard = () => {
                     setHealingJourneyClient(null);
                   }
                 }}
-                className="relative flex-1 flex flex-col items-center gap-1 min-w-0 transition-all py-1 px-0.5"
+                className="relative flex-1 flex flex-col items-center gap-1.5 min-w-0 transition-all py-1 px-0.5"
               >
-                {/* "New" badge for Upgrade */}
-                {isUpgrade && (
-                  <span
-                    className="absolute -top-1 -end-1 text-[8px] font-bold px-1.5 py-0.5 rounded-full z-10 animate-pulse"
-                    style={{
-                      background: 'linear-gradient(135deg, #D4AF37, #F9F295)',
-                      color: '#5C4033',
-                      boxShadow: '0 1px 6px rgba(212,175,55,0.4)',
-                    }}
-                  >
-                    NEW
-                  </span>
-                )}
+                {/* Active gold ring indicator */}
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
-                  style={isUpgrade ? {
-                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                    boxShadow: '0 3px 12px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(249, 242, 149, 0.5)',
-                  } : isActive ? {
-                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                    boxShadow: '0 3px 12px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(249, 242, 149, 0.5)',
-                  } : {
-                    background: 'linear-gradient(135deg, hsl(38 30% 82%), hsl(40 35% 90%))',
-                    boxShadow: '0 2px 8px hsla(38, 30%, 60%, 0.15)',
+                  className="w-12 h-12 rounded-full flex items-center justify-center transition-all relative"
+                  style={{
+                    background: isActive
+                      ? 'linear-gradient(135deg, rgba(255,230,236,0.95), rgba(255,220,230,0.9))'
+                      : isUpgrade
+                      ? 'linear-gradient(135deg, rgba(255,230,236,0.95), rgba(255,220,230,0.9))'
+                      : 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
+                    boxShadow: isActive
+                      ? '0 3px 12px rgba(212, 175, 55, 0.25), inset 0 1px 3px rgba(255,255,255,0.5)'
+                      : '0 2px 8px rgba(0,0,0,0.05), inset 0 1px 2px rgba(255,255,255,0.4)',
                   }}
                 >
+                  {/* Gold border ring */}
+                  <div className="absolute inset-0 rounded-full pointer-events-none" style={{
+                    border: isActive ? '2.5px solid transparent' : '1.5px solid transparent',
+                    background: `transparent padding-box, linear-gradient(135deg, ${isActive ? '#BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%' : '#D4AF37 0%, #E8D5A0 50%, #D4AF37 100%'}) border-box`,
+                    borderRadius: 'inherit',
+                  }} />
                   <tab.icon
-                    className="w-4.5 h-4.5"
-                    size={18}
+                    className="relative z-10"
+                    size={20}
                     strokeWidth={1.5}
-                    style={{ color: isActive || isUpgrade ? '#5C4033' : 'hsl(38 40% 40%)' }}
+                    style={{ color: isActive ? '#B8860B' : '#C4956A' }}
                   />
                 </div>
                 <span
-                  className="text-[9px] sm:text-[10px] leading-[1.05] tracking-tight text-center font-serif whitespace-normal max-w-[56px]"
+                  className="text-[9px] sm:text-[10px] leading-[1.05] tracking-tight text-center whitespace-normal max-w-[56px]"
                   style={{
-                    color: isUpgrade ? '#B8860B' : isActive ? '#5C4033' : 'hsl(0 0% 50%)',
-                    fontWeight: isActive || isUpgrade ? 600 : 300,
+                    color: isActive ? '#4A3520' : '#9B7B6B',
+                    fontWeight: isActive ? 700 : 400,
+                    fontFamily: "'Assistant', sans-serif",
                   }}
                 >
                   {tab.label}
