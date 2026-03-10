@@ -119,7 +119,7 @@
 
   body {
     @apply text-foreground font-sans antialiased text-base leading-relaxed;
-    background: #FFFFFF;
+    background: hsl(350 45% 95%);
     min-height: 100vh;
     position: relative;
   }

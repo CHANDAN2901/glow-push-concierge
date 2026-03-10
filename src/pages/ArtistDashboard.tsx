@@ -1149,7 +1149,7 @@ const ArtistDashboard = () => {
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{ background: '#FFFFFF' }}>
+    <div className="min-h-screen flex flex-col relative bg-background">
       {/* Subtle brand watermark */}
       <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none">
         <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.02]" />
