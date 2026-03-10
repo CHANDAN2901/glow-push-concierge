@@ -1149,7 +1149,7 @@ const ArtistDashboard = () => {
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{ background: 'radial-gradient(ellipse at center, #f5dcd9 0%, #eac3bf 50%, #d4a29e 100%)' }}>
+    <div className="min-h-screen flex flex-col relative" style={{ background: 'radial-gradient(ellipse at center, #ffffff 0%, #f5dcd9 35%, #eac3bf 60%, #d4a29e 100%)' }}>
       {/* Subtle brand watermark */}
       <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none">
         <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.03]" />
