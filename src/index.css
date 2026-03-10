@@ -193,6 +193,11 @@
   100% { opacity: 1; }
 }
 
+@keyframes bg-fade-to-pink {
+  0% { background: #FFF5F7; }
+  100% { background: linear-gradient(160deg, #F0C8CE 0%, #F4D2D7 20%, #EFC6CC 40%, #F2CDD3 60%, #EABFC6 80%, #E5B8C0 100%); }
+}
+
 @layer utilities {
   .text-gold-gradient {
     background: linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%), hsl(38 55% 62%));
