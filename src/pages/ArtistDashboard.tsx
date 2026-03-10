@@ -1723,7 +1723,7 @@ const ArtistDashboard = () => {
                 style={{
                   background: '#FFFFFF',
                   color: '#3D3D3D',
-                  boxShadow: '0 4px 20px rgba(212,175,55,0.2), 0 2px 12px rgba(0,0,0,0.06)',
+                  boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
                 }}
               >
                 {/* Gold shimmer border */}
