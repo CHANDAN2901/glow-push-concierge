@@ -1326,7 +1326,7 @@ const ArtistDashboard = () => {
                   </button>
                   <div className="flex items-start gap-3">
                     <Sparkles className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                    <p className="text-sm font-bold text-foreground leading-relaxed pr-6">
+                    <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#3D3D3D' }}>
                       {lang === 'en'
                         ? `🔥 Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
                         : `🔥 שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
