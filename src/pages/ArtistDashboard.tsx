@@ -1319,7 +1319,7 @@ const ArtistDashboard = () => {
                   style={{
                     background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
                     backdropFilter: 'blur(16px)',
-                    boxShadow: '0 4px 24px rgba(212,175,55,0.12), 0 2px 8px rgba(0,0,0,0.04)',
+                    boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
                   }}
                 >
                   {/* Gold border overlay */}
@@ -1582,7 +1582,7 @@ const ArtistDashboard = () => {
                   background: 'hsl(0 0% 100%)',
                   borderColor: 'hsl(38 55% 58%)',
                   color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 2px 8px hsl(38 55% 50% / 0.12)',
+                  boxShadow: '0 10px 28px rgba(160,100,80,0.16), 0 4px 12px rgba(180,120,90,0.1), 0 2px 6px rgba(212,175,55,0.08)',
                 }}
               >
                 <MessageSquare className="w-3.5 h-3.5" />
@@ -1723,7 +1723,7 @@ const ArtistDashboard = () => {
                 style={{
                   background: '#FFFFFF',
                   color: '#3D3D3D',
-                  boxShadow: '0 4px 20px rgba(212,175,55,0.2), 0 2px 12px rgba(0,0,0,0.06)',
+                  boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
                 }}
               >
                 {/* Gold shimmer border */}
