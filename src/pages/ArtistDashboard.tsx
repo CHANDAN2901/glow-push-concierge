@@ -1584,9 +1584,11 @@ const ArtistDashboard = () => {
                           key={i}
                           className="flex-shrink-0 w-36 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all hover:shadow-md cursor-pointer active:scale-95"
                           style={{
-                            background: 'linear-gradient(135deg, hsl(40 45% 97%), hsl(38 40% 93%))',
-                            border: '1px solid hsl(38 30% 82%)',
-                            boxShadow: '0 4px 16px hsla(38, 55%, 62%, 0.1)',
+                            background: '#FFFFFF',
+                            border: '2px solid',
+                            borderImage: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B) 1',
+                            boxShadow: '0 4px 16px rgba(212,175,55,0.12), 0 2px 8px rgba(0,0,0,0.05)',
+                            borderRadius: '1rem',
                           }}
                           onClick={() => { setSelectedClient(client); setActiveTab('clients'); }}
                         >
