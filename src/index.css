@@ -510,6 +510,11 @@
   }
 }
 
+/* ═══ Artist Dashboard floating buttons ═══ */
+.artist-float-btn {
+  box-shadow: 0 12px 32px rgba(160,100,80,0.18), 0 6px 16px rgba(180,120,90,0.12), 0 3px 8px rgba(212,175,55,0.08) !important;
+}
+
 /* ═══ Client Premium Dashboard ═══ */
 
 /* Smoky Powder Pink background with subtle bokeh */
