@@ -1315,22 +1315,28 @@ const ArtistDashboard = () => {
               {/* Celebration Banner */}
               {clients.length > 0 && !dismissedTouchup && (
                 <div
-                  className="relative mt-4 rounded-2xl p-4 shadow-[0_4px_20px_hsla(35,50%,30%,0.12)] animate-fade-up"
+                  className="relative mt-4 rounded-[2rem] p-5 animate-fade-up overflow-hidden"
                   style={{
-                    background: 'rgba(255,255,255,0.7)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1.5px solid hsl(var(--gold))',
+                    background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
+                    backdropFilter: 'blur(16px)',
+                    boxShadow: '0 4px 24px rgba(212,175,55,0.12), 0 2px 8px rgba(0,0,0,0.04)',
                   }}
                 >
+                  {/* Gold border overlay */}
+                  <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
+                    border: '2px solid transparent',
+                    background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
+                    borderRadius: 'inherit',
+                  }} />
                   <button
                     onClick={() => { localStorage.setItem('gp-dismiss-touchup', '1'); setDismissedTouchup(true); }}
-                    className="absolute top-3 left-3 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted/40 transition-colors"
+                    className="absolute top-3 left-3 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted/40 transition-colors z-10"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
-                  <div className="flex items-start gap-3">
-                    <Sparkles className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                    <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#3D3D3D' }}>
+                  <div className="flex items-start gap-3 relative z-10">
+                    <Sparkles className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#D4AF37' }} />
+                    <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#4A3520' }}>
                       {lang === 'en'
                         ? `🔥 Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
                         : `🔥 שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
