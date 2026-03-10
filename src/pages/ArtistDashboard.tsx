@@ -1510,26 +1510,26 @@ const ArtistDashboard = () => {
                   key={i}
                   className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden"
                   style={{
-                    background: 'linear-gradient(135deg, #E8C0C8 0%, #F5E0E4 30%, #FFFFFF 50%, #F0D0D5 70%, #DEB0BA 100%)',
-                    boxShadow: '0 0 20px rgba(212,175,55,0.15), 0 4px 24px rgba(180,120,130,0.15)',
+                    background: '#FFFFFF',
+                    boxShadow: '0 4px 20px rgba(212,175,55,0.15), 0 2px 12px rgba(0,0,0,0.06)',
                     animationDelay: `${i * 0.08}s`,
                     opacity: 0,
                   }}
                 >
-                  {/* Gold ombré border */}
+                  {/* Gold shimmer border */}
                   <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-                    border: '3px solid transparent',
-                    background: 'linear-gradient(135deg, #E8C0C8, #F5E0E4, #FFFFFF, #F0D0D5, #DEB0BA) padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                    border: '2.5px solid transparent',
+                    background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
                     borderRadius: 'inherit',
                   }} />
-                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#5C4033' }} strokeWidth={1.5} />
+                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#D4AF37' }} strokeWidth={1.5} />
                   <p
                     className="text-xl font-extrabold mb-1 relative z-10"
-                    style={{ color: '#5C4033' }}
+                    style={{ color: '#3D3D3D' }}
                   >
                     {metric.value}
                   </p>
-                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#5C4033' }}>{metric.label}</p>
+                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#555' }}>{metric.label}</p>
                   {metric.trend && (
                     <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
                       ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
