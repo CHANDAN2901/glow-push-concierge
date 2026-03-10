@@ -1292,7 +1292,7 @@ const ArtistDashboard = () => {
             <div
               className="rounded-b-3xl px-5 pt-8 pb-6 -mx-5"
               style={{
-                background: 'linear-gradient(180deg, hsl(5 18% 87%) 0%, hsl(5 18% 87% / 0.6) 60%, transparent 100%)',
+                background: 'linear-gradient(180deg, rgba(234,195,191,0.6) 0%, transparent 100%)',
               }}
             >
               <h1 className="text-2xl font-bold text-foreground tracking-wide mb-1">
