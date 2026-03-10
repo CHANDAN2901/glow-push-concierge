@@ -1687,18 +1687,18 @@ const ArtistDashboard = () => {
                 onClick={() => setActiveTab('bonuses')}
                 className="w-full max-w-md px-6 py-4 rounded-full font-bold text-lg shadow-lg transition-all active:scale-95 hover:scale-[1.02] flex items-center justify-center gap-2 relative overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, #E8C0C8 0%, #F5E0E4 30%, #FFFFFF 50%, #F0D0D5 70%, #DEB0BA 100%)',
-                  color: '#5C4033',
-                  boxShadow: '0 0 20px rgba(212,175,55,0.2), 0 6px 24px rgba(180,120,130,0.2)',
+                  background: '#FFFFFF',
+                  color: '#3D3D3D',
+                  boxShadow: '0 4px 20px rgba(212,175,55,0.2), 0 2px 12px rgba(0,0,0,0.06)',
                 }}
               >
-                {/* Gold ombré border */}
+                {/* Gold shimmer border */}
                 <div className="absolute inset-0 rounded-full pointer-events-none" style={{
-                  border: '3px solid transparent',
-                  background: 'linear-gradient(135deg, #E8C0C8, #F5E0E4, #FFFFFF, #F0D0D5, #DEB0BA) padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
+                  border: '2.5px solid transparent',
+                  background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
                   borderRadius: 'inherit',
                 }} />
-                <Gift className="w-5 h-5 relative z-10" />
+                <Gift className="w-5 h-5 relative z-10" style={{ color: '#D4AF37' }} />
                 <span className="relative z-10">{lang === 'en' ? 'Refer a Friend – Get ₪50 Gift! 🎁' : 'חברה מביאה חברה – קבלי 50₪ מתנה! 🎁'}</span>
               </button>
             </div>
