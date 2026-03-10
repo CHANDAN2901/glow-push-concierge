@@ -1159,7 +1159,7 @@ const ArtistDashboard = () => {
         <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.03]" />
       </div>
       {/* ===== FIXED TOP HEADER ===== */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'hsla(350, 40%, 95%, 0.88)', borderBottom: '1.5px solid hsl(38 40% 75%)' }}>
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'linear-gradient(180deg, hsla(350, 35%, 92%, 0.95) 0%, hsla(350, 40%, 90%, 0.98) 100%)', borderBottom: '1.5px solid hsl(38 40% 82%)' }}>
         <div className="relative w-full h-16 px-5">
 
           {/* Left side buttons (add, preview, back) */}
@@ -1176,21 +1176,32 @@ const ArtistDashboard = () => {
               <>
                 <button
                   onClick={() => { setDispatchPrefill(null); setDispatchOpen(true); }}
-                  className="w-9 h-9 rounded-full flex items-center justify-center btn-gold-cta"
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 relative"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
+                  }}
                 >
-                  <Plus className="w-5 h-5" strokeWidth={2} />
+                  <div className="absolute inset-0 rounded-full pointer-events-none" style={{
+                    border: '1.5px solid transparent',
+                    background: 'transparent padding-box, linear-gradient(135deg, #D4AF37 0%, #E8D5A0 50%, #D4AF37 100%) border-box',
+                    borderRadius: 'inherit',
+                  }} />
+                  <Plus className="w-5 h-5 relative z-10" strokeWidth={2} style={{ color: '#B8860B' }} />
                 </button>
                 <button
                   onClick={() => setClientPreviewOpen(true)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95"
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 relative"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(40 45% 95%), hsl(38 40% 90%))',
-                    border: '1px solid hsl(38 30% 82%)',
-                    boxShadow: '0 2px 8px hsl(38 55% 62% / 0.2)',
+                    background: 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
                   }}
                   title={lang === 'en' ? 'Preview Client Page' : 'צפייה בדף לקוחה'}
                 >
-                  <Eye className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} strokeWidth={1.8} />
+                  <div className="absolute inset-0 rounded-full pointer-events-none" style={{
+                    border: '1.5px solid transparent',
+                    background: 'transparent padding-box, linear-gradient(135deg, #D4AF37 0%, #E8D5A0 50%, #D4AF37 100%) border-box',
+                    borderRadius: 'inherit',
+                  }} />
+                  <Eye className="w-4.5 h-4.5 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.5} />
                 </button>
               </>
             )}
@@ -1204,18 +1215,21 @@ const ArtistDashboard = () => {
             onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
           />
 
-          {/* Right side: Settings button — positioned to leave room for language toggle */}
+          {/* Right side: Settings button — styled like bottom nav */}
           {!(subScreen || selectedClient) && (
             <button
               onClick={() => setActiveTab('profile')}
-              className="absolute right-[60px] top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-95 z-20"
+              className="absolute right-[60px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 z-20 relative"
               style={{
-                background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
-                border: '1px solid hsl(38 40% 50%)',
-                boxShadow: '0 2px 8px hsl(38 55% 62% / 0.3)',
+                background: 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
               }}
             >
-              <Settings className="w-4.5 h-4.5 text-white" strokeWidth={1.8} />
+              <div className="absolute inset-0 rounded-full pointer-events-none" style={{
+                border: '1.5px solid transparent',
+                background: 'transparent padding-box, linear-gradient(135deg, #D4AF37 0%, #E8D5A0 50%, #D4AF37 100%) border-box',
+                borderRadius: 'inherit',
+              }} />
+              <Settings className="w-4.5 h-4.5 relative z-10" strokeWidth={1.5} style={{ color: '#B8860B' }} />
             </button>
           )}
 
