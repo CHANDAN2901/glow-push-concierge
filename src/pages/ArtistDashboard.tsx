@@ -1573,7 +1573,7 @@ const ArtistDashboard = () => {
               if (todayClients.length === 0) return null;
               return (
                 <div className="animate-fade-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
+                  <h3 className="text-2xl font-bold mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: '#3D3D3D' }}>
                     {lang === 'en' ? 'Your Appointments Today' : 'התורים שלך היום'}
                   </h3>
                   <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
