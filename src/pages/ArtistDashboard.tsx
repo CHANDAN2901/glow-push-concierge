@@ -1615,7 +1615,7 @@ const ArtistDashboard = () => {
 
             {/* ── Active Healing Tracking ── */}
             <div className="animate-fade-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: '#3D3D3D' }}>
                 {lang === 'en' ? 'Active Healing Tracking' : 'מעקב החלמה פעיל'}
                 <HelpTooltip id="active-recovery" text="כאן תראי את הלקוחות בשלבי ההחלמה. המערכת תציג כפתור וואטסאפ באופן אוטומטי בימים בהם נדרש ליצור קשר לפי הפרוטוקול." />
               </h3>
