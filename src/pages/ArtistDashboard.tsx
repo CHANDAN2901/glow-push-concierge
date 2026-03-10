@@ -1295,7 +1295,7 @@ const ArtistDashboard = () => {
                 background: 'linear-gradient(180deg, rgba(234,195,191,0.6) 0%, transparent 100%)',
               }}
             >
-              <h1 className="text-2xl font-bold text-foreground tracking-wide mb-1">
+              <h1 className="text-2xl font-bold tracking-wide mb-1" style={{ color: '#3D3D3D' }}>
                 {(() => {
                   const hour = new Date().getHours();
                   const firstName = artistName ? artistName.split(' ')[0] : '';
