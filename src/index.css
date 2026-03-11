@@ -554,32 +554,36 @@
   flex-shrink: 0;
 }
 
-/* ═══ Preview pill button — matches lightbulb FAB style ═══ */
+/* ═══ Preview pill button — metallic Rose Gold ═══ */
 .artist-dashboard .preview-pill-btn,
 .preview-pill-btn {
-  background: linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%) !important;
+  background: linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%) !important;
   border: none !important;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(214, 157, 169, 0.3) !important;
+  box-shadow: 0 6px 20px rgba(216, 180, 180, 0.35), 0 2px 8px rgba(201, 160, 160, 0.2) !important;
   color: #FFFFFF !important;
 }
 .artist-dashboard .preview-pill-btn:hover,
 .preview-pill-btn:hover {
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(214, 157, 169, 0.4) !important;
+  box-shadow: 0 8px 28px rgba(216, 180, 180, 0.5), 0 4px 12px rgba(201, 160, 160, 0.3) !important;
 }
 .artist-dashboard .preview-pill-btn .preview-pill-icon,
 .preview-pill-btn .preview-pill-icon {
   color: #FFFFFF !important;
 }
 
-/* ═══ Preview card buttons — matches lightbulb FAB style ═══ */
+/* ═══ Preview card buttons — metallic Rose Gold ═══ */
 .preview-card-btn {
-  background: linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%);
+  background: linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%);
   border: none;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(214, 157, 169, 0.3);
+  box-shadow: 0 6px 20px rgba(216, 180, 180, 0.35), 0 2px 8px rgba(201, 160, 160, 0.2);
   color: #FFFFFF;
 }
 .preview-card-btn:hover {
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(214, 157, 169, 0.4);
+  box-shadow: 0 8px 28px rgba(216, 180, 180, 0.5), 0 4px 12px rgba(201, 160, 160, 0.3);
+}
+.preview-card-btn p,
+.preview-card-btn svg {
+  color: #FFFFFF !important;
 }
 
 /* ═══ Artist Dashboard — all non-pill buttons float with heavy shadow ═══ */

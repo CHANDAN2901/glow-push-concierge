@@ -2799,14 +2799,14 @@ const ArtistDashboard = () => {
               onClick={() => setShowDigitalCardPreview(true)}
               className="preview-card-btn w-full flex items-center gap-4 rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, hsl(340 30% 90%), hsl(340 25% 85%))' }}>
-                <CreditCard className="w-6 h-6" style={{ color: '#B8860B' }} />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                <CreditCard className="w-6 h-6" style={{ color: '#FFFFFF' }} />
               </div>
               <div className="flex-1 text-start">
-                <p className="font-light text-sm" style={{ color: '#4a3636' }}>{lang === 'en' ? 'View Your Digital Card' : 'צפי בכרטיס הדיגיטלי שלך'}</p>
-                <p className="text-xs mt-0.5" style={{ color: '#B8860B' }}>{lang === 'en' ? 'Preview & share your professional card' : 'תצוגה מקדימה ושיתוף הכרטיס המקצועי'}</p>
+                <p className="font-light text-sm" style={{ color: '#FFFFFF' }}>{lang === 'en' ? 'View Your Digital Card' : 'צפי בכרטיס הדיגיטלי שלך'}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.8)' }}>{lang === 'en' ? 'Preview & share your professional card' : 'תצוגה מקדימה ושיתוף הכרטיס המקצועי'}</p>
               </div>
-              <ChevronRight className="w-5 h-5" style={{ color: '#D4AF37', transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+              <ChevronRight className="w-5 h-5" style={{ color: '#FFFFFF', transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
             </button>
 
             {/* Preview Client Page */}
@@ -2818,14 +2818,14 @@ const ArtistDashboard = () => {
               }}
               className="preview-card-btn w-full rounded-3xl p-5 flex items-center gap-4 text-start transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, hsl(340 30% 90%), hsl(340 25% 85%))' }}>
-                <Eye className="w-5 h-5" style={{ color: '#B8860B' }} />
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                <Eye className="w-5 h-5" style={{ color: '#FFFFFF' }} />
               </div>
               <div className="flex-1 text-start">
-                <p className="font-light text-sm" style={{ color: '#4a3636' }}>{lang === 'en' ? 'Preview Sample Client Page' : 'צפייה בדף לקוחה לדוגמה'}</p>
-                <p className="text-xs mt-0.5" style={{ color: '#B8860B' }}>{lang === 'en' ? 'See the logo, colors & fonts your clients see' : 'ראי את הלוגו, הצבעים והפונטים שהלקוחות רואות'}</p>
+                <p className="font-light text-sm" style={{ color: '#FFFFFF' }}>{lang === 'en' ? 'Preview Sample Client Page' : 'צפייה בדף לקוחה לדוגמה'}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.8)' }}>{lang === 'en' ? 'See the logo, colors & fonts your clients see' : 'ראי את הלוגו, הצבעים והפונטים שהלקוחות רואות'}</p>
               </div>
-              <ChevronRight className="w-5 h-5" style={{ color: '#D4AF37', transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+              <ChevronRight className="w-5 h-5" style={{ color: '#FFFFFF', transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
             </button>
 
 
