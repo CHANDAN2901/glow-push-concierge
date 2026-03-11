@@ -119,7 +119,7 @@
 
   body {
     @apply text-foreground font-sans antialiased text-base leading-relaxed;
-    background: #ffffff;
+    background: radial-gradient(circle at 50% 50%, hsl(0 0% 100%) 0%, hsl(350 30% 94%) 40%, hsl(350 25% 88%) 70%, hsl(350 20% 82%) 100%);
     background-attachment: fixed;
     min-height: 100vh;
     position: relative;
