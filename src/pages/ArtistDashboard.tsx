@@ -2443,8 +2443,8 @@ const ArtistDashboard = () => {
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setRenewalClient(client); }}
-                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
-                            style={{ background: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)', border: '2px solid hsl(38 55% 62%)' }}
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
+                            style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#4a3636', border: '1.5px solid #d8b4b4', boxShadow: '0 4px 12px rgba(216, 180, 180, 0.2)' }}
                           >
                             🔄 {lang === 'en' ? 'Send Renewal Message' : 'שלחי הודעת חידוש'}
                           </button>
