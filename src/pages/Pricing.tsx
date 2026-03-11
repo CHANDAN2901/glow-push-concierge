@@ -7,14 +7,24 @@ import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/usePricingPlans';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import BackButton from '@/components/BackButton';
 
+const ROSE_GOLD = '#d8b4b4';
+const ROSE_GOLD_DARK = 'hsl(14 29% 30%)';
+const ROSE_GOLD_METALLIC = '#C9956C';
 const GOLD = '#D4AF37';
 const GOLD_TEXT = '#B8860B';
-const GOLD_BORDER = 'rgba(212, 175, 55, 0.4)';
-const TEXT_ON_GOLD = '#5C4033';
-const TEXT_DARK = '#5C4033';
+const GOLD_BORDER = 'rgba(216, 180, 180, 0.4)';
+const TEXT_DARK = 'hsl(14 29% 30%)';
 const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)';
 const GOLD_GRADIENT_WIDE = 'linear-gradient(90deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)';
+
+const GLASS_BG = 'rgba(255, 255, 255, 0.55)';
+const GLASS_BG_HIGHLIGHT = 'rgba(255, 255, 255, 0.65)';
+const GLASS_BORDER = '1.5px solid rgba(216, 180, 180, 0.5)';
+const GLASS_BORDER_HIGHLIGHT = '2px solid rgba(216, 180, 180, 0.7)';
+const GLASS_SHADOW = '0 8px 32px rgba(216, 180, 180, 0.2), 0 2px 8px rgba(0,0,0,0.04)';
+const GLASS_SHADOW_HIGHLIGHT = '0 12px 40px rgba(216, 180, 180, 0.3), 0 4px 16px rgba(201, 149, 108, 0.1)';
 
 const iconMap: Record<string, React.ElementType> = {
   pro: Sparkles,
@@ -29,11 +39,11 @@ const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
 
   if (slug === 'elite' || slug === 'vip-3year') {
     return (
-      <h2 className="text-xl font-medium" style={{ color: TEXT_DARK }}>
+      <h2 className="text-xl font-bold" style={{ color: TEXT_DARK, fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
         <span className="font-light tracking-wide">{prefix} </span>
         <span
-          className="font-serif font-bold bg-clip-text text-transparent"
-          style={{ backgroundImage: GOLD_GRADIENT }}
+          className="font-bold bg-clip-text text-transparent"
+          style={{ backgroundImage: `linear-gradient(135deg, ${ROSE_GOLD_METALLIC}, #D4AF37, ${ROSE_GOLD_METALLIC})` }}
         >
           {suffix}
         </span>
@@ -42,7 +52,7 @@ const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
   }
 
   return (
-    <h2 className="text-xl" style={{ color: TEXT_DARK }}>
+    <h2 className="text-xl font-bold" style={{ color: TEXT_DARK, fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
       <span className="font-light tracking-wide">{prefix} </span>
       <span className="font-semibold">{suffix}</span>
     </h2>
@@ -55,13 +65,13 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
   const pct = Math.min((takenSpots / totalSpots) * 100, 100);
   const isUrgent = remaining <= 10;
 
-  const textColor = isUrgent ? '#C0392B' : GOLD_TEXT;
+  const textColor = isUrgent ? '#C0392B' : ROSE_GOLD_METALLIC;
   const barColor = isUrgent
     ? 'linear-gradient(90deg, #E74C3C, #C0392B)'
-    : GOLD_GRADIENT;
+    : `linear-gradient(90deg, ${ROSE_GOLD}, ${ROSE_GOLD_METALLIC})`;
 
   return (
-    <div className="mb-4 rounded-xl px-4 py-3" style={{ background: `${GOLD}12`, border: `1px solid ${GOLD}33` }}>
+    <div className="mb-4 rounded-xl px-4 py-3" style={{ background: 'rgba(216, 180, 180, 0.1)', border: '1px solid rgba(216, 180, 180, 0.3)' }}>
       <div className="flex items-center gap-2 mb-2">
         {isUrgent && <Flame className="w-4 h-4 animate-pulse" style={{ color: '#E74C3C' }} />}
         <span className="text-sm font-bold" style={{ color: textColor }}>
@@ -70,7 +80,7 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
             : `Only ${remaining} founding-price spots left!`}
         </span>
       </div>
-      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: `${GOLD}22` }}>
+      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(216, 180, 180, 0.2)' }}>
         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: barColor }} />
       </div>
     </div>
@@ -113,38 +123,28 @@ const Pricing = () => {
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier]?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
-  const BG_GRADIENT = 'none';
-
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: BG_GRADIENT }}>
-        <div className="animate-pulse font-serif" style={{ color: GOLD }}>טוען...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse font-serif" style={{ color: ROSE_GOLD_METALLIC }}>טוען...</div>
       </div>
     );
   }
 
   const BOKEH_CIRCLES = [
-    { size: 200, top: '5%', left: '8%', color: 'rgba(255,225,210,0.5)', blur: 70, delay: 0 },
-    { size: 140, top: '20%', right: '3%', color: 'rgba(240,200,190,0.4)', blur: 60, delay: 1.5 },
-    { size: 220, top: '45%', left: '55%', color: 'rgba(255,215,200,0.35)', blur: 80, delay: 0.8 },
-    { size: 100, top: '65%', left: '12%', color: 'rgba(245,210,200,0.45)', blur: 65, delay: 2.2 },
-    { size: 160, top: '80%', right: '15%', color: 'rgba(255,220,205,0.4)', blur: 70, delay: 1.2 },
-    { size: 120, top: '35%', left: '78%', color: 'rgba(240,195,185,0.5)', blur: 60, delay: 3 },
+    { size: 200, top: '5%', left: '8%', color: 'rgba(216,180,180,0.3)', blur: 70, delay: 0 },
+    { size: 140, top: '20%', right: '3%', color: 'rgba(201,149,108,0.2)', blur: 60, delay: 1.5 },
+    { size: 220, top: '45%', left: '55%', color: 'rgba(216,180,180,0.25)', blur: 80, delay: 0.8 },
+    { size: 100, top: '65%', left: '12%', color: 'rgba(201,149,108,0.25)', blur: 65, delay: 2.2 },
+    { size: 160, top: '80%', right: '15%', color: 'rgba(216,180,180,0.3)', blur: 70, delay: 1.2 },
+    { size: 120, top: '35%', left: '78%', color: 'rgba(201,149,108,0.2)', blur: 60, delay: 3 },
   ];
 
   return (
     <div
       className="min-h-screen relative overflow-hidden font-['fbahava',sans-serif]"
       dir={isHe ? 'rtl' : 'ltr'}
-      style={{ background: BG_GRADIENT }}
     >
-      {/* Shimmer overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at 30% 20%, rgba(212,168,85,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, rgba(212,168,85,0.04) 0%, transparent 40%)',
-        }}
-      />
       {/* Bokeh floating circles */}
       {BOKEH_CIRCLES.map((b, i) => (
         <div
@@ -169,16 +169,28 @@ const Pricing = () => {
           100% { transform: translateY(8px) scale(0.94); opacity: 0.6; }
         }
       `}</style>
+
+      {/* Back button */}
+      <div className="mx-auto px-4 max-w-lg pt-20 pb-2 flex justify-end">
+        <BackButton
+          className="!bg-[rgba(255,255,255,0.55)] backdrop-blur-lg"
+        />
+      </div>
+
       {/* Personal Status Card */}
       {user && (
-        <div className="mx-auto px-4 max-w-lg pt-20 pb-6">
+        <div className="mx-auto px-4 max-w-lg pb-6">
           <div
             className="rounded-2xl p-6 space-y-4 text-center backdrop-blur-xl"
-            style={{ background: 'rgba(255,255,255,0.75)', border: `2px solid ${GOLD}`, boxShadow: `0 8px 32px -4px rgba(212,168,85,0.15), 0 0 0 1px rgba(212,168,85,0.1)` }}
+            style={{
+              background: GLASS_BG,
+              border: GLASS_BORDER_HIGHLIGHT,
+              boxShadow: GLASS_SHADOW,
+            }}
           >
             <h2
-              className="text-xl font-bold bg-clip-text text-transparent leading-relaxed"
-              style={{ backgroundImage: GOLD_GRADIENT }}
+              className="text-xl font-bold leading-relaxed"
+              style={{ color: TEXT_DARK, fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}
             >
               {t('sub.greeting').replace('{name}', displayName)}
             </h2>
@@ -192,7 +204,7 @@ const Pricing = () => {
             </div>
             <button
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
-              style={{ border: `1.5px solid ${GOLD_BORDER}`, background: 'transparent', color: GOLD_TEXT }}
+              style={{ border: `1.5px solid ${ROSE_GOLD}`, background: 'transparent', color: ROSE_GOLD_METALLIC }}
               onClick={() => navigate('/payment-history')}
             >
               <Receipt className="w-4 h-4" />
@@ -200,45 +212,41 @@ const Pricing = () => {
             </button>
           </div>
           <div className="pt-6">
-            <div style={{ height: '1px', width: '60%', marginRight: 0, marginLeft: 'auto', background: GOLD_GRADIENT_WIDE }} />
+            <div style={{ height: '1px', width: '60%', marginRight: 0, marginLeft: 'auto', background: `linear-gradient(90deg, transparent, ${ROSE_GOLD}, transparent)` }} />
           </div>
         </div>
       )}
 
       {/* Header */}
-      <div className={`${user ? 'pb-10' : 'pt-20 pb-10'} px-4 flex justify-center`}>
+      <div className={`${user ? 'pb-10' : 'pb-10'} px-4 flex justify-center`}>
         <div
-          className="rounded-2xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
+          className="rounded-2xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden backdrop-blur-xl"
           style={{
-            background: 'linear-gradient(135deg, #F5E6E8 0%, #FFFFFF 40%, #F0D5D8 70%, #FAEEF0 100%)',
-            boxShadow: `0 0 18px rgba(212,175,55,0.15), 0 8px 32px -4px rgba(180,120,130,0.15)`,
+            background: GLASS_BG_HIGHLIGHT,
+            border: GLASS_BORDER_HIGHLIGHT,
+            boxShadow: GLASS_SHADOW_HIGHLIGHT,
           }}
         >
-          <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-            border: '3px solid transparent',
-            background: `linear-gradient(135deg, #F5E6E8, #FFFFFF, #F0D5D8, #FAEEF0) padding-box, ${GOLD_GRADIENT} border-box`,
-            borderRadius: 'inherit',
-          }} />
           <div className="relative z-10">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Sparkles className="w-5 h-5" style={{ color: ROSE_GOLD_METALLIC }} />
               <h1
-                className="text-3xl md:text-5xl font-bold tracking-wider animate-fade-up"
-                style={{ color: TEXT_DARK, animationFillMode: 'both' }}
+                className="text-2xl md:text-4xl font-bold tracking-wider animate-fade-up"
+                style={{ color: TEXT_DARK, fontFamily: "'FB Ahava', 'Assistant', sans-serif", animationFillMode: 'both' }}
               >
                 {isHe ? 'בחרי את המסלול שמתאים לקליניקה שלך' : 'Choose the Perfect Plan for Your Clinic'}
               </h1>
-              <Sparkles className="w-5 h-5" style={{ color: GOLD }} />
+              <Sparkles className="w-5 h-5" style={{ color: ROSE_GOLD_METALLIC }} />
             </div>
             <p
               className="text-base md:text-lg max-w-xl mx-auto leading-relaxed animate-fade-up"
-              style={{ color: TEXT_DARK, animationDelay: '120ms', animationFillMode: 'both' }}
+              style={{ color: TEXT_DARK, animationDelay: '120ms', animationFillMode: 'both', opacity: 0.8 }}
             >
               {isHe ? 'הכלים הדיגיטליים המתקדמים ביותר למאפרות שמכוונות רחוק.' : 'Advanced digital tools for ambitious PMU artists.'}
             </p>
             <div
               className="w-20 h-[2px] mx-auto mt-6 rounded-full animate-fade-up"
-              style={{ background: GOLD_GRADIENT_WIDE, animationDelay: '200ms', animationFillMode: 'both' }}
+              style={{ background: `linear-gradient(90deg, transparent, ${ROSE_GOLD_METALLIC}, transparent)`, animationDelay: '200ms', animationFillMode: 'both' }}
             />
           </div>
         </div>
@@ -259,22 +267,32 @@ const Pricing = () => {
               key={plan.id}
               className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center backdrop-blur-xl"
               style={{
-                border: isElite ? `2px solid ${GOLD}` : `1px solid ${GOLD_BORDER}`,
-                background: isElite
-                  ? 'rgba(255,253,245,0.85)'
-                  : 'rgba(255,255,255,0.75)',
-                boxShadow: isElite
-                  ? `0 0 24px rgba(201,168,76,0.25), 0 8px 40px -8px rgba(212,168,85,0.2), inset 0 1px 0 rgba(255,255,255,0.6)`
-                  : '0 4px 24px -4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+                border: isElite ? GLASS_BORDER_HIGHLIGHT : GLASS_BORDER,
+                background: isElite ? GLASS_BG_HIGHLIGHT : GLASS_BG,
+                boxShadow: isElite ? GLASS_SHADOW_HIGHLIGHT : GLASS_SHADOW,
                 borderRadius: '20px',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
             >
+              {/* Sparkle decorations */}
+              <Sparkles
+                className="absolute top-4 start-4 w-4 h-4 opacity-40"
+                style={{ color: ROSE_GOLD_METALLIC }}
+              />
+              <Sparkles
+                className="absolute bottom-4 end-4 w-4 h-4 opacity-30"
+                style={{ color: ROSE_GOLD_METALLIC }}
+              />
+
               {isElite && badge && (
                 <span
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
-                  style={{ background: GOLD_GRADIENT, color: '#FFFFFF', boxShadow: `0 2px 12px rgba(212,168,85,0.4)` }}
+                  style={{
+                    background: `linear-gradient(135deg, ${ROSE_GOLD_METALLIC}, #D4AF37, ${ROSE_GOLD_METALLIC})`,
+                    color: '#FFFFFF',
+                    boxShadow: `0 2px 12px rgba(201, 149, 108, 0.4)`,
+                  }}
                 >
                   {badge}
                 </span>
@@ -282,7 +300,7 @@ const Pricing = () => {
 
               <div className={`flex items-center justify-center gap-2 ${isElite ? 'mt-4' : ''} mb-6`}>
                 <PlanTitle slug={plan.slug} name={name} />
-                <Icon className="w-5 h-5" style={{ color: GOLD }} />
+                <Icon className="w-5 h-5" style={{ color: ROSE_GOLD_METALLIC }} />
               </div>
 
               <div className="mb-8">
@@ -291,14 +309,14 @@ const Pricing = () => {
                     className="text-5xl font-serif font-bold"
                     style={{
                       color: isElite ? undefined : TEXT_DARK,
-                      backgroundImage: isElite ? GOLD_GRADIENT : undefined,
+                      backgroundImage: isElite ? `linear-gradient(135deg, ${ROSE_GOLD_METALLIC}, #D4AF37, ${ROSE_GOLD_METALLIC})` : undefined,
                       WebkitBackgroundClip: isElite ? 'text' : undefined,
                       WebkitTextFillColor: isElite ? 'transparent' : undefined,
                     }}
                   >
                     {isHe ? `₪${plan.price_monthly.toLocaleString()}` : `$${plan.price_usd.toLocaleString()}`}
                   </span>
-                  <span className="text-sm" style={{ color: '#7A6B5D' }}>
+                  <span className="text-sm" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
                     {plan.slug === 'vip-3year' ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time') : (isHe ? '/ חודש' : '/ month')}
                   </span>
                 </div>
@@ -311,7 +329,7 @@ const Pricing = () => {
                       <span>{f}</span>
                     </div>
                     {i < features.length - 1 && (
-                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: `${GOLD}44` }} />
+                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: `rgba(216, 180, 180, 0.3)` }} />
                     )}
                   </li>
                 ))}
@@ -321,14 +339,16 @@ const Pricing = () => {
                 <FomoBadge totalSpots={plan.total_promo_spots} takenSpots={vipTaken} isHe={isHe} />
               )}
 
+              {/* Pill CTA button with deep pink + floating shadow + blurred halo */}
               <Link
                 to="/auth"
-                className="w-full inline-flex items-center justify-center py-4 rounded-full text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:brightness-110"
+                className="w-full inline-flex items-center justify-center py-4 text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:translate-y-[-2px]"
                 style={{
-                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                  color: '#5C4033',
-                  boxShadow: '0 6px 20px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
-                  textShadow: '0 1px 2px rgba(255,255,255,0.2)',
+                  background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)',
+                  color: '#FFFFFF',
+                  borderRadius: '50px',
+                  boxShadow: '0 8px 24px rgba(212, 131, 143, 0.35), 0 0 16px rgba(216, 180, 180, 0.25)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.1)',
                 }}
               >
                 {cta}
@@ -343,15 +363,15 @@ const Pricing = () => {
         <div
           className="rounded-2xl p-5 text-center backdrop-blur-xl"
           style={{
-            background: 'rgba(255,255,255,0.75)',
-            border: `1.5px solid ${GOLD}`,
-            boxShadow: `0 8px 32px -4px rgba(212,175,55,0.12), 0 0 0 1px rgba(212,175,55,0.08)`,
+            background: GLASS_BG,
+            border: GLASS_BORDER,
+            boxShadow: GLASS_SHADOW,
           }}
         >
           <p className="text-sm font-medium mb-2" style={{ color: TEXT_DARK }}>
             {isHe ? 'כל המסלולים כוללים 14 יום ניסיון חינם · ביטול בכל עת' : 'All plans include a 14-day free trial · Cancel anytime'}
           </p>
-          <Link to="/refund-policy" className="text-sm underline hover:opacity-80 transition-opacity font-semibold" style={{ color: GOLD_TEXT }}>
+          <Link to="/refund-policy" className="text-sm underline hover:opacity-80 transition-opacity font-semibold" style={{ color: ROSE_GOLD_METALLIC }}>
             {isHe ? 'מדיניות ביטולים והחזרים' : 'Cancellation & Refund Policy'}
           </Link>
         </div>
@@ -362,44 +382,44 @@ const Pricing = () => {
         <div
           className="rounded-2xl p-6 md:p-8 backdrop-blur-xl"
           style={{
-            background: 'rgba(255,255,255,0.75)',
-            border: `1.5px solid ${GOLD}`,
-            boxShadow: `0 8px 32px -4px rgba(212,175,55,0.12), 0 0 0 1px rgba(212,175,55,0.08)`,
+            background: GLASS_BG,
+            border: GLASS_BORDER,
+            boxShadow: GLASS_SHADOW,
           }}
         >
           <div className="text-center mb-6">
-            <h2 className="text-xl md:text-2xl font-bold tracking-wider mb-2" style={{ color: GOLD_TEXT }}>
+            <h2 className="text-xl md:text-2xl font-bold tracking-wider mb-2" style={{ color: TEXT_DARK, fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
               {isHe ? 'מדיניות ביטולים והחזרים כספיים' : 'Cancellation & Refund Policy'}
             </h2>
-            <div className="w-16 h-[2px] mx-auto mt-3 rounded-full" style={{ background: GOLD_GRADIENT_WIDE }} />
+            <div className="w-16 h-[2px] mx-auto mt-3 rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${ROSE_GOLD_METALLIC}, transparent)` }} />
           </div>
 
           <Accordion type="single" collapsible className="space-y-3">
-            <AccordionItem value="vip" className="border rounded-xl overflow-hidden" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.6)' }}>
+            <AccordionItem value="vip" className="border rounded-xl overflow-hidden backdrop-blur-md" style={{ borderColor: 'rgba(216, 180, 180, 0.3)', background: 'rgba(255,255,255,0.5)' }}>
               <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
                 <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                   {isHe ? 'מדיניות ביטול מיוחדת למסלול המייסדות (VIP)' : 'Special Cancellation Policy for Founders (VIP)'}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-5">
-                <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
-                  <p><strong style={{ color: GOLD_TEXT }}>{isHe ? '14 ימי התנסות ללא סיכון:' : '14-Day Risk-Free Trial:'}</strong>{' '}{isHe ? 'ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.' : 'Canceling within 14 days of purchase entitles you to a full refund.'}</p>
-                  <p><strong style={{ color: GOLD_TEXT }}>{isHe ? 'גמישות מלאה גם בהמשך:' : 'Full Flexibility:'}</strong>{' '}{isHe ? 'ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.' : 'You can cancel your subscription at any time, even after the initial 14 days.'}</p>
-                  <p><strong style={{ color: GOLD_TEXT }}>{isHe ? 'איך מחושב ההחזר?' : 'How is the refund calculated?'}</strong>{' '}{isHe ? 'במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.' : 'If you cancel after the trial period, your usage will be recalculated based on the regular Elite plan monthly rate (149 ILS/month). This amount will be deducted from your one-time payment, and the remaining balance will be refunded to you.'}</p>
+                <div className="space-y-4 text-sm leading-relaxed" style={{ color: TEXT_DARK }}>
+                  <p><strong style={{ color: ROSE_GOLD_METALLIC }}>{isHe ? '14 ימי התנסות ללא סיכון:' : '14-Day Risk-Free Trial:'}</strong>{' '}{isHe ? 'ביטול תוך 14 ימים מיום הרכישה יזכה אותך בהחזר כספי מלא.' : 'Canceling within 14 days of purchase entitles you to a full refund.'}</p>
+                  <p><strong style={{ color: ROSE_GOLD_METALLIC }}>{isHe ? 'גמישות מלאה גם בהמשך:' : 'Full Flexibility:'}</strong>{' '}{isHe ? 'ניתן לבטל את המנוי בכל שלב, גם לאחר 14 הימים הראשונים.' : 'You can cancel your subscription at any time, even after the initial 14 days.'}</p>
+                  <p><strong style={{ color: ROSE_GOLD_METALLIC }}>{isHe ? 'איך מחושב ההחזר?' : 'How is the refund calculated?'}</strong>{' '}{isHe ? 'במקרה של ביטול לאחר תקופת הניסיון, התקופה שבה השתמשת במערכת תחושב מחדש לפי העלות החודשית הרגילה של מסלול Elite (149 ₪ לחודש). סכום זה יופחת מהתשלום החד-פעמי ששילמת, והיתרה תוחזר אלייך.' : 'If you cancel after the trial period, your usage will be recalculated based on the regular Elite plan monthly rate (149 ILS/month). This amount will be deducted from your one-time payment, and the remaining balance will be refunded to you.'}</p>
                 </div>
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="monthly" className="border rounded-xl overflow-hidden" style={{ borderColor: GOLD_BORDER, background: 'rgba(255,255,255,0.6)' }}>
+            <AccordionItem value="monthly" className="border rounded-xl overflow-hidden backdrop-blur-md" style={{ borderColor: 'rgba(216, 180, 180, 0.3)', background: 'rgba(255,255,255,0.5)' }}>
               <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
                 <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                   {isHe ? 'תנאי ביטול למסלולי Pro ו-Elite (מנוי חודשי)' : 'Cancellation Terms for Pro & Elite (Monthly)'}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-5">
-                <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#5C4A3A' }}>
-                  <p><strong style={{ color: GOLD_TEXT }}>ביטול בכל רגע:</strong>{' '}ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.</p>
-                  <p><strong style={{ color: GOLD_TEXT }}>ללא קנסות יציאה:</strong>{' '}לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.</p>
+                <div className="space-y-4 text-sm leading-relaxed" style={{ color: TEXT_DARK }}>
+                  <p><strong style={{ color: ROSE_GOLD_METALLIC }}>ביטול בכל רגע:</strong>{' '}ניתן לבטל את המנוי החודשי בכל עת, ישירות בלחיצת כפתור דרך הגדרות החשבון.</p>
+                  <p><strong style={{ color: ROSE_GOLD_METALLIC }}>ללא קנסות יציאה:</strong>{' '}לאחר הביטול, המנוי יישאר פעיל ותמשיכי ליהנות מהמערכת עד סוף תקופת החיוב הנוכחית (סוף החודש שעבורו כבר שילמת). לאחר מכן המנוי יסתיים ולא תחויבי שוב.</p>
                 </div>
               </AccordionContent>
             </AccordionItem>
