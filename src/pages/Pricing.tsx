@@ -168,6 +168,10 @@ const Pricing = () => {
           50% { transform: translateY(-18px) scale(1.06); opacity: 1; }
           100% { transform: translateY(8px) scale(0.94); opacity: 0.6; }
         }
+        @keyframes gold-glint {
+          0%, 100% { background-position: -200% center; }
+          50% { background-position: 200% center; }
+        }
       `}</style>
 
       {/* Spacer for fixed header */}
@@ -212,10 +216,25 @@ const Pricing = () => {
             </button>
           </div>
         </div>
-      )}
+       )}
+
+      {/* Gold glint divider */}
+      <div className="flex justify-center py-6">
+        <div
+          style={{
+            width: '55%',
+            height: '2px',
+            borderRadius: '1px',
+            background: 'linear-gradient(90deg, transparent 0%, #B8860B 20%, #D4AF37 35%, #F9F295 50%, #D4AF37 65%, #B8860B 80%, transparent 100%)',
+            backgroundSize: '200% 100%',
+            animation: 'gold-glint 4s ease-in-out infinite',
+            boxShadow: '0 0 8px rgba(212, 175, 55, 0.4), 0 0 16px rgba(212, 175, 55, 0.15)',
+          }}
+        />
+      </div>
 
       {/* Header */}
-      <div className="pb-14 px-4 flex justify-center">
+      <div className="pb-6 px-4 flex justify-center">
         <div
           className="p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
           style={{
@@ -253,8 +272,13 @@ const Pricing = () => {
         </div>
       </div>
 
+      {/* Gold glint divider */}
+      <div className="flex justify-center py-6">
+        <div style={{width:'55%',height:'2px',borderRadius:'1px',background:'linear-gradient(90deg, transparent 0%, #B8860B 20%, #D4AF37 35%, #F9F295 50%, #D4AF37 65%, #B8860B 80%, transparent 100%)',backgroundSize:'200% 100%',animation:'gold-glint 4s ease-in-out infinite',boxShadow:'0 0 8px rgba(212,175,55,0.4), 0 0 16px rgba(212,175,55,0.15)'}} />
+      </div>
+
       {/* Plan Cards */}
-      <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-14 max-w-lg">
+      <div className="mx-auto px-4 pb-20 flex flex-col items-center max-w-lg">
         {plans.map((plan, idx) => {
           const Icon = iconMap[plan.slug] || Sparkles;
           const features = isHe ? plan.features_he : plan.features_en;
@@ -264,10 +288,16 @@ const Pricing = () => {
           const isElite = plan.is_highlighted;
 
           return (
-            <div
-              key={plan.id}
-              className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
-              style={{
+            <>
+              {idx > 0 && (
+                <div className="flex justify-center py-6 w-full">
+                  <div style={{width:'45%',height:'2px',borderRadius:'1px',background:'linear-gradient(90deg, transparent 0%, #B8860B 20%, #D4AF37 35%, #F9F295 50%, #D4AF37 65%, #B8860B 80%, transparent 100%)',backgroundSize:'200% 100%',animation:'gold-glint 4s ease-in-out infinite',boxShadow:'0 0 8px rgba(212,175,55,0.4), 0 0 16px rgba(212,175,55,0.15)'}} />
+                </div>
+              )}
+              <div
+                key={plan.id}
+                className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
+                style={{
                 border: 'none',
                 outline: 'none',
                 background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(255,240,243,0.25) 40%, rgba(232,160,176,0.08) 70%, transparent 100%)',
@@ -358,7 +388,8 @@ const Pricing = () => {
               >
                 {cta}
               </Link>
-            </div>
+              </div>
+            </>
           );
         })}
       </div>
