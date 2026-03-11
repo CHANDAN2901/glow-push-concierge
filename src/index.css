@@ -561,25 +561,40 @@
   box-shadow: 0 10px 28px rgba(160,100,80,0.16), 0 5px 14px rgba(180,120,90,0.1), 0 2px 6px rgba(212,175,55,0.08);
 }
 
-/* ═══ Artist Dashboard — glassmorphism cards with rose-gold border ═══ */
+/* ═══ Artist Dashboard — glassmorphism cards (clean & smooth) ═══ */
 .artist-dashboard .bg-card,
 .artist-dashboard .bg-white,
 .artist-dashboard [class*="rounded-2xl"][class*="p-"],
 .artist-dashboard [class*="rounded-3xl"][class*="p-"] {
   position: relative;
-  background: rgba(255, 255, 255, 0.55) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid #e6baba !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 22px;
+  border: 1px solid rgba(238, 202, 202, 0.4) !important;
   box-shadow:
-    10px 10px 25px rgba(200, 160, 160, 0.3),
-    -10px -10px 25px rgba(255, 255, 255, 0.8) !important;
+    10px 10px 20px rgba(180, 110, 110, 0.1),
+    -5px -5px 15px rgba(255, 255, 255, 0.8) !important;
 }
 .artist-dashboard .bg-card::before,
 .artist-dashboard .bg-white::before,
 .artist-dashboard [class*="rounded-2xl"][class*="p-"]::before,
 .artist-dashboard [class*="rounded-3xl"][class*="p-"]::before {
   display: none;
+}
+
+/* ═══ Artist Dashboard — inner action buttons (clean outline) ═══ */
+.artist-dashboard .inner-action-btn {
+  background: transparent;
+  border: 1px solid #d8b4b4;
+  color: #a88383;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+.artist-dashboard .inner-action-btn:hover {
+  background: rgba(238, 202, 202, 0.1);
 }
 
 /* ═══ Client Premium Dashboard ═══ */
