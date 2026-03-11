@@ -1239,7 +1239,7 @@ const ArtistDashboard = () => {
             className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg z-30"
             style={{
               background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-              color: '#5C4033',
+              color: '#4a3636',
               boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
             }}
           >
