@@ -254,8 +254,8 @@ const SuperAdmin = () => {
 
   /* ── Announcements View ── */
   const renderAnnouncements = () => (
-    <div className="bg-card border border-border rounded-xl p-6 max-w-2xl">
-      <h2 className="font-serif font-semibold text-lg mb-4">Send System Message</h2>
+    <div className="rounded-xl p-6 max-w-2xl" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
+      <h2 className="font-serif font-semibold text-lg mb-4" style={{ color: '#4a3636' }}>Send System Message</h2>
       <div className="space-y-4">
         <Input placeholder="Announcement title" />
         <Textarea placeholder="Message content (optional)" rows={4} />
