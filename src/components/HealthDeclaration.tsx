@@ -476,7 +476,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               </p>
 
               {readOnly && existingData?.submittedAt && (
-                <p className="text-[11px] mt-2 font-medium" style={{ color: '#F9F295' }}>
+                <p className="text-[11px] mt-2 font-medium" style={{ color: '#B8860B' }}>
                   {isHe ? '📅 תאריך חתימה: ' : '📅 Signed: '}
                   {new Date(existingData.submittedAt).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
