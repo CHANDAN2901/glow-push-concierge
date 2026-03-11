@@ -1434,10 +1434,10 @@ const ArtistDashboard = () => {
             <button
               type="button"
               onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-              className="pill-action-btn animate-fade-up"
+              className="pill-action-btn preview-pill-btn animate-fade-up"
               style={{ height: '56px' }}
             >
-              <span className="pill-icon-circle" style={{ width: '40px', height: '40px' }}>
+              <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
                 <Eye className="w-4 h-4" style={{ color: '#B8860B' }} strokeWidth={1.5} />
               </span>
               <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
