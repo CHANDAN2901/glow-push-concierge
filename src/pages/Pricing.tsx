@@ -213,13 +213,15 @@ const Pricing = () => {
       )}
 
       {/* Header */}
-      <div className={`${user ? 'pb-10' : 'pb-10'} px-4 flex justify-center`}>
+      <div className="pb-12 px-4 flex justify-center">
         <div
-          className="rounded-2xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden backdrop-blur-xl"
+          className="rounded-3xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
           style={{
-            background: GLASS_BG_HIGHLIGHT,
-            border: GLASS_BORDER_HIGHLIGHT,
-            boxShadow: GLASS_SHADOW_HIGHLIGHT,
+            background: 'rgba(255, 255, 255, 0.45)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(216, 180, 180, 0.35)',
+            boxShadow: '0 14px 44px rgba(216, 180, 180, 0.22), 0 0 36px rgba(232, 160, 176, 0.12)',
           }}
         >
           <div className="relative z-10">
