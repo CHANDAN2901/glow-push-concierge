@@ -1375,21 +1375,12 @@ const ArtistDashboard = () => {
             <div className="relative">
               <button
                 onClick={() => setShowDigitalCardPreview(true)}
-                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] animate-fade-up relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,230,236,0.9) 0%, rgba(255,220,230,0.85) 50%, rgba(255,210,222,0.9) 100%)',
-                  color: '#4A3520',
-                  boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
-                }}
+                className="pill-action-btn animate-fade-up"
               >
-                {/* Gold border */}
-                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
-                  border: '2px solid transparent',
-                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
-                  borderRadius: 'inherit',
-                }} />
-                <CreditCard className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
-                <span className="relative z-10">{lang === 'en' ? '✨ My Digital Card' : '✨ הכרטיס הדיגיטלי שלי'}</span>
+                <span className="pill-icon-circle">
+                  <CreditCard className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} />
+                </span>
+                <span className="flex-1 text-right pr-3">{lang === 'en' ? 'My Digital Card' : 'הכרטיס הדיגיטלי שלי'}</span>
               </button>
               <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
@@ -1405,20 +1396,12 @@ const ArtistDashboard = () => {
             <div className="relative">
               <button
                 onClick={() => navigate('/admin/timeline-settings')}
-                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,250,0.8) 50%, rgba(255,255,255,0.75) 100%)',
-                  color: '#4A3520',
-                  boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
-                }}
+                className="pill-action-btn animate-fade-up"
               >
-                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
-                  border: '2px solid transparent',
-                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
-                  borderRadius: 'inherit',
-                }} />
-                <Pencil className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
-                <span className="relative z-10">{lang === 'en' ? '✏️ Edit Healing Journey' : '✏️ עריכת מסע ההחלמה'}</span>
+                <span className="pill-icon-circle">
+                  <Pencil className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} />
+                </span>
+                <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Healing Journey' : 'עריכת מסע ההחלמה'}</span>
               </button>
               <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
@@ -1434,20 +1417,12 @@ const ArtistDashboard = () => {
             <div className="relative">
               <button
                 onClick={() => setShowHealthEditor(true)}
-                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,250,0.8) 50%, rgba(255,255,255,0.75) 100%)',
-                  color: '#4A3520',
-                  boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
-                }}
+                className="pill-action-btn animate-fade-up"
               >
-                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
-                  border: '2px solid transparent',
-                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
-                  borderRadius: 'inherit',
-                }} />
-                <ClipboardCheck className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
-                <span className="relative z-10">{lang === 'en' ? '📋 Edit Health Declaration' : '📋 עריכת הצהרת בריאות'}</span>
+                <span className="pill-icon-circle">
+                  <ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} />
+                </span>
+                <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Health Declaration' : 'עריכת הצהרת בריאות'}</span>
               </button>
               <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
@@ -1463,41 +1438,24 @@ const ArtistDashboard = () => {
             <button
               type="button"
               onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-              className="w-full py-2.5 rounded-[2rem] text-xs font-semibold flex items-center justify-center gap-2 tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255,220,230,0.9), rgba(255,210,222,0.85))',
-                color: '#4A3520',
-                boxShadow: '0 12px 32px rgba(160,100,80,0.18), 0 6px 16px rgba(180,120,90,0.12), 0 3px 8px rgba(212,175,55,0.08)',
-              }}
+              className="pill-action-btn animate-fade-up"
+              style={{ height: '56px' }}
             >
-              <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
-                border: '1.5px solid transparent',
-                background: 'transparent padding-box, linear-gradient(135deg, #D4AF37 0%, #E8D5A0 50%, #D4AF37 100%) border-box',
-                borderRadius: 'inherit',
-              }} />
-              <Eye className="w-3.5 h-3.5 relative z-10" style={{ color: '#B8860B' }} />
-              <span className="relative z-10">{lang === 'en' ? '👁️ Preview Template' : '👁️ תצוגה מקדימה'}</span>
+              <span className="pill-icon-circle" style={{ width: '40px', height: '40px' }}>
+                <Eye className="w-4 h-4" style={{ color: '#B8860B' }} strokeWidth={1.5} />
+              </span>
+              <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
             </button>
-
-
 
             <div className="relative">
               <button
                 onClick={() => setShowVoucherEditor(true)}
-                className="w-full py-4 rounded-[2rem] font-bold text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,250,0.8) 50%, rgba(255,255,255,0.75) 100%)',
-                  color: '#4A3520',
-                  boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
-                }}
+                className="pill-action-btn animate-fade-up"
               >
-                <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
-                  border: '2px solid transparent',
-                  background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
-                  borderRadius: 'inherit',
-                }} />
-                <Gift className="w-5 h-5 relative z-10" style={{ color: '#B8860B' }} />
-                <span className="relative z-10">{lang === 'en' ? '🎁 Edit Referral Voucher' : '🎁 עריכת שובר חברות'}</span>
+                <span className="pill-icon-circle">
+                  <Gift className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} />
+                </span>
+                <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Referral Voucher' : 'עריכת שובר חברות'}</span>
               </button>
               <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
                 <HelpTooltip
@@ -1508,9 +1466,6 @@ const ArtistDashboard = () => {
                 />
               </span>
             </div>
-
-
-            {/* RED FLAG ALERT BANNER */}
             {redFlagClients.length > 0 && (
               <div className="rounded-xl border-2 border-destructive/40 bg-destructive/5 p-4 animate-fade-up">
                 <div className="flex items-center gap-2 mb-2">
