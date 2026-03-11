@@ -2294,8 +2294,14 @@ const ArtistDashboard = () => {
                     const risk = getClientRiskLevel(client.name);
                     const flags = hasFlags ? [risk === 'red' ? (lang === 'en' ? 'Medical Warning' : 'התוויית נגד') : (lang === 'en' ? 'Attention' : 'תשומת לב')] : [];
                     return (
-                      <div key={i} className={`rounded-3xl overflow-hidden transition-all cursor-pointer bg-white ${hasFlags ? 'border-2 border-destructive/30' : 'border border-border/60'}`}
-                        style={{ boxShadow: '0 4px 20px -4px hsla(0, 0%, 0%, 0.08)' }}
+                      <div key={i} className={`rounded-3xl overflow-hidden transition-all cursor-pointer backdrop-blur-xl ${hasFlags ? 'border-2 border-destructive/30' : ''}`}
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.6)',
+                          backdropFilter: 'blur(16px)',
+                          WebkitBackdropFilter: 'blur(16px)',
+                          border: hasFlags ? undefined : '1.5px solid rgba(216, 180, 180, 0.5)',
+                          boxShadow: '0 8px 32px -4px rgba(180, 110, 110, 0.1), 0 2px 8px rgba(216, 180, 180, 0.08)',
+                        }}
                       >
                         <div className="flex" dir="rtl">
                           {/* Client Info */}
