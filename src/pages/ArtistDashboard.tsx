@@ -1324,11 +1324,12 @@ const ArtistDashboard = () => {
 
               {clients.length > 0 && !dismissedTouchup && (
                 <div
-                  className="relative mt-4 rounded-[2rem] p-5 animate-fade-up overflow-hidden"
+                  className="relative mt-4 rounded-[2rem] animate-fade-up overflow-hidden"
                   style={{
                     background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
                     backdropFilter: 'blur(16px)',
                     boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
+                    padding: '1.25rem 1.5rem',
                   }}
                 >
                   <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
@@ -1338,18 +1339,15 @@ const ArtistDashboard = () => {
                   }} />
                   <button
                     onClick={() => { localStorage.setItem('gp-dismiss-touchup', '1'); setDismissedTouchup(true); }}
-                    className="absolute top-3 left-3 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted/40 transition-colors z-10"
+                    className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full flex items-center justify-center bg-white/60 hover:bg-white/80 transition-colors z-10"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
-                  <div className="flex items-start gap-3 relative z-10">
-                    <Sparkles className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#D4AF37' }} />
-                    <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#4a3636' }}>
-                      {lang === 'en'
-                        ? `🔥 Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
-                        : `🔥 שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
-                    </p>
-                  </div>
+                  <p className="text-sm font-bold leading-relaxed text-center relative z-10" style={{ color: '#4a3636' }}>
+                    {lang === 'en'
+                      ? `🔥 Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
+                      : `🔥 שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
+                  </p>
                 </div>
               )}
             </div>
