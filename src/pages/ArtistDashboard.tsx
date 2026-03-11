@@ -1399,26 +1399,6 @@ const ArtistDashboard = () => {
               ))}
             </div>
 
-            {/* ═══ 3. FRIENDSHIP VOUCHER ═══ */}
-            <div className="relative">
-              <button
-                onClick={() => setShowVoucherEditor(true)}
-                className="pill-action-btn animate-fade-up"
-              >
-                <span className="pill-icon-circle">
-                  <Gift className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} />
-                </span>
-                <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Referral Voucher' : 'עריכת שובר חברות'}</span>
-              </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                <HelpTooltip
-                  id="referral-voucher"
-                  text={lang === 'en'
-                    ? 'Customize the referral voucher text and WhatsApp message your clients see and share.'
-                    : 'התאימי את טקסט שובר ההפניה והודעת הוואטסאפ שהלקוחות שלך רואות ומשתפות.'}
-                />
-              </span>
-            </div>
 
             <div className="animate-fade-up flex justify-center" style={{ animationDelay: '0.1s', opacity: 0 }}>
               <button
