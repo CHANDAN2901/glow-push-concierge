@@ -172,6 +172,7 @@ function PhaseImageUploader({ currentUrl, previewUrl, onFileSelect }: {
 export default function AdminMessages() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'healing' | 'push'>('healing');
+  const [activeTreatment, setActiveTreatment] = useState<'eyebrows' | 'lips'>('eyebrows');
 
   const [phases, setPhases] = useState<HealingPhase[]>([]);
   const [totalDays, setTotalDays] = useState(14);
@@ -186,12 +187,12 @@ export default function AdminMessages() {
   const [broadcasting, setBroadcasting] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  const fetchPhases = (treatment: string) => {
     setLoadingPhases(true);
     supabase
       .from('healing_phases')
       .select('*')
-      .eq('treatment_type', 'eyebrows')
+      .eq('treatment_type', treatment)
       .order('sort_order')
       .then(({ data, error }) => {
         const items = (!error && data ? data : []) as HealingPhase[];
@@ -203,7 +204,11 @@ export default function AdminMessages() {
         setPhaseDrafts(buildPhaseDrafts(items));
         setLoadingPhases(false);
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    fetchPhases(activeTreatment);
+  }, [activeTreatment]);
 
   useEffect(() => {
     supabase
@@ -333,7 +338,7 @@ export default function AdminMessages() {
   };
 
   return (
-    <div className="space-y-4 max-w-3xl relative pb-20" dir="rtl">
+    <div className="space-y-4 max-w-3xl relative pb-28" dir="rtl">
       {/* Main Editor Card */}
       <div
         className="rounded-2xl overflow-hidden"
@@ -367,6 +372,23 @@ export default function AdminMessages() {
               <p className="text-xs mb-2" style={{ color: '#8c6a6a' }}>
                 ערכי את כותרות, תמונות והנחיות מסע ההחלמה. השינויים ישפיעו על כל הלקוחות בזמן אמת.
               </p>
+              {/* Treatment type toggle */}
+              <div className="flex gap-2 mb-2">
+                {(['eyebrows', 'lips'] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setActiveTreatment(t)}
+                    className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                    style={{
+                      color: activeTreatment === t ? '#4a2020' : '#8c6a6a',
+                      background: activeTreatment === t ? 'rgba(212, 175, 55, 0.12)' : 'rgba(216, 180, 180, 0.1)',
+                      border: activeTreatment === t ? '1.5px solid rgba(212, 175, 55, 0.5)' : '1.5px solid rgba(216, 180, 180, 0.25)',
+                    }}
+                  >
+                    {t === 'eyebrows' ? '✍️ גבות' : '👄 שפתיים'}
+                  </button>
+                ))}
+              </div>
               {loadingPhases ? (
                 <div className="text-center py-8" style={{ color: '#b8a090' }}>טוען...</div>
               ) : (
