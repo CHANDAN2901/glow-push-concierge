@@ -622,13 +622,7 @@ export default function MessageEditor() {
               <h3 className="font-bold text-sm text-foreground flex-1">{label}</h3>
               <button
                 onClick={() => setPreviewId(template.id)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all hover:scale-105 active:scale-95"
-                style={{
-                  border: '2px solid #D4AF37',
-                  background: 'rgba(212, 175, 55, 0.1)',
-                  color: '#4a3636',
-                  boxShadow: '0 3px 10px -2px rgba(212, 175, 55, 0.3)',
-                }}
+                className="preview-pill-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all hover:scale-105 active:scale-95"
               >
                 <Eye className="w-3.5 h-3.5" />
                 {isEn ? 'Preview' : 'תצוגה מקדימה'}
