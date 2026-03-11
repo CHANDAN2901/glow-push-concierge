@@ -1723,57 +1723,50 @@ const ArtistDashboard = () => {
               <div className="animate-fade-up space-y-5">
                 <div id="client-top-anchor" aria-hidden="true" style={{ height: 0, overflow: 'hidden' }} />
 
-                {/* Back link — subtle text */}
-                <button
-                  onClick={() => {
-                    setSelectedClient(null);
-                    fetchClients();
-                  }}
-                  className="flex items-center gap-1 text-xs font-medium transition-all active:scale-95 hover:opacity-70"
-                  style={{ color: 'hsl(38 55% 62%)' }}
-                >
-                  <ChevronRight className="w-3.5 h-3.5 rotate-180" strokeWidth={2} />
-                  {lang === 'en' ? 'Back to All Clients' : 'חזרה לכל הלקוחות'}
-                </button>
-
                 {/* 1. VIP Client Header — Avatar + Name + Badge */}
                 <div className="text-center pt-2 pb-1">
-                  {/* Bronze Avatar */}
+                  {/* Rose-gold gradient Avatar */}
                   <div
                     className="mx-auto w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4"
                     style={{
-                      background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
-                      boxShadow: '0 6px 24px hsl(38 55% 62% / 0.35)',
+                      background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 50%, #d8b4b4 100%)',
+                      boxShadow: '0 6px 24px rgba(216, 180, 180, 0.45)',
                     }}
                   >
                     {selectedClient.name.charAt(0)}
                   </div>
-                  <h1 className="font-bold text-2xl tracking-wide text-foreground">
+                  <h1 className="font-serif font-bold text-2xl tracking-wide" style={{ color: '#4a3636' }}>
                     {selectedClient.name}
                   </h1>
                   {/* Treatment pill badge */}
                   <div className="mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium"
-                    style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)', border: '1px solid hsl(38 55% 62% / 0.3)' }}
+                    style={{ backgroundColor: 'rgba(216, 180, 180, 0.15)', color: '#4a3636', border: '1px solid rgba(216, 180, 180, 0.4)' }}
                   >
                     {selectedClient.treatment} · {lang === 'en' ? `Day ${selectedClient.day}` : `יום ${selectedClient.day}`}
                   </div>
                 </div>
 
-                {/* 2. Contact Card — white pill with shadow */}
+                {/* 2. Contact Card — glassmorphism pill */}
                 <div
-                  className="rounded-full overflow-hidden bg-white"
-                  style={{ boxShadow: '0 4px 20px hsla(0, 0%, 0%, 0.06)' }}
+                  className="rounded-2xl overflow-hidden transition-all hover:shadow-lg"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.55)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    border: '1.5px solid rgba(216, 180, 180, 0.4)',
+                    boxShadow: '0 4px 20px rgba(216, 180, 180, 0.15)',
+                  }}
                 >
                   <div className="px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)' }}>
-                        <Users className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} strokeWidth={1.5} />
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(216, 180, 180, 0.2)' }}>
+                        <Users className="w-4 h-4" style={{ color: '#d8b4b4' }} strokeWidth={1.5} />
                       </div>
                       <div>
-                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                        <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#9a8585' }}>
                           {lang === 'en' ? 'Phone' : 'טלפון'}
                         </p>
-                        <p className="text-sm font-medium text-foreground">
+                        <p className="text-sm font-medium" style={{ color: '#4a3636' }}>
                           {selectedClient.phone || (lang === 'en' ? 'Not set' : 'לא הוגדר')}
                         </p>
                       </div>
@@ -1781,9 +1774,9 @@ const ArtistDashboard = () => {
                     <button
                       onClick={() => openEditClient(selectedClient)}
                       className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-muted/60"
-                      style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)' }}
+                      style={{ backgroundColor: 'rgba(216, 180, 180, 0.2)' }}
                     >
-                      <Pencil className="w-3.5 h-3.5" style={{ color: 'hsl(38 55% 62%)' }} strokeWidth={1.5} />
+                      <Pencil className="w-3.5 h-3.5" style={{ color: '#d8b4b4' }} strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
@@ -1815,7 +1808,7 @@ const ArtistDashboard = () => {
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-bold" style={{ color: rc.text }}>{riskLabel}</p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs" style={{ color: '#9a8585' }}>
                               {lang === 'en' ? 'Declaration submitted' : 'הצהרת בריאות הוגשה'}
                             </p>
                           </div>
@@ -1854,7 +1847,12 @@ const ArtistDashboard = () => {
                           toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
                         }
                       }}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold tracking-wide transition-all active:scale-[0.98] btn-gold-cta"
+                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-bold tracking-wide transition-all active:scale-[0.98] hover:shadow-lg"
+                      style={{
+                        background: 'linear-gradient(135deg, #8b5a5a 0%, #6b3a3a 100%)',
+                        color: '#ffffff',
+                        boxShadow: '0 6px 24px rgba(107, 58, 58, 0.35)',
+                      }}
                     >
                       <MessageCircle className="w-4 h-4" strokeWidth={2} />
                       {lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ'}
@@ -1873,12 +1871,21 @@ const ArtistDashboard = () => {
                     : `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
 
                   return (
-                    <div className="rounded-2xl overflow-hidden bg-card border border-border p-4 space-y-3">
-                      <p className="text-xs font-semibold text-muted-foreground tracking-wide text-center">
+                    <div
+                      className="rounded-2xl overflow-hidden p-4 space-y-3 transition-all hover:shadow-lg"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.55)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
+                        border: '1.5px solid rgba(216, 180, 180, 0.4)',
+                        boxShadow: '0 4px 20px rgba(216, 180, 180, 0.15)',
+                      }}
+                    >
+                      <p className="text-xs font-semibold tracking-wide text-center" style={{ color: '#9a8585' }}>
                         {lang === 'en' ? '🔗 Client Portal Link' : '🔗 קישור לאזור הלקוחה'}
                       </p>
                       <div className="flex gap-2">
-                        {/* WhatsApp button */}
+                        {/* WhatsApp button — pill with glow */}
                         <a
                           href={waUrl}
                           target="_blank"
@@ -1889,13 +1896,13 @@ const ArtistDashboard = () => {
                               toast({ title: lang === 'en' ? 'No phone number set for this client' : 'לא הוגדר מספר טלפון ללקוחה זו', variant: 'destructive' });
                             }
                           }}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.97]"
-                          style={{ background: '#25D366', color: '#ffffff', boxShadow: '0 4px 16px rgba(37, 211, 102, 0.3)' }}
+                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
+                          style={{ background: '#25D366', color: '#ffffff', boxShadow: '0 4px 18px rgba(37, 211, 102, 0.35)' }}
                         >
                           <MessageCircle className="w-4 h-4" strokeWidth={2} />
                           {lang === 'en' ? 'WhatsApp' : 'וואטסאפ'}
                         </a>
-                        {/* Copy Link button */}
+                        {/* Copy Link button — glass with rose-gold border */}
                         <button
                           onClick={async () => {
                             try {
@@ -1905,9 +1912,16 @@ const ArtistDashboard = () => {
                               window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', clientLink);
                             }
                           }}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.97] btn-gold-cta"
+                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.6)',
+                            backdropFilter: 'blur(8px)',
+                            border: '1.5px solid rgba(216, 180, 180, 0.5)',
+                            color: '#4a3636',
+                            boxShadow: '0 2px 12px rgba(216, 180, 180, 0.15)',
+                          }}
                         >
-                          <Copy className="w-4 h-4" strokeWidth={2} />
+                          <Copy className="w-4 h-4" strokeWidth={2} style={{ color: '#d8b4b4' }} />
                           {lang === 'en' ? 'Copy Link' : 'העתקת קישור'}
                         </button>
                       </div>
@@ -2019,7 +2033,7 @@ const ArtistDashboard = () => {
                   <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                     <div className="px-5 py-4 border-b border-border">
                       <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                        <FileOutput className="w-4 h-4 text-accent" />
+                        <FileOutput className="w-4 h-4" style={{ color: '#d8b4b4' }} />
                         {lang === 'en' ? 'Treatment History' : 'היסטוריית טיפולים'}
                       </h3>
                     </div>
@@ -2043,7 +2057,7 @@ const ArtistDashboard = () => {
                                 }
                               }}
                               className="w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-accent/20"
-                              style={{ color: 'hsl(38 55% 62%)' }}
+                              style={{ color: '#d8b4b4' }}
                             >
                               <Pencil className="w-3 h-3" />
                             </button>
@@ -2068,7 +2082,7 @@ const ArtistDashboard = () => {
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                   <div className="px-5 py-4 border-b border-border">
                     <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                      <Image className="w-4 h-4 text-accent" />
+                      <Image className="w-4 h-4" style={{ color: '#d8b4b4' }} />
                       {lang === 'en' ? 'Before & After Collage' : 'קולאז׳ לפני ואחרי'}
                       <HelpTooltip text="יצירת תמונות מקצועיות לשיווק באינסטגרם ושליחה ללקוחה ישירות לוואטסאפ." id="collage" />
                     </h3>
@@ -2089,7 +2103,7 @@ const ArtistDashboard = () => {
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                   <div className="px-5 py-4 border-b border-border">
                     <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                      <Camera className="w-4 h-4 text-accent" />
+                      <Camera className="w-4 h-4" style={{ color: '#d8b4b4' }} />
                       {lang === 'en' ? 'Shared Healing Gallery' : 'גלריית החלמה משותפת'}
                     </h3>
                     <p className="text-xs text-muted-foreground mt-1">
