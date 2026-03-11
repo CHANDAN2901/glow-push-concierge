@@ -27,35 +27,24 @@ const categorizeFaq = (q: string): FaqCategory => {
 };
 
 interface FaqItem {
-  q: string;
-  a: string;
+  q_he: string;
+  q_en: string;
+  a_he: string;
+  a_en: string;
   cat?: string;
 }
 
-const FALLBACK_FAQ: Record<'he' | 'en', FaqItem[]> = {
-  he: [
-    { q: 'האם הלקוחה צריכה להוריד אפליקציה שתופסת מקום בטלפון?', a: 'ממש לא! Glow Push עובדת בטכנולוגיית רשת. הלקוחה מקבלת ממך לינק אישי בוואטסאפ. כשהיא תפתח אותו, המערכת תציע לה לשמור את האפליקציה על מסך הבית כדי לקבל התראות פוש (Push), ללא צורך בהורדה מחנות האפליקציות.' },
-    { q: 'איך הלקוחה שלי מתחברת לאפליקציה כדי לקבל התראות?', a: 'ברגע שאת מוסיפה לקוחה, נשלח אליה קישור אישי בוואטסאפ. כשהיא תפתח אותו, המערכת תציע לה לשמור את Glow Push כאפליקציה על מסך הבית שלה. ברגע שהיא מאשרת, היא תוכל לקבל ממך התראות פוש (Push) על כל שלב קריטי בהחלמה, וליצור קולאז׳ים אישיים בקלות.' },
-    { q: 'האם אני יכולה לשנות את הטיפים של Glow Push?', a: 'בוודאי! בהגדרות "ניהול תכני החלמה" את יכולה לערוך כל טקסט, טיפ או שלב כדי שיתאימו בדיוק לשיטת העבודה שלך.' },
-    { q: 'איך אני שומרת קולאז׳ לטלפון שלי?', a: 'בתוך גלריית הלקוחה, לחצי על "צור קולאז׳". לאחר שהקולאז׳ מוכן, לחצי על כפתור "שמור לגלריה" והתמונה תרד ישירות למכשיר שלך.' },
-    { q: 'האם הלקוחה רואה את כל התמונות שאני מעלה?', a: 'כן, הגלריה מסונכרנת. כל תמונה שתעלי לתיק הלקוחה תופיע גם אצלה, כדי שהיא תוכל לעקוב אחרי ההתקדמות שלה.' },
-    { q: 'מה קורה אם לקוחה מחקה בטעות את ההודעה ואיבדה את הקישור שלה?', a: 'פשוט מאוד. היכנסי לכרטיס הלקוחה שלה באזור הניהול, ולחצי על כפתור "שלחי קישור התחברות". הלינק יישלח אליה שוב מיד.' },
-    { q: 'איך עובד מנגנון "חברה מביאה חברה"?', a: 'במסך הראשי יש לך כפתור ייעודי. לחיצה עליו תייצר לך קישור אישי שאותו תוכלי לשלוח לחברות למקצוע. ברגע שחברה נרשמת דרך הקישור שלך, המערכת תזהה זאת אוטומטית ושתיכן תתוגמלו בהטבה!' },
-    { q: 'מי יכול לראות את תמונות ההחלמה של הלקוחות שלי?', a: 'הפרטיות היא מעל הכל. התמונות מאובטחות וגלויות אך ורק לך (המאפרת) וללקוחה עצמה. אף לקוחה אחרת לא יכולה לראות גלריה שאינה שלה.' },
-    { q: 'איך הלוגו שלי מופיע על הקולאז׳ים?', a: 'בהגדרות הפרופיל שלך תוכלי להעלות את לוגו הקליניקה. ברגע שהוא מוזן למערכת, Glow Push "תטביע" אותו אוטומטית ובצורה יוקרתית על כל קולאז׳ שתייצרי דרך האפליקציה.' },
-  ],
-  en: [
-    { q: 'Does the client need to download an app that takes up phone storage?', a: 'Not at all! Glow Push runs on web technology. Your client receives a personal link via WhatsApp. When she opens it, the system will offer to save the app to her home screen to receive push notifications — no app store download needed.' },
-    { q: 'How does my client connect to the app to receive notifications?', a: 'Once you add a client, a personal link is sent to her via WhatsApp. When she opens it, the system offers to save Glow Push as an app on her home screen. Once she approves, she can receive push notifications about every critical healing stage and easily create personal collages.' },
-    { q: 'Can I customize the Glow Push tips?', a: 'Absolutely! In the "Healing Content Management" settings, you can edit every text, tip, or step to match your exact workflow.' },
-    { q: 'How do I save a collage to my phone?', a: 'Inside the client gallery, tap "Create Collage." Once the collage is ready, tap the "Save to Gallery" button and the image will download directly to your device.' },
-    { q: 'Can the client see all the photos I upload?', a: "Yes, the gallery is synced. Every photo you upload to the client's file will also appear on her end, so she can track her progress." },
-    { q: 'What happens if a client accidentally deletes the message and loses her link?', a: 'Very simple. Go to her client card in the management area and tap the "Send Login Link" button. The link will be sent to her again immediately.' },
-    { q: 'How does the "Refer a Friend" feature work?', a: 'On the main screen you have a dedicated button. Tapping it generates a personal link you can share with fellow professionals. Once a friend signs up through your link, the system detects it automatically and both of you receive a reward!' },
-    { q: 'Who can see my clients\u2019 healing photos?', a: 'Privacy comes first. Photos are secured and visible only to you (the artist) and the client herself. No other client can view a gallery that isn\u2019t hers.' },
-    { q: 'How does my logo appear on collages?', a: 'In your profile settings you can upload your clinic logo. Once it\u2019s in the system, Glow Push will automatically stamp it elegantly on every collage you create through the app.' },
-  ],
-};
+const FALLBACK_FAQ: FaqItem[] = [
+  { q_he: 'האם הלקוחה צריכה להוריד אפליקציה שתופסת מקום בטלפון?', q_en: 'Does the client need to download an app that takes up phone storage?', a_he: 'ממש לא! Glow Push עובדת בטכנולוגיית רשת. הלקוחה מקבלת ממך לינק אישי בוואטסאפ. כשהיא תפתח אותו, המערכת תציע לה לשמור את האפליקציה על מסך הבית כדי לקבל התראות פוש (Push), ללא צורך בהורדה מחנות האפליקציות.', a_en: 'Not at all! Glow Push runs on web technology. Your client receives a personal link via WhatsApp. When she opens it, the system will offer to save the app to her home screen to receive push notifications — no app store download needed.' },
+  { q_he: 'איך הלקוחה שלי מתחברת לאפליקציה כדי לקבל התראות?', q_en: 'How does my client connect to the app to receive notifications?', a_he: 'ברגע שאת מוסיפה לקוחה, נשלח אליה קישור אישי בוואטסאפ. כשהיא תפתח אותו, המערכת תציע לה לשמור את Glow Push כאפליקציה על מסך הבית שלה. ברגע שהיא מאשרת, היא תוכל לקבל ממך התראות פוש (Push) על כל שלב קריטי בהחלמה, וליצור קולאז׳ים אישיים בקלות.', a_en: 'Once you add a client, a personal link is sent to her via WhatsApp. When she opens it, the system offers to save Glow Push as an app on her home screen. Once she approves, she can receive push notifications about every critical healing stage and easily create personal collages.' },
+  { q_he: 'האם אני יכולה לשנות את הטיפים של Glow Push?', q_en: 'Can I customize the Glow Push tips?', a_he: 'בוודאי! בהגדרות "ניהול תכני החלמה" את יכולה לערוך כל טקסט, טיפ או שלב כדי שיתאימו בדיוק לשיטת העבודה שלך.', a_en: 'Absolutely! In the "Healing Content Management" settings, you can edit every text, tip, or step to match your exact workflow.' },
+  { q_he: 'איך אני שומרת קולאז׳ לטלפון שלי?', q_en: 'How do I save a collage to my phone?', a_he: 'בתוך גלריית הלקוחה, לחצי על "צור קולאז׳". לאחר שהקולאז׳ מוכן, לחצי על כפתור "שמור לגלריה" והתמונה תרד ישירות למכשיר שלך.', a_en: 'Inside the client gallery, tap "Create Collage." Once the collage is ready, tap the "Save to Gallery" button and the image will download directly to your device.' },
+  { q_he: 'האם הלקוחה רואה את כל התמונות שאני מעלה?', q_en: 'Can the client see all the photos I upload?', a_he: 'כן, הגלריה מסונכרנת. כל תמונה שתעלי לתיק הלקוחה תופיע גם אצלה, כדי שהיא תוכל לעקוב אחרי ההתקדמות שלה.', a_en: "Yes, the gallery is synced. Every photo you upload to the client's file will also appear on her end, so she can track her progress." },
+  { q_he: 'מה קורה אם לקוחה מחקה בטעות את ההודעה ואיבדה את הקישור שלה?', q_en: 'What happens if a client accidentally deletes the message and loses her link?', a_he: 'פשוט מאוד. היכנסי לכרטיס הלקוחה שלה באזור הניהול, ולחצי על כפתור "שלחי קישור התחברות". הלינק יישלח אליה שוב מיד.', a_en: 'Very simple. Go to her client card in the management area and tap the "Send Login Link" button. The link will be sent to her again immediately.' },
+  { q_he: 'איך עובד מנגנון "חברה מביאה חברה"?', q_en: 'How does the "Refer a Friend" feature work?', a_he: 'במסך הראשי יש לך כפתור ייעודי. לחיצה עליו תייצר לך קישור אישי שאותו תוכלי לשלוח לחברות למקצוע. ברגע שחברה נרשמת דרך הקישור שלך, המערכת תזהה זאת אוטומטית ושתיכן תתוגמלו בהטבה!', a_en: 'On the main screen you have a dedicated button. Tapping it generates a personal link you can share with fellow professionals. Once a friend signs up through your link, the system detects it automatically and both of you receive a reward!' },
+  { q_he: 'מי יכול לראות את תמונות ההחלמה של הלקוחות שלי?', q_en: 'Who can see my clients\u2019 healing photos?', a_he: 'הפרטיות היא מעל הכל. התמונות מאובטחות וגלויות אך ורק לך (המאפרת) וללקוחה עצמה. אף לקוחה אחרת לא יכולה לראות גלריה שאינה שלה.', a_en: 'Privacy comes first. Photos are secured and visible only to you (the artist) and the client herself. No other client can view a gallery that isn\u2019t hers.' },
+  { q_he: 'איך הלוגו שלי מופיע על הקולאז׳ים?', q_en: 'How does my logo appear on collages?', a_he: 'בהגדרות הפרופיל שלך תוכלי להעלות את לוגו הקליניקה. ברגע שהוא מוזן למערכת, Glow Push "תטביע" אותו אוטומטית ובצורה יוקרתית על כל קולאז׳ שתייצרי דרך האפליקציה.', a_en: 'In your profile settings you can upload your clinic logo. Once it\u2019s in the system, Glow Push will automatically stamp it elegantly on every collage you create through the app.' },
+];
 
 export default function FaqPage() {
   const [search, setSearch] = useState('');
@@ -76,8 +65,10 @@ export default function FaqPage() {
       if (data && data.length > 0) {
         setDbFaqs(
           data.map((f) => ({
-            q: isHe ? f.question_he : (f.question_en || f.question_he),
-            a: isHe ? f.answer_he : (f.answer_en || f.answer_he),
+            q_he: f.question_he,
+            q_en: f.question_en || f.question_he,
+            a_he: f.answer_he,
+            a_en: f.answer_en || f.answer_he,
             cat: f.category,
           }))
         );
@@ -85,16 +76,19 @@ export default function FaqPage() {
       setLoaded(true);
     };
     fetchFaqs();
-  }, [isHe]);
+  }, []);
 
-  const faqItems: FaqItem[] = dbFaqs.length > 0 ? dbFaqs : FALLBACK_FAQ[lang];
+  const faqItems = dbFaqs.length > 0 ? dbFaqs : FALLBACK_FAQ;
+
+  const getQ = (item: FaqItem) => isHe ? item.q_he : item.q_en;
+  const getA = (item: FaqItem) => isHe ? item.a_he : item.a_en;
 
   const filtered = faqItems
-    .filter((item) => (item.cat ? item.cat === activeCategory : categorizeFaq(item.q) === activeCategory))
+    .filter((item) => (item.cat ? item.cat === activeCategory : categorizeFaq(item.q_he) === activeCategory))
     .filter(
       (item) =>
-        !search || item.q.toLowerCase().includes(search.toLowerCase()) ||
-        item.a.toLowerCase().includes(search.toLowerCase())
+        !search || getQ(item).toLowerCase().includes(search.toLowerCase()) ||
+        getA(item).toLowerCase().includes(search.toLowerCase())
     );
 
   return (
