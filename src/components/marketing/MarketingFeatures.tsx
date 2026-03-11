@@ -62,7 +62,7 @@ const MarketingFeatures = ({ isHe }: Props) => {
                 className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-7 transition-all duration-500"
                 style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)' }}
               >
-                <f.icon className="w-7 h-7" style={{ color: '#5C4033' }} />
+                <f.icon className="w-7 h-7" style={{ color: '#4a3636' }} />
               </div>
               <h3 className="font-serif text-xl font-medium mb-3 tracking-wide" style={{ color: '#333333' }}>{f.title}</h3>
               <p className="text-sm leading-relaxed" style={{ color: '#666666' }}>{f.desc}</p>
