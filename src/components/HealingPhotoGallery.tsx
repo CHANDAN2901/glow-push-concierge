@@ -191,11 +191,11 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
       {sortedPhotos.length === 0 ? (
         <div className="text-center py-8">
-          <Camera className="w-10 h-10 mx-auto mb-3 opacity-30" style={{ color: GOLD_DARK }} />
-          <p className="text-sm font-serif" style={{ color: GOLD_DARK }}>
+          <Camera className="w-10 h-10 mx-auto mb-3 opacity-30" style={{ color: ROSE }} />
+          <p className="text-sm font-serif" style={{ color: ROSE_DARK }}>
             {isHe ? 'עדיין אין תמונות החלמה 📸' : 'No healing photos yet 📸'}
           </p>
-          <p className="text-xs mt-1 font-light" style={{ color: '#888' }}>
+          <p className="text-xs mt-1 font-serif font-light" style={{ color: '#9a8585' }}>
             {isHe ? 'הוסיפי תמונות כדי לעקוב אחרי תהליך ההחלמה' : 'Add photos to track the healing process'}
           </p>
         </div>
