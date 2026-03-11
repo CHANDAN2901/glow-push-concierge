@@ -602,7 +602,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
           <button
             onClick={() => { setNewDate(selectedDateStr); setShowAddModal(true); }}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95"
-            style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' }}
+            style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#4a3636' }}
           >
             <Plus className="w-4 h-4" />
             {isHe ? 'תור חדש' : 'New'}
