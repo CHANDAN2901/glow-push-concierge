@@ -213,8 +213,8 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
     <button
       onClick={handleSubscribe}
       disabled={status === 'loading'}
-      className="w-full rounded-lg p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up relative overflow-hidden"
-      style={{
+      className="rounded-[4px] p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 relative overflow-hidden"
+      style={{ width: '95%', margin: '0 auto 20px auto',
         animationDelay: '50ms',
         background: status === 'subscribed'
           ? 'linear-gradient(145deg, rgba(200,240,220,0.9) 0%, rgba(220,250,235,0.85) 100%)'
@@ -232,7 +232,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
     >
       {status !== 'subscribed' && (
         <span
-          className="absolute inset-0 rounded-lg pointer-events-none"
+          className="absolute inset-0 rounded-[4px] pointer-events-none"
           style={{
             background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
             zIndex: 0,
@@ -241,7 +241,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
       )}
       {status !== 'subscribed' && (
         <span
-          className="absolute rounded-[6px] pointer-events-none"
+          className="absolute rounded-[2px] pointer-events-none"
           style={{
             inset: '3px',
             background: 'linear-gradient(135deg, #E8C0C8 0%, #DEB0BA 40%, #d69da9 70%, #c4869a 100%)',
@@ -588,7 +588,7 @@ const ClientHome = () => {
         <div
           className="relative mb-6 overflow-hidden"
         >
-          {/* Soft white glow behind text */}
+          {/* Soft white glow behind text — NO animation */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
@@ -596,33 +596,14 @@ const ClientHome = () => {
               filter: 'blur(18px)',
             }}
           />
-          {/* Bokeh sparkles */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  width: `${4 + i * 2}px`,
-                  height: `${4 + i * 2}px`,
-                  top: `${15 + i * 12}%`,
-                  left: `${10 + i * 14}%`,
-                  background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)',
-                  animation: `sparkle-fade ${2 + i * 0.5}s ease-in-out infinite`,
-                  animationDelay: `${i * 0.3}s`,
-                }}
-              />
-            ))}
-          </div>
           <div className="relative py-10 px-6 text-center">
             <h1
-              className="font-bold tracking-wide mb-3 hd-shimmer-text"
+              className="font-bold tracking-wide mb-3"
               style={{
                 fontFamily: FBAHAVA,
                 fontSize: '26px',
                 lineHeight: 1.6,
                 background: 'linear-gradient(90deg, #caa64b, #f6e27a, #caa64b)',
-                backgroundSize: '200% 100%',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
