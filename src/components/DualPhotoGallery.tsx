@@ -409,7 +409,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       <div
         ref={collageRef}
         className="relative w-full rounded-2xl overflow-hidden shadow-lg"
-        style={{ aspectRatio: '1 / 1', border: `2px solid ${GOLD}`, background: '#000' }}
+        style={{ aspectRatio: '1 / 1', border: `2px solid ${ROSE}`, background: '#000' }}
       >
         {/* BEFORE half (left) */}
         <div className="absolute inset-y-0 left-0 w-1/2">
