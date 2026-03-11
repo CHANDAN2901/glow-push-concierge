@@ -57,28 +57,29 @@ const formatPhone = (raw: string): string => {
   return digits;
 };
 
-/* ── Gold action button style (white bg, gold border, gold text) ── */
+/* ── Rose-gold outline action button style ── */
 const goldButtonStyle: React.CSSProperties = {
-  background: '#fff',
-  border: '2px solid transparent',
-  borderImage: 'linear-gradient(135deg, #F5E6A3, #D4AF37, #B8860B, #D4AF37) 1',
-  color: '#B8860B',
-  boxShadow: '0 2px 8px rgba(212,175,55,0.18)',
+  background: 'transparent',
+  border: '1px solid #d8b4b4',
+  color: '#c88c8c',
+  boxShadow: 'none',
+  borderRadius: '12px',
 };
 
-/* ── Thick shiny gold border wrapper ── */
+/* ── Clean glassmorphism card wrapper ── */
 function GoldCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex-shrink-0 w-[280px] rounded-2xl p-[4px]"
+      className="flex-shrink-0 w-[280px] rounded-[22px] p-4"
       style={{
-        background: 'linear-gradient(135deg, #F5E6A3 0%, #D4AF37 20%, #B8860B 40%, #DAA520 60%, #D4AF37 80%, #F5E6A3 100%)',
-        boxShadow: '0 6px 28px rgba(212,175,55,0.35), 0 2px 8px rgba(184,134,11,0.25)',
+        background: 'rgba(255, 255, 255, 0.65)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(238, 202, 202, 0.4)',
+        boxShadow: '10px 10px 25px rgba(180, 110, 110, 0.08), -5px -5px 15px rgba(255, 255, 255, 0.8)',
       }}
     >
-      <div className="rounded-[12px] bg-card p-4 h-full">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
@@ -165,9 +166,12 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
       <div className="flex items-center gap-2.5 mb-4">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', boxShadow: '0 2px 10px rgba(212,175,55,0.35)' }}
+          style={{
+            background: 'linear-gradient(145deg, #f0c8c8, #d8a0a0)',
+            boxShadow: '0 0 14px rgba(216, 180, 180, 0.6), 0 0 28px rgba(216, 160, 160, 0.25)',
+          }}
         >
-          <Star className="w-4 h-4 text-white" />
+          <Star className="w-4 h-4" style={{ color: '#fff', filter: 'drop-shadow(0 0 3px rgba(255,255,255,0.6))' }} />
         </div>
         <div>
           <h2 className="text-xl font-bold flex items-center gap-1.5 mb-1" style={{ color: 'hsl(14 29% 30%)', fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
@@ -203,7 +207,7 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
                   >
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
+                      style={{ background: 'linear-gradient(145deg, #fdf1f0, #eecaca)', color: '#8c6a6a', border: '1px solid #d8b4b4' }}
                     >
                       {client.name.charAt(0)}
                     </div>

@@ -1690,11 +1690,10 @@ const ArtistDashboard = () => {
                 onClick={() => setActiveTab('bonuses')}
                 className="special-promo-btn w-[90%] max-w-[420px] min-h-[100px] rounded-[50px] flex items-center justify-center relative overflow-hidden transition-all active:scale-95"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(253,242,242,0.85))',
-                  backdropFilter: 'blur(15px)',
-                  WebkitBackdropFilter: 'blur(15px)',
-                  border: '1.5px solid #eecaca',
-                  boxShadow: '0 20px 40px rgba(180, 110, 110, 0.25), inset 0 4px 12px rgba(255, 255, 255, 1)',
+                  background: '#ffffff',
+                  border: '3px solid rgba(216, 180, 180, 0.35)',
+                  boxShadow: '0 25px 50px rgba(180, 110, 110, 0.3), 0 12px 24px rgba(180, 110, 110, 0.15), 0 4px 10px rgba(200, 140, 140, 0.1), inset 0 2px 8px rgba(255, 255, 255, 1)',
+                  filter: 'drop-shadow(0 0 8px rgba(216, 180, 180, 0.2))',
                 }}
               >
                 {/* Shine sweep animation */}
