@@ -2294,8 +2294,14 @@ const ArtistDashboard = () => {
                     const risk = getClientRiskLevel(client.name);
                     const flags = hasFlags ? [risk === 'red' ? (lang === 'en' ? 'Medical Warning' : 'התוויית נגד') : (lang === 'en' ? 'Attention' : 'תשומת לב')] : [];
                     return (
-                      <div key={i} className={`rounded-3xl overflow-hidden transition-all cursor-pointer bg-white ${hasFlags ? 'border-2 border-destructive/30' : 'border border-border/60'}`}
-                        style={{ boxShadow: '0 4px 20px -4px hsla(0, 0%, 0%, 0.08)' }}
+                      <div key={i} className={`rounded-3xl overflow-hidden transition-all cursor-pointer backdrop-blur-xl ${hasFlags ? 'border-2 border-destructive/30' : ''}`}
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.6)',
+                          backdropFilter: 'blur(16px)',
+                          WebkitBackdropFilter: 'blur(16px)',
+                          border: hasFlags ? undefined : '1.5px solid rgba(216, 180, 180, 0.5)',
+                          boxShadow: '0 8px 32px -4px rgba(180, 110, 110, 0.1), 0 2px 8px rgba(216, 180, 180, 0.08)',
+                        }}
                       >
                         <div className="flex" dir="rtl">
                           {/* Client Info */}
@@ -2305,12 +2311,12 @@ const ArtistDashboard = () => {
                                 <div className="flex items-center gap-2.5">
                                   <div
                                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${hasFlags ? 'bg-destructive/10 text-destructive' : 'text-white'}`}
-                                    style={hasFlags ? {} : { background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))' }}
+                                    style={hasFlags ? {} : { background: 'linear-gradient(145deg, #f0c8c8, #d8a0a0)', color: '#fff', border: '1px solid rgba(216, 180, 180, 0.6)' }}
                                   >
                                     {hasFlags ? <AlertTriangle className="w-4 h-4" /> : client.name.charAt(0)}
                                   </div>
                                   <div>
-                                    <p className={`font-bold text-sm ${hasFlags ? 'text-destructive' : 'text-foreground'}`}>
+                                    <p className={`font-bold text-sm ${hasFlags ? 'text-destructive' : ''}`} style={hasFlags ? {} : { color: '#4a3636', fontFamily: "'Playfair Display', 'FB Ahava', serif" }}>
                                       {birthdayWeek && <span className="ml-1">🎂</span>}
                                       {needsRenewal && <span className="ml-1">🔄</span>}
                                       {client.name}
@@ -2320,7 +2326,7 @@ const ArtistDashboard = () => {
                                         <AlertTriangle className="w-3 h-3 inline-block mr-1.5 text-muted-foreground/40" />
                                       )}
                                     </p>
-                                    <p className="text-xs mt-0.5" style={{ color: 'hsl(38 40% 45%)' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
+                                    <p className="text-xs mt-0.5" style={{ color: '#8c6a6a' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
                                   </div>
                                   {hasFlags && <span className="text-[10px] font-bold text-destructive">⚠️</span>}
                                   {isSafe && <ShieldCheck className="w-3.5 h-3.5 text-accent" />}
@@ -2348,24 +2354,24 @@ const ArtistDashboard = () => {
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); openEditClient(client); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-accent/20"
-                                   style={{ color: 'hsl(38 55% 62%)' }}
+                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                  style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}
                                 >
                                   <Pencil className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); openWhatsApp(client.phone, client.name, client.link); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-accent/20"
-                                  style={{ color: 'hsl(38 55% 62%)' }}
+                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                  style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}
                                 >
                                   <MessageCircle className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); setDeletingClient(client); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-destructive/20"
-                                  style={{ color: 'hsl(0 60% 60%)' }}
+                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                  style={{ background: 'rgba(239, 68, 68, 0.08)', color: '#e88a8a' }}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
@@ -2385,7 +2391,8 @@ const ArtistDashboard = () => {
                           <button
                             type="button"
                             onClick={() => setViewDeclarationFor(client.name)}
-                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium text-white border border-green-500/30 transition-all hover:opacity-90 bg-green-500"
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-white transition-all hover:opacity-90"
+                            style={{ background: 'linear-gradient(145deg, #4ade80, #22c55e)', boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3), 0 0 12px rgba(34, 197, 94, 0.15)' }}
                           >
                             <ClipboardCheck className="w-3.5 h-3.5" />
                             {lang === 'en' ? '✅ Signed' : '✅ חתומה'}
@@ -2412,7 +2419,7 @@ const ArtistDashboard = () => {
                                   }
                                 }}
                                 className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
-                                style={{ background: '#ffffff', border: '3px solid #D4AF37', color: '#333333', boxShadow: '0 3px 12px -2px hsla(38, 55%, 62%, 0.35)' }}
+                                style={{ background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)', color: '#fff', border: 'none', boxShadow: '0 6px 20px rgba(212, 131, 143, 0.35), 0 0 14px rgba(232, 160, 176, 0.2)' }}
                               >
                                 <MessageCircle className="w-3.5 h-3.5" />
                                 {lang === 'en' ? 'Send Health Declaration' : 'הצהרת בריאות לשליחה ללקוחה'}
@@ -2425,8 +2432,8 @@ const ArtistDashboard = () => {
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
-                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
-                            style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#4a3636', border: 'none', boxShadow: '0 2px 8px rgba(255,165,0,0.3)' }}
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
+                            style={{ background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)', color: '#fff', border: 'none', boxShadow: '0 6px 20px rgba(212, 131, 143, 0.35), 0 0 14px rgba(232, 160, 176, 0.2)' }}
                           >
                             🎂 {lang === 'en' ? 'Send Birthday Wish' : 'שלחי ברכת יום הולדת'}
                           </button>
@@ -2436,8 +2443,8 @@ const ArtistDashboard = () => {
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setRenewalClient(client); }}
-                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
-                            style={{ background: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)', border: '2px solid hsl(38 55% 62%)' }}
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
+                            style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#4a3636', border: '1.5px solid #d8b4b4', boxShadow: '0 4px 12px rgba(216, 180, 180, 0.2)' }}
                           >
                             🔄 {lang === 'en' ? 'Send Renewal Message' : 'שלחי הודעת חידוש'}
                           </button>
