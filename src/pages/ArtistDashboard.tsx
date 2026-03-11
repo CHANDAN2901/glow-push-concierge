@@ -1149,7 +1149,7 @@ const ArtistDashboard = () => {
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
   return (
-    <div className="min-h-screen flex flex-col relative artist-dashboard" style={{ background: 'radial-gradient(circle at 50% 50%, #FFFFFF 0%, #F8E0E4 25%, #F0C8CE 45%, #E8B8C0 65%, #E0A8B2 80%, #D49AA6 100%)', animation: 'bg-fade-to-pink 1.2s ease-out forwards' }}>
+    <div className="min-h-screen flex flex-col relative artist-dashboard" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #FDF5F3 15%, #F8E0E4 40%, #F0C8CE 65%, #E8B8C0 85%, #E0A8B2 100%)', animation: 'bg-fade-to-pink 1.2s ease-out forwards' }}>
       {/* Subtle diagonal line texture */}
       <div className="fixed inset-0 z-0 pointer-events-none" style={{
         backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 80px, rgba(212,175,55,0.03) 80px, rgba(212,175,55,0.03) 81px)`,
