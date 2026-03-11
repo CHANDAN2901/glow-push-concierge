@@ -345,9 +345,12 @@ const Pricing = () => {
                   <span
                     className="text-5xl font-serif font-bold"
                     style={{
-                      backgroundImage: 'linear-gradient(135deg, #d8b4b4, #c9a0a0, #d8b4b4)',
+                      backgroundImage: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 30%, #e0c4c4 50%, #c9a0a0 70%, #d8b4b4 100%)',
+                      backgroundSize: '200% 100%',
+                      animation: 'gold-glint 5s ease-in-out infinite',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
+                      filter: 'drop-shadow(0 2px 6px rgba(216, 180, 180, 0.4))',
                     }}
                   >
                     {isHe ? `₪${plan.price_monthly.toLocaleString()}` : `$${plan.price_usd.toLocaleString()}`}
