@@ -2118,60 +2118,28 @@ const ArtistDashboard = () => {
               /* ── Client List (only when no client selected) ── */
               <>
                 {/* Add Client Button */}
-                <div className="mb-6 space-y-3">
+                <div className="mb-4 space-y-2">
                   <button
                     onClick={() => { if (navigator.vibrate) navigator.vibrate(50); setDispatchPrefill(null); setDispatchOpen(true); }}
-                    className="w-full rounded-full py-4 text-base font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
-                    style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#4a3636', boxShadow: '0 4px 16px rgba(212, 175, 55, 0.15)' }}
+                    className="w-full rounded-full py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                    style={{ background: '#ffffff', border: '2px solid #D4AF37', color: '#4a3636', boxShadow: '0 3px 12px rgba(212, 175, 55, 0.12)' }}
                   >
-                    <Plus className="w-5 h-5" strokeWidth={3} />
+                    <Plus className="w-4 h-4" strokeWidth={3} />
                     {lang === 'en' ? 'Add New Client' : 'הוספי לקוחה חדשה'}
                   </button>
                   <button
                     onClick={() => setImportOpen(true)}
-                    className="w-full rounded-full py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                    style={{ background: '#ffffff', border: '1.5px solid hsl(38 55% 62%)', color: 'hsl(38 40% 45%)', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.1)' }}
+                    className="w-full rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                    style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(216, 180, 180, 0.4)', color: '#4a3636' }}
                   >
-                    <Upload className="w-4 h-4" />
+                    <Upload className="w-3.5 h-3.5" />
                     {lang === 'en' ? 'Import Clients (CSV)' : 'ייבוא לקוחות (CSV)'}
                   </button>
                 </div>
 
             <div className="p-1">
-              {/* Filter tabs */}
-              <div className="flex items-center gap-3 mb-5 flex-wrap">
-                {([
-                  { key: 'all' as const, label: lang === 'en' ? 'All Clients' : 'כל הלקוחות', icon: '' },
-                  { key: 'birthdays' as const, label: lang === 'en' ? 'Birthdays' : 'ימי הולדת', icon: '🎂' },
-                  { key: 'renewal' as const, label: lang === 'en' ? 'Renewal Due' : 'לחידוש טיפול', icon: '🔄' },
-                ] as const).map(tab => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setClientListFilter(tab.key)}
-                    className={`px-6 py-3 rounded-full text-base font-black tracking-wide transition-all flex items-center gap-2 active:scale-95 ${
-                      clientListFilter === tab.key
-                        ? 'shadow-lg'
-                        : 'hover:shadow-md'
-                    }`}
-                    style={clientListFilter === tab.key ? {
-                      background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%)',
-                      color: '#4a3636',
-                      border: '2px solid #D4AF37',
-                      boxShadow: '0 4px 16px rgba(212,175,55,0.4), inset 0 1px 2px rgba(255,255,255,0.4)',
-                    } : {
-                      background: 'linear-gradient(135deg, #FDF6E3 0%, #F5EDDA 100%)',
-                      color: '#4a3636',
-                      border: '2px solid hsl(38 55% 62% / 0.3)',
-                    }}
-                  >
-                    {tab.icon && <span className="text-lg">{tab.icon}</span>}
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Search bar — always visible */}
-              <div className="relative mb-4">
+              {/* Search bar */}
+              <div className="relative mb-3">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#C4A265' }} />
                 <input
                   type="text"
@@ -2226,13 +2194,7 @@ const ArtistDashboard = () => {
 
                 const searchQ = clientSearchQuery.trim().toLowerCase();
 
-                const baseClients = clientListFilter === 'birthdays'
-                  ? clients
-                      .filter(c => isBirthdayThisMonth(c.birthDate))
-                      .sort((a, b) => parseInt(a.birthDate?.slice(8, 10) || '0') - parseInt(b.birthDate?.slice(8, 10) || '0'))
-                  : clientListFilter === 'renewal'
-                  ? clients.filter(c => isRenewalDue(c.treatment, c.day))
-                  : clients;
+                const baseClients = clients;
 
                 const displayedClients = searchQ
                   ? baseClients.filter((client) => client.name.toLowerCase().includes(searchQ))
@@ -2260,22 +2222,6 @@ const ArtistDashboard = () => {
                         <p className="text-xs text-muted-foreground">
                           {lang === 'en' ? 'Try a different search term' : 'נסי מילת חיפוש אחרת'}
                         </p>
-                      </div>
-                    );
-                  }
-                  if (clientListFilter !== 'all') {
-                    const emptyIcon = clientListFilter === 'birthdays' ? '🎂' : '🔄';
-                    const emptyTitle = clientListFilter === 'birthdays'
-                      ? (lang === 'en' ? 'No birthdays this month' : 'אין ימי הולדת החודש')
-                      : (lang === 'en' ? 'No renewal needed' : 'אין לקוחות לחידוש כרגע');
-                    const emptyDesc = clientListFilter === 'birthdays'
-                      ? (lang === 'en' ? 'Add birth dates to client profiles to see them here' : 'הוסיפי תאריכי לידה ללקוחות כדי לראות אותן כאן')
-                      : (lang === 'en' ? 'Clients needing renewal will appear here automatically' : 'לקוחות שעבר מספיק זמן מהטיפול יופיעו כאן אוטומטית');
-                    return (
-                      <div className="text-center py-12">
-                        <span className="text-4xl mb-3 block">{emptyIcon}</span>
-                        <p className="text-sm text-muted-foreground">{emptyTitle}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{emptyDesc}</p>
                       </div>
                     );
                   }
@@ -2412,7 +2358,7 @@ const ArtistDashboard = () => {
                     );
                 })}
                 {/* Infinite scroll sentinel */}
-                {clientListFilter === 'all' && !clientSearchQuery && hasMoreClients && (
+                {!clientSearchQuery && hasMoreClients && (
                   <div ref={loadMoreSentinelRef} className="flex justify-center py-4">
                     {loadingMoreClients && <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />}
                   </div>
