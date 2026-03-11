@@ -395,7 +395,17 @@ const ArtistDashboard = () => {
 
   const fetchProfileId = useCallback(async () => {
     if (!user) return;
-    const { data } = await supabase.from('profiles').select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier').eq('user_id', user.id).single() as { data: any; error: any };
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier')
+      .eq('user_id', user.id)
+      .maybeSingle() as { data: any; error: any };
+
+    if (error) {
+      console.error('Failed to fetch profile', error);
+      return;
+    }
+
     if (data) {
       setUserProfileId(data.id);
       setHasWhatsAppAutomation(!!data.has_whatsapp_automation);
