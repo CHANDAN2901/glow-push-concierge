@@ -99,7 +99,7 @@ export default function FeedbackFAB() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#5C4033" }}>שם מלא</Label>
+                <Label className="text-right block text-xs font-medium" style={{ color: "#4a3636" }}>שם מלא</Label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
