@@ -168,6 +168,10 @@ const Pricing = () => {
           50% { transform: translateY(-18px) scale(1.06); opacity: 1; }
           100% { transform: translateY(8px) scale(0.94); opacity: 0.6; }
         }
+        @keyframes gold-glint {
+          0%, 100% { background-position: -200% center; }
+          50% { background-position: 200% center; }
+        }
       `}</style>
 
       {/* Spacer for fixed header */}
