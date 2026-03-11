@@ -188,12 +188,12 @@ export default function FaqPage() {
                     <div className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-data-[state=open]:opacity-100" style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)' }} />
                     <span className="relative z-10 text-base font-light leading-none transition-all duration-300 group-data-[state=open]:text-white" style={{ color: '#D4AF37' }}>+</span>
                   </div>
-                  <span className="flex-1 leading-relaxed">{item.q}</span>
+                  <span className="flex-1 leading-relaxed">{getQ(item)}</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-5 text-sm leading-relaxed" style={{ color: '#666' }}>
                 <div className="pt-3 border-t" style={{ borderColor: 'rgba(212,175,55,0.12)' }}>
-                  {item.a}
+                  {getA(item)}
                 </div>
               </AccordionContent>
             </AccordionItem>
