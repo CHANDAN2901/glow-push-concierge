@@ -942,7 +942,7 @@ const ClientHome = () => {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            הצצה לתוצאות
+            {lang === 'en' ? 'A peek at your results' : 'הצצה לתוצאות'}
           </p>
 
           <ClientSharedGallery
