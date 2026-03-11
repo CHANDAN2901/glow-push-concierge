@@ -1302,7 +1302,7 @@ const ArtistDashboard = () => {
         {activeTab === 'home' && !subScreen && (
           <div className="space-y-6" style={{ margin: '-0.5rem -1.25rem', padding: '0 1.25rem 2rem' }}>
 
-            {/* ── Motivational Header with gradient bg ── */}
+            {/* ═══ 1. HEADER / GREETING ═══ */}
             <div
               className="rounded-b-3xl px-5 pt-8 pb-6 -mx-5"
               style={{
@@ -1322,7 +1322,6 @@ const ArtistDashboard = () => {
                 {lang === 'en' ? "Here's your business overview" : 'הנה הסקירה העסקית שלך'}
               </p>
 
-              {/* Celebration Banner */}
               {clients.length > 0 && !dismissedTouchup && (
                 <div
                   className="relative mt-4 rounded-[2rem] p-5 animate-fade-up overflow-hidden"
@@ -1332,7 +1331,6 @@ const ArtistDashboard = () => {
                     boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
                   }}
                 >
-                  {/* Gold border overlay */}
                   <div className="absolute inset-0 rounded-[2rem] pointer-events-none" style={{
                     border: '2px solid transparent',
                     background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
@@ -1356,7 +1354,7 @@ const ArtistDashboard = () => {
               )}
             </div>
 
-            {/* ── Onboarding Checklist Widget ── */}
+            {/* ── Onboarding Checklist ── */}
             <OnboardingChecklist
               logoUrl={logoUrl}
               clients={clients}
@@ -1367,82 +1365,41 @@ const ArtistDashboard = () => {
               userProfileId={userProfileId}
             />
 
-            {/* ── Digital Card Quick Action ── */}
-            <div className="relative">
-              <button
-                onClick={() => setShowDigitalCardPreview(true)}
-                className="pill-action-btn animate-fade-up"
-              >
-                <span className="pill-icon-circle">
-                  <CreditCard className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} />
-                </span>
-                <span className="flex-1 text-right pr-3">{lang === 'en' ? 'My Digital Card' : 'הכרטיס הדיגיטלי שלי'}</span>
-              </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                <HelpTooltip
-                  id="digital-card"
-                  text={lang === 'en'
-                    ? 'Your luxury digital business card — share it with clients via WhatsApp or social media in one tap.'
-                    : 'כרטיס ביקור דיגיטלי יוקרתי — שתפי אותו עם לקוחות בוואטסאפ או ברשתות בלחיצה אחת.'}
-                />
-              </span>
+            {/* ═══ 2. STATS / INCOME ROW ═══ */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: lang === 'en' ? 'Revenue' : 'הכנסות', value: '₪15,000', trend: '+12%', icon: DollarSign },
+                { label: lang === 'en' ? 'New Clients' : 'לקוחות חדשות', value: String(clients.length), trend: '+3', icon: Users },
+                { label: lang === 'en' ? 'Today' : 'היום', value: String(clients.filter(c => c.day === 0 || c.day === 1).length), trend: '', icon: CalendarCheck },
+              ].map((metric, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
+                    boxShadow: '0 16px 40px rgba(160,100,80,0.22), 0 8px 20px rgba(180,120,90,0.15), 0 4px 10px rgba(212,175,55,0.1), 0 1px 3px rgba(0,0,0,0.06)',
+                    animationDelay: `${i * 0.08}s`,
+                    opacity: 0,
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                    border: '2px solid transparent',
+                    background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
+                    borderRadius: 'inherit',
+                  }} />
+                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.5} />
+                  <p className="text-xl font-extrabold mb-1 relative z-10" style={{ color: '#4a3636' }}>{metric.value}</p>
+                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#6b5a5a' }}>{metric.label}</p>
+                  {metric.trend && (
+                    <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
+                      ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
 
-            {/* TIMELINE SETTINGS BUTTON */}
-            <div className="relative">
-              <button
-                onClick={() => navigate('/admin/timeline-settings')}
-                className="pill-action-btn animate-fade-up"
-              >
-                <span className="pill-icon-circle">
-                  <Pencil className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} />
-                </span>
-                <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Healing Journey' : 'עריכת מסע ההחלמה'}</span>
-              </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                <HelpTooltip
-                  id="healing-journey"
-                  text={lang === 'en'
-                    ? 'Customize the 30-day healing timeline — edit daily care instructions, tips, and notifications for your clients.'
-                    : 'התאימי את ציר הזמן של 30 ימי ההחלמה — ערכי הוראות טיפול, טיפים והתראות לכל יום.'}
-                />
-              </span>
-            </div>
-
-            {/* HEALTH DECLARATION EDITOR BUTTON */}
-            <div className="relative">
-              <button
-                onClick={() => setShowHealthEditor(true)}
-                className="pill-action-btn animate-fade-up"
-              >
-                <span className="pill-icon-circle">
-                  <ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} />
-                </span>
-                <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Health Declaration' : 'עריכת הצהרת בריאות'}</span>
-              </button>
-              <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                <HelpTooltip
-                  id="health-declaration"
-                  text={lang === 'en'
-                    ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.'
-                    : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'}
-                />
-              </span>
-            </div>
-
-            {/* PREVIEW HEALTH DECLARATION TEMPLATE */}
-            <button
-              type="button"
-              onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-              className="pill-action-btn preview-pill-btn animate-fade-up"
-              style={{ height: '56px' }}
-            >
-              <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
-                <Eye className="w-4 h-4" style={{ color: '#B8860B' }} strokeWidth={1.5} />
-              </span>
-              <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
-            </button>
-
+            {/* ═══ 3. FRIENDSHIP VOUCHER ═══ */}
             <div className="relative">
               <button
                 onClick={() => setShowVoucherEditor(true)}
@@ -1462,83 +1419,37 @@ const ArtistDashboard = () => {
                 />
               </span>
             </div>
-            {redFlagClients.length > 0 && (
-              <div className="rounded-xl border-2 border-destructive/40 bg-destructive/5 p-4 animate-fade-up">
-                <div className="flex items-center gap-2 mb-2">
-                  <ShieldAlert className="w-5 h-5 text-destructive" />
-                  <h3 className="text-sm font-bold text-destructive">
-                    {lang === 'en' ? `⚠️ ${redFlagClients.length} Client${redFlagClients.length > 1 ? 's' : ''} Require Attention` : `⚠️ ${redFlagClients.length} לקוחות דורשות תשומת לב`}
-                  </h3>
-                </div>
-                <div className="space-y-2">
-                  {redFlagClients.map((c, i) => {
-                    const risk = getClientRiskLevel(c.name);
-                    const flags = risk === 'red' ? [lang === 'en' ? 'Medical Warning' : 'התוויית נגד רפואית'] : risk === 'yellow' ? [lang === 'en' ? 'Requires Attention' : 'דורש תשומת לב'] : [];
-                    return (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-destructive/5 border border-destructive/20 cursor-pointer hover:bg-destructive/10 transition-colors"
-                        onClick={() => { setSelectedClient(c); setActiveTab('clients'); }}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <AlertTriangle className="w-3.5 h-3.5 text-destructive shrink-0" />
-                          <span className="text-xs font-semibold text-destructive truncate">{c.name}</span>
-                          <span className="text-[10px] text-destructive/70 truncate">{flags.join(', ')}</span>
-                        </div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); approveException(c); }}
-                          className="shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
-                        >
-                          {lang === 'en' ? 'Approve' : 'אישור החרגה'}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
-            {/* ── Success Metric Cards (Glassmorphism) ── */}
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: lang === 'en' ? 'Revenue' : 'הכנסות', value: '₪15,000', trend: '+12%', icon: DollarSign },
-                { label: lang === 'en' ? 'New Clients' : 'לקוחות חדשות', value: String(clients.length), trend: '+3', icon: Users },
-                { label: lang === 'en' ? 'Today' : 'היום', value: String(clients.filter(c => c.day === 0 || c.day === 1).length), trend: '', icon: CalendarCheck },
-              ].map((metric, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
-                    boxShadow: '0 16px 40px rgba(160,100,80,0.22), 0 8px 20px rgba(180,120,90,0.15), 0 4px 10px rgba(212,175,55,0.1), 0 1px 3px rgba(0,0,0,0.06)',
-                    animationDelay: `${i * 0.08}s`,
-                    opacity: 0,
-                  }}
-                >
-                  {/* Gold shimmer border */}
-                  <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-                    border: '2px solid transparent',
-                    background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
-                    borderRadius: 'inherit',
-                  }} />
-                  <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.5} />
-                  <p
-                    className="text-xl font-extrabold mb-1 relative z-10"
-                    style={{ color: '#4a3636' }}
-                  >
-                    {metric.value}
-                  </p>
-                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#6b5a5a' }}>{metric.label}</p>
-                  {metric.trend && (
-                    <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
-                      ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
-                    </p>
-                  )}
+            <div className="animate-fade-up flex justify-center" style={{ animationDelay: '0.1s', opacity: 0 }}>
+              <button
+                onClick={() => setActiveTab('bonuses')}
+                className="special-promo-btn w-[90%] max-w-[420px] min-h-[80px] flex items-center justify-center relative overflow-hidden active:scale-95"
+                style={{
+                  background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)',
+                  borderRadius: '50px',
+                  border: 'none',
+                  boxShadow: '0 12px 36px rgba(212, 131, 143, 0.4), 0 20px 50px rgba(180, 110, 110, 0.2), 0 0 20px rgba(232, 160, 176, 0.3)',
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 18px 48px rgba(212, 131, 143, 0.5), 0 28px 60px rgba(180, 110, 110, 0.25), 0 0 30px rgba(232, 160, 176, 0.4)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(212, 131, 143, 0.4), 0 20px 50px rgba(180, 110, 110, 0.2), 0 0 20px rgba(232, 160, 176, 0.3)'; }}
+              >
+                <div className="absolute inset-0 pointer-events-none z-[1]" style={{
+                  background: 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)',
+                  transform: 'skewX(-25deg)',
+                  animation: 'premiumShine 5s infinite',
+                  width: '50%',
+                  left: '-100%',
+                }} />
+                <div className="text-center z-[2] relative px-6" dir="rtl">
+                  <span className="block font-extrabold text-sm leading-snug" style={{ color: '#fff' }}>
+                    {lang === 'en' ? 'A Good Friend is Worth Gold (& Rose-Gold) | Get ₪50 Gift!' : 'חברה טובה שווה זהב (ורוז-גולד) | קבלי ₪50 מתנה!'}
+                  </span>
                 </div>
-              ))}
+              </button>
             </div>
 
-            {/* ── Quick Template Edit Button on Home ── */}
+            {/* ═══ 4. DAILY GROWTH ENGINE ═══ */}
             <div className="flex justify-end">
               <button
                 onClick={() => setShowTemplateEditor(true)}
@@ -1555,7 +1466,6 @@ const ArtistDashboard = () => {
               </button>
             </div>
 
-            {/* ── Daily Growth Engine ── */}
             <DailyGrowthEngine
               clients={clients}
               artistName={artistName}
@@ -1566,7 +1476,7 @@ const ArtistDashboard = () => {
               reviewTemplateEn={customTemplates.review_en}
             />
 
-            {/* ── Today's Appointments Carousel ── */}
+            {/* ── Today's Appointments ── */}
             {(() => {
               const todayClients = clients.filter(c => c.day === 0 || c.day === 1);
               if (todayClients.length === 0) return null;
@@ -1612,7 +1522,7 @@ const ArtistDashboard = () => {
               );
             })()}
 
-            {/* ── Active Healing Tracking ── */}
+            {/* ═══ 5. ACTIVE HEALING TRACKING ═══ */}
             <div className="animate-fade-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: 'hsl(14 29% 30%)' }}>
                 {lang === 'en' ? 'Active Healing Tracking' : 'מעקב החלמה פעיל'}
@@ -1622,10 +1532,7 @@ const ArtistDashboard = () => {
                 const healingClients = clients.filter(c => c.day >= 1 && c.day <= 30);
                 if (healingClients.length === 0) {
                   return (
-                    <div
-                      className="rounded-2xl p-6 text-center"
-                      style={{ background: 'rgba(255,255,255,0.4)', border: '1px solid hsl(var(--gold) / 0.15)' }}
-                    >
+                    <div className="rounded-2xl p-6 text-center" style={{ background: 'rgba(255,255,255,0.4)', border: '1px solid hsl(var(--gold) / 0.15)' }}>
                       <p className="text-sm text-muted-foreground">
                         {lang === 'en' ? 'No active healing processes' : 'אין תהליכי החלמה פעילים'}
                       </p>
@@ -1657,10 +1564,7 @@ const ArtistDashboard = () => {
                             {client.name.charAt(0)}
                           </div>
                           <p className="text-xs font-semibold truncate w-full text-center" style={{ color: '#3D3D3D' }}>{client.name}</p>
-                          <span
-                            className="text-[11px] font-bold"
-                            style={{ color: 'hsl(38 40% 45%)' }}
-                          >
+                          <span className="text-[11px] font-bold" style={{ color: 'hsl(38 40% 45%)' }}>
                             {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}
                           </span>
                         </button>
@@ -1679,35 +1583,89 @@ const ArtistDashboard = () => {
               })()}
             </div>
 
-
-            {/* ===== Referral CTA ===== */}
-            <div className="animate-fade-up mt-6 flex justify-center" style={{ animationDelay: '0.45s', opacity: 0 }}>
-              <button
-                onClick={() => setActiveTab('bonuses')}
-                className="special-promo-btn w-[90%] max-w-[420px] min-h-[80px] flex items-center justify-center relative overflow-hidden active:scale-95"
-                style={{
-                  background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)',
-                  borderRadius: '50px',
-                  border: 'none',
-                  boxShadow: '0 12px 36px rgba(212, 131, 143, 0.4), 0 20px 50px rgba(180, 110, 110, 0.2), 0 0 20px rgba(232, 160, 176, 0.3)',
-                  transition: 'all 0.3s ease',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 18px 48px rgba(212, 131, 143, 0.5), 0 28px 60px rgba(180, 110, 110, 0.25), 0 0 30px rgba(232, 160, 176, 0.4)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(212, 131, 143, 0.4), 0 20px 50px rgba(180, 110, 110, 0.2), 0 0 20px rgba(232, 160, 176, 0.3)'; }}
-              >
-                {/* Shine sweep animation */}
-                <div className="absolute inset-0 pointer-events-none z-[1]" style={{
-                  background: 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)',
-                  transform: 'skewX(-25deg)',
-                  animation: 'premiumShine 5s infinite',
-                  width: '50%',
-                  left: '-100%',
-                }} />
-                <div className="text-center z-[2] relative px-6" dir="rtl">
-                  <span className="block font-extrabold text-sm leading-snug" style={{ color: '#fff' }}>
-                    {lang === 'en' ? 'A Good Friend is Worth Gold (& Rose-Gold) | Get ₪50 Gift!' : 'חברה טובה שווה זהב (ורוז-גולד) | קבלי ₪50 מתנה!'}
-                  </span>
+            {/* Red flag clients */}
+            {redFlagClients.length > 0 && (
+              <div className="rounded-xl border-2 border-destructive/40 bg-destructive/5 p-4 animate-fade-up">
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldAlert className="w-5 h-5 text-destructive" />
+                  <h3 className="text-sm font-bold text-destructive">
+                    {lang === 'en' ? `⚠️ ${redFlagClients.length} Client${redFlagClients.length > 1 ? 's' : ''} Require Attention` : `⚠️ ${redFlagClients.length} לקוחות דורשות תשומת לב`}
+                  </h3>
                 </div>
+                <div className="space-y-2">
+                  {redFlagClients.map((c, i) => {
+                    const risk = getClientRiskLevel(c.name);
+                    const flags = risk === 'red' ? [lang === 'en' ? 'Medical Warning' : 'התוויית נגד רפואית'] : risk === 'yellow' ? [lang === 'en' ? 'Requires Attention' : 'דורש תשומת לב'] : [];
+                    return (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-destructive/5 border border-destructive/20 cursor-pointer hover:bg-destructive/10 transition-colors"
+                        onClick={() => { setSelectedClient(c); setActiveTab('clients'); }}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <AlertTriangle className="w-3.5 h-3.5 text-destructive shrink-0" />
+                          <span className="text-xs font-semibold text-destructive truncate">{c.name}</span>
+                          <span className="text-[10px] text-destructive/70 truncate">{flags.join(', ')}</span>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); approveException(c); }}
+                          className="shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
+                        >
+                          {lang === 'en' ? 'Approve' : 'אישור החרגה'}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ═══ 6. MANAGEMENT BUTTONS GROUP ═══ */}
+            <div className="space-y-3 pt-4">
+              <h3 className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: 'hsl(14 29% 30%)' }}>
+                {lang === 'en' ? 'Management' : 'ניהול'}
+              </h3>
+
+              <div className="relative">
+                <button onClick={() => setShowDigitalCardPreview(true)} className="pill-action-btn animate-fade-up">
+                  <span className="pill-icon-circle"><CreditCard className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'My Digital Card' : 'הכרטיס הדיגיטלי שלי'}</span>
+                </button>
+                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                  <HelpTooltip id="digital-card" text={lang === 'en' ? 'Your luxury digital business card — share it with clients via WhatsApp or social media in one tap.' : 'כרטיס ביקור דיגיטלי יוקרתי — שתפי אותו עם לקוחות בוואטסאפ או ברשתות בלחיצה אחת.'} />
+                </span>
+              </div>
+
+              <div className="relative">
+                <button onClick={() => navigate('/admin/timeline-settings')} className="pill-action-btn animate-fade-up">
+                  <span className="pill-icon-circle"><Pencil className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Healing Journey' : 'עריכת מסע ההחלמה'}</span>
+                </button>
+                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                  <HelpTooltip id="healing-journey" text={lang === 'en' ? 'Customize the 30-day healing timeline — edit daily care instructions, tips, and notifications for your clients.' : 'התאימי את ציר הזמן של 30 ימי ההחלמה — ערכי הוראות טיפול, טיפים והתראות לכל יום.'} />
+                </span>
+              </div>
+
+              <div className="relative">
+                <button onClick={() => setShowHealthEditor(true)} className="pill-action-btn animate-fade-up">
+                  <span className="pill-icon-circle"><ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Health Declaration' : 'עריכת הצהרת בריאות'}</span>
+                </button>
+                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                  <HelpTooltip id="health-declaration" text={lang === 'en' ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.' : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'} />
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
+                className="pill-action-btn preview-pill-btn animate-fade-up"
+                style={{ height: '56px' }}
+              >
+                <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
+                  <Eye className="w-4 h-4" style={{ color: '#FFFFFF' }} strokeWidth={1.5} />
+                </span>
+                <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
               </button>
             </div>
 
