@@ -352,9 +352,9 @@ const Pricing = () => {
                   <span
                     className="text-5xl font-serif font-bold"
                     style={{
-                      backgroundImage: 'linear-gradient(105deg, #a08080 0%, #d8b4b4 12%, #f5e0e0 24%, #e8caca 32%, #c9a0a0 44%, #b89090 52%, #f0d8d8 58%, #d8b4b4 68%, #c09898 78%, #e8caca 88%, #a08080 100%)',
-                      backgroundSize: '300% 100%',
-                      animation: 'metallic-shimmer 4s linear infinite',
+                      backgroundImage: `url(${roseGoldTexture})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
                       filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
