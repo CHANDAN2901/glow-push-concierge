@@ -43,7 +43,7 @@ const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
         <span className="font-light tracking-wide">{prefix} </span>
         <span
           className="font-bold bg-clip-text text-transparent"
-          style={{ backgroundImage: `linear-gradient(135deg, ${ROSE_GOLD_METALLIC}, #D4AF37, ${ROSE_GOLD_METALLIC})` }}
+          style={{ backgroundImage: `linear-gradient(135deg, #d8b4b4, #c9a0a0, #d8b4b4)` }}
         >
           {suffix}
         </span>
@@ -285,9 +285,9 @@ const Pricing = () => {
                 <span
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
                   style={{
-                    background: `linear-gradient(135deg, ${ROSE_GOLD_METALLIC}, #D4AF37, ${ROSE_GOLD_METALLIC})`,
+                    background: 'linear-gradient(135deg, #c9a0a0, #d8b4b4, #c9a0a0)',
                     color: '#FFFFFF',
-                    boxShadow: `0 2px 12px rgba(201, 149, 108, 0.4)`,
+                    boxShadow: '0 2px 12px rgba(216, 180, 180, 0.45)',
                   }}
                 >
                   {badge}
@@ -296,7 +296,7 @@ const Pricing = () => {
 
               <div className={`flex items-center justify-center gap-2 ${isElite ? 'mt-4' : ''} mb-6`}>
                 <PlanTitle slug={plan.slug} name={name} />
-                <Icon className="w-5 h-5" style={{ color: ROSE_GOLD_METALLIC }} />
+                <Icon className="w-5 h-5" style={{ color: '#d8b4b4' }} />
               </div>
 
               <div className="mb-8">
@@ -304,10 +304,9 @@ const Pricing = () => {
                   <span
                     className="text-5xl font-serif font-bold"
                     style={{
-                      color: isElite ? undefined : TEXT_DARK,
-                      backgroundImage: isElite ? `linear-gradient(135deg, ${ROSE_GOLD_METALLIC}, #D4AF37, ${ROSE_GOLD_METALLIC})` : undefined,
-                      WebkitBackgroundClip: isElite ? 'text' : undefined,
-                      WebkitTextFillColor: isElite ? 'transparent' : undefined,
+                      backgroundImage: 'linear-gradient(135deg, #d8b4b4, #c9a0a0, #d8b4b4)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
                     }}
                   >
                     {isHe ? `₪${plan.price_monthly.toLocaleString()}` : `$${plan.price_usd.toLocaleString()}`}
@@ -321,11 +320,11 @@ const Pricing = () => {
               <ul className="space-y-0 mb-10 flex-1">
                 {features.map((f, i) => (
                   <li key={i}>
-                    <div className="flex items-center justify-center gap-3 text-sm py-3" style={{ color: TEXT_DARK, fontWeight: 500 }}>
+                    <div className="flex items-center justify-center gap-3 text-sm py-3" style={{ color: '#4a3636', fontWeight: 500 }}>
                       <span>{f}</span>
                     </div>
                     {i < features.length - 1 && (
-                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: `rgba(216, 180, 180, 0.3)` }} />
+                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: 'rgba(216, 180, 180, 0.2)' }} />
                     )}
                   </li>
                 ))}
