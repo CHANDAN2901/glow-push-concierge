@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Crown, Sparkles, Star, Flame, Receipt } from 'lucide-react';
+import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
@@ -329,12 +330,12 @@ const Pricing = () => {
                 <span
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
                   style={{
-                    backgroundImage: 'linear-gradient(105deg, #a08080 0%, #d8b4b4 12%, #f5e0e0 24%, #e8caca 32%, #c9a0a0 44%, #b89090 52%, #f0d8d8 58%, #d8b4b4 68%, #c09898 78%, #e8caca 88%, #a08080 100%)',
-                    backgroundSize: '300% 100%',
-                    animation: 'metallic-shimmer 4s linear infinite',
+                    backgroundImage: `url(${roseGoldTexture})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                     color: '#FFFFFF',
                     boxShadow: '0 4px 18px rgba(216, 180, 180, 0.55), 0 0 10px rgba(201, 160, 160, 0.3)',
-                    textShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                    textShadow: '0 1px 3px rgba(0,0,0,0.2)',
                   }}
                 >
                   {badge}
@@ -351,9 +352,9 @@ const Pricing = () => {
                   <span
                     className="text-5xl font-serif font-bold"
                     style={{
-                      backgroundImage: 'linear-gradient(105deg, #a08080 0%, #d8b4b4 12%, #f5e0e0 24%, #e8caca 32%, #c9a0a0 44%, #b89090 52%, #f0d8d8 58%, #d8b4b4 68%, #c09898 78%, #e8caca 88%, #a08080 100%)',
-                      backgroundSize: '300% 100%',
-                      animation: 'metallic-shimmer 4s linear infinite',
+                      backgroundImage: `url(${roseGoldTexture})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
                       filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
