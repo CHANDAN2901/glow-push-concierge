@@ -111,7 +111,7 @@ const goldBtnStyle: React.CSSProperties = {
   backgroundSize: '200% 100%',
   border: 'none',
   boxShadow: '0 4px 20px rgba(212,175,55,0.4), 0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(249,242,149,0.6)',
-  color: '#4A3520',
+  color: '#4a3636',
   fontWeight: 700,
   borderRadius: '16px',
   letterSpacing: '0.03em',
