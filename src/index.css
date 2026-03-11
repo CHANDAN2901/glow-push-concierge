@@ -195,7 +195,7 @@
 
 @keyframes bg-fade-to-pink {
   0% { background: #FFFFFF; }
-  100% { background: linear-gradient(160deg, #F0C8CE 0%, #F4D2D7 20%, #EFC6CC 40%, #F2CDD3 60%, #EABFC6 80%, #E5B8C0 100%); }
+  100% { background: radial-gradient(circle at 50% 50%, #FFFFFF 0%, #F8E0E4 25%, #F0C8CE 45%, #E8B8C0 65%, #E0A8B2 80%, #D49AA6 100%); }
 }
 
 @layer utilities {
