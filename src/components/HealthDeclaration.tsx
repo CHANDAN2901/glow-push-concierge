@@ -3,7 +3,7 @@ import { useI18n } from '@/lib/i18n';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, FileText, Check, ArrowLeft, Eraser, Loader2, MapPin, CalendarPlus, Bell } from 'lucide-react';
 import { useHealthQuestions, type HealthQuestion } from '@/hooks/useHealthQuestions';
-import equipmentHeroImg from '@/assets/equipment-hero.jpg';
+import eyebrowHeroImg from '@/assets/eyebrow-hero.png';
 import glowpushLogoImg from '@/assets/glowpush-logo.png';
 
 export interface HealthDeclarationData {
@@ -389,26 +389,20 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       <div className="flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-8">
         <div className="w-full max-w-lg">
 
-          {/* ═══ Seamless Luxury Header — no boxes/frames ═══ */}
-          {/* Dark equipment image fading into page background */}
-          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '220px' }}>
+          {/* ═══ Seamless Luxury Header — eyebrow closeup ═══ */}
+          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '260px' }}>
             <img
-              src={equipmentHeroImg}
+              src={eyebrowHeroImg}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ filter: 'brightness(0.65) saturate(1.2) contrast(1.05)' }}
+              className="absolute inset-0 w-full h-full object-cover object-center"
+              style={{ filter: 'brightness(0.85) saturate(1.15) contrast(1.05)' }}
             />
-            {/* Warm tint */}
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(180deg, rgba(35,18,8,0.2) 0%, rgba(50,25,12,0.1) 40%, transparent 100%)' }}
-            />
-            {/* Soft fade into page pink — no harsh line */}
+            {/* Soft fade into page pink */}
             <div
               className="absolute bottom-0 left-0 right-0"
               style={{
                 height: '140px',
-                background: 'linear-gradient(180deg, transparent 0%, hsla(350,50%,94%,0.1) 25%, hsla(350,50%,94%,0.35) 45%, hsla(350,50%,94%,0.65) 65%, hsla(350,50%,94%,0.9) 85%, hsl(350,50%,94%) 100%)',
+                background: 'linear-gradient(180deg, transparent 0%, hsla(350,50%,94%,0.15) 30%, hsla(350,50%,94%,0.5) 55%, hsla(350,50%,94%,0.85) 80%, hsl(350,50%,94%) 100%)',
               }}
             />
             {/* Back button + step row */}
@@ -456,16 +450,13 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               )}
             </div>
 
-            {/* Welcome text — static metallic rose gold, FB Ahava, no animation */}
+            {/* Welcome text — solid dark rosewood, FB Ahava, static */}
             <h1
               className="text-center text-lg sm:text-xl leading-relaxed mb-2"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 fontWeight: 700,
-                background: 'linear-gradient(135deg, #a07070 0%, #c9a0a0 20%, #dbbcbc 40%, #c9a0a0 60%, #b08888 80%, #a07070 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 1px 2px rgba(74,32,32,0.25))',
+                color: '#4a3636',
               }}
             >
               {step === 1 && fullName.trim()
