@@ -313,6 +313,11 @@ const ArtistDashboard = () => {
   }, [setSearchParams]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const hasUnsavedLogoChangeRef = useRef(false);
+
+  useEffect(() => {
+    hasUnsavedLogoChangeRef.current = hasUnsavedLogoChange;
+  }, [hasUnsavedLogoChange]);
 
 
   // Treatment notes history — persisted in localStorage per client
