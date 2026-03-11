@@ -448,7 +448,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             />
             <div
               className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center"
-              style={{ background: GOLD, boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
+              style={{ background: ROSE, boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
             >
               <Move className="w-3 h-3 text-white" />
             </div>
