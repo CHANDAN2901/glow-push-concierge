@@ -2079,7 +2079,7 @@ const ArtistDashboard = () => {
                   <button
                     onClick={() => { if (navigator.vibrate) navigator.vibrate(50); setDispatchPrefill(null); setDispatchOpen(true); }}
                     className="w-full rounded-full py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                    style={{ background: '#ffffff', border: '2px solid #D4AF37', color: '#4a3636', boxShadow: '0 3px 12px rgba(212, 175, 55, 0.12)' }}
+                    style={{ background: '#ffffff', border: '2.5px solid #d8b4b4', color: '#4a3636', boxShadow: '0 4px 16px rgba(216, 180, 180, 0.3), 0 2px 8px rgba(216, 180, 180, 0.15)' }}
                   >
                     <Plus className="w-4 h-4" strokeWidth={3} />
                     {lang === 'en' ? 'Add New Client' : 'הוספי לקוחה חדשה'}
@@ -2235,11 +2235,11 @@ const ArtistDashboard = () => {
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
                                 <button type="button" onClick={(e) => { e.stopPropagation(); openEditClient(client); }}
-                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}>
+                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#4a3636' }}>
                                   <Pencil className="w-3 h-3" />
                                 </button>
                                 <button type="button" onClick={(e) => { e.stopPropagation(); openWhatsApp(client.phone, client.name, client.link); }}
-                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}>
+                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#4a3636' }}>
                                   <MessageCircle className="w-3 h-3" />
                                 </button>
                                 <button type="button" onClick={(e) => { e.stopPropagation(); setDeletingClient(client); }}
@@ -2294,7 +2294,7 @@ const ArtistDashboard = () => {
                           {birthdayWeek && (
                             <button type="button" onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
-                              style={{ background: 'linear-gradient(145deg, #E8A0B0, #D4838F)', color: '#fff', boxShadow: '0 4px 14px rgba(212, 131, 143, 0.3), 0 0 10px rgba(232, 160, 176, 0.15)' }}>
+                              style={{ background: 'rgba(216, 180, 180, 0.12)', color: '#4a3636', border: '1px solid #d8b4b4', boxShadow: '0 3px 10px rgba(216, 180, 180, 0.15)' }}>
                               🎂 {lang === 'en' ? 'Birthday Wish' : 'ברכת יום הולדת'}
                             </button>
                           )}
