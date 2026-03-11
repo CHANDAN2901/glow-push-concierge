@@ -956,7 +956,7 @@ const ClientHome = () => {
         <div id="faq" className="scroll-mt-20" />
         <div
           className="rounded-3xl p-6 mb-5 animate-fade-up client-glass-card"
-          dir="rtl"
+          dir={isHe ? 'rtl' : 'ltr'}
         >
           <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-1.5 mb-4 text-xs hover:underline underline-offset-2" style={{ color: '#8B6508', fontFamily: FBAHAVA }}>
             <ArrowUp className="w-3.5 h-3.5" />
@@ -974,68 +974,86 @@ const ClientHome = () => {
             {[
               {
                 key: 'faq-1',
-                q: 'הצבע נראה לי כהה ועבה מדי, זה יישאר ככה?',
-                a: 'ממש לא! בימים הראשונים הפיגמנט מתחמצן ומתכהה, וזה טבעי לגמרי. לאחר שלב הקילוף, הצבע יתבהר משמעותית (בין 30% ל-50%) ויתרכך לגוון הטבעי והמדויק שבחרנו.',
+                q_he: 'הצבע נראה לי כהה ועבה מדי, זה יישאר ככה?',
+                q_en: 'The color looks too dark and thick, will it stay like this?',
+                a_he: 'ממש לא! בימים הראשונים הפיגמנט מתחמצן ומתכהה, וזה טבעי לגמרי. לאחר שלב הקילוף, הצבע יתבהר משמעותית (בין 30% ל-50%) ויתרכך לגוון הטבעי והמדויק שבחרנו.',
+                a_en: 'Not at all! In the first days the pigment oxidizes and darkens, which is completely natural. After the peeling stage, the color will lighten significantly (30-50%) and soften to the natural, precise shade we chose.',
               },
               {
                 key: 'faq-2',
-                q: 'אחרי שהקילוף ירד, נראה כאילו אין לי צבע בכלל. זה הגיוני?',
-                a: 'כן! זה נקרא "שלב החלביות" של העור. העור החדש שצומח מסתיר מעט את הפיגמנט. הצבע יחזור ויצוף אל פני השטח בהדרגה במהלך השבועות הקרובים.',
+                q_he: 'אחרי שהקילוף ירד, נראה כאילו אין לי צבע בכלל. זה הגיוני?',
+                q_en: 'After the peeling, it looks like there\'s no color at all. Is this normal?',
+                a_he: 'כן! זה נקרא "שלב החלביות" של העור. העור החדש שצומח מסתיר מעט את הפיגמנט. הצבע יחזור ויצוף אל פני השטח בהדרגה במהלך השבועות הקרובים.',
+                a_en: 'Yes! This is called the "milky phase" of the skin. The new skin growing hides the pigment slightly. The color will gradually resurface over the coming weeks.',
               },
               {
                 key: 'faq-3',
-                q: 'האזור מתחיל להתקלף ומאוד מגרד לי, מותר לי לגרד או לעזור לקילוף לרדת?',
-                a: 'בשום פנים ואופן לא. משיכה או גירוד של הקילופים עלולים למשוך החוצה את הפיגמנט ולפגוע בתוצאה, ואפילו ליצור צלקת. תני לעור להחלים בקצב שלו. אם מאוד מגרד, אפשר לטפוח ממש בעדינות מסביב.',
+                q_he: 'האזור מתחיל להתקלף ומאוד מגרד לי, מותר לי לגרד או לעזור לקילוף לרדת?',
+                q_en: 'The area is peeling and very itchy, can I scratch or help the peeling come off?',
+                a_he: 'בשום פנים ואופן לא. משיכה או גירוד של הקילופים עלולים למשוך החוצה את הפיגמנט ולפגוע בתוצאה, ואפילו ליצור צלקת. תני לעור להחלים בקצב שלו. אם מאוד מגרד, אפשר לטפוח ממש בעדינות מסביב.',
+                a_en: 'Absolutely not. Pulling or scratching the peeling skin can pull out pigment, damage results, and even cause scarring. Let your skin heal at its own pace. If very itchy, you can gently pat around the area.',
               },
               {
                 key: 'faq-4',
-                q: 'מתי אפשר לחזור להתאפר, לשים קרמים או לשטוף את הפנים כרגיל?',
-                a: 'יש להימנע מאיפור, קרמים (שלא נתתי לך) או סבון על אזור הטיפול עצמו למשך 10 ימים לפחות. את שאר הפנים אפשר לנקות כרגיל, רק בזהירות מסביב.',
+                q_he: 'מתי אפשר לחזור להתאפר, לשים קרמים או לשטוף את הפנים כרגיל?',
+                q_en: 'When can I wear makeup, apply creams, or wash my face normally again?',
+                a_he: 'יש להימנע מאיפור, קרמים (שלא נתתי לך) או סבון על אזור הטיפול עצמו למשך 10 ימים לפחות. את שאר הפנים אפשר לנקות כרגיל, רק בזהירות מסביב.',
+                a_en: 'Avoid makeup, creams (other than what I provided), or soap on the treated area for at least 10 days. You can clean the rest of your face normally, just be careful around the area.',
               },
               {
                 key: 'faq-5',
-                q: 'מותר לי לעשות ספורט או ללכת לבריכה/לים?',
-                a: 'בשבוע הראשון יש להימנע מפעילות גופנית מאומצת שגורמת להזעה רבה, מכיוון שהזיעה עלולה לדחות את הפיגמנט החוצה. כמו כן, חובה להימנע מבריכה, ים, סאונה או שמש ישירה עד להחלמה מלאה של העור.',
+                q_he: 'מותר לי לעשות ספורט או ללכת לבריכה/לים?',
+                q_en: 'Can I exercise or go to the pool/beach?',
+                a_he: 'בשבוע הראשון יש להימנע מפעילות גופנית מאומצת שגורמת להזעה רבה, מכיוון שהזיעה עלולה לדחות את הפיגמנט החוצה. כמו כן, חובה להימנע מבריכה, ים, סאונה או שמש ישירה עד להחלמה מלאה של העור.',
+                a_en: 'During the first week, avoid intense physical activity that causes heavy sweating, as sweat can push out the pigment. Also, you must avoid pools, the sea, saunas, or direct sunlight until the skin is fully healed.',
               },
               {
                 key: 'faq-6',
-                q: 'עברו שבועיים והכל נעלם, עשיתי את הטיפול לחינם?',
-                a: 'אל דאגה, זה חלק טבעי מהתהליך! העור בונה את עצמו מחדש ושכבה עליונה מסתירה זמנית את הפיגמנט. הצבע יתחיל "לצוף" בחזרה בהדרגה, ובטיפול הטאצ\'-אפ נשלים את הכל.',
+                q_he: 'עברו שבועיים והכל נעלם, עשיתי את הטיפול לחינם?',
+                q_en: 'Two weeks passed and everything disappeared, was the treatment for nothing?',
+                a_he: 'אל דאגה, זה חלק טבעי מהתהליך! העור בונה את עצמו מחדש ושכבה עליונה מסתירה זמנית את הפיגמנט. הצבע יתחיל "לצוף" בחזרה בהדרגה, ובטיפול הטאצ\'-אפ נשלים את הכל.',
+                a_en: 'Don\'t worry, this is a natural part of the process! The skin rebuilds itself and a top layer temporarily hides the pigment. The color will gradually "float" back, and the touch-up treatment will complete everything.',
               },
               {
                 key: 'faq-7',
-                q: 'מתי מותר לי להיחשף לשמש או למרוח קרם הגנה?',
-                a: 'בשבועיים הראשונים חובה להימנע משמש ישירה. לאחר עשרה ימים, כשהקילופים ירדו, חשוב מאוד למרוח קרם הגנה על האזור כדי לשמור על הפיגמנט ולמנוע דהייה.',
+                q_he: 'מתי מותר לי להיחשף לשמש או למרוח קרם הגנה?',
+                q_en: 'When can I be in the sun or apply sunscreen?',
+                a_he: 'בשבועיים הראשונים חובה להימנע משמש ישירה. לאחר עשרה ימים, כשהקילופים ירדו, חשוב מאוד למרוח קרם הגנה על האזור כדי לשמור על הפיגמנט ולמנוע דהייה.',
+                a_en: 'During the first two weeks, you must avoid direct sunlight. After ten days, once the peeling is done, it\'s very important to apply sunscreen to the area to preserve the pigment and prevent fading.',
               },
               {
                 key: 'faq-8',
-                q: 'למה אני חייבת להגיע לטיפול השני (הטאצ\'-אפ)?',
-                a: 'איפור קבוע הוא תהליך של שני שלבים. בטיפול הראשון בונים את הבסיס, ובשני מחזקים את הצבע ומדייקים את הצורה. בלי הטיפול השני, התוצאה לא תישמר לאורך זמן.',
+                q_he: 'למה אני חייבת להגיע לטיפול השני (הטאצ\'-אפ)?',
+                q_en: 'Why do I need to come for the second treatment (touch-up)?',
+                a_he: 'איפור קבוע הוא תהליך של שני שלבים. בטיפול הראשון בונים את הבסיס, ובשני מחזקים את הצבע ומדייקים את הצורה. בלי הטיפול השני, התוצאה לא תישמר לאורך זמן.',
+                a_en: 'Permanent makeup is a two-step process. The first treatment builds the base, and the second strengthens the color and refines the shape. Without the second treatment, the result won\'t last long-term.',
               },
               {
                 key: 'faq-9',
-                q: 'האם מותר לעשן או לשתות אלכוהול בימי ההחלמה?',
-                a: 'מומלץ להימנע מאלכוהול 24 שעות לפני ואחרי הטיפול, שכן הוא מדלל את הדם ופוגע בקליטת הפיגמנט. עישון עלול להאט את קצב ריפוי העור ולגרום לדהייה מהירה יותר, לכן כדאי להפחית ככל הניתן בימים הראשונים.',
+                q_he: 'האם מותר לעשן או לשתות אלכוהול בימי ההחלמה?',
+                q_en: 'Can I smoke or drink alcohol during the healing days?',
+                a_he: 'מומלץ להימנע מאלכוהול 24 שעות לפני ואחרי הטיפול, שכן הוא מדלל את הדם ופוגע בקליטת הפיגמנט. עישון עלול להאט את קצב ריפוי העור ולגרום לדהייה מהירה יותר, לכן כדאי להפחית ככל הניתן בימים הראשונים.',
+                a_en: 'It\'s recommended to avoid alcohol 24 hours before and after treatment, as it thins the blood and affects pigment absorption. Smoking can slow skin healing and cause faster fading, so try to reduce as much as possible in the first days.',
               },
             ].map((faq, idx, arr) => (
               <div key={faq.key}>
                 <AccordionItem value={faq.key} className="border-none">
                   <AccordionTrigger
-                    className="text-sm text-right py-5 hover:no-underline gap-3 [&>svg]:hidden"
-                    style={{ fontFamily: FBAHAVA, direction: 'rtl' }}
+                    className={`text-sm ${isHe ? 'text-right' : 'text-left'} py-5 hover:no-underline gap-3 [&>svg]:hidden`}
+                    style={{ fontFamily: FBAHAVA, direction: isHe ? 'rtl' : 'ltr' }}
                   >
                     <span
-                      className="font-bold text-right flex-1"
+                      className={`font-bold ${isHe ? 'text-right' : 'text-left'} flex-1`}
                       style={{ color: '#2A1810' }}
                     >
-                      {faq.q}
+                      {isHe ? faq.q_he : faq.q_en}
                     </span>
                   </AccordionTrigger>
                   <AccordionContent
-                    className="text-sm leading-[1.85] pb-5 text-right"
-                    style={{ color: BODY_TEXT, fontFamily: FBAHAVA, fontWeight: 400, direction: 'rtl' }}
+                    className={`text-sm leading-[1.85] pb-5 ${isHe ? 'text-right' : 'text-left'}`}
+                    style={{ color: BODY_TEXT, fontFamily: FBAHAVA, fontWeight: 400, direction: isHe ? 'rtl' : 'ltr' }}
                   >
-                    {faq.a}
+                    {isHe ? faq.a_he : faq.a_en}
                   </AccordionContent>
                 </AccordionItem>
                 {idx < arr.length - 1 && (
@@ -1044,8 +1062,8 @@ const ClientHome = () => {
                       style={{
                         height: '3px',
                         width: '80%',
-                        marginRight: 0,
-                        marginLeft: 'auto',
+                        marginRight: isHe ? 0 : 'auto',
+                        marginLeft: isHe ? 'auto' : 0,
                         borderRadius: '2px',
                         background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
                         boxShadow: '0 0 8px rgba(212,175,55,0.35), 0 0 16px rgba(212,175,55,0.1)',
