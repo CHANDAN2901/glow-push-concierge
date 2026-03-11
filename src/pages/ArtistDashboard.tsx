@@ -2432,8 +2432,8 @@ const ArtistDashboard = () => {
                   }
                 }
               }}
-              className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212,175,55,0.35)' }}
+              className="preview-card-btn w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
+              style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
             >
               <Share2 className="w-5 h-5" />
               {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}
