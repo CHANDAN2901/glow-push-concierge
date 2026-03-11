@@ -554,45 +554,32 @@
   flex-shrink: 0;
 }
 
-/* ═══ Preview pill button — dusty rose with gold border & glow ═══ */
-.artist-dashboard .preview-pill-btn {
-  background: linear-gradient(145deg, hsl(340 30% 88%), hsl(340 25% 82%)) !important;
-  border: 1.5px solid #D4AF37 !important;
-  box-shadow:
-    0 0 12px rgba(212, 175, 55, 0.35),
-    0 0 24px rgba(212, 175, 55, 0.15),
-    12px 12px 28px rgba(180, 110, 110, 0.3),
-    -12px -12px 28px rgba(255, 255, 255, 0.8) !important;
-  color: #B8860B !important;
+/* ═══ Preview pill button — matches lightbulb FAB style ═══ */
+.artist-dashboard .preview-pill-btn,
+.preview-pill-btn {
+  background: linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%) !important;
+  border: none !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(214, 157, 169, 0.3) !important;
+  color: #FFFFFF !important;
 }
-.artist-dashboard .preview-pill-btn:hover {
-  box-shadow:
-    0 0 18px rgba(212, 175, 55, 0.5),
-    0 0 36px rgba(212, 175, 55, 0.2),
-    16px 16px 32px rgba(180, 110, 110, 0.35),
-    -16px -16px 32px rgba(255, 255, 255, 0.9) !important;
+.artist-dashboard .preview-pill-btn:hover,
+.preview-pill-btn:hover {
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(214, 157, 169, 0.4) !important;
 }
-.artist-dashboard .preview-pill-btn .preview-pill-icon {
-  background: linear-gradient(145deg, rgba(255,255,255,0.9), hsl(340 25% 90%)) !important;
-  box-shadow:
-    inset 2px 2px 6px rgba(212, 175, 55, 0.2),
-    inset -2px -2px 6px rgba(255, 255, 255, 0.9) !important;
+.artist-dashboard .preview-pill-btn .preview-pill-icon,
+.preview-pill-btn .preview-pill-icon {
+  color: #FFFFFF !important;
 }
 
-/* ═══ Preview card buttons — dusty rose with gold border & glow ═══ */
+/* ═══ Preview card buttons — matches lightbulb FAB style ═══ */
 .preview-card-btn {
-  background: linear-gradient(145deg, hsl(340 30% 92%), hsl(340 25% 87%));
-  border: 1.5px solid #D4AF37;
-  box-shadow:
-    0 0 14px rgba(212, 175, 55, 0.3),
-    0 0 28px rgba(212, 175, 55, 0.12),
-    0 8px 24px -4px rgba(180, 110, 110, 0.2);
+  background: linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%);
+  border: none;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(214, 157, 169, 0.3);
+  color: #FFFFFF;
 }
 .preview-card-btn:hover {
-  box-shadow:
-    0 0 20px rgba(212, 175, 55, 0.45),
-    0 0 40px rgba(212, 175, 55, 0.18),
-    0 12px 32px -4px rgba(180, 110, 110, 0.25);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(214, 157, 169, 0.4);
 }
 
 /* ═══ Artist Dashboard — all non-pill buttons float with heavy shadow ═══ */
