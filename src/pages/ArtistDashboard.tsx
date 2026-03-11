@@ -2722,7 +2722,7 @@ const ArtistDashboard = () => {
             <button
               onClick={() => navigate('/pricing')}
               className="w-full flex items-center gap-3 py-4 px-5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
-              style={{ background: '#ffffff', color: '#5C4033', border: '3px solid #D4AF37', boxShadow: '0 6px 28px -4px hsla(38, 55%, 62%, 0.35)' }}
+              style={{ background: '#ffffff', color: '#4a3636', border: '3px solid #D4AF37', boxShadow: '0 6px 28px -4px hsla(38, 55%, 62%, 0.35)' }}
             >
               <Crown className="w-5 h-5" />
               <div className="flex-1 text-start">
