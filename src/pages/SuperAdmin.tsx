@@ -360,16 +360,8 @@ const SuperAdmin = () => {
     <div className="min-h-screen bg-background flex pt-16">
       <AdminSidebar active={view} onNavigate={setView} isAdmin={isAdmin} />
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40"
-        style={{
-          background: 'rgba(255, 220, 230, 0.45)',
-          backdropFilter: 'blur(20px) saturate(1.6)',
-          WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.35)',
-          boxShadow: '0 -4px 30px rgba(216, 180, 180, 0.25)',
-        }}
-      >
-        <div className="flex items-center justify-around py-2 px-1 pb-[env(safe-area-inset-bottom,2px)]">
+      <nav className="md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-[420px] pb-[env(safe-area-inset-bottom,0px)]">
+        <div className="flex items-center justify-between px-2 py-2">
           {([
             { id: 'dashboard' as AdminView, icon: Shield, label: 'דאשבורד' },
             { id: 'users' as AdminView, icon: Users, label: 'משתמשים' },
@@ -382,29 +374,33 @@ const SuperAdmin = () => {
               <button
                 key={tab.id}
                 onClick={() => setView(tab.id)}
-                className="relative flex flex-col items-center gap-1 min-w-0 transition-all"
+                className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 active:scale-95"
                 style={{
-                  ...(isActive ? {
-                    filter: 'drop-shadow(0 0 8px rgba(216, 180, 180, 0.7))',
-                  } : {}),
+                  width: '58px',
+                  height: '58px',
+                  borderRadius: '50%',
+                  background: isActive
+                    ? 'linear-gradient(135deg, #D4AF37 0%, #F0D78C 40%, #D4AF37 70%, #B8860B 100%)'
+                    : 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #dbc0c0 55%, #c9a0a0 100%)',
+                  boxShadow: isActive
+                    ? '0 6px 24px rgba(212, 175, 55, 0.5), 0 2px 8px rgba(212, 175, 55, 0.3), inset 0 1px 2px rgba(255,255,255,0.4)'
+                    : '0 4px 16px rgba(216, 180, 180, 0.45), 0 2px 6px rgba(160, 120, 120, 0.2), inset 0 1px 2px rgba(255,255,255,0.3)',
+                  border: isActive ? '2px solid #D4AF37' : '1px solid rgba(216, 180, 180, 0.5)',
                 }}
               >
-                {isActive && (
-                  <span
-                    className="absolute -inset-2 rounded-full"
-                    style={{
-                      background: 'radial-gradient(circle, rgba(216, 180, 180, 0.5) 0%, transparent 70%)',
-                    }}
-                  />
-                )}
                 <tab.icon
-                  className="w-5 h-5 transition-colors relative z-10"
+                  size={18}
+                  strokeWidth={2.2}
                   style={{ color: '#FFFFFF' }}
-                  strokeWidth={isActive ? 2.4 : 1.6}
                 />
                 <span
-                  className="text-[10px] tracking-wide truncate font-semibold relative z-10"
-                  style={{ color: '#FFFFFF' }}
+                  style={{
+                    fontSize: '8px',
+                    fontWeight: 700,
+                    color: '#FFFFFF',
+                    lineHeight: 1,
+                    textShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                  }}
                 >
                   {tab.label}
                 </span>
