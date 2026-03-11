@@ -599,8 +599,8 @@
 /* ═══ Artist Dashboard — glassmorphism cards (clean milky-white) ═══ */
 .artist-dashboard .bg-card,
 .artist-dashboard .bg-white,
-.artist-dashboard [class*="rounded-2xl"][class*="p-"],
-.artist-dashboard [class*="rounded-3xl"][class*="p-"] {
+.artist-dashboard [class*="rounded-2xl"][class*="p-"]:not(.preview-card-btn),
+.artist-dashboard [class*="rounded-3xl"][class*="p-"]:not(.preview-card-btn) {
   position: relative;
   background: rgba(255, 255, 255, 0.65) !important;
   backdrop-filter: blur(12px);

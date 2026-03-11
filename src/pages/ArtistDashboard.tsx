@@ -2884,7 +2884,7 @@ const ArtistDashboard = () => {
               }}
               className="preview-card-btn w-full rounded-3xl p-5 flex items-center justify-center transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <span className="font-bold text-base tracking-wide" style={{ color: '#FFFFFF' }}>
+              <span className="block w-full text-center font-bold text-base tracking-wide relative z-10" style={{ color: '#FFFFFF' }}>
                 {lang === 'en' ? 'Preview Client Screen' : 'תצוגת מסך לקוחה'}
               </span>
             </button>
