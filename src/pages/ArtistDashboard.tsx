@@ -2225,22 +2225,6 @@ const ArtistDashboard = () => {
                       </div>
                     );
                   }
-                  if (clientListFilter !== 'all') {
-                    const emptyIcon = clientListFilter === 'birthdays' ? '🎂' : '🔄';
-                    const emptyTitle = clientListFilter === 'birthdays'
-                      ? (lang === 'en' ? 'No birthdays this month' : 'אין ימי הולדת החודש')
-                      : (lang === 'en' ? 'No renewal needed' : 'אין לקוחות לחידוש כרגע');
-                    const emptyDesc = clientListFilter === 'birthdays'
-                      ? (lang === 'en' ? 'Add birth dates to client profiles to see them here' : 'הוסיפי תאריכי לידה ללקוחות כדי לראות אותן כאן')
-                      : (lang === 'en' ? 'Clients needing renewal will appear here automatically' : 'לקוחות שעבר מספיק זמן מהטיפול יופיעו כאן אוטומטית');
-                    return (
-                      <div className="text-center py-12">
-                        <span className="text-4xl mb-3 block">{emptyIcon}</span>
-                        <p className="text-sm text-muted-foreground">{emptyTitle}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{emptyDesc}</p>
-                      </div>
-                    );
-                  }
                 }
 
                 return (
