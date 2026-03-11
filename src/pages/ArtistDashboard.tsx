@@ -2762,21 +2762,7 @@ const ArtistDashboard = () => {
                   if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
                     setSavingBusiness(true);
                     try {
-                      let finalLogoUrl = logoUrl;
-
-                      // If logo is a base64 data URL, upload to storage first
-                      if (logoUrl && logoUrl.startsWith('data:')) {
-                        const blob = await fetch(logoUrl).then(r => r.blob());
-                        const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-                        const path = `${user.id}/logo.${ext}`;
-                        const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
-                        if (uploadErr) {
-                          console.error('Business logo upload failed', { path, message: uploadErr.message, error: uploadErr });
-                          throw uploadErr;
-                        }
-                        const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
-                        finalLogoUrl = urlData.publicUrl;
-                      }
+                      const finalLogoUrl = await uploadProfileLogo(logoUrl);
 
                       const { error } = await supabase.from('profiles').update({
                         full_name: artistName || null,
