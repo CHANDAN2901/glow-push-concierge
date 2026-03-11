@@ -20,12 +20,15 @@ export default function BackButton({ onClick, label, className = '' }: BackButto
   return (
     <button
       onClick={onClick ?? (() => navigate(-1))}
-      className={`inline-flex items-center gap-1 rounded-full transition-all active:scale-90 ${className}`}
-      style={{ color: '#4a3636' }}
+      className={`inline-flex items-center justify-center gap-1 rounded-full transition-all active:scale-90 w-10 h-10 ${className}`}
+      style={{
+        background: 'linear-gradient(135deg, #D4AF37 0%, #F0D78C 50%, #B8860B 100%)',
+        boxShadow: '0 2px 8px rgba(184, 134, 11, 0.35)',
+      }}
       aria-label="Back"
     >
-      <ChevronRight className="w-5 h-5" strokeWidth={2} style={{ color: '#d8b4b4' }} />
-      {label && <span className="text-xs font-medium" style={{ color: '#4a3636' }}>{label}</span>}
+      <ChevronRight className="w-5 h-5" strokeWidth={2.5} style={{ color: '#FFFFFF' }} />
+      {label && <span className="text-xs font-bold" style={{ color: '#FFFFFF' }}>{label}</span>}
     </button>
   );
 }
