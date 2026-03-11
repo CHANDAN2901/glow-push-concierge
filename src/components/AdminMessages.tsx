@@ -172,6 +172,7 @@ function PhaseImageUploader({ currentUrl, previewUrl, onFileSelect }: {
 export default function AdminMessages() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'healing' | 'push'>('healing');
+  const [activeTreatment, setActiveTreatment] = useState<'eyebrows' | 'lips'>('eyebrows');
 
   const [phases, setPhases] = useState<HealingPhase[]>([]);
   const [totalDays, setTotalDays] = useState(14);
@@ -186,12 +187,12 @@ export default function AdminMessages() {
   const [broadcasting, setBroadcasting] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  const fetchPhases = (treatment: string) => {
     setLoadingPhases(true);
     supabase
       .from('healing_phases')
       .select('*')
-      .eq('treatment_type', 'eyebrows')
+      .eq('treatment_type', treatment)
       .order('sort_order')
       .then(({ data, error }) => {
         const items = (!error && data ? data : []) as HealingPhase[];
@@ -203,7 +204,11 @@ export default function AdminMessages() {
         setPhaseDrafts(buildPhaseDrafts(items));
         setLoadingPhases(false);
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    fetchPhases(activeTreatment);
+  }, [activeTreatment]);
 
   useEffect(() => {
     supabase
