@@ -570,16 +570,16 @@ const ClientHome = () => {
           />
           <div className="relative py-10 px-6 text-center">
             <h1
-              className="font-bold tracking-wide mb-3"
+              className="font-extrabold tracking-wide mb-3"
               style={{
                 fontFamily: FBAHAVA,
-                fontSize: '26px',
+                fontSize: '28px',
                 lineHeight: 1.6,
-                background: 'linear-gradient(90deg, #caa64b, #f6e27a, #caa64b)',
+                background: 'linear-gradient(135deg, #8B4A4A 0%, #C4877A 18%, #F2C4B0 35%, #FFE0D0 50%, #D4A08A 65%, #B0705C 80%, #8B4A4A 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.45))',
+                filter: 'drop-shadow(0 1px 2px rgba(139,74,74,0.3)) drop-shadow(0 0 8px rgba(212,160,138,0.25))',
               }}
             >
               ✨ {lang === 'en' ? `Welcome to your healing journey, ${clientName}!` : `ברוכה הבאה למסע ההחלמה שלך, ${clientName}!`} ✨
