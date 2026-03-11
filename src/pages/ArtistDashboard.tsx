@@ -1828,7 +1828,7 @@ const ArtistDashboard = () => {
                           type="button"
                           onClick={() => setViewDeclarationFor(selectedClient.name)}
                           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold tracking-wide transition-all active:scale-[0.97]"
-                          style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                          style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}
                         >
                           <Eye className="w-4 h-4" strokeWidth={2} />
                           {lang === 'en' ? 'View Full Health Declaration' : 'צפייה בהצהרת הבריאות המלאה'}
