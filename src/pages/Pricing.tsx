@@ -43,7 +43,7 @@ const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
         <span className="font-light tracking-wide">{prefix} </span>
         <span
           className="font-bold bg-clip-text text-transparent"
-          style={{ backgroundImage: `linear-gradient(135deg, ${ROSE_GOLD_METALLIC}, #D4AF37, ${ROSE_GOLD_METALLIC})` }}
+          style={{ backgroundImage: `linear-gradient(135deg, #d8b4b4, #c9a0a0, #d8b4b4)` }}
         >
           {suffix}
         </span>
