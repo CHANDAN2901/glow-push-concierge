@@ -213,34 +213,48 @@ const SimpleGallery = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="font-serif font-medium text-lg tracking-wide" style={{ color: '#1a1a1a' }}>
+        <h2 className="font-serif font-medium text-lg tracking-wide" style={{ color: '#4a3636' }}>
           {lang === 'en' ? 'Portfolio Gallery' : 'גלריית עבודות'}
         </h2>
         <button
           onClick={handleShare}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all active:scale-95 bg-accent text-accent-foreground shadow-gold"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-serif font-semibold transition-all active:scale-95 hover:shadow-lg"
+          style={{
+            background: 'rgba(255, 255, 255, 0.55)',
+            backdropFilter: 'blur(12px)',
+            border: '1.5px solid rgba(216, 180, 180, 0.5)',
+            color: '#4a3636',
+            boxShadow: '0 4px 16px rgba(216, 180, 180, 0.2)',
+          }}
         >
-          <Share2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+          <Share2 className="w-3.5 h-3.5" style={{ color: '#d8b4b4' }} strokeWidth={1.5} />
           {lang === 'en' ? 'Share' : 'שתפי'}
         </button>
       </div>
 
       {/* Hero Upload Zone */}
       <div
-        className={`rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${isDragOver ? 'bg-accent/5 border-accent shadow-[0_0_0_4px_hsl(38_55%_62%/0.1)]' : 'bg-background border-accent/40'}`}
-        style={{ border: `2px dashed`, minHeight: 180 }}
+        className={`rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${isDragOver ? 'scale-[1.01]' : ''}`}
+        style={{
+          background: 'rgba(255, 255, 255, 0.45)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: `2px dashed ${isDragOver ? '#d8b4b4' : 'rgba(216, 180, 180, 0.4)'}`,
+          boxShadow: isDragOver ? '0 0 0 4px rgba(216, 180, 180, 0.15)' : '0 4px 20px rgba(216, 180, 180, 0.1)',
+          minHeight: 180,
+        }}
         onClick={() => fileInputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
         onDragLeave={() => setIsDragOver(false)}
         onDrop={handleDrop}
       >
-        <div className="w-16 h-16 rounded-full flex items-center justify-center bg-accent/10">
-          <ImagePlus className="w-8 h-8 text-accent" strokeWidth={1.5} />
+        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)' }}>
+          <ImagePlus className="w-8 h-8" style={{ color: '#d8b4b4' }} strokeWidth={1.5} />
         </div>
-        <p className="font-serif font-medium text-sm tracking-wide text-center text-accent">
+        <p className="font-serif font-medium text-sm tracking-wide text-center" style={{ color: '#4a3636' }}>
           {lang === 'en' ? 'Click or drag photos here' : 'לחצי או גררי תמונות לכאן'}
         </p>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-[11px]" style={{ color: '#9a8585' }}>
           PNG, JPG {lang === 'en' ? 'up to' : 'עד'} 10MB
         </p>
         <input
@@ -258,7 +272,7 @@ const SimpleGallery = () => {
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
             {pendingFiles.map((p, i) => (
-              <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-accent/30">
+              <div key={i} className="relative aspect-square rounded-xl overflow-hidden" style={{ border: '1.5px solid rgba(216, 180, 180, 0.4)' }}>
                 <img src={p.previewUrl} alt="" className="w-full h-full object-cover" />
                 <button
                   onClick={(e) => { e.stopPropagation(); removePending(i); }}
@@ -273,7 +287,12 @@ const SimpleGallery = () => {
           <button
             onClick={uploadAll}
             disabled={uploading}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-bold tracking-wide transition-all active:scale-95 disabled:opacity-50 btn-gold-cta"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-bold font-serif tracking-wide transition-all active:scale-95 disabled:opacity-50 hover:shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #8b5a5a 0%, #6b3a3a 100%)',
+              color: '#ffffff',
+              boxShadow: '0 6px 24px rgba(107, 58, 58, 0.35)',
+            }}
           >
             <Upload className="w-4 h-4" strokeWidth={2} />
             {uploading
@@ -285,8 +304,12 @@ const SimpleGallery = () => {
 
       {/* Existing Photos Grid */}
       {images.length === 0 && pendingFiles.length === 0 ? (
-        <div className="rounded-2xl py-12 text-center bg-background border border-border">
-          <p className="text-sm font-light text-muted-foreground">
+        <div className="rounded-2xl py-12 text-center" style={{
+          background: 'rgba(255, 255, 255, 0.45)',
+          backdropFilter: 'blur(12px)',
+          border: '1.5px solid rgba(216, 180, 180, 0.3)',
+        }}>
+          <p className="text-sm font-serif font-light" style={{ color: '#9a8585' }}>
             {lang === 'en' ? 'No photos yet — start building your portfolio ✨' : 'אין עדיין תמונות — התחילי לבנות את הגלריה שלך ✨'}
           </p>
         </div>
@@ -295,7 +318,11 @@ const SimpleGallery = () => {
           {images.filter(img => img.base64_data || (img.image_url && img.image_url !== 'base64')).map(img => (
             <div
               key={img.id}
-              className="relative group aspect-[4/5] rounded-2xl overflow-hidden shadow-md"
+              className="relative group aspect-[4/5] rounded-2xl overflow-hidden transition-all hover:shadow-lg"
+              style={{
+                border: '1.5px solid rgba(216, 180, 180, 0.35)',
+                boxShadow: '0 4px 16px rgba(216, 180, 180, 0.12)',
+              }}
             >
               <img
                 src={img.base64_data || img.image_url}

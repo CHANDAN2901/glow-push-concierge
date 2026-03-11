@@ -506,11 +506,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         <button
           onClick={handleSave}
           disabled={saving || !bothUploaded}
-          className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
+          className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
           style={{
-            background: bothUploaded ? GOLD_GRADIENT : `${GOLD}44`,
-            color: '#4a3636',
-            boxShadow: bothUploaded ? '0 4px 20px -4px rgba(212, 175, 55, 0.5)' : 'none',
+            background: bothUploaded ? 'linear-gradient(135deg, #8b5a5a 0%, #6b3a3a 100%)' : 'rgba(216, 180, 180, 0.3)',
+            color: bothUploaded ? '#ffffff' : ROSE_DARK,
+            boxShadow: bothUploaded ? '0 6px 24px rgba(107, 58, 58, 0.35)' : 'none',
           }}
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -520,14 +520,16 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         <button
           onClick={handleDownload}
           disabled={downloading || !bothUploaded}
-          className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
+          className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
           style={{
-            background: 'transparent',
-            color: GOLD_DARK,
-            border: `2px solid ${bothUploaded ? GOLD : `${GOLD}44`}`,
+            background: 'rgba(255, 255, 255, 0.55)',
+            backdropFilter: 'blur(8px)',
+            color: ROSE_DARK,
+            border: `1.5px solid ${bothUploaded ? ROSE : 'rgba(216, 180, 180, 0.3)'}`,
+            boxShadow: '0 4px 16px rgba(216, 180, 180, 0.15)',
           }}
         >
-          {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" style={{ color: ROSE }} />}
           {downloading ? (isHe ? 'מוריד...' : 'Downloading...') : (isHe ? 'הורדה לגלריה' : 'Download')}
         </button>
       </div>

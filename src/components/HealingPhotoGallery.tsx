@@ -204,8 +204,13 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           {sortedPhotos.map((photo) => (
             <div
               key={photo.id}
-              className="relative rounded-xl overflow-hidden shadow-sm border transition-all cursor-pointer hover:shadow-md hover:scale-[1.02]"
-              style={{ borderColor: `${GOLD}40`, background: '#ffffff' }}
+              className="relative rounded-xl overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02]"
+              style={{
+                background: 'rgba(255, 255, 255, 0.55)',
+                backdropFilter: 'blur(8px)',
+                border: '1.5px solid rgba(216, 180, 180, 0.35)',
+                boxShadow: '0 4px 16px rgba(216, 180, 180, 0.12)',
+              }}
               onClick={() => setLightboxUrl(photo.public_url)}
             >
               <div className="aspect-square overflow-hidden relative">
@@ -214,24 +219,24 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
                   onClick={(e) => { e.stopPropagation(); removePhoto(photo.id); }}
                   className="absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-sm z-10"
                 >
-                  <X className="w-2.5 h-2.5" style={{ color: GOLD_DARK }} />
+                  <X className="w-2.5 h-2.5" style={{ color: ROSE_DARK }} />
                 </button>
                 {photo.day_number !== null && (
-                  <span className="absolute top-1 right-1 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
-                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}>
+                  <span className="absolute top-1 right-1 text-[8px] font-bold font-serif px-2 py-0.5 rounded-full z-10"
+                    style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#ffffff' }}>
                     {isHe ? `יום ${photo.day_number}` : `Day ${photo.day_number}`}
                   </span>
                 )}
                 {photo.photo_type === 'collage' && (
-                  <span className="absolute bottom-1 right-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}>
+                  <span className="absolute bottom-1 right-1 text-[7px] font-bold font-serif px-1.5 py-0.5 rounded-full z-10"
+                    style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#ffffff' }}>
                     {isHe ? 'קולאז׳' : 'Collage'}
                   </span>
                 )}
               </div>
               <div className="px-1.5 py-1 flex items-center gap-1">
-                <CalendarIcon className="w-2.5 h-2.5 shrink-0" style={{ color: GOLD_DARK }} />
-                <span className="text-[9px] font-serif font-semibold" style={{ color: '#333' }}>
+                <CalendarIcon className="w-2.5 h-2.5 shrink-0" style={{ color: ROSE }} />
+                <span className="text-[9px] font-serif font-semibold" style={{ color: ROSE_DARK }}>
                   {format(new Date(photo.created_at), 'dd/MM/yyyy')}
                 </span>
               </div>
