@@ -2316,7 +2316,7 @@ const ArtistDashboard = () => {
                                     {hasFlags ? <AlertTriangle className="w-4 h-4" /> : client.name.charAt(0)}
                                   </div>
                                   <div>
-                                    <p className={`font-bold text-sm ${hasFlags ? 'text-destructive' : 'text-foreground'}`}>
+                                    <p className={`font-bold text-sm ${hasFlags ? 'text-destructive' : ''}`} style={hasFlags ? {} : { color: '#4a3636', fontFamily: "'Playfair Display', 'FB Ahava', serif" }}>
                                       {birthdayWeek && <span className="ml-1">🎂</span>}
                                       {needsRenewal && <span className="ml-1">🔄</span>}
                                       {client.name}
