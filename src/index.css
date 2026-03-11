@@ -198,24 +198,6 @@
   100% { background: linear-gradient(160deg, #F0C8CE 0%, #F4D2D7 20%, #EFC6CC 40%, #F2CDD3 60%, #EABFC6 80%, #E5B8C0 100%); }
 }
 
-@keyframes glow-pulse {
-  0% {
-    transform: scale(0.85);
-    opacity: 0.4;
-    background: radial-gradient(ellipse at center, rgba(240,180,170,0.6) 0%, rgba(230,160,155,0.35) 30%, transparent 70%);
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.7;
-    background: radial-gradient(ellipse at center, rgba(235,150,140,0.55) 0%, rgba(228,140,135,0.35) 35%, rgba(220,130,125,0.15) 55%, transparent 80%);
-  }
-  100% {
-    transform: scale(1.25);
-    opacity: 0.5;
-    background: radial-gradient(ellipse at center, rgba(240,175,165,0.5) 0%, rgba(232,155,148,0.3) 30%, transparent 70%);
-  }
-}
-
 @layer utilities {
   .text-gold-gradient {
     background: linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%), hsl(38 55% 62%));

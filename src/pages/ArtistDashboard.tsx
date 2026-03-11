@@ -1150,16 +1150,6 @@ const ArtistDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative artist-dashboard" style={{ background: 'linear-gradient(160deg, #F0C8CE 0%, #F4D2D7 20%, #EFC6CC 40%, #F2CDD3 60%, #EABFC6 80%, #E5B8C0 100%)', animation: 'bg-fade-to-pink 1.2s ease-out forwards' }}>
-      {/* Pulsing radiant glow rectangle */}
-      <div className="fixed inset-0 z-0 pointer-events-none flex items-center justify-center">
-        <div style={{
-          width: '70vw',
-          height: '50vh',
-          background: 'radial-gradient(ellipse at center, rgba(240,180,170,0.6) 0%, rgba(230,160,155,0.4) 25%, rgba(220,145,140,0.2) 50%, transparent 75%)',
-          filter: 'blur(60px)',
-          animation: 'glow-pulse 4s ease-in-out infinite alternate',
-        }} />
-      </div>
       {/* Subtle diagonal line texture */}
       <div className="fixed inset-0 z-0 pointer-events-none" style={{
         backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 80px, rgba(212,175,55,0.03) 80px, rgba(212,175,55,0.03) 81px)`,
