@@ -2160,7 +2160,7 @@ const ArtistDashboard = () => {
                       boxShadow: '0 4px 16px rgba(212,175,55,0.4), inset 0 1px 2px rgba(255,255,255,0.4)',
                     } : {
                       background: 'linear-gradient(135deg, #FDF6E3 0%, #F5EDDA 100%)',
-                      color: '#5C4033',
+                      color: '#4a3636',
                       border: '2px solid hsl(38 55% 62% / 0.3)',
                     }}
                   >
