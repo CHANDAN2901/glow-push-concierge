@@ -53,9 +53,9 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
       </div>
 
       {/* ===== LOGO & NAME ===== */}
-      <div className="relative -mt-20 z-10 flex flex-col items-center gap-3 px-6">
+      <div className="relative -mt-24 z-10 flex flex-col items-center gap-4 px-6">
         {(logo || !profileError) ? (
-          <div className="w-32 h-32 rounded-full overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
+          <div className="w-40 h-40 overflow-hidden flex items-center justify-center">
             <img
               src={logo || defaultLogo}
               alt={name}
@@ -64,7 +64,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
             />
           </div>
         ) : (
-          <div className="w-32 h-32 rounded-full bg-white flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
+          <div className="w-40 h-40 rounded-full bg-transparent flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
             <span className="text-gold-gradient font-serif text-5xl font-bold">
               {name.slice(0, 2)}
             </span>

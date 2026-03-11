@@ -2813,8 +2813,6 @@ const ArtistDashboard = () => {
                         if (uploadErr) throw uploadErr;
                         const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
                         finalLogoUrl = urlData.publicUrl;
-                        setLogoUrl(finalLogoUrl);
-                        localStorage.setItem('gp-artist-logo', finalLogoUrl);
                       }
                       const { error } = await supabase.from('profiles').update({
                         business_phone: artistPhone,
@@ -2824,6 +2822,11 @@ const ArtistDashboard = () => {
                         logo_url: finalLogoUrl || null,
                       } as any).eq('id', userProfileId);
                       if (error) throw error;
+                      setSavedLogoUrl(finalLogoUrl || '');
+                      setLogoUrl(finalLogoUrl || '');
+                      setHasUnsavedLogoChange(false);
+                      if (finalLogoUrl) localStorage.setItem('gp-artist-logo', finalLogoUrl);
+                      else localStorage.removeItem('gp-artist-logo');
                       toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
                     } catch (err: any) {
                       console.error('Save card settings error:', err);
