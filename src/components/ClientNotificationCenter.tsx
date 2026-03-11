@@ -182,7 +182,7 @@ export default function ClientNotificationCenter({
             <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT }}>
               <Bell className="w-[17px] h-[17px]" style={{ color: '#4a3636' }} />
             </div>
-            <h2 className="text-base font-bold" style={{ fontFamily: FBAHAVA, color: '#5C4033' }}>
+            <h2 className="text-base font-bold" style={{ fontFamily: FBAHAVA, color: '#4a3636' }}>
               {lang === 'en' ? 'Notifications' : 'התראות'}
             </h2>
           </div>
