@@ -60,7 +60,7 @@ export default function DeclarationViewer({
               <button
                 onClick={() => onSendReminder(clientName, clientPhone)}
                 className="flex items-center justify-center gap-2 mx-auto px-6 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-                style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033', boxShadow: '0 4px 18px rgba(212, 175, 55, 0.35)' }}
+                style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212, 175, 55, 0.35)' }}
               >
                 <MessageCircle className="w-4 h-4" />
                 {isHe ? 'שלחי תזכורת בוואטסאפ' : 'Send Reminder via WhatsApp'}
