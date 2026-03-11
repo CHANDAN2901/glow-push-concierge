@@ -414,7 +414,7 @@ const SuperAdmin = () => {
         </div>
       </nav>
 
-      <main className="flex-1 p-6 md:p-8 overflow-y-auto pb-24 md:pb-8">
+      <main className="flex-1 p-6 md:p-8 overflow-y-auto pb-16 md:pb-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center">

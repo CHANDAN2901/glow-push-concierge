@@ -1391,8 +1391,8 @@ const ArtistDashboard = () => {
                   </button>
                   <p className="text-sm font-bold leading-relaxed text-center relative z-10" style={{ color: '#4a3636' }}>
                     {lang === 'en'
-                      ? `🔥 Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
-                      : `🔥 שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
+                      ? `🔥 Amazing week! You onboarded ${clients.length} new clients. Keep it up!`
+                      : `🔥 שבוע מטורף! הכנסת ${clients.length} לקוחות חדשות השבוע. המשיכי כך!`}
                   </p>
                 </div>
               )}
