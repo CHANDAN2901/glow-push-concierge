@@ -626,7 +626,7 @@ export default function MessageEditor() {
                 style={{
                   border: '2px solid #D4AF37',
                   background: 'rgba(212, 175, 55, 0.1)',
-                  color: '#5C4033',
+                  color: '#4a3636',
                   boxShadow: '0 3px 10px -2px rgba(212, 175, 55, 0.3)',
                 }}
               >
