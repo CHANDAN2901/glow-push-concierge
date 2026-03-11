@@ -216,10 +216,25 @@ const Pricing = () => {
             </button>
           </div>
         </div>
-      )}
+       )}
+
+      {/* Gold glint divider */}
+      <div className="flex justify-center py-6">
+        <div
+          style={{
+            width: '55%',
+            height: '2px',
+            borderRadius: '1px',
+            background: 'linear-gradient(90deg, transparent 0%, #B8860B 20%, #D4AF37 35%, #F9F295 50%, #D4AF37 65%, #B8860B 80%, transparent 100%)',
+            backgroundSize: '200% 100%',
+            animation: 'gold-glint 4s ease-in-out infinite',
+            boxShadow: '0 0 8px rgba(212, 175, 55, 0.4), 0 0 16px rgba(212, 175, 55, 0.15)',
+          }}
+        />
+      </div>
 
       {/* Header */}
-      <div className="pb-14 px-4 flex justify-center">
+      <div className="pb-6 px-4 flex justify-center">
         <div
           className="p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
           style={{
