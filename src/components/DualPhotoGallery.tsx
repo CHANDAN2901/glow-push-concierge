@@ -503,7 +503,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
           className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
           style={{
             background: bothUploaded ? GOLD_GRADIENT : `${GOLD}44`,
-            color: '#5C4033',
+            color: '#4a3636',
             boxShadow: bothUploaded ? '0 4px 20px -4px rgba(212, 175, 55, 0.5)' : 'none',
           }}
         >

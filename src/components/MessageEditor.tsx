@@ -787,7 +787,7 @@ export default function MessageEditor() {
           className="flex items-center gap-2.5 px-10 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97] shadow-lg disabled:opacity-60"
             style={{
               background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-              color: '#5C4033',
+              color: '#4a3636',
               border: '1px solid #D4AF37',
           }}
         >

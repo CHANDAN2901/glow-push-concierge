@@ -264,7 +264,7 @@ export default function BonusCenter({ userProfileId, onNavigateToReferrals }: Bo
             <div key={item.step} className="flex items-start gap-3">
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border border-border"
-                style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)', color: '#5C4033' }}
+                style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)', color: '#4a3636' }}
               >
                 {item.step}
               </div>

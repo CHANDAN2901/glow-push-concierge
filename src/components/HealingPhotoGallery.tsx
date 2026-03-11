@@ -218,7 +218,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
                 )}
                 {photo.photo_type === 'collage' && (
                   <span className="absolute bottom-1 right-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}>
+                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}>
                     {isHe ? 'קולאז׳' : 'Collage'}
                   </span>
                 )}
