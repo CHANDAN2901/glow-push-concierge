@@ -2194,13 +2194,7 @@ const ArtistDashboard = () => {
 
                 const searchQ = clientSearchQuery.trim().toLowerCase();
 
-                const baseClients = clientListFilter === 'birthdays'
-                  ? clients
-                      .filter(c => isBirthdayThisMonth(c.birthDate))
-                      .sort((a, b) => parseInt(a.birthDate?.slice(8, 10) || '0') - parseInt(b.birthDate?.slice(8, 10) || '0'))
-                  : clientListFilter === 'renewal'
-                  ? clients.filter(c => isRenewalDue(c.treatment, c.day))
-                  : clients;
+                const baseClients = clients;
 
                 const displayedClients = searchQ
                   ? baseClients.filter((client) => client.name.toLowerCase().includes(searchQ))
