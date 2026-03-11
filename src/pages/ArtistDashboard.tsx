@@ -2653,8 +2653,8 @@ const ArtistDashboard = () => {
                   style={{ border: '2px solid hsl(38 55% 62%)' }}
                 >
                   {logoUrl ? (
-                    <div className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center" style={{ border: '2px solid hsl(38 55% 62%)', boxShadow: '0 0 12px -3px hsla(38, 55%, 62%, 0.3)' }}>
-                      <img src={logoUrl} alt="Studio logo" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
+                    <div className="w-20 h-20 overflow-hidden flex items-center justify-center">
+                      <img src={logoUrl} alt="Studio logo" className="w-full h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
                     </div>
                   ) : (
                     <Upload className="w-6 h-6 text-accent" />
@@ -2663,16 +2663,33 @@ const ArtistDashboard = () => {
                   <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    if (file.size > 10 * 1024 * 1024) { toast({ title: lang === 'en' ? 'File too large (max 10MB)' : 'הקובץ גדול מדי (מקס 10MB)', variant: 'destructive' }); return; }
+                    if (file.size > 10 * 1024 * 1024) { toast({ title: lang === 'en' ? 'File too large (max 10MB)' : 'הקובץ גדול מדי (מקס 10MB)', variant: 'destructive' }); e.target.value = ''; return; }
                     const reader = new FileReader();
-                    reader.onload = () => { const d = reader.result as string; setLogoUrl(d); localStorage.setItem('gp-artist-logo', d); toast({ title: '✨' }); };
+                    reader.onload = () => {
+                      const nextLogoUrl = reader.result as string;
+                      setLogoUrl(nextLogoUrl);
+                      setHasUnsavedLogoChange(true);
+                      toast({ title: lang === 'en' ? 'Logo updated locally' : 'הלוגו עודכן בתצוגה המקומית' });
+                    };
                     reader.readAsDataURL(file);
                     e.target.value = '';
                   }} />
                 </label>
                 {logoUrl && (
-                  <button type="button" onClick={() => { setLogoUrl(''); localStorage.removeItem('gp-artist-logo'); }} className="text-xs text-destructive hover:underline block mx-auto">
-                    {lang === 'en' ? 'Remove' : 'הסרה'}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (hasUnsavedLogoChange) {
+                        setLogoUrl(savedLogoUrl);
+                        setHasUnsavedLogoChange(false);
+                      } else {
+                        setLogoUrl('');
+                        setHasUnsavedLogoChange(true);
+                      }
+                    }}
+                    className="text-xs text-destructive hover:underline block mx-auto"
+                  >
+                    {hasUnsavedLogoChange ? (lang === 'en' ? 'Cancel logo change' : 'ביטול שינוי לוגו') : (lang === 'en' ? 'Remove' : 'הסרה')}
                   </button>
                 )}
                 <p className="text-xs text-muted-foreground text-center mt-2">
