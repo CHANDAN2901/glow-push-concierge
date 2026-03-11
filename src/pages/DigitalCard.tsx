@@ -55,16 +55,16 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
       {/* ===== LOGO & NAME ===== */}
       <div className="relative -mt-12 z-10 flex flex-col items-center gap-0.5 px-6">
         {(logo || !profileError) ? (
-          <div className="w-60 h-60 overflow-hidden flex items-center justify-center">
+          <div className="w-full max-w-sm overflow-hidden flex items-center justify-center">
             <img
               src={logo || defaultLogo}
               alt={name}
-              className="w-full h-full object-contain"
+              className="w-full h-auto object-contain"
               onError={() => setProfileError(true)}
             />
           </div>
         ) : (
-          <div className="w-60 h-60 rounded-full bg-transparent flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
+          <div className="w-full max-w-sm aspect-square rounded-full bg-transparent flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
             <span className="text-gold-gradient font-serif text-5xl font-bold">
               {name.slice(0, 2)}
             </span>
