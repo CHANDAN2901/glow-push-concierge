@@ -571,17 +571,20 @@
   color: #FFFFFF !important;
 }
 
-/* ═══ Preview card buttons — metallic Rose Gold ═══ */
+/* ═══ Preview card buttons — restore visible centered labels ═══ */
+.artist-dashboard button.preview-card-btn,
 .preview-card-btn {
-  background: linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%);
-  border: none;
-  box-shadow: 0 6px 20px rgba(216, 180, 180, 0.35), 0 2px 8px rgba(201, 160, 160, 0.2);
-  color: #FFFFFF;
+  background: linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%) !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(216, 180, 180, 0.35), 0 2px 8px rgba(201, 160, 160, 0.2) !important;
+  color: #FFFFFF !important;
 }
+.artist-dashboard button.preview-card-btn:hover,
 .preview-card-btn:hover {
-  box-shadow: 0 8px 28px rgba(216, 180, 180, 0.5), 0 4px 12px rgba(201, 160, 160, 0.3);
+  box-shadow: 0 8px 28px rgba(216, 180, 180, 0.5), 0 4px 12px rgba(201, 160, 160, 0.3) !important;
 }
 .preview-card-btn p,
+.preview-card-btn span,
 .preview-card-btn svg {
   color: #FFFFFF !important;
 }
@@ -596,8 +599,8 @@
 /* ═══ Artist Dashboard — glassmorphism cards (clean milky-white) ═══ */
 .artist-dashboard .bg-card,
 .artist-dashboard .bg-white,
-.artist-dashboard [class*="rounded-2xl"][class*="p-"],
-.artist-dashboard [class*="rounded-3xl"][class*="p-"] {
+.artist-dashboard [class*="rounded-2xl"][class*="p-"]:not(.preview-card-btn),
+.artist-dashboard [class*="rounded-3xl"][class*="p-"]:not(.preview-card-btn) {
   position: relative;
   background: rgba(255, 255, 255, 0.65) !important;
   backdrop-filter: blur(12px);

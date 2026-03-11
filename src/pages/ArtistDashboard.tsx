@@ -315,6 +315,29 @@ const ArtistDashboard = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasUnsavedLogoChangeRef = useRef(false);
 
+  const uploadProfileLogo = useCallback(async (currentLogoUrl: string) => {
+    if (!currentLogoUrl?.startsWith('data:')) return currentLogoUrl || '';
+    if (!user) throw new Error('User not authenticated');
+
+    const blob = await fetch(currentLogoUrl).then((r) => r.blob());
+    const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
+    const version = Date.now();
+    const fileName = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${version}`;
+    const path = `${user.id}/logo-${fileName}.${ext}`;
+
+    const { error: uploadErr } = await supabase.storage
+      .from('portfolio')
+      .upload(path, blob, { upsert: false, contentType: blob.type, cacheControl: '3600' });
+
+    if (uploadErr) {
+      console.error('Profile logo upload failed', { path, message: uploadErr.message, error: uploadErr });
+      throw uploadErr;
+    }
+
+    const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+    return `${urlData.publicUrl}?v=${version}`;
+  }, [user]);
+
   useEffect(() => {
     hasUnsavedLogoChangeRef.current = hasUnsavedLogoChange;
   }, [hasUnsavedLogoChange]);
@@ -372,7 +395,17 @@ const ArtistDashboard = () => {
 
   const fetchProfileId = useCallback(async () => {
     if (!user) return;
-    const { data } = await supabase.from('profiles').select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier').eq('user_id', user.id).single() as { data: any; error: any };
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier')
+      .eq('user_id', user.id)
+      .maybeSingle() as { data: any; error: any };
+
+    if (error) {
+      console.error('Failed to fetch profile', error);
+      return;
+    }
+
     if (data) {
       setUserProfileId(data.id);
       setHasWhatsAppAutomation(!!data.has_whatsapp_automation);
@@ -2729,21 +2762,7 @@ const ArtistDashboard = () => {
                   if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
                     setSavingBusiness(true);
                     try {
-                      let finalLogoUrl = logoUrl;
-
-                      // If logo is a base64 data URL, upload to storage first
-                      if (logoUrl && logoUrl.startsWith('data:')) {
-                        const blob = await fetch(logoUrl).then(r => r.blob());
-                        const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-                        const path = `${user.id}/logo.${ext}`;
-                        const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
-                        if (uploadErr) {
-                          console.error('Business logo upload failed', { path, message: uploadErr.message, error: uploadErr });
-                          throw uploadErr;
-                        }
-                        const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
-                        finalLogoUrl = urlData.publicUrl;
-                      }
+                      const finalLogoUrl = await uploadProfileLogo(logoUrl);
 
                       const { error } = await supabase.from('profiles').update({
                         full_name: artistName || null,
@@ -2808,19 +2827,7 @@ const ArtistDashboard = () => {
                     if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
                      setSavingCard(true);
                     try {
-                      let finalLogoUrl = logoUrl;
-                      if (logoUrl && logoUrl.startsWith('data:')) {
-                        const blob = await fetch(logoUrl).then(r => r.blob());
-                        const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-                        const path = `${user.id}/logo.${ext}`;
-                        const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
-                        if (uploadErr) {
-                          console.error('Digital card logo upload failed', { path, message: uploadErr.message, error: uploadErr });
-                          throw uploadErr;
-                        }
-                        const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
-                        finalLogoUrl = urlData.publicUrl;
-                      }
+                      const finalLogoUrl = await uploadProfileLogo(logoUrl);
                       const { error } = await supabase.from('profiles').update({
                         business_phone: artistPhone,
                         instagram_url: instagramUrl,
@@ -2859,12 +2866,11 @@ const ArtistDashboard = () => {
               </div>
             </div>
 
-            {/* Digital Card Preview Button */}
             <button
               onClick={() => setShowDigitalCardPreview(true)}
               className="preview-card-btn w-full flex items-center justify-center rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <span className="font-bold text-base tracking-wide" style={{ color: '#FFFFFF' }}>
+              <span className="block w-full text-center font-bold text-base tracking-wide relative z-10" style={{ color: '#FFFFFF' }}>
                 {lang === 'en' ? 'View Digital Card' : 'תצוגת כרטיס דיגיטלי'}
               </span>
             </button>
@@ -2878,7 +2884,7 @@ const ArtistDashboard = () => {
               }}
               className="preview-card-btn w-full rounded-3xl p-5 flex items-center justify-center transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <span className="font-bold text-base tracking-wide" style={{ color: '#FFFFFF' }}>
+              <span className="block w-full text-center font-bold text-base tracking-wide relative z-10" style={{ color: '#FFFFFF' }}>
                 {lang === 'en' ? 'Preview Client Screen' : 'תצוגת מסך לקוחה'}
               </span>
             </button>
