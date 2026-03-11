@@ -215,15 +215,17 @@ const Pricing = () => {
       )}
 
       {/* Header */}
-      <div className="pb-12 px-4 flex justify-center">
+      <div className="pb-14 px-4 flex justify-center">
         <div
-          className="rounded-3xl p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
+          className="p-8 md:p-10 text-center max-w-lg w-full relative overflow-hidden"
           style={{
-            background: 'rgba(255, 255, 255, 0.45)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid rgba(216, 180, 180, 0.35)',
-            boxShadow: '0 14px 44px rgba(216, 180, 180, 0.22), 0 0 36px rgba(232, 160, 176, 0.12)',
+            border: 'none',
+            outline: 'none',
+            background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(255,240,243,0.25) 40%, rgba(232,160,176,0.08) 70%, transparent 100%)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            borderRadius: '48px',
+            boxShadow: '0 0 55px rgba(232, 160, 176, 0.2), 0 0 110px rgba(216, 180, 180, 0.1)',
           }}
         >
           <div className="relative z-10">
