@@ -86,6 +86,25 @@ export const translations: Record<string, Record<Language, string>> = {
   'sub.currentPlan': { en: 'Current Plan: {plan}', he: 'חבילה נוכחית: {plan}' },
   'sub.validUntil': { en: 'Valid until: —', he: 'בתוקף עד לתאריך: —' },
   'sub.paymentHistory': { en: 'Payment History & Receipts', he: 'היסטוריית תשלומים וקבלות' },
+
+  // Feedback modal
+  'feedback.title': { en: 'Your Voice Matters ✨', he: 'הקול שלך משפיע ✨' },
+  'feedback.description': { en: 'This system is being built for you. Missing a daily feature in the clinic? Have an upgrade idea? We\'d love to hear from you.', he: 'המערכת הזו נבנית עבורך. חסר לך פיצ׳ר ביומיום בקליניקה? יש לך רעיון לשדרוג? נשמח לשמוע ממך.' },
+  'feedback.name': { en: 'Full Name', he: 'שם מלא' },
+  'feedback.namePlaceholder': { en: 'Your name', he: 'השם שלך' },
+  'feedback.topic': { en: 'Subject', he: 'נושא' },
+  'feedback.topicPlaceholder': { en: 'Select subject', he: 'בחרי נושא' },
+  'feedback.message': { en: 'Your Message', he: 'ההודעה שלך' },
+  'feedback.messagePlaceholder': { en: 'Tell us what\'s on your mind...', he: 'ספרי לנו מה עובר לך בראש...' },
+  'feedback.submit': { en: '💡 Share your idea with us', he: '💡 שתפי אותנו ברעיון שלך' },
+  'feedback.fillAll': { en: 'Please fill in all fields', he: 'נא למלא את כל השדות' },
+  'feedback.thanks': { en: 'Thanks for sharing! 🤍', he: 'תודה ששיתפת אותנו! 🤍' },
+  'feedback.thanksDesc': { en: 'Your idea was received and will help us improve.', he: 'הרעיון שלך התקבל בהצלחה ויעזור לנו להשתפר.' },
+  'feedback.topic.efficiency': { en: 'Efficiency suggestion', he: 'הצעת ייעול' },
+  'feedback.topic.feature': { en: 'New feature request', he: 'בקשה לפיצ\'ר חדש' },
+  'feedback.topic.bug': { en: 'Bug report', he: 'דיווח על תקלה' },
+  'feedback.topic.other': { en: 'Other', he: 'אחר' },
+  'feedback.aria': { en: 'Send feedback', he: 'שלחי משוב' },
 };
 
 export function translate(key: string, lang: Language): string {
