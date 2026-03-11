@@ -586,15 +586,14 @@ const ClientHome = () => {
 
         {/* ─── GREETING CARD ─── */}
         <div
-          className="relative mb-6 rounded-3xl overflow-hidden client-glass-card"
+          className="relative mb-6 overflow-hidden"
         >
-          {/* Shine sweep overlay */}
+          {/* Soft white glow behind text */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.5) 50%, transparent 60%)',
-              backgroundSize: '200% 100%',
-              animation: 'hd-bronze-shimmer 4s ease-in-out infinite',
+              background: 'radial-gradient(ellipse 80% 70% at 50% 50%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.3) 40%, transparent 75%)',
+              filter: 'blur(18px)',
             }}
           />
           {/* Bokeh sparkles */}
