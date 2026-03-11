@@ -517,6 +517,30 @@
   box-shadow: 0 10px 28px rgba(160,100,80,0.16), 0 5px 14px rgba(180,120,90,0.1), 0 2px 6px rgba(212,175,55,0.08);
 }
 
+/* ═══ Artist Dashboard — gold border on all cards ═══ */
+.artist-dashboard .bg-card,
+.artist-dashboard .bg-white,
+.artist-dashboard [class*="rounded-2xl"][class*="p-"],
+.artist-dashboard [class*="rounded-3xl"][class*="p-"] {
+  position: relative;
+}
+.artist-dashboard .bg-card::before,
+.artist-dashboard .bg-white::before,
+.artist-dashboard [class*="rounded-2xl"][class*="p-"]::before,
+.artist-dashboard [class*="rounded-3xl"][class*="p-"]::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 0;
+}
+
 /* ═══ Client Premium Dashboard ═══ */
 
 /* Smoky Powder Pink background with subtle bokeh */
