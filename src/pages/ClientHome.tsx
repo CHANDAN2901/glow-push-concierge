@@ -1039,21 +1039,21 @@ const ClientHome = () => {
               <div key={faq.key}>
                 <AccordionItem value={faq.key} className="border-none">
                   <AccordionTrigger
-                    className={`text-sm ${isHe ? 'text-right' : 'text-left'} py-5 hover:no-underline gap-3 [&>svg]:hidden`}
-                    style={{ fontFamily: FBAHAVA, direction: isHe ? 'rtl' : 'ltr' }}
+                    className={`text-sm ${lang === 'he' ? 'text-right' : 'text-left'} py-5 hover:no-underline gap-3 [&>svg]:hidden`}
+                    style={{ fontFamily: FBAHAVA, direction: lang === 'he' ? 'rtl' : 'ltr' }}
                   >
                     <span
-                      className={`font-bold ${isHe ? 'text-right' : 'text-left'} flex-1`}
+                      className={`font-bold ${lang === 'he' ? 'text-right' : 'text-left'} flex-1`}
                       style={{ color: '#2A1810' }}
                     >
-                      {isHe ? faq.q_he : faq.q_en}
+                      {lang === 'he' ? faq.q_he : faq.q_en}
                     </span>
                   </AccordionTrigger>
                   <AccordionContent
-                    className={`text-sm leading-[1.85] pb-5 ${isHe ? 'text-right' : 'text-left'}`}
-                    style={{ color: BODY_TEXT, fontFamily: FBAHAVA, fontWeight: 400, direction: isHe ? 'rtl' : 'ltr' }}
+                    className={`text-sm leading-[1.85] pb-5 ${lang === 'he' ? 'text-right' : 'text-left'}`}
+                    style={{ color: BODY_TEXT, fontFamily: FBAHAVA, fontWeight: 400, direction: lang === 'he' ? 'rtl' : 'ltr' }}
                   >
-                    {isHe ? faq.a_he : faq.a_en}
+                    {lang === 'he' ? faq.a_he : faq.a_en}
                   </AccordionContent>
                 </AccordionItem>
                 {idx < arr.length - 1 && (
