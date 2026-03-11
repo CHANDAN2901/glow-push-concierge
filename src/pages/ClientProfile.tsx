@@ -595,7 +595,7 @@ const ClientProfile = () => {
               <button
                 onClick={() => setShowDeclViewer(true)}
                 className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
-                style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+                style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
               >
                 <Eye className="w-4 h-4" />
                 {lang === 'en' ? 'View Full Health Declaration' : 'צפייה בהצהרת הבריאות המלאה'}
