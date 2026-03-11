@@ -252,7 +252,9 @@ const ArtistDashboard = () => {
   const [afterImg, setAfterImg] = useState('');
   const [formError, setFormError] = useState('');
   const [livePreviewLink, setLivePreviewLink] = useState('');
+  const [savedLogoUrl, setSavedLogoUrl] = useState(() => localStorage.getItem('gp-artist-logo') || '');
   const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem('gp-artist-logo') || '');
+  const [hasUnsavedLogoChange, setHasUnsavedLogoChange] = useState(false);
   const [artistName, setArtistName] = useState(() => localStorage.getItem('gp-artist-name') || '');
   const [artistPhone, setArtistPhone] = useState(() => localStorage.getItem('gp-artist-phone') || '');
   const [instagramUrl, setInstagramUrl] = useState('');
