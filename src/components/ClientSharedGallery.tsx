@@ -141,7 +141,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                   {isNew && (
                     <span
                       className="absolute top-1 left-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10 animate-pulse"
-                      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+                      style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
                     >
                       {isHe ? 'חדש ✨' : 'New ✨'}
                     </span>
