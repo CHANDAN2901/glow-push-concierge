@@ -1879,7 +1879,7 @@ const ArtistDashboard = () => {
                             boxShadow: '0 4px 18px rgba(212,175,55,0.35)',
                           }}
                         >
-                          <Copy className="w-4 h-4" strokeWidth={2} style={{ color: '#d8b4b4' }} />
+                          <Copy className="w-4 h-4" strokeWidth={2} style={{ color: '#4a3636' }} />
                           {lang === 'en' ? 'Copy Link' : 'העתקת קישור'}
                         </button>
                       </div>
