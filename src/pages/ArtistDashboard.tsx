@@ -1412,7 +1412,7 @@ const ArtistDashboard = () => {
             {/* ═══ 2. STATS / INCOME ROW ═══ */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: lang === 'en' ? 'Revenue' : 'הכנסות', value: '₪15,000', trend: '+12%', icon: DollarSign },
+                { label: lang === 'en' ? 'Revenue' : 'הכנסות', value: '₪0', trend: '', icon: DollarSign, comingSoon: true },
                 { label: lang === 'en' ? 'New Clients' : 'לקוחות חדשות', value: String(clients.length), trend: '+3', icon: Users },
                 { label: lang === 'en' ? 'Today' : 'היום', value: String(clients.filter(c => c.day === 0 || c.day === 1).length), trend: '', icon: CalendarCheck },
               ].map((metric, i) => (
