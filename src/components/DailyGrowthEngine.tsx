@@ -165,9 +165,12 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
       <div className="flex items-center gap-2.5 mb-4">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', boxShadow: '0 2px 10px rgba(212,175,55,0.35)' }}
+          style={{
+            background: 'linear-gradient(145deg, #f0c8c8, #d8a0a0)',
+            boxShadow: '0 0 14px rgba(216, 180, 180, 0.6), 0 0 28px rgba(216, 160, 160, 0.25)',
+          }}
         >
-          <Star className="w-4 h-4 text-white" />
+          <Star className="w-4 h-4" style={{ color: '#fff', filter: 'drop-shadow(0 0 3px rgba(255,255,255,0.6))' }} />
         </div>
         <div>
           <h2 className="text-xl font-bold flex items-center gap-1.5 mb-1" style={{ color: 'hsl(14 29% 30%)', fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
