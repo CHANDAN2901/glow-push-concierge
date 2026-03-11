@@ -2729,36 +2729,39 @@ const ArtistDashboard = () => {
               <Button
                 onClick={async () => {
                   if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
-                  setSavingBusiness(true);
-                  try {
-                    let finalLogoUrl = logoUrl;
+                    setSavingBusiness(true);
+                    try {
+                      let finalLogoUrl = logoUrl;
 
-                    // If logo is a base64 data URL, upload to Supabase storage first
-                    if (logoUrl && logoUrl.startsWith('data:')) {
-                      const blob = await fetch(logoUrl).then(r => r.blob());
-                      const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-                      const path = `${userProfileId}/logo.${ext}`;
-                      const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
-                      if (uploadErr) throw uploadErr;
-                      const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
-                      finalLogoUrl = urlData.publicUrl;
-                      setLogoUrl(finalLogoUrl);
-                      localStorage.setItem('gp-artist-logo', finalLogoUrl);
+                      // If logo is a base64 data URL, upload to storage first
+                      if (logoUrl && logoUrl.startsWith('data:')) {
+                        const blob = await fetch(logoUrl).then(r => r.blob());
+                        const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
+                        const path = `${userProfileId}/logo.${ext}`;
+                        const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
+                        if (uploadErr) throw uploadErr;
+                        const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+                        finalLogoUrl = urlData.publicUrl;
+                      }
+
+                      const { error } = await supabase.from('profiles').update({
+                        full_name: artistName || null,
+                        business_phone: artistPhone || null,
+                        logo_url: finalLogoUrl || null,
+                      } as any).eq('id', userProfileId);
+
+                      if (error) throw error;
+                      setSavedLogoUrl(finalLogoUrl || '');
+                      setLogoUrl(finalLogoUrl || '');
+                      setHasUnsavedLogoChange(false);
+                      if (finalLogoUrl) localStorage.setItem('gp-artist-logo', finalLogoUrl);
+                      else localStorage.removeItem('gp-artist-logo');
+                      toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
+                    } catch (err: any) {
+                      console.error('Save business details error:', err);
+                      toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
                     }
-
-                    const { error } = await supabase.from('profiles').update({
-                      full_name: artistName || null,
-                      business_phone: artistPhone || null,
-                      logo_url: finalLogoUrl || null,
-                    } as any).eq('id', userProfileId);
-
-                    if (error) throw error;
-                    toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
-                  } catch (err: any) {
-                    console.error('Save business details error:', err);
-                    toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
-                  }
-                  setSavingBusiness(false);
+                    setSavingBusiness(false);
                 }}
                 disabled={savingBusiness}
                 className="w-full mt-2 h-12 rounded-full font-bold text-sm tracking-wide"
