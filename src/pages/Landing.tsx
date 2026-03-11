@@ -59,7 +59,7 @@ const Landing = () => {
 
           {/* Subtitle */}
           <p className="text-xl md:text-2xl font-serif leading-relaxed mb-12 animate-fade-up opacity-0 delay-200 tracking-wide"
-            style={{ color: '#5C4033' }}
+            style={{ color: '#4a3636' }}
           >
             {lang === 'en'
               ? 'Your close companion to perfect results ✨'
