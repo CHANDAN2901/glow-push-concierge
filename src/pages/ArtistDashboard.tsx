@@ -3195,15 +3195,15 @@ const ArtistDashboard = () => {
         {/* Footer – Terms & Privacy */}
         <footer className="border-t py-6 mt-8 text-center" style={{ borderColor: 'hsl(38 40% 88%)' }}>
           <div className="flex items-center justify-center gap-4 text-xs" style={{ color: 'hsl(0 0% 55%)' }}>
-            <Link to="/terms" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+            <Link to="/terms" className="hover:underline transition-colors" style={{ color: '#FFFFFF' }}>
               {lang === 'en' ? 'Terms of Service' : 'תנאי שימוש'}
             </Link>
             <span>·</span>
-            <Link to="/refund-policy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+            <Link to="/refund-policy" className="hover:underline transition-colors" style={{ color: '#FFFFFF' }}>
               {lang === 'en' ? 'Refund Policy' : 'מדיניות ביטולים'}
             </Link>
             <span>·</span>
-            <Link to="/privacy" className="hover:underline transition-colors" style={{ color: 'hsl(38 40% 45%)' }}>
+            <Link to="/privacy" className="hover:underline transition-colors" style={{ color: '#FFFFFF' }}>
               {lang === 'en' ? 'Privacy Policy' : 'מדיניות פרטיות'}
             </Link>
           </div>
