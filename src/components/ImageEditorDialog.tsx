@@ -358,7 +358,7 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
               onClick={() => setDrawingMode(!drawingMode)}
               className="gap-1.5 rounded-xl text-xs font-medium"
               style={drawingMode
-                ? { background: GOLD_GRADIENT, color: '#5C4033', border: 'none' }
+                ? { background: GOLD_GRADIENT, color: '#4a3636', border: 'none' }
                 : { borderColor: GOLD, color: GOLD_DARK }
               }
             >
