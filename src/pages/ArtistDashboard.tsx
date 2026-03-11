@@ -1164,12 +1164,14 @@ const ArtistDashboard = () => {
 
           {/* Left side buttons (add, preview, back) */}
           <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-2.5 z-20">
-          {(subScreen || selectedClient) ? (
+          {(subScreen || selectedClient || activeTab === 'push' || activeTab === 'bonuses' || activeTab === 'profile') ? (
               <BackButton
                 onClick={() => {
                   if (selectedClient) { setSelectedClient(null); }
                   else if (subScreen === 'Referrals' || subScreen === 'הפניות') { setSubScreen(null); setActiveTab('home'); }
                   else if (subScreen) { setSubScreen(null); }
+                  else if (activeTab === 'bonuses') { setActiveTab('profile'); }
+                  else if (activeTab === 'push' || activeTab === 'profile') { setActiveTab('home'); }
                 }}
               />
             ) : (
