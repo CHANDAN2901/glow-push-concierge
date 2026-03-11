@@ -2815,16 +2815,11 @@ const ArtistDashboard = () => {
             {/* Digital Card Preview Button */}
             <button
               onClick={() => setShowDigitalCardPreview(true)}
-              className="preview-card-btn w-full flex items-center gap-4 rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
+              className="preview-card-btn w-full flex items-center justify-center rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                <CreditCard className="w-6 h-6" style={{ color: '#FFFFFF' }} />
-              </div>
-              <div className="flex-1 text-start">
-                <p className="font-light text-sm" style={{ color: '#FFFFFF' }}>{lang === 'en' ? 'View Your Digital Card' : 'צפי בכרטיס הדיגיטלי שלך'}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.8)' }}>{lang === 'en' ? 'Preview & share your professional card' : 'תצוגה מקדימה ושיתוף הכרטיס המקצועי'}</p>
-              </div>
-              <ChevronRight className="w-5 h-5" style={{ color: '#FFFFFF', transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+              <span className="font-bold text-base tracking-wide" style={{ color: '#FFFFFF' }}>
+                {lang === 'en' ? 'View Digital Card' : 'תצוגת כרטיס דיגיטלי'}
+              </span>
             </button>
 
             {/* Preview Client Page */}
@@ -2834,16 +2829,11 @@ const ArtistDashboard = () => {
                 const previewUrl = `${baseUrl}/c/demo?name=${encodeURIComponent('דנה לדוגמה')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`;
                 window.open(previewUrl, '_blank');
               }}
-              className="preview-card-btn w-full rounded-3xl p-5 flex items-center gap-4 text-start transition-all hover:scale-[1.01] active:scale-[0.98]"
+              className="preview-card-btn w-full rounded-3xl p-5 flex items-center justify-center transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                <Eye className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-              </div>
-              <div className="flex-1 text-start">
-                <p className="font-light text-sm" style={{ color: '#FFFFFF' }}>{lang === 'en' ? 'Preview Sample Client Page' : 'צפייה בדף לקוחה לדוגמה'}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.8)' }}>{lang === 'en' ? 'See the logo, colors & fonts your clients see' : 'ראי את הלוגו, הצבעים והפונטים שהלקוחות רואות'}</p>
-              </div>
-              <ChevronRight className="w-5 h-5" style={{ color: '#FFFFFF', transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+              <span className="font-bold text-base tracking-wide" style={{ color: '#FFFFFF' }}>
+                {lang === 'en' ? 'Preview Client Screen' : 'תצוגת מסך לקוחה'}
+              </span>
             </button>
 
 
