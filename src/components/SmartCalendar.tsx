@@ -715,7 +715,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                         ? 'hover:bg-muted text-foreground'
                         : 'text-muted-foreground/40'
                     }`}
-                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' } : undefined}
+                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#4a3636' } : undefined}
                   >
                     <span>{day.getDate()}</span>
                     {hasAppointments(day) && !isSelected(day) && (
