@@ -2432,8 +2432,8 @@ const ArtistDashboard = () => {
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
-                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
-                            style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#4a3636', border: 'none', boxShadow: '0 2px 8px rgba(255,165,0,0.3)' }}
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
+                            style={{ background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)', color: '#fff', border: 'none', boxShadow: '0 6px 20px rgba(212, 131, 143, 0.35), 0 0 14px rgba(232, 160, 176, 0.2)' }}
                           >
                             🎂 {lang === 'en' ? 'Send Birthday Wish' : 'שלחי ברכת יום הולדת'}
                           </button>
