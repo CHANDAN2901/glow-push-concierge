@@ -381,7 +381,7 @@ const Auth = () => {
                     onClick={() => validatePromoCode(promoCode)}
                     disabled={!promoCode.trim() || promoStatus === 'checking'}
                     className="h-12 px-5 rounded-2xl font-serif"
-                    style={{ borderColor: '#D4AF37', color: '#5C4033' }}
+                    style={{ borderColor: '#D4AF37', color: '#4a3636' }}
                   >
                     {promoStatus === 'checking' ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
