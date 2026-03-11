@@ -100,12 +100,12 @@ export default function AdminMessages() {
           {templates.map((t) => (
             <div key={t.id} className="space-y-2">
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium" style={{ color: '#DCAE96' }}>
+                <label className="text-sm font-medium" style={{ color: '#4a3636' }}>
                   {t.label}
                 </label>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="w-3.5 h-3.5 cursor-help" style={{ color: 'hsl(350 10% 50%)' }} />
+                    <Info className="w-3.5 h-3.5 cursor-help" style={{ color: '#b8a090' }} />
                   </TooltipTrigger>
                   <TooltipContent side="left" className="max-w-xs text-xs" dir="rtl">
                     <p className="font-medium mb-1">תגיות זמינות:</p>
@@ -118,10 +118,11 @@ export default function AdminMessages() {
                 onChange={(e) => setDrafts({ ...drafts, [t.id]: e.target.value })}
                 rows={3}
                 dir="rtl"
-                className="resize-y border-none"
+                className="resize-y"
                 style={{
-                  background: 'hsl(350 12% 16%)',
-                  color: 'hsl(350 10% 85%)',
+                  background: '#FAFAF8',
+                  color: '#4a3636',
+                  border: '1px solid rgba(216, 180, 180, 0.3)',
                   borderRadius: '12px',
                 }}
               />
