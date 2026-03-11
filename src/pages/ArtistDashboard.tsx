@@ -383,7 +383,13 @@ const ArtistDashboard = () => {
       if (data.instagram_url) setInstagramUrl(data.instagram_url);
       if (data.facebook_url) setFacebookUrl(data.facebook_url);
       if (data.waze_address) setWazeAddress(data.waze_address);
-      if (data.logo_url) { setLogoUrl(data.logo_url); localStorage.setItem('gp-artist-logo', data.logo_url); }
+      const fetchedLogoUrl = data.logo_url || '';
+      setSavedLogoUrl(fetchedLogoUrl);
+      if (!hasUnsavedLogoChangeRef.current) {
+        setLogoUrl(fetchedLogoUrl);
+        if (fetchedLogoUrl) localStorage.setItem('gp-artist-logo', fetchedLogoUrl);
+        else localStorage.removeItem('gp-artist-logo');
+      }
       if (data.full_name) { setArtistName(data.full_name); localStorage.setItem('gp-artist-name', data.full_name); }
     }
   }, [user]);
