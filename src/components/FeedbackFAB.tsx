@@ -125,7 +125,7 @@ export default function FeedbackFAB() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#5C4033" }}>ההודעה שלך</Label>
+                <Label className="text-right block text-xs font-medium" style={{ color: "#4a3636" }}>ההודעה שלך</Label>
                 <Textarea
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}

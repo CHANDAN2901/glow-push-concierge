@@ -508,7 +508,7 @@ export default function HealingJourneyTimeline({
         <button
           onClick={() => setShowAddCustom(true)}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold border border-black transition-all active:scale-95 hover:shadow-lg"
-          style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)', color: '#5C4033' }}
+          style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)', color: '#4a3636' }}
         >
           <Plus className="w-4 h-4" />
           {isHe ? 'הוסיפי הודעה מותאמת אישית למסע זה' : 'Add custom message to this journey'}

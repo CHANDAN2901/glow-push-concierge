@@ -16,7 +16,7 @@ interface MessagePreviewModalProps {
 const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
 const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)';
-const GOLD_TEXT = '#5C4033';
+const GOLD_TEXT = '#4a3636';
 
 function replaceplaceholders(text: string): string {
   return text

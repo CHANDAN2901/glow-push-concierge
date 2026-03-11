@@ -3191,7 +3191,7 @@ const ArtistDashboard = () => {
                             className="px-6 py-2.5 rounded-xl text-xs font-bold mx-auto inline-flex items-center gap-1.5"
                             style={{
                               background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
-                              color: '#4A3520',
+                              color: '#4a3636',
                               boxShadow: '0 4px 16px rgba(212,175,55,0.35)',
                             }}
                           >

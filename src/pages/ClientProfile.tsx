@@ -151,7 +151,7 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
       onClick={handleTestPush}
       disabled={sending}
       className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl text-white transition-all hover:opacity-90 disabled:opacity-50"
-      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+      style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
     >
       {sending ? (
         <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
