@@ -2155,7 +2155,7 @@ const ArtistDashboard = () => {
                     }`}
                     style={clientListFilter === tab.key ? {
                       background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%)',
-                      color: '#3E2723',
+                      color: '#4a3636',
                       border: '2px solid #D4AF37',
                       boxShadow: '0 4px 16px rgba(212,175,55,0.4), inset 0 1px 2px rgba(255,255,255,0.4)',
                     } : {
