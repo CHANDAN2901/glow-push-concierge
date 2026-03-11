@@ -2649,20 +2649,6 @@ const ArtistDashboard = () => {
         {/* ===== PROFILE TAB ===== */}
         {activeTab === 'profile' && !subScreen && (
           <div className="space-y-8" style={{ backgroundColor: '#ffffff', margin: '-0.5rem -1.25rem', padding: '1rem 1.25rem', minHeight: 'calc(100vh - 7rem)' }}>
-            {/* Back button */}
-            <button
-              onClick={() => setActiveTab('home')}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm"
-              style={{
-                background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
-                color: '#fff',
-                border: '1px solid hsl(38 40% 50%)',
-                boxShadow: '0 2px 8px hsl(38 55% 62% / 0.25)',
-              }}
-            >
-              <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-              <span>{lang === 'he' ? 'חזרה' : 'Back'}</span>
-            </button>
 
             {/* Card 1 — Business Details */}
             <div className="rounded-3xl p-5 bg-card" style={{ border: '3px solid transparent', backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box', boxShadow: '0 8px 32px -4px rgba(212, 175, 55, 0.35), 0 4px 16px -2px rgba(0, 0, 0, 0.1)' }}>
