@@ -2294,176 +2294,122 @@ const ArtistDashboard = () => {
                     const risk = getClientRiskLevel(client.name);
                     const flags = hasFlags ? [risk === 'red' ? (lang === 'en' ? 'Medical Warning' : 'התוויית נגד') : (lang === 'en' ? 'Attention' : 'תשומת לב')] : [];
                     return (
-                      <div key={i} className={`rounded-3xl overflow-hidden transition-all cursor-pointer backdrop-blur-xl ${hasFlags ? 'border-2 border-destructive/30' : ''}`}
+                      <div key={i} className={`rounded-2xl overflow-hidden transition-all cursor-pointer ${hasFlags ? 'border-2 border-destructive/30' : ''}`}
                         style={{
-                          background: 'rgba(255, 255, 255, 0.6)',
+                          background: 'rgba(255, 255, 255, 0.55)',
                           backdropFilter: 'blur(16px)',
                           WebkitBackdropFilter: 'blur(16px)',
-                          border: hasFlags ? undefined : '1.5px solid rgba(216, 180, 180, 0.5)',
-                          boxShadow: '0 8px 32px -4px rgba(180, 110, 110, 0.1), 0 2px 8px rgba(216, 180, 180, 0.08)',
+                          border: hasFlags ? undefined : '1px solid rgba(216, 180, 180, 0.45)',
+                          boxShadow: '0 4px 20px -4px rgba(180, 110, 110, 0.08)',
                         }}
                       >
-                        <div className="flex" dir="rtl">
+                        <div className="flex px-3 py-2.5" dir="rtl">
                           {/* Client Info */}
-                          <div className="flex-1 p-4 min-w-0 cursor-pointer" onClick={() => setSelectedClient(client)}>
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2.5">
-                                  <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${hasFlags ? 'bg-destructive/10 text-destructive' : 'text-white'}`}
-                                    style={hasFlags ? {} : { background: 'linear-gradient(145deg, #f0c8c8, #d8a0a0)', color: '#fff', border: '1px solid rgba(216, 180, 180, 0.6)' }}
-                                  >
-                                    {hasFlags ? <AlertTriangle className="w-4 h-4" /> : client.name.charAt(0)}
-                                  </div>
-                                  <div>
-                                    <p className={`font-bold text-sm ${hasFlags ? 'text-destructive' : ''}`} style={hasFlags ? {} : { color: '#4a3636', fontFamily: "'Playfair Display', 'FB Ahava', serif" }}>
-                                      {birthdayWeek && <span className="ml-1">🎂</span>}
-                                      {needsRenewal && <span className="ml-1">🔄</span>}
-                                      {client.name}
-                                      {hasSignedDeclaration(client.name) ? (
-                                        <CheckCircle className="w-3.5 h-3.5 inline-block mr-1.5 text-green-500" />
-                                      ) : (
-                                        <AlertTriangle className="w-3 h-3 inline-block mr-1.5 text-muted-foreground/40" />
-                                      )}
-                                    </p>
-                                    <p className="text-xs mt-0.5" style={{ color: '#8c6a6a' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
-                                  </div>
-                                  {hasFlags && <span className="text-[10px] font-bold text-destructive">⚠️</span>}
-                                  {isSafe && <ShieldCheck className="w-3.5 h-3.5 text-accent" />}
-                                  {client.pushOptedIn && (
-                                    <span title={lang === 'en' ? 'Push Subscribed' : 'מנוי להתראות'}>
-                                      <Bell className="w-3.5 h-3.5 text-accent" />
-                                    </span>
-                                  )}
+                          <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedClient(client)}>
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <div
+                                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${hasFlags ? 'bg-destructive/10 text-destructive' : ''}`}
+                                  style={hasFlags ? {} : { background: 'linear-gradient(145deg, #f0c8c8, #d8a0a0)', color: '#fff', border: '1px solid rgba(216, 180, 180, 0.5)' }}
+                                >
+                                  {hasFlags ? <AlertTriangle className="w-3.5 h-3.5" /> : client.name.charAt(0)}
                                 </div>
-                                {isSafe && <p className="text-[10px] text-accent font-medium mt-1 mr-12">{lang === 'en' ? '✅ Cleared for Treatment' : '✅ מאושר לטיפול'}</p>}
-                                {hasFlags && (
-                                  <div className="mt-1.5 mr-12 space-y-1">
-                                    <p className="text-[10px] font-bold text-destructive">{flags.join(' · ')}</p>
-                                    <button
-                                      onClick={(e) => { e.stopPropagation(); approveException(client); }}
-                                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
-                                    >
-                                      <ShieldCheck className="w-3 h-3" />
-                                      {lang === 'en' ? 'I approve the exception' : 'אישרתי את החרגה'}
-                                    </button>
-                                  </div>
-                                )}
+                                <div className="min-w-0">
+                                  <p className={`font-bold text-xs leading-tight ${hasFlags ? 'text-destructive' : ''}`} style={hasFlags ? {} : { color: '#4a3636', fontFamily: "'Playfair Display', 'FB Ahava', serif" }}>
+                                    {birthdayWeek && <span className="ml-1">🎂</span>}
+                                    {needsRenewal && <span className="ml-1">🔄</span>}
+                                    {client.name}
+                                    {hasSignedDeclaration(client.name) ? (
+                                      <CheckCircle className="w-3 h-3 inline-block mr-1 text-green-500" />
+                                    ) : (
+                                      <AlertTriangle className="w-2.5 h-2.5 inline-block mr-1 text-muted-foreground/40" />
+                                    )}
+                                  </p>
+                                  <p className="text-[10px] leading-tight" style={{ color: '#8c6a6a' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
+                                </div>
+                                {isSafe && <ShieldCheck className="w-3 h-3 shrink-0" style={{ color: '#d8b4b4' }} />}
+                                {client.pushOptedIn && <Bell className="w-3 h-3 shrink-0" style={{ color: '#d8b4b4' }} />}
                               </div>
-                              <div className="flex flex-col gap-1.5 shrink-0">
-                                <button
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); openEditClient(client); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                                  style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}
-                                >
-                                  <Pencil className="w-3.5 h-3.5" />
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button type="button" onClick={(e) => { e.stopPropagation(); openEditClient(client); }}
+                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}>
+                                  <Pencil className="w-3 h-3" />
                                 </button>
-                                <button
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); openWhatsApp(client.phone, client.name, client.link); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                                  style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}
-                                >
-                                  <MessageCircle className="w-3.5 h-3.5" />
+                                <button type="button" onClick={(e) => { e.stopPropagation(); openWhatsApp(client.phone, client.name, client.link); }}
+                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}>
+                                  <MessageCircle className="w-3 h-3" />
                                 </button>
-                                <button
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); setDeletingClient(client); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                                  style={{ background: 'rgba(239, 68, 68, 0.08)', color: '#e88a8a' }}
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                <button type="button" onClick={(e) => { e.stopPropagation(); setDeletingClient(client); }}
+                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(239, 68, 68, 0.06)', color: '#e88a8a' }}>
+                                  <Trash2 className="w-3 h-3" />
                                 </button>
                               </div>
                             </div>
+                            {hasFlags && (
+                              <div className="mt-1.5 mr-10 flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-destructive">{flags.join(' · ')}</span>
+                                <button onClick={(e) => { e.stopPropagation(); approveException(client); }}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-destructive/10 text-destructive transition-all">
+                                  <ShieldCheck className="w-2.5 h-2.5" /> {lang === 'en' ? 'Approve' : 'אישור חריגה'}
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      {/* Action Buttons Row */}
-                      <div className="px-4 pb-4 flex items-center gap-2 flex-wrap">
-                        {lastSent && (
-                          <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-accent" />
-                            {lang === 'en' ? `Sent: ${lastSent}` : `נשלח: ${lastSent}`}
-                          </span>
-                        )}
-                        {hasSignedDeclaration(client.name) ? (
-                          <button
-                            type="button"
-                            onClick={() => setViewDeclarationFor(client.name)}
-                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-white transition-all hover:opacity-90"
-                            style={{ background: 'linear-gradient(145deg, #4ade80, #22c55e)', boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3), 0 0 12px rgba(34, 197, 94, 0.15)' }}
-                          >
-                            <ClipboardCheck className="w-3.5 h-3.5" />
-                            {lang === 'en' ? '✅ Signed' : '✅ חתומה'}
+                        {/* Compact Action Buttons */}
+                        <div className="px-3 pb-2.5 flex items-center gap-1.5 flex-wrap">
+                          {lastSent && (
+                            <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
+                              <CheckCircle className="w-2.5 h-2.5" style={{ color: '#d8b4b4' }} />
+                              {lang === 'en' ? `Sent: ${lastSent}` : `נשלח: ${lastSent}`}
+                            </span>
+                          )}
+                          {hasSignedDeclaration(client.name) ? (
+                            <button type="button" onClick={() => setViewDeclarationFor(client.name)}
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold text-white transition-all active:scale-95"
+                              style={{ background: 'linear-gradient(145deg, #4ade80, #22c55e)', boxShadow: '0 3px 10px rgba(34, 197, 94, 0.25), 0 0 8px rgba(34, 197, 94, 0.1)' }}>
+                              <ClipboardCheck className="w-3 h-3" /> {lang === 'en' ? '✅ Signed' : '✅ חתומה'}
+                            </button>
+                          ) : (() => {
+                              const cleanPhone = client.phone ? formatPhone(client.phone) : '';
+                              const hasPhone = cleanPhone.length > 0;
+                              const formLink = buildHealthFormLink(client.name, client.phone);
+                              const artist = artistName || 'האמנית שלך';
+                              const msg = `היי ${client.name}, אני ${artist} מחכה לראותך בסטודיו! ✨ כדי שנוכל להתחיל בטיפול בזמן, אשמח אם תחתמי על הצהרת הבריאות בקישור הבא:\n\n${formLink}`;
+                              const href = hasPhone
+                                ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
+                                : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+                              return (
+                                <a href={href} target="_blank" rel="noopener noreferrer"
+                                  onClick={(e) => { e.stopPropagation(); if (!hasPhone) { e.preventDefault(); toast({ title: 'חסר מספר טלפון ללקוחה זו', variant: 'destructive' }); } }}
+                                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
+                                  style={{ background: 'linear-gradient(145deg, #E8A0B0, #D4838F)', color: '#fff', boxShadow: '0 4px 14px rgba(212, 131, 143, 0.3), 0 0 10px rgba(232, 160, 176, 0.15)' }}>
+                                  <MessageCircle className="w-3 h-3" /> {lang === 'en' ? 'Health Declaration' : 'הצהרת בריאות'}
+                                </a>
+                              );
+                            })()}
+                          {birthdayWeek && (
+                            <button type="button" onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
+                              style={{ background: 'linear-gradient(145deg, #E8A0B0, #D4838F)', color: '#fff', boxShadow: '0 4px 14px rgba(212, 131, 143, 0.3), 0 0 10px rgba(232, 160, 176, 0.15)' }}>
+                              🎂 {lang === 'en' ? 'Birthday Wish' : 'ברכת יום הולדת'}
+                            </button>
+                          )}
+                          {needsRenewal && (
+                            <button type="button" onClick={(e) => { e.stopPropagation(); setRenewalClient(client); }}
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
+                              style={{ background: 'rgba(216, 180, 180, 0.12)', color: '#4a3636', border: '1px solid #d8b4b4', boxShadow: '0 3px 10px rgba(216, 180, 180, 0.15)' }}>
+                              🔄 {lang === 'en' ? 'Renewal' : 'חידוש טיפול'}
+                            </button>
+                          )}
+                          <button type="button" onClick={(e) => { e.stopPropagation(); setShowInvoiceComingSoon(true); }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-medium transition-all active:scale-95"
+                            style={{ color: '#a09a9a', background: 'rgba(216, 180, 180, 0.08)', border: '1px solid rgba(216, 180, 180, 0.3)' }}>
+                            <FileOutput className="w-3 h-3" /> {lang === 'en' ? 'Invoice' : 'חשבונית/קבלה'}
                           </button>
-                        ) : (() => {
-                            const cleanPhone = client.phone ? formatPhone(client.phone) : '';
-                            const hasPhone = cleanPhone.length > 0;
-                            const formLink = buildHealthFormLink(client.name, client.phone);
-                            const artist = artistName || 'האמנית שלך';
-                            const msg = `היי ${client.name}, אני ${artist} מחכה לראותך בסטודיו! ✨ כדי שנוכל להתחיל בטיפול בזמן, אשמח אם תחתמי על הצהרת הבריאות בקישור הבא:\n\n${formLink}`;
-                            const href = hasPhone
-                              ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
-                              : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-                            return (
-                              <a
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (!hasPhone) {
-                                    e.preventDefault();
-                                    toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
-                                  }
-                                }}
-                                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
-                                style={{ background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)', color: '#fff', border: 'none', boxShadow: '0 6px 20px rgba(212, 131, 143, 0.35), 0 0 14px rgba(232, 160, 176, 0.2)' }}
-                              >
-                                <MessageCircle className="w-3.5 h-3.5" />
-                                {lang === 'en' ? 'Send Health Declaration' : 'הצהרת בריאות לשליחה ללקוחה'}
-                              </a>
-                            );
-                          })()}
-                        {/* Invoice / Receipt Button */}
-                        {/* Birthday Wish Button */}
-                        {birthdayWeek && (
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
-                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
-                            style={{ background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)', color: '#fff', border: 'none', boxShadow: '0 6px 20px rgba(212, 131, 143, 0.35), 0 0 14px rgba(232, 160, 176, 0.2)' }}
-                          >
-                            🎂 {lang === 'en' ? 'Send Birthday Wish' : 'שלחי ברכת יום הולדת'}
-                          </button>
-                        )}
-                        {/* Renewal Button */}
-                        {needsRenewal && (
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); setRenewalClient(client); }}
-                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
-                            style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#4a3636', border: '1.5px solid #d8b4b4', boxShadow: '0 4px 12px rgba(216, 180, 180, 0.2)' }}
-                          >
-                            🔄 {lang === 'en' ? 'Send Renewal Message' : 'שלחי הודעת חידוש'}
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowInvoiceComingSoon(true);
-                          }}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-all active:scale-95"
-                          style={{ color: '#8E8E93', background: 'transparent', border: '1px solid #D1D1D6' }}
-                        >
-                          <FileOutput className="w-3.5 h-3.5" style={{ color: '#8E8E93' }} />
-                          {lang === 'en' ? 'Issue Invoice / Receipt' : 'הפקת חשבונית/קבלה'}
-                        </button>
+                        </div>
                       </div>
-                    </div>
-                  );
+                    );
                 })}
                 {/* Infinite scroll sentinel */}
                 {clientListFilter === 'all' && !clientSearchQuery && hasMoreClients && (
