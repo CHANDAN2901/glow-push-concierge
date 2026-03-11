@@ -3399,23 +3399,6 @@ const ArtistDashboard = () => {
         </div>{/* end scrollable content inner */}
       </div>{/* end scrollable content */}
 
-      {/* ===== FLOATING LIGHTBULB BUTTON ===== */}
-      <button
-        onClick={() => setShowHelpCenter(true)}
-        className="fixed z-[70] flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
-        style={{
-          bottom: '140px',
-          left: '25px',
-          width: '62px',
-          height: '62px',
-          background: 'linear-gradient(145deg, #e6b1b1, #c88c8c)',
-          border: '2px solid #eebaba',
-          borderRadius: '50%',
-          boxShadow: '0 10px 20px rgba(180, 110, 110, 0.4), inset 0 2px 5px rgba(255, 255, 255, 0.6)',
-        }}
-      >
-        <Sparkles size={24} strokeWidth={1.5} style={{ color: '#fff' }} />
-      </button>
 
       {/* ===== FIXED BOTTOM NAVIGATION BAR — Neumorphic Circles ===== */}
       <nav className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-[450px]">
