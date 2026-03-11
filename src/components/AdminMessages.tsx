@@ -1,18 +1,9 @@
-import { useState, useEffect } from 'react';
-import { MessageSquareText, Save, Send, Bell, Heart, Info } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { MessageSquareText, Save, Send, Bell, Heart, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-interface MessageTemplate {
-  id: string;
-  template_key: string;
-  label: string;
-  default_text: string;
-  placeholders: string[];
-}
+import { eyebrowPhases } from '@/lib/recovery-data';
 
 interface HealingPhase {
   id: string;
@@ -28,46 +19,100 @@ interface HealingPhase {
   sort_order: number;
 }
 
-// Map day numbers to their healing phase for editing
-function buildDayDrafts(phases: HealingPhase[]): Record<number, string> {
+interface MessageTemplate {
+  id: string;
+  template_key: string;
+  label: string;
+  default_text: string;
+  placeholders: string[];
+}
+
+// Build day drafts from DB phases, falling back to local recovery-data
+function buildDayDrafts(phases: HealingPhase[], maxDay: number): Record<number, string> {
   const drafts: Record<number, string> = {};
-  for (let day = 1; day <= 14; day++) {
+  for (let day = 1; day <= maxDay; day++) {
     const phase = phases.find(p => day >= p.day_start && day <= p.day_end);
-    if (phase) {
-      // Show instructions joined by newlines for that day's phase
+    if (phase && phase.steps_he.length > 0) {
       drafts[day] = phase.steps_he.join('\n');
     } else {
-      drafts[day] = '';
+      // Fallback to local recovery data
+      const localPhase = eyebrowPhases.find(p => day >= p.day && day <= p.dayEnd);
+      if (localPhase) {
+        drafts[day] = localPhase.checklist.map(c => c.he).join('\n');
+      } else {
+        drafts[day] = '';
+      }
     }
   }
   return drafts;
 }
 
 const PUSH_EVENTS = [
-  { key: 'appointment_reminder', label: 'תזכורת תור', icon: '📅', placeholder: 'היי {{client_name}}, תזכורת לתור שלך מחר...' },
-  { key: 'birthday_greeting', label: 'הודעת יום הולדת', icon: '🎂', placeholder: 'יום הולדת שמח {{client_name}}! 🎉...' },
-  { key: 'review_request', label: 'בקשת ביקורת', icon: '⭐', placeholder: 'היי {{client_name}}, נשמח לביקורת שלך ב-{{review_link}}...' },
-  { key: 'healing_day_notification', label: 'הודעת מסע החלמה', icon: '💧', placeholder: 'היי {{client_name}}, יום {{day_number}} במסע ההחלמה שלך...' },
-  { key: 'renewal_reminder', label: 'תזכורת חידוש', icon: '🔄', placeholder: 'היי {{client_name}}, הגיע הזמן לחידוש הטיפול...' },
+  { key: 'appointment_reminder', label: 'תזכורת תור', icon: '📅', defaultText: 'היי {{client_name}}, תזכורת מהקליניקה — קבענו לתאריך {{date}} בשעה {{time}}. מחכה לראותך! ✨' },
+  { key: 'birthday_greeting', label: 'הודעת יום הולדת', icon: '🎂', defaultText: 'יום הולדת שמח {{client_name}}! 🎉 מאחלת לך שנה מלאה ביופי ובאושר 💕' },
+  { key: 'review_request', label: 'בקשת ביקורת', icon: '⭐', defaultText: 'היי {{client_name}}, נשמח מאוד לביקורת שלך ⭐ זה עוזר לנו להמשיך לתת שירות מעולה! {{review_link}}' },
+  { key: 'healing_day_notification', label: 'הודעת מסע החלמה', icon: '💧', defaultText: 'היי {{client_name}}, יום {{day_number}} במסע ההחלמה שלך 💧 הנה ההנחיות להיום...' },
+  { key: 'renewal_reminder', label: 'תזכורת חידוש', icon: '🔄', defaultText: 'היי {{client_name}}, הגיע הזמן לחידוש הטיפול שלך 🔄 נקבע תור?' },
 ];
+
+// Auto-expanding textarea component
+function AutoTextarea({ value, onChange, placeholder }: {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder: string;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  const resize = useCallback(() => {
+    const el = ref.current;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = Math.max(80, el.scrollHeight) + 'px';
+    }
+  }, []);
+
+  useEffect(() => { resize(); }, [value, resize]);
+
+  return (
+    <textarea
+      ref={ref}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      dir="rtl"
+      className="w-full rounded-[10px] px-3 py-2 text-sm resize-none transition-all duration-200 focus:outline-none focus:ring-2"
+      style={{
+        background: '#FFFFFF',
+        color: '#4a2020',
+        border: '1.5px solid rgba(216, 180, 180, 0.3)',
+        minHeight: '80px',
+      }}
+      onFocus={(e) => {
+        e.currentTarget.style.borderColor = '#d8b4b4';
+        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(216, 180, 180, 0.25)';
+      }}
+      onBlur={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(216, 180, 180, 0.3)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    />
+  );
+}
 
 export default function AdminMessages() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'healing' | 'push'>('healing');
 
-  // Healing phases state
   const [phases, setPhases] = useState<HealingPhase[]>([]);
+  const [totalDays, setTotalDays] = useState(14);
   const [dayDrafts, setDayDrafts] = useState<Record<number, string>>({});
   const [loadingPhases, setLoadingPhases] = useState(true);
 
-  // Push templates state
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [pushDrafts, setPushDrafts] = useState<Record<string, string>>({});
 
-  // Broadcast
   const [broadcastText, setBroadcastText] = useState('');
   const [broadcasting, setBroadcasting] = useState(false);
-
   const [saving, setSaving] = useState(false);
 
   // Load healing phases
@@ -79,43 +124,44 @@ export default function AdminMessages() {
       .eq('treatment_type', 'eyebrows')
       .order('sort_order')
       .then(({ data, error }) => {
-        if (!error && data) {
-          const items = data as HealingPhase[];
-          setPhases(items);
-          setDayDrafts(buildDayDrafts(items));
-        }
+        const items = (!error && data ? data : []) as HealingPhase[];
+        setPhases(items);
+        const maxDbDay = items.reduce((m, p) => Math.max(m, p.day_end), 0);
+        const days = Math.max(14, maxDbDay);
+        setTotalDays(days);
+        setDayDrafts(buildDayDrafts(items, days));
         setLoadingPhases(false);
       });
   }, []);
 
-  // Load message templates
+  // Load message templates & pre-fill push drafts
   useEffect(() => {
     supabase
       .from('message_templates')
       .select('*')
       .order('template_key')
       .then(({ data, error }) => {
-        if (!error && data) {
-          const items = data as MessageTemplate[];
-          setTemplates(items);
-          const d: Record<string, string> = {};
-          items.forEach((t) => (d[t.template_key] = t.default_text));
-          // Also init push event drafts from templates or empty
-          const pd: Record<string, string> = {};
-          PUSH_EVENTS.forEach(ev => {
-            const found = items.find(t => t.template_key === ev.key);
-            pd[ev.key] = found ? found.default_text : '';
-          });
-          setPushDrafts(pd);
-        }
+        const items = (!error && data ? data : []) as MessageTemplate[];
+        setTemplates(items);
+        const pd: Record<string, string> = {};
+        PUSH_EVENTS.forEach(ev => {
+          const found = items.find(t => t.template_key === ev.key);
+          pd[ev.key] = found ? found.default_text : ev.defaultText;
+        });
+        setPushDrafts(pd);
       });
   }, []);
+
+  const handleAddDay = () => {
+    const newDay = totalDays + 1;
+    setTotalDays(newDay);
+    setDayDrafts(prev => ({ ...prev, [newDay]: '' }));
+  };
 
   const handleSave = async () => {
     setSaving(true);
     try {
       if (activeTab === 'healing') {
-        // Group days back into phases and update steps_he
         for (const phase of phases) {
           const newSteps: string[] = [];
           for (let d = phase.day_start; d <= phase.day_end; d++) {
@@ -129,24 +175,18 @@ export default function AdminMessages() {
             .eq('id', phase.id);
         }
       } else {
-        // Save push templates – upsert into message_templates
         for (const ev of PUSH_EVENTS) {
           const text = pushDrafts[ev.key] ?? '';
           const existing = templates.find(t => t.template_key === ev.key);
           if (existing) {
-            await supabase
-              .from('message_templates')
-              .update({ default_text: text })
-              .eq('id', existing.id);
+            await supabase.from('message_templates').update({ default_text: text }).eq('id', existing.id);
           } else {
-            await supabase
-              .from('message_templates')
-              .insert({
-                template_key: ev.key,
-                label: ev.label,
-                default_text: text,
-                placeholders: [],
-              });
+            await supabase.from('message_templates').insert({
+              template_key: ev.key,
+              label: ev.label,
+              default_text: text,
+              placeholders: [],
+            });
           }
         }
       }
@@ -182,26 +222,15 @@ export default function AdminMessages() {
     borderBottom: isActive ? '3px solid #D4AF37' : '3px solid transparent',
   });
 
-  const textareaStyle = {
-    background: '#FFFFFF',
-    color: '#4a2020',
-    border: '1.5px solid rgba(216, 180, 180, 0.3)',
-    borderRadius: '10px',
-    fontSize: '13px',
-    transition: 'border-color 0.2s, box-shadow 0.2s',
-  };
-
-  const textareaFocusClass = "focus:border-[#d8b4b4] focus:ring-2 focus:ring-[#d8b4b4]/30";
-
   return (
     <div className="space-y-4 max-w-3xl relative pb-20" dir="rtl">
       {/* Main Editor Card */}
       <div
         className="rounded-2xl overflow-hidden"
         style={{
-          background: '#FFFFFF',
+          background: '#FFF9F7',
           border: '1px solid rgba(216, 180, 180, 0.3)',
-          boxShadow: '0 4px 24px rgba(216, 180, 180, 0.15), 0 1px 4px rgba(0,0,0,0.04)',
+          boxShadow: '0 4px 24px rgba(216, 180, 180, 0.18), 0 1px 4px rgba(0,0,0,0.04)',
         }}
       >
         {/* Header */}
@@ -229,53 +258,66 @@ export default function AdminMessages() {
           {activeTab === 'healing' ? (
             <div className="space-y-4">
               <p className="text-xs mb-2" style={{ color: '#8c6a6a' }}>
-                ערכי את הנחיות מסע ההחלמה לכל יום (יום 1 עד 14). השינויים ישפיעו על כל הלקוחות.
+                ערכי את הנחיות מסע ההחלמה לכל יום. השינויים ישפיעו על כל הלקוחות.
               </p>
               {loadingPhases ? (
                 <div className="text-center py-8" style={{ color: '#b8a090' }}>טוען...</div>
               ) : (
-                Array.from({ length: 14 }, (_, i) => i + 1).map(day => {
-                  const phase = phases.find(p => day >= p.day_start && day <= p.day_end);
-                  return (
-                    <div key={day} className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold"
-                          style={{
-                            background: 'linear-gradient(135deg, #D4AF37, #F0D78C)',
-                            color: '#fff',
-                            boxShadow: '0 2px 8px rgba(212, 175, 55, 0.3)',
-                          }}
-                        >
-                          {day}
-                        </span>
-                        <label className="text-sm font-bold" style={{ color: '#4a2020' }}>
-                          יום {day}
-                        </label>
-                        {phase && (
-                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(216, 180, 180, 0.2)', color: '#8c6a6a' }}>
-                            {phase.icon} {phase.title_he}
+                <>
+                  {Array.from({ length: totalDays }, (_, i) => i + 1).map(day => {
+                    const phase = phases.find(p => day >= p.day_start && day <= p.day_end);
+                    return (
+                      <div key={day} className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold"
+                            style={{
+                              background: 'linear-gradient(135deg, #D4AF37, #F0D78C)',
+                              color: '#fff',
+                              boxShadow: '0 2px 8px rgba(212, 175, 55, 0.3)',
+                            }}
+                          >
+                            {day}
                           </span>
-                        )}
+                          <label className="text-sm font-bold" style={{ color: '#4a2020' }}>
+                            יום {day}
+                          </label>
+                          {phase && (
+                            <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(216, 180, 180, 0.2)', color: '#8c6a6a' }}>
+                              {phase.icon} {phase.title_he}
+                            </span>
+                          )}
+                        </div>
+                        <AutoTextarea
+                          value={dayDrafts[day] ?? ''}
+                          onChange={(val) => setDayDrafts(prev => ({ ...prev, [day]: val }))}
+                          placeholder={`הנחיות ליום ${day}...`}
+                        />
                       </div>
-                      <Textarea
-                        value={dayDrafts[day] ?? ''}
-                        onChange={(e) => setDayDrafts(prev => ({ ...prev, [day]: e.target.value }))}
-                        rows={3}
-                        dir="rtl"
-                        placeholder={`הנחיות ליום ${day}...`}
-                        className={`resize-y ${textareaFocusClass}`}
-                        style={textareaStyle}
-                      />
-                    </div>
-                  );
-                })
+                    );
+                  })}
+
+                  {/* Add Day Button */}
+                  <Button
+                    variant="outline"
+                    className="w-full h-11 rounded-xl font-bold text-sm transition-all hover:scale-[1.01]"
+                    style={{
+                      color: '#D4AF37',
+                      borderColor: 'rgba(212, 175, 55, 0.4)',
+                      background: 'rgba(212, 175, 55, 0.06)',
+                    }}
+                    onClick={handleAddDay}
+                  >
+                    <Plus className="w-4 h-4 ml-1.5" />
+                    + הוסף יום למסע
+                  </Button>
+                </>
               )}
             </div>
           ) : (
             <div className="space-y-4">
               <p className="text-xs mb-2" style={{ color: '#8c6a6a' }}>
-                ערכי את תבניות הודעות ה-Push לכל סוג אירוע. התגיות בסוגריים מעוגלים יוחלפו בערכים אמיתיים.
+                ערכי את תבניות הודעות ה-Push. התגיות בסוגריים מעוגלים יוחלפו בערכים אמיתיים.
               </p>
               {PUSH_EVENTS.map(ev => (
                 <div key={ev.key} className="space-y-1.5">
@@ -285,14 +327,10 @@ export default function AdminMessages() {
                       {ev.label}
                     </label>
                   </div>
-                  <Textarea
+                  <AutoTextarea
                     value={pushDrafts[ev.key] ?? ''}
-                    onChange={(e) => setPushDrafts(prev => ({ ...prev, [ev.key]: e.target.value }))}
-                    rows={3}
-                    dir="rtl"
-                    placeholder={ev.placeholder}
-                    className={`resize-y ${textareaFocusClass}`}
-                    style={textareaStyle}
+                    onChange={(val) => setPushDrafts(prev => ({ ...prev, [ev.key]: val }))}
+                    placeholder={ev.defaultText}
                   />
                 </div>
               ))}
@@ -300,11 +338,11 @@ export default function AdminMessages() {
           )}
         </div>
 
-        {/* Fixed Save Button at Bottom of Card */}
+        {/* Fixed Save Button */}
         <div
           className="sticky bottom-0 px-5 py-4"
           style={{
-            background: 'linear-gradient(to top, #FFFFFF 80%, transparent)',
+            background: 'linear-gradient(to top, #FFF9F7 80%, transparent)',
             borderTop: '1px solid rgba(216, 180, 180, 0.15)',
           }}
         >
@@ -328,9 +366,9 @@ export default function AdminMessages() {
       <div
         className="rounded-2xl p-5"
         style={{
-          background: '#FFFFFF',
+          background: '#FFF9F7',
           border: '1px solid rgba(216, 180, 180, 0.3)',
-          boxShadow: '0 4px 24px rgba(216, 180, 180, 0.15), 0 1px 4px rgba(0,0,0,0.04)',
+          boxShadow: '0 4px 24px rgba(216, 180, 180, 0.18), 0 1px 4px rgba(0,0,0,0.04)',
         }}
       >
         <div className="flex items-center gap-2 mb-3">
@@ -339,36 +377,31 @@ export default function AdminMessages() {
             שידור הודעה גלובלית
           </h2>
         </div>
-
         <p className="text-xs mb-3" style={{ color: '#8c6a6a' }}>
           כתבי הודעה שתישלח לכל המשתמשות הרשומות במערכת בו-זמנית.
         </p>
-
-        <Textarea
+        <AutoTextarea
           value={broadcastText}
-          onChange={(e) => setBroadcastText(e.target.value)}
-          rows={4}
-          dir="rtl"
+          onChange={setBroadcastText}
           placeholder="כתבי את ההודעה כאן..."
-          className={`resize-y mb-3 ${textareaFocusClass}`}
-          style={textareaStyle}
         />
-
-        <Button
-          className="w-full h-12 text-base font-bold transition-all hover:scale-[1.01] active:scale-[0.99] rounded-xl"
-          style={{
-            background: '#FFFFFF',
-            color: '#D4AF37',
-            border: '3px solid transparent',
-            borderImage: 'linear-gradient(135deg, #B8860B, #F9F295, #D4AF37, #F9F295, #B8860B) 1',
-            boxShadow: '0 4px 20px hsla(38, 55%, 50%, 0.2)',
-          }}
-          onClick={handleBroadcast}
-          disabled={broadcasting}
-        >
-          <Send className="w-4 h-4 ml-2" style={{ color: '#D4AF37' }} />
-          {broadcasting ? 'שולחת...' : 'שלח הודעה לכל המשתמשות'}
-        </Button>
+        <div className="mt-3">
+          <Button
+            className="w-full h-12 text-base font-bold transition-all hover:scale-[1.01] active:scale-[0.99] rounded-xl"
+            style={{
+              background: '#FFFFFF',
+              color: '#D4AF37',
+              border: '3px solid transparent',
+              borderImage: 'linear-gradient(135deg, #B8860B, #F9F295, #D4AF37, #F9F295, #B8860B) 1',
+              boxShadow: '0 4px 20px hsla(38, 55%, 50%, 0.2)',
+            }}
+            onClick={handleBroadcast}
+            disabled={broadcasting}
+          >
+            <Send className="w-4 h-4 ml-2" style={{ color: '#D4AF37' }} />
+            {broadcasting ? 'שולחת...' : 'שלח הודעה לכל המשתמשות'}
+          </Button>
+        </div>
       </div>
     </div>
   );
