@@ -6,8 +6,8 @@ import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { useI18n } from '@/lib/i18n';
 
-const GOLD = '#D4AF37';
-const GOLD_DARK = '#B8860B';
+const ROSE = '#d8b4b4';
+const ROSE_DARK = '#4a3636';
 
 interface HealingPhotoGalleryProps {
   clientId: string;
@@ -115,7 +115,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <div className="animate-spin w-6 h-6 border-2 rounded-full" style={{ borderColor: GOLD, borderTopColor: 'transparent' }} />
+        <div className="animate-spin w-6 h-6 border-2 rounded-full" style={{ borderColor: ROSE, borderTopColor: 'transparent' }} />
       </div>
     );
   }
@@ -163,10 +163,16 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading || !resolvedArtistId}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
-          style={{ background: '#ffffff', border: `2.5px solid ${GOLD}`, color: GOLD_DARK }}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
+          style={{
+            background: 'rgba(255, 255, 255, 0.55)',
+            backdropFilter: 'blur(8px)',
+            border: `1.5px solid ${ROSE}`,
+            color: ROSE_DARK,
+            boxShadow: '0 4px 16px rgba(216, 180, 180, 0.2)',
+          }}
         >
-          <Camera className="w-4 h-4" />
+          <Camera className="w-4 h-4" style={{ color: ROSE }} />
           {uploading
             ? (isHe ? 'מעלה...' : 'Uploading...')
             : !resolvedArtistId
@@ -185,11 +191,11 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
 
       {sortedPhotos.length === 0 ? (
         <div className="text-center py-8">
-          <Camera className="w-10 h-10 mx-auto mb-3 opacity-30" style={{ color: GOLD_DARK }} />
-          <p className="text-sm font-serif" style={{ color: GOLD_DARK }}>
+          <Camera className="w-10 h-10 mx-auto mb-3 opacity-30" style={{ color: ROSE }} />
+          <p className="text-sm font-serif" style={{ color: ROSE_DARK }}>
             {isHe ? 'עדיין אין תמונות החלמה 📸' : 'No healing photos yet 📸'}
           </p>
-          <p className="text-xs mt-1 font-light" style={{ color: '#888' }}>
+          <p className="text-xs mt-1 font-serif font-light" style={{ color: '#9a8585' }}>
             {isHe ? 'הוסיפי תמונות כדי לעקוב אחרי תהליך ההחלמה' : 'Add photos to track the healing process'}
           </p>
         </div>
@@ -198,8 +204,13 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
           {sortedPhotos.map((photo) => (
             <div
               key={photo.id}
-              className="relative rounded-xl overflow-hidden shadow-sm border transition-all cursor-pointer hover:shadow-md hover:scale-[1.02]"
-              style={{ borderColor: `${GOLD}40`, background: '#ffffff' }}
+              className="relative rounded-xl overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02]"
+              style={{
+                background: 'rgba(255, 255, 255, 0.55)',
+                backdropFilter: 'blur(8px)',
+                border: '1.5px solid rgba(216, 180, 180, 0.35)',
+                boxShadow: '0 4px 16px rgba(216, 180, 180, 0.12)',
+              }}
               onClick={() => setLightboxUrl(photo.public_url)}
             >
               <div className="aspect-square overflow-hidden relative">
@@ -208,24 +219,24 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
                   onClick={(e) => { e.stopPropagation(); removePhoto(photo.id); }}
                   className="absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-sm z-10"
                 >
-                  <X className="w-2.5 h-2.5" style={{ color: GOLD_DARK }} />
+                  <X className="w-2.5 h-2.5" style={{ color: ROSE_DARK }} />
                 </button>
                 {photo.day_number !== null && (
-                  <span className="absolute top-1 right-1 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
-                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}>
+                  <span className="absolute top-1 right-1 text-[8px] font-bold font-serif px-2 py-0.5 rounded-full z-10"
+                    style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#ffffff' }}>
                     {isHe ? `יום ${photo.day_number}` : `Day ${photo.day_number}`}
                   </span>
                 )}
                 {photo.photo_type === 'collage' && (
-                  <span className="absolute bottom-1 right-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}>
+                  <span className="absolute bottom-1 right-1 text-[7px] font-bold font-serif px-1.5 py-0.5 rounded-full z-10"
+                    style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#ffffff' }}>
                     {isHe ? 'קולאז׳' : 'Collage'}
                   </span>
                 )}
               </div>
               <div className="px-1.5 py-1 flex items-center gap-1">
-                <CalendarIcon className="w-2.5 h-2.5 shrink-0" style={{ color: GOLD_DARK }} />
-                <span className="text-[9px] font-serif font-semibold" style={{ color: '#333' }}>
+                <CalendarIcon className="w-2.5 h-2.5 shrink-0" style={{ color: ROSE }} />
+                <span className="text-[9px] font-serif font-semibold" style={{ color: ROSE_DARK }}>
                   {format(new Date(photo.created_at), 'dd/MM/yyyy')}
                 </span>
               </div>

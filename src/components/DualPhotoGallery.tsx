@@ -7,8 +7,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/lib/i18n';
 
+const ROSE = '#d8b4b4';
+const ROSE_DARK = '#4a3636';
+const ROSE_DEEP = '#6b3a3a';
 const GOLD = '#D4AF37';
-const GOLD_DARK = '#B8860B';
 const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)';
 
 interface Transform {
@@ -90,8 +92,8 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
         <div
           className="absolute inset-0 z-30 pointer-events-none"
           style={{
-            border: `2px solid ${GOLD}`,
-            boxShadow: `inset 0 0 14px rgba(212, 175, 55, 0.35), 0 0 8px rgba(212, 175, 55, 0.25)`,
+            border: `2px solid ${ROSE}`,
+            boxShadow: `inset 0 0 14px rgba(216, 180, 180, 0.4), 0 0 8px rgba(216, 180, 180, 0.3)`,
           }}
         />
       )}
@@ -139,10 +141,10 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
         <button
           onClick={() => inputRef.current?.click()}
           className="w-full h-full flex flex-col items-center justify-center gap-1.5 transition-colors"
-          style={{ background: 'hsla(38, 40%, 96%, 0.6)' }}
+          style={{ background: 'rgba(216, 180, 180, 0.1)' }}
         >
-          <Camera className="w-6 h-6" style={{ color: GOLD_DARK }} />
-          <span className="text-xs font-serif font-medium" style={{ color: GOLD_DARK }}>{label}</span>
+          <Camera className="w-6 h-6" style={{ color: ROSE }} />
+          <span className="text-xs font-serif font-medium" style={{ color: ROSE_DARK }}>{label}</span>
         </button>
       )}
       <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
@@ -381,10 +383,10 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     <div className="space-y-4">
       {/* Instructions */}
       <div className="text-center space-y-1">
-        <p className="text-sm font-serif font-semibold" style={{ color: GOLD_DARK }}>
+        <p className="text-sm font-serif font-semibold" style={{ color: ROSE_DARK }}>
           📸 העלי תמונות של לפני ואחרי
         </p>
-        <p className="text-[10px] font-serif" style={{ color: GOLD_DARK, opacity: 0.75 }}>
+        <p className="text-[10px] font-serif" style={{ color: ROSE_DARK, opacity: 0.75 }}>
           לחצי על המסגרת כדי לבחור תמונה. גררי את הלוגו למיקום הרצוי.
         </p>
         {/* Upload Logo button */}
@@ -393,8 +395,8 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleLogoUpload(f); }} />
             <button
               onClick={() => logoInputRef.current?.click()}
-              className="flex items-center gap-1 text-[10px] font-medium px-3 py-1 rounded-full transition-all hover:scale-105"
-              style={{ border: `1px solid ${GOLD}`, color: GOLD_DARK }}
+              className="flex items-center gap-1 text-[10px] font-serif font-medium px-3 py-1 rounded-full transition-all hover:scale-105"
+              style={{ border: `1px solid ${ROSE}`, color: ROSE_DARK }}
             >
               <Upload className="w-3 h-3" />
               העלי לוגו לסימון מים
@@ -407,7 +409,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       <div
         ref={collageRef}
         className="relative w-full rounded-2xl overflow-hidden shadow-lg"
-        style={{ aspectRatio: '1 / 1', border: `2px solid ${GOLD}`, background: '#000' }}
+        style={{ aspectRatio: '1 / 1', border: `2px solid ${ROSE}`, background: '#000' }}
       >
         {/* BEFORE half (left) */}
         <div className="absolute inset-y-0 left-0 w-1/2">
@@ -446,7 +448,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             />
             <div
               className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center"
-              style={{ background: GOLD, boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
+              style={{ background: ROSE, boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
             >
               <Move className="w-3 h-3 text-white" />
             </div>
@@ -476,11 +478,15 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
 
       {/* Logo size slider — only shown when logo exists and both images uploaded */}
       {resolvedLogo && bothUploaded && (
-        <div className="rounded-xl p-3 space-y-1.5" style={{ backgroundColor: '#faf8f2', border: `1px solid ${GOLD}30` }}>
+        <div className="rounded-xl p-3 space-y-1.5" style={{
+          background: 'rgba(255, 255, 255, 0.5)',
+          backdropFilter: 'blur(12px)',
+          border: `1px solid rgba(216, 180, 180, 0.35)`,
+        }}>
           <div className="flex items-center gap-2">
-            <Move className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD_DARK }} />
-            <span className="text-[11px] font-semibold" style={{ color: GOLD_DARK }}>{isHe ? 'גודל לוגו' : 'Logo size'}</span>
-            <span className="text-[10px] font-medium ml-auto" style={{ color: GOLD_DARK }}>{logoSize}%</span>
+            <Move className="w-3.5 h-3.5 shrink-0" style={{ color: ROSE }} />
+            <span className="text-[11px] font-serif font-semibold" style={{ color: ROSE_DARK }}>{isHe ? 'גודל לוגו' : 'Logo size'}</span>
+            <span className="text-[10px] font-medium ml-auto" style={{ color: ROSE_DARK }}>{logoSize}%</span>
           </div>
           <Slider
             value={[logoSize]}
@@ -489,7 +495,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             max={50}
             step={1}
           />
-          <p className="text-[9px] text-center" style={{ color: GOLD_DARK, opacity: 0.6 }}>
+          <p className="text-[9px] font-serif text-center" style={{ color: ROSE_DARK, opacity: 0.6 }}>
             {isHe ? 'גררי את הלוגו על הקולאז׳ למיקום הרצוי' : 'Drag the logo on the collage to reposition'}
           </p>
         </div>
@@ -500,11 +506,11 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         <button
           onClick={handleSave}
           disabled={saving || !bothUploaded}
-          className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
+          className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
           style={{
-            background: bothUploaded ? GOLD_GRADIENT : `${GOLD}44`,
-            color: '#4a3636',
-            boxShadow: bothUploaded ? '0 4px 20px -4px rgba(212, 175, 55, 0.5)' : 'none',
+            background: bothUploaded ? 'linear-gradient(135deg, #8b5a5a 0%, #6b3a3a 100%)' : 'rgba(216, 180, 180, 0.3)',
+            color: bothUploaded ? '#ffffff' : ROSE_DARK,
+            boxShadow: bothUploaded ? '0 6px 24px rgba(107, 58, 58, 0.35)' : 'none',
           }}
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -514,14 +520,16 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
         <button
           onClick={handleDownload}
           disabled={downloading || !bothUploaded}
-          className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
+          className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold font-serif tracking-wide transition-all hover:scale-105 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
           style={{
-            background: 'transparent',
-            color: GOLD_DARK,
-            border: `2px solid ${bothUploaded ? GOLD : `${GOLD}44`}`,
+            background: 'rgba(255, 255, 255, 0.55)',
+            backdropFilter: 'blur(8px)',
+            color: ROSE_DARK,
+            border: `1.5px solid ${bothUploaded ? ROSE : 'rgba(216, 180, 180, 0.3)'}`,
+            boxShadow: '0 4px 16px rgba(216, 180, 180, 0.15)',
           }}
         >
-          {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" style={{ color: ROSE }} />}
           {downloading ? (isHe ? 'מוריד...' : 'Downloading...') : (isHe ? 'הורדה לגלריה' : 'Download')}
         </button>
       </div>
