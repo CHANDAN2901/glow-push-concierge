@@ -2354,24 +2354,24 @@ const ArtistDashboard = () => {
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); openEditClient(client); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-accent/20"
-                                   style={{ color: 'hsl(38 55% 62%)' }}
+                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                  style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}
                                 >
                                   <Pencil className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); openWhatsApp(client.phone, client.name, client.link); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-accent/20"
-                                  style={{ color: 'hsl(38 55% 62%)' }}
+                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                  style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}
                                 >
                                   <MessageCircle className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); setDeletingClient(client); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-destructive/20"
-                                  style={{ color: 'hsl(0 60% 60%)' }}
+                                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                  style={{ background: 'rgba(239, 68, 68, 0.08)', color: '#e88a8a' }}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
