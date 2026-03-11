@@ -320,7 +320,7 @@ const Pricing = () => {
               <ul className="space-y-0 mb-10 flex-1">
                 {features.map((f, i) => (
                   <li key={i}>
-                    <div className="flex items-center justify-center gap-3 text-sm py-3" style={{ color: TEXT_DARK, fontWeight: 500 }}>
+                    <div className="flex items-center justify-center gap-3 text-sm py-3" style={{ color: '#4a3636', fontWeight: 500 }}>
                       <span>{f}</span>
                     </div>
                     {i < features.length - 1 && (
