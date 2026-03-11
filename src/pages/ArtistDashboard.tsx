@@ -1665,8 +1665,18 @@ const ArtistDashboard = () => {
                 <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
                   <Eye className="w-4 h-4" style={{ color: '#FFFFFF' }} strokeWidth={1.5} />
                 </span>
-                <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
+              <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
               </button>
+
+              <div className="relative">
+                <button onClick={() => setShowVoucherEditor(true)} className="pill-action-btn animate-fade-up">
+                  <span className="pill-icon-circle"><Gift className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Referral Voucher' : 'עריכת שובר חברות'}</span>
+                </button>
+                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                  <HelpTooltip id="referral-voucher" text={lang === 'en' ? 'Customize the referral voucher text and WhatsApp message your clients see and share.' : 'התאימי את טקסט שובר ההפניה והודעת הוואטסאפ שהלקוחות שלך רואות ומשתפות.'} />
+                </span>
+              </div>
             </div>
 
           </div>
