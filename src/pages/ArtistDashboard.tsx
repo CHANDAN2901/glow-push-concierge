@@ -1300,7 +1300,7 @@ const ArtistDashboard = () => {
 
         {/* ===== HOME TAB ===== */}
         {activeTab === 'home' && !subScreen && (
-          <div className="space-y-6" style={{ margin: '-0.5rem -1.25rem', padding: '0 1.25rem 2rem' }}>
+          <div className="space-y-7" style={{ margin: '-0.5rem -1.25rem', padding: '0 1.25rem 8rem' }}>
 
             {/* ═══ 1. HEADER / GREETING ═══ */}
             <div
