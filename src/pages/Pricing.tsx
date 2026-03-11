@@ -173,11 +173,7 @@ const Pricing = () => {
       {/* Back button */}
       <div className="mx-auto px-4 max-w-lg pt-20 pb-2 flex justify-end">
         <BackButton
-          className="!bg-[rgba(255,255,255,0.55)] !border-[1.5px] backdrop-blur-lg"
-          style={{
-            borderColor: ROSE_GOLD,
-            color: ROSE_GOLD_DARK,
-          } as any}
+          className="!bg-[rgba(255,255,255,0.55)] backdrop-blur-lg"
         />
       </div>
 
