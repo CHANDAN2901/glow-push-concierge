@@ -338,7 +338,7 @@ export default function AdminMessages() {
   };
 
   return (
-    <div className="space-y-4 max-w-3xl relative pb-20" dir="rtl">
+    <div className="space-y-4 max-w-3xl relative pb-28" dir="rtl">
       {/* Main Editor Card */}
       <div
         className="rounded-2xl overflow-hidden"
