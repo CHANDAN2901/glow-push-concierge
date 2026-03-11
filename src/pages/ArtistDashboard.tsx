@@ -1847,11 +1847,12 @@ const ArtistDashboard = () => {
                           toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
                         }
                       }}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-bold tracking-wide transition-all active:scale-[0.98] hover:shadow-lg"
+                      className="w-[85%] mx-auto flex items-center justify-center gap-2 py-3 rounded-full text-sm font-serif font-bold tracking-wide transition-all duration-300 active:scale-[0.96]"
                       style={{
-                        background: 'linear-gradient(135deg, #8b5a5a 0%, #6b3a3a 100%)',
+                        background: 'linear-gradient(135deg, #c98a8a 0%, #b06e6e 40%, #a05e5e 100%)',
                         color: '#ffffff',
-                        boxShadow: '0 6px 24px rgba(107, 58, 58, 0.35)',
+                        boxShadow: '0 8px 32px rgba(176, 110, 110, 0.45), 0 0 20px rgba(200, 140, 140, 0.25)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
                       }}
                     >
                       <MessageCircle className="w-4 h-4" strokeWidth={2} />
