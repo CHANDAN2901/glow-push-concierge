@@ -53,7 +53,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
       </div>
 
       {/* ===== LOGO & NAME ===== */}
-      <div className="relative -mt-20 z-10 flex flex-col items-center gap-0 px-6">
+      <div className="relative -mt-24 z-10 flex flex-col items-center gap-0 px-6">
         {(logo || !profileError) ? (
           <div className="w-full max-w-sm overflow-hidden flex items-center justify-center">
             <img
