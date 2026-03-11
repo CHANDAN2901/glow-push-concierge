@@ -470,8 +470,8 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                   ? (isHe ? `שלום ${fullName}, איזה כיף שאת מגיעה אלינו ✨` : `Hello ${fullName}, so glad you're coming ✨`)
                   : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
               </h1>
-              {/* Subtitle – pure white */}
-              <p className="text-center text-xs font-medium tracking-wide" style={{ color: '#ffffff' }}>
+              {/* Subtitle */}
+              <p className="text-center text-xs font-medium tracking-wide" style={{ color: '#4a3636' }}>
                 {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
               </p>
 
