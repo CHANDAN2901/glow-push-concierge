@@ -3262,7 +3262,7 @@ const ArtistDashboard = () => {
             { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
             { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוחות', route: null },
             { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
-            { id: 'push' as const, icon: Clock, label: lang === 'en' ? 'Record' : 'רשומה', route: null },
+            { id: 'push' as const, icon: Clock, label: '!push', route: null },
             { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'ראשי', route: null },
           ].map((tab) => {
             const isActive = tab.route ? false : activeTab === tab.id;
