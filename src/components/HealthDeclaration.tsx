@@ -450,16 +450,13 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               )}
             </div>
 
-            {/* Welcome text — static metallic rose gold, FB Ahava, no animation */}
+            {/* Welcome text — solid dark rosewood, FB Ahava, static */}
             <h1
               className="text-center text-lg sm:text-xl leading-relaxed mb-2"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 fontWeight: 700,
-                background: 'linear-gradient(135deg, #a07070 0%, #c9a0a0 20%, #dbbcbc 40%, #c9a0a0 60%, #b08888 80%, #a07070 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 1px 2px rgba(74,32,32,0.25))',
+                color: '#4a3636',
               }}
             >
               {step === 1 && fullName.trim()
