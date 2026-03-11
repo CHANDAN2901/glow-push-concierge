@@ -2326,7 +2326,7 @@ const ArtistDashboard = () => {
                                         <AlertTriangle className="w-3 h-3 inline-block mr-1.5 text-muted-foreground/40" />
                                       )}
                                     </p>
-                                    <p className="text-xs mt-0.5" style={{ color: 'hsl(38 40% 45%)' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
+                                    <p className="text-xs mt-0.5" style={{ color: '#8c6a6a' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
                                   </div>
                                   {hasFlags && <span className="text-[10px] font-bold text-destructive">⚠️</span>}
                                   {isSafe && <ShieldCheck className="w-3.5 h-3.5 text-accent" />}
