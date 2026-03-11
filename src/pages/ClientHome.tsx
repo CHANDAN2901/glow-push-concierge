@@ -151,7 +151,7 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'e
       }}
       aria-label="Notifications"
     >
-      <Bell className="w-[18px] h-[18px]" style={{ color: '#5C4033' }} strokeWidth={2.2} />
+      <Bell className="w-[18px] h-[18px]" style={{ color: '#4a3636' }} strokeWidth={2.2} />
       {hasUnread && (
         <span
           className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full border border-white/80"
