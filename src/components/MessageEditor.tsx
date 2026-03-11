@@ -545,7 +545,7 @@ export default function MessageEditor() {
               }`}
               style={isActive ? {
                 background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-                color: '#5C4033',
+                color: '#4a3636',
               } : undefined}
             >
               <Icon />
