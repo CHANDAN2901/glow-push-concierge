@@ -2122,7 +2122,7 @@ const ArtistDashboard = () => {
                   <button
                     onClick={() => { if (navigator.vibrate) navigator.vibrate(50); setDispatchPrefill(null); setDispatchOpen(true); }}
                     className="w-full rounded-full py-4 text-base font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
-                    style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033', boxShadow: '0 4px 16px rgba(212, 175, 55, 0.15)' }}
+                    style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#4a3636', boxShadow: '0 4px 16px rgba(212, 175, 55, 0.15)' }}
                   >
                     <Plus className="w-5 h-5" strokeWidth={3} />
                     {lang === 'en' ? 'Add New Client' : 'הוספי לקוחה חדשה'}
