@@ -3268,7 +3268,7 @@ const ArtistDashboard = () => {
 
 
       {/* ===== FIXED BOTTOM NAVIGATION BAR — Neumorphic Circles ===== */}
-      <nav className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-[450px]">
+      <nav className="fixed bottom-1.5 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-[450px]">
         <div className="flex items-center justify-between px-2.5 py-2.5">
           {[
             { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
