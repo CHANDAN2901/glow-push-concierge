@@ -3,7 +3,7 @@ import { useI18n } from '@/lib/i18n';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, FileText, Check, ArrowLeft, Eraser, Loader2, MapPin, CalendarPlus, Bell } from 'lucide-react';
 import { useHealthQuestions, type HealthQuestion } from '@/hooks/useHealthQuestions';
-import equipmentHeroImg from '@/assets/equipment-hero.jpg';
+import eyebrowHeroImg from '@/assets/eyebrow-hero.png';
 import glowpushLogoImg from '@/assets/glowpush-logo.png';
 
 export interface HealthDeclarationData {
