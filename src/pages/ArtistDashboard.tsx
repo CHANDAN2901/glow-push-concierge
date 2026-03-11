@@ -2866,12 +2866,11 @@ const ArtistDashboard = () => {
               </div>
             </div>
 
-            {/* Digital Card Preview Button */}
             <button
               onClick={() => setShowDigitalCardPreview(true)}
               className="preview-card-btn w-full flex items-center justify-center rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <span className="font-bold text-base tracking-wide" style={{ color: '#FFFFFF' }}>
+              <span className="block w-full text-center font-bold text-base tracking-wide relative z-10" style={{ color: '#FFFFFF' }}>
                 {lang === 'en' ? 'View Digital Card' : 'תצוגת כרטיס דיגיטלי'}
               </span>
             </button>
