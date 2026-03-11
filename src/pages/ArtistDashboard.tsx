@@ -1576,7 +1576,7 @@ const ArtistDashboard = () => {
               if (todayClients.length === 0) return null;
               return (
                 <div className="animate-fade-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
-                  <h3 className="text-2xl font-bold mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: '#3D3D3D' }}>
+                  <h3 className="text-xl font-bold mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: 'hsl(14 29% 30%)' }}>
                     {lang === 'en' ? 'Your Appointments Today' : 'התורים שלך היום'}
                   </h3>
                   <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
@@ -1618,7 +1618,7 @@ const ArtistDashboard = () => {
 
             {/* ── Active Healing Tracking ── */}
             <div className="animate-fade-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
-              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: '#3D3D3D' }}>
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: 'hsl(14 29% 30%)' }}>
                 {lang === 'en' ? 'Active Healing Tracking' : 'מעקב החלמה פעיל'}
                 <HelpTooltip id="active-recovery" text="כאן תראי את הלקוחות בשלבי ההחלמה. המערכת תציג כפתור וואטסאפ באופן אוטומטי בימים בהם נדרש ליצור קשר לפי הפרוטוקול." />
               </h3>
@@ -1688,30 +1688,28 @@ const ArtistDashboard = () => {
             <div className="animate-fade-up mt-6 flex justify-center" style={{ animationDelay: '0.45s', opacity: 0 }}>
               <button
                 onClick={() => setActiveTab('bonuses')}
-                className="special-promo-btn w-[90%] max-w-[420px] min-h-[100px] rounded-[20px] flex items-center justify-center relative overflow-hidden active:scale-95"
+                className="special-promo-btn w-[90%] max-w-[420px] min-h-[80px] flex items-center justify-center relative overflow-hidden active:scale-95"
                 style={{
-                  background: 'linear-gradient(145deg, #F2C4CE 0%, #E8A0B0 100%)',
-                  border: '2px solid rgba(216, 180, 180, 0.4)',
-                  boxShadow: '0 8px 24px rgba(201, 149, 108, 0.25), 0 16px 40px rgba(180, 110, 110, 0.15)',
+                  background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)',
+                  borderRadius: '50px',
+                  border: 'none',
+                  boxShadow: '0 12px 36px rgba(212, 131, 143, 0.4), 0 20px 50px rgba(180, 110, 110, 0.2), 0 0 20px rgba(232, 160, 176, 0.3)',
                   transition: 'all 0.3s ease',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(201, 149, 108, 0.35), 0 20px 48px rgba(180, 110, 110, 0.2)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(201, 149, 108, 0.25), 0 16px 40px rgba(180, 110, 110, 0.15)'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 18px 48px rgba(212, 131, 143, 0.5), 0 28px 60px rgba(180, 110, 110, 0.25), 0 0 30px rgba(232, 160, 176, 0.4)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(212, 131, 143, 0.4), 0 20px 50px rgba(180, 110, 110, 0.2), 0 0 20px rgba(232, 160, 176, 0.3)'; }}
               >
                 {/* Shine sweep animation */}
                 <div className="absolute inset-0 pointer-events-none z-[1]" style={{
-                  background: 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%)',
+                  background: 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)',
                   transform: 'skewX(-25deg)',
                   animation: 'premiumShine 5s infinite',
                   width: '50%',
                   left: '-100%',
                 }} />
                 <div className="text-center z-[2] relative px-6" dir="rtl">
-                  <span className="block font-extrabold text-base leading-snug" style={{ color: '#C9956C' }}>
-                    {lang === 'en' ? 'A Good Friend is Worth Gold (& Rose-Gold)' : 'חברה טובה שווה זהב (ורוז-גולד)'}
-                  </span>
-                  <span className="block font-bold text-sm mt-0.5" style={{ color: '#b07a5a' }}>
-                    {lang === 'en' ? 'Invite a friend & get ₪50 now! 🥂' : 'הזמיני חברה וקבלי ₪50 עכשיו! 🥂'}
+                  <span className="block font-extrabold text-sm leading-snug" style={{ color: '#fff' }}>
+                    {lang === 'en' ? 'A Good Friend is Worth Gold (& Rose-Gold) | Get ₪50 Gift!' : 'חברה טובה שווה זהב (ורוז-גולד) | קבלי ₪50 מתנה!'}
                   </span>
                 </div>
               </button>
