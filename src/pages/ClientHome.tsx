@@ -956,7 +956,7 @@ const ClientHome = () => {
         <div id="faq" className="scroll-mt-20" />
         <div
           className="rounded-3xl p-6 mb-5 animate-fade-up client-glass-card"
-          dir={isHe ? 'rtl' : 'ltr'}
+          dir={lang === 'he' ? 'rtl' : 'ltr'}
         >
           <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-1.5 mb-4 text-xs hover:underline underline-offset-2" style={{ color: '#8B6508', fontFamily: FBAHAVA }}>
             <ArrowUp className="w-3.5 h-3.5" />
