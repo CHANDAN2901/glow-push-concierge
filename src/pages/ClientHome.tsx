@@ -588,7 +588,7 @@ const ClientHome = () => {
         <div
           className="relative mb-6 overflow-hidden"
         >
-          {/* Soft white glow behind text */}
+          {/* Soft white glow behind text — NO animation */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
@@ -596,33 +596,14 @@ const ClientHome = () => {
               filter: 'blur(18px)',
             }}
           />
-          {/* Bokeh sparkles */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  width: `${4 + i * 2}px`,
-                  height: `${4 + i * 2}px`,
-                  top: `${15 + i * 12}%`,
-                  left: `${10 + i * 14}%`,
-                  background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)',
-                  animation: `sparkle-fade ${2 + i * 0.5}s ease-in-out infinite`,
-                  animationDelay: `${i * 0.3}s`,
-                }}
-              />
-            ))}
-          </div>
           <div className="relative py-10 px-6 text-center">
             <h1
-              className="font-bold tracking-wide mb-3 hd-shimmer-text"
+              className="font-bold tracking-wide mb-3"
               style={{
                 fontFamily: FBAHAVA,
                 fontSize: '26px',
                 lineHeight: 1.6,
                 background: 'linear-gradient(90deg, #caa64b, #f6e27a, #caa64b)',
-                backgroundSize: '200% 100%',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
