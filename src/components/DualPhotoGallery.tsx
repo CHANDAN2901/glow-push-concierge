@@ -141,10 +141,10 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
         <button
           onClick={() => inputRef.current?.click()}
           className="w-full h-full flex flex-col items-center justify-center gap-1.5 transition-colors"
-          style={{ background: 'hsla(38, 40%, 96%, 0.6)' }}
+          style={{ background: 'rgba(216, 180, 180, 0.1)' }}
         >
-          <Camera className="w-6 h-6" style={{ color: GOLD_DARK }} />
-          <span className="text-xs font-serif font-medium" style={{ color: GOLD_DARK }}>{label}</span>
+          <Camera className="w-6 h-6" style={{ color: ROSE }} />
+          <span className="text-xs font-serif font-medium" style={{ color: ROSE_DARK }}>{label}</span>
         </button>
       )}
       <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
