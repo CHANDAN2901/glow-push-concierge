@@ -163,10 +163,16 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading || !resolvedArtistId}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 active:scale-[0.98] disabled:opacity-60"
-          style={{ background: '#ffffff', border: `2.5px solid ${GOLD}`, color: GOLD_DARK }}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
+          style={{
+            background: 'rgba(255, 255, 255, 0.55)',
+            backdropFilter: 'blur(8px)',
+            border: `1.5px solid ${ROSE}`,
+            color: ROSE_DARK,
+            boxShadow: '0 4px 16px rgba(216, 180, 180, 0.2)',
+          }}
         >
-          <Camera className="w-4 h-4" />
+          <Camera className="w-4 h-4" style={{ color: ROSE }} />
           {uploading
             ? (isHe ? 'מעלה...' : 'Uploading...')
             : !resolvedArtistId
