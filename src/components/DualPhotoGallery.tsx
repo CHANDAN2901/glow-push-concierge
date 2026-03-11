@@ -92,8 +92,8 @@ function CollageHalf({ src, label, onClear, onFileSelect, active, onSelect }: {
         <div
           className="absolute inset-0 z-30 pointer-events-none"
           style={{
-            border: `2px solid ${GOLD}`,
-            boxShadow: `inset 0 0 14px rgba(212, 175, 55, 0.35), 0 0 8px rgba(212, 175, 55, 0.25)`,
+            border: `2px solid ${ROSE}`,
+            boxShadow: `inset 0 0 14px rgba(216, 180, 180, 0.4), 0 0 8px rgba(216, 180, 180, 0.3)`,
           }}
         />
       )}
