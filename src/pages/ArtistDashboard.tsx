@@ -3178,7 +3178,7 @@ const ArtistDashboard = () => {
                           {/* Description */}
                           <p
                             className="text-[11px] leading-relaxed mb-4 px-2"
-                            style={{ color: '#4A3520' }}
+                            style={{ color: '#4a3636' }}
                           >
                             {(() => {
                               const v = promoDescription || 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.';
