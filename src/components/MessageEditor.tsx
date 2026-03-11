@@ -739,7 +739,7 @@ export default function MessageEditor() {
                     background: savedIds.has(template.id)
                       ? 'hsl(145 60% 45%)'
                       : 'linear-gradient(135deg, #B8860B, #D4AF37 40%, #F9F295 60%, #D4AF37)',
-                    color: savedIds.has(template.id) ? '#fff' : '#5C4033',
+                    color: savedIds.has(template.id) ? '#fff' : '#4a3636',
                     border: savedIds.has(template.id)
                       ? '1px solid hsl(145 60% 40%)'
                       : '1px solid #D4AF37',
