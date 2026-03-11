@@ -213,8 +213,8 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
     <button
       onClick={handleSubscribe}
       disabled={status === 'loading'}
-      className="w-full rounded-lg p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up relative overflow-hidden"
-      style={{
+      className="rounded-[4px] p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 relative overflow-hidden"
+      style={{ width: '95%', margin: '0 auto 20px auto',
         animationDelay: '50ms',
         background: status === 'subscribed'
           ? 'linear-gradient(145deg, rgba(200,240,220,0.9) 0%, rgba(220,250,235,0.85) 100%)'
