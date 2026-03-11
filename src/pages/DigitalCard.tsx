@@ -41,7 +41,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
   const fbUrl = facebook ? (facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`) : '';
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center" dir="rtl">
+    <div className="min-h-screen flex flex-col items-center" dir="rtl" style={{ backgroundColor: '#FFFFFF' }}>
       {/* ===== HERO with fade ===== */}
       <div className="relative w-full">
         <img
@@ -49,11 +49,11 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
           alt="Permanent Makeup"
           className="w-full h-64 object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 50%, #FFFFFF 100%)' }} />
       </div>
 
       {/* ===== LOGO & NAME ===== */}
-      <div className="relative -mt-20 z-10 flex flex-col items-center gap-0 px-6">
+      <div className="relative -mt-24 z-10 flex flex-col items-center gap-0 px-6">
         {(logo || !profileError) ? (
           <div className="w-full max-w-sm overflow-hidden flex items-center justify-center">
             <img
@@ -71,7 +71,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
           </div>
         )}
 
-        <div className="text-center -mt-2">
+        <div className="text-center -mt-4">
           <h1 className="text-2xl font-extralight tracking-widest text-foreground">{name}</h1>
           <h2 className="text-sm text-muted-foreground mt-0.5 tracking-wider font-light">{isHe ? 'אמנית איפור קבוע' : 'Permanent Makeup Artist'}</h2>
         </div>
