@@ -41,7 +41,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
   const fbUrl = facebook ? (facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`) : '';
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center" dir="rtl">
+    <div className="min-h-screen flex flex-col items-center" dir="rtl" style={{ backgroundColor: '#FFFFFF' }}>
       {/* ===== HERO with fade ===== */}
       <div className="relative w-full">
         <img
@@ -49,7 +49,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
           alt="Permanent Makeup"
           className="w-full h-64 object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 50%, #FFFFFF 100%)' }} />
       </div>
 
       {/* ===== LOGO & NAME ===== */}
