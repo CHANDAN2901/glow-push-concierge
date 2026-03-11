@@ -140,8 +140,8 @@ const SuperAdmin = () => {
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* revenue chart */}
-        <div className="lg:col-span-2 bg-background border border-border rounded-xl p-5">
-          <h2 className="font-serif font-bold text-lg mb-4 text-foreground">Revenue Growth</h2>
+        <div className="lg:col-span-2 rounded-xl p-5" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
+          <h2 className="font-serif font-bold text-lg mb-4" style={{ color: '#4a3636' }}>Revenue Growth</h2>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={revenueChart}>
               <defs>
