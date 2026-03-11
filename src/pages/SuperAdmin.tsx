@@ -183,10 +183,10 @@ const SuperAdmin = () => {
 
   /* ── Users View ── */
   const renderUsers = () => (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      <div className="p-5 border-b border-border flex items-center justify-between">
-        <h2 className="font-serif font-semibold text-lg">User Management</h2>
-        <span className="text-xs text-muted-foreground">{artists.length} artists</span>
+    <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
+      <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(216,180,180,0.3)' }}>
+        <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>User Management</h2>
+        <span className="text-xs" style={{ color: '#8c6a6a' }}>{artists.length} artists</span>
       </div>
       <div className="overflow-x-auto">
         <Table>
