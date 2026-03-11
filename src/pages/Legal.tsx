@@ -41,7 +41,7 @@ const Legal = () => {
           <section className="space-y-3">
             <h2
               className="text-lg font-serif font-medium tracking-wide"
-              style={{ color: '#5C4033' }}
+              style={{ color: '#4a3636' }}
             >
               {isHe ? '📜 תנאי שימוש' : '📜 Terms of Service'}
             </h2>
