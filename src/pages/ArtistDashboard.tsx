@@ -2946,7 +2946,7 @@ const ArtistDashboard = () => {
                   className="w-full mt-2 h-12 rounded-full text-white font-bold text-sm tracking-wide"
                   style={{
                     background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                    color: '#5C4033',
+                    color: '#4a3636',
                     border: '1px solid #B8860B',
                     boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
                   }}
