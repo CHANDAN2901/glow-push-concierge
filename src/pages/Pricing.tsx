@@ -249,7 +249,7 @@ const Pricing = () => {
       </div>
 
       {/* Plan Cards */}
-      <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-8 max-w-lg">
+      <div className="mx-auto px-4 pb-20 flex flex-col items-center gap-14 max-w-lg">
         {plans.map((plan, idx) => {
           const Icon = iconMap[plan.slug] || Sparkles;
           const features = isHe ? plan.features_he : plan.features_en;
@@ -261,12 +261,14 @@ const Pricing = () => {
           return (
             <div
               key={plan.id}
-              className="w-full rounded-2xl p-8 md:p-10 flex flex-col relative animate-fade-up text-center backdrop-blur-xl"
+              className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center backdrop-blur-xl"
               style={{
-                border: isElite ? GLASS_BORDER_HIGHLIGHT : GLASS_BORDER,
-                background: isElite ? GLASS_BG_HIGHLIGHT : GLASS_BG,
-                boxShadow: isElite ? GLASS_SHADOW_HIGHLIGHT : GLASS_SHADOW,
-                borderRadius: '20px',
+                border: isElite ? '1.5px solid rgba(216, 180, 180, 0.35)' : '1px solid rgba(216, 180, 180, 0.2)',
+                background: isElite ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                borderRadius: '32px',
+                boxShadow: isElite
+                  ? '0 16px 48px rgba(216, 180, 180, 0.3), 0 0 40px rgba(216, 180, 180, 0.2), 0 0 80px rgba(232, 160, 176, 0.12)'
+                  : '0 12px 40px rgba(216, 180, 180, 0.22), 0 0 32px rgba(216, 180, 180, 0.15), 0 0 60px rgba(232, 160, 176, 0.08)',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
