@@ -223,18 +223,16 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
         } : {}),
       }}
     >
-      <span className="relative z-10 flex items-center justify-center gap-3">
       {status === 'loading' ? (
         <span className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
       ) : (
-        <Bell className="w-5 h-5" />
+        <Bell className="w-4 h-4" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
       )}
       {status === 'subscribed'
         ? (lang === 'en' ? 'Notifications enabled ✅' : 'התראות מופעלות ✅')
         : status === 'loading'
           ? (lang === 'en' ? 'Enabling...' : 'מפעילה...')
           : (lang === 'en' ? 'Enable notifications for recovery updates 🔔' : 'הפעילי התראות לקבלת עדכוני החלמה 🔔')}
-      </span>
     </button>
   );
 }
