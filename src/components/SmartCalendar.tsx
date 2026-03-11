@@ -1143,7 +1143,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                 style={{
                   background:
                     'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                  color: '#5C4033',
+                  color: '#4a3636',
                   boxShadow: '0 4px 20px rgba(212,175,55,0.45), inset 0 1px 0 rgba(249,242,149,0.6)',
                 }}
               >
