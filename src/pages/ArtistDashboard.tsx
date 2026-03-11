@@ -2635,31 +2635,32 @@ const ArtistDashboard = () => {
               {/* Logo */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium text-foreground">{lang === 'en' ? 'Studio Logo' : 'לוגו הסטודיו'}</Label>
-                {logoUrl ? (
-                  <div className="flex items-center gap-3 py-2">
+                <label
+                  className="w-full rounded-2xl p-6 flex flex-col items-center gap-2 cursor-pointer bg-white transition-all hover:shadow-md"
+                  style={{ border: '2px solid hsl(38 55% 62%)' }}
+                >
+                  {logoUrl ? (
                     <div className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center" style={{ border: '2px solid hsl(38 55% 62%)', boxShadow: '0 0 12px -3px hsla(38, 55%, 62%, 0.3)' }}>
                       <img src={logoUrl} alt="Studio logo" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
                     </div>
-                    <button type="button" onClick={() => { setLogoUrl(''); localStorage.removeItem('gp-artist-logo'); }} className="text-xs text-destructive hover:underline">
-                      {lang === 'en' ? 'Remove' : 'הסרה'}
-                    </button>
-                  </div>
-                ) : (
-                  <label
-                    className="w-full rounded-2xl p-6 flex flex-col items-center gap-2 cursor-pointer bg-white transition-all hover:shadow-md"
-                    style={{ border: '2px solid hsl(38 55% 62%)' }}
-                  >
+                  ) : (
                     <Upload className="w-6 h-6 text-accent" />
-                    <span className="text-sm font-medium text-accent">{lang === 'en' ? 'Upload Logo' : 'העלי לוגו'}</span>
-                    <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      if (file.size > 10 * 1024 * 1024) { toast({ title: lang === 'en' ? 'File too large (max 10MB)' : 'הקובץ גדול מדי (מקס 10MB)', variant: 'destructive' }); return; }
-                      const reader = new FileReader();
-                      reader.onload = () => { const d = reader.result as string; setLogoUrl(d); localStorage.setItem('gp-artist-logo', d); toast({ title: '✨' }); };
-                      reader.readAsDataURL(file);
-                    }} />
-                  </label>
+                  )}
+                  <span className="text-sm font-medium text-accent">{logoUrl ? (lang === 'en' ? 'Change Logo' : 'החליפי לוגו') : (lang === 'en' ? 'Upload Logo' : 'העלי לוגו')}</span>
+                  <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 10 * 1024 * 1024) { toast({ title: lang === 'en' ? 'File too large (max 10MB)' : 'הקובץ גדול מדי (מקס 10MB)', variant: 'destructive' }); return; }
+                    const reader = new FileReader();
+                    reader.onload = () => { const d = reader.result as string; setLogoUrl(d); localStorage.setItem('gp-artist-logo', d); toast({ title: '✨' }); };
+                    reader.readAsDataURL(file);
+                    e.target.value = '';
+                  }} />
+                </label>
+                {logoUrl && (
+                  <button type="button" onClick={() => { setLogoUrl(''); localStorage.removeItem('gp-artist-logo'); }} className="text-xs text-destructive hover:underline block mx-auto">
+                    {lang === 'en' ? 'Remove' : 'הסרה'}
+                  </button>
                 )}
                 <p className="text-xs text-muted-foreground text-center mt-2">
                   💡 {lang === 'en' ? 'Tip: For perfect collage results, upload a logo with a transparent background (PNG file).' : 'המלצה: לקבלת תוצאה מושלמת בקולאז׳, מומלץ להעלות לוגו עם רקע שקוף (קובץ PNG).'}
