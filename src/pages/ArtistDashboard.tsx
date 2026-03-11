@@ -2082,7 +2082,7 @@ const ArtistDashboard = () => {
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                   <div className="px-5 py-4 border-b border-border">
                     <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                      <Image className="w-4 h-4 text-accent" />
+                      <Image className="w-4 h-4" style={{ color: '#d8b4b4' }} />
                       {lang === 'en' ? 'Before & After Collage' : 'קולאז׳ לפני ואחרי'}
                       <HelpTooltip text="יצירת תמונות מקצועיות לשיווק באינסטגרם ושליחה ללקוחה ישירות לוואטסאפ." id="collage" />
                     </h3>
