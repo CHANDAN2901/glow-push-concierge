@@ -127,7 +127,7 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'e
       style={{
         background: METALLIC_GOLD_GRADIENT,
         backgroundSize: '200% 100%',
-        color: '#5C4033',
+        color: '#4a3636',
         boxShadow: '0 2px 10px rgba(191,149,63,0.4)',
       }}
     >
