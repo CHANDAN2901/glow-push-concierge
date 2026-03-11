@@ -53,7 +53,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
       </div>
 
       {/* ===== LOGO & NAME ===== */}
-      <div className="relative -mt-12 z-10 flex flex-col items-center gap-0.5 px-6">
+      <div className="relative -mt-20 z-10 flex flex-col items-center gap-0 px-6">
         {(logo || !profileError) ? (
           <div className="w-full max-w-sm overflow-hidden flex items-center justify-center">
             <img
@@ -71,9 +71,9 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
           </div>
         )}
 
-        <div className="text-center mt-1">
+        <div className="text-center -mt-2">
           <h1 className="text-2xl font-extralight tracking-widest text-foreground">{name}</h1>
-          <h2 className="text-sm text-muted-foreground mt-1 tracking-wider font-light">{isHe ? 'אמנית איפור קבוע' : 'Permanent Makeup Artist'}</h2>
+          <h2 className="text-sm text-muted-foreground mt-0.5 tracking-wider font-light">{isHe ? 'אמנית איפור קבוע' : 'Permanent Makeup Artist'}</h2>
         </div>
       </div>
 
