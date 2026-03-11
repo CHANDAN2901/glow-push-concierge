@@ -172,6 +172,10 @@ const Pricing = () => {
           0%, 100% { background-position: -200% center; }
           50% { background-position: 200% center; }
         }
+        @keyframes metallic-shimmer {
+          0% { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
       `}</style>
 
       {/* Spacer for fixed header */}
