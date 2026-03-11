@@ -565,7 +565,11 @@ const ClientHome = () => {
                 fontFamily: FBAHAVA,
                 fontSize: '28px',
                 lineHeight: 1.6,
-                color: '#6B1D3A',
+                background: 'linear-gradient(135deg, #5E1A30 0%, #8B3050 20%, #C27080 40%, #F0B8C0 50%, #C27080 60%, #8B3050 80%, #5E1A30 100%)',
+                backgroundSize: '100% 100%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
               }}
             >
               ✨ {lang === 'en' ? `Welcome to your healing journey, ${clientName}!` : `ברוכה הבאה למסע ההחלמה שלך, ${clientName}!`} ✨
