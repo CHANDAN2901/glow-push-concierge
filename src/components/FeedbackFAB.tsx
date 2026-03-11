@@ -60,8 +60,8 @@ export default function FeedbackFAB() {
           height: 56,
           borderRadius: "50%",
           background: "linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%)",
-          border: "2.5px solid #D4AF37",
-          boxShadow: "0 8px 15px rgba(0,0,0,0.3), 0 0 12px rgba(212,175,55,0.4)",
+          border: "none",
+          boxShadow: "0 6px 14px rgba(0,0,0,0.15), 0 2px 6px rgba(214,157,169,0.3)",
         }}
       >
         <Lightbulb className="h-6 w-6 text-white drop-shadow" />
