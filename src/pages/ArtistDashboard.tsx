@@ -1290,11 +1290,6 @@ const ArtistDashboard = () => {
         {/* ===== WALLET SUB-SCREEN ===== */}
         {subScreen === 'wallet' && (
           <div className="space-y-4">
-            <BackButton
-              onClick={() => setSubScreen(null)}
-              label={lang === 'en' ? 'Back to Settings' : 'חזרה להגדרות'}
-              className="mb-2"
-            />
             <BonusCenter
               userProfileId={userProfileId}
               onNavigateToReferrals={() => { setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }}
