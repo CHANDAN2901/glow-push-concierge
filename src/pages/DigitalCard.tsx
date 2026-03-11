@@ -140,15 +140,15 @@ function CircleButton({
 }) {
   const inner = (
     <div
-      className="w-[130px] h-[130px] rounded-full p-[3px] shadow-[0_4px_16px_rgba(212,175,55,0.3)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(212,175,55,0.45)] active:scale-95"
+      className="w-[130px] h-[130px] rounded-full p-[3px] shadow-[0_4px_16px_rgba(216,180,180,0.35)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(216,180,180,0.5)] active:scale-95"
       style={{
-        background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%)',
-        opacity: 1,
+        background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%)',
+        border: '1px solid rgba(216, 180, 180, 0.5)',
       }}
     >
-      <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center gap-1.5 px-2">
-        <span className="text-foreground">{icon}</span>
-        <span className="text-[10px] font-semibold text-foreground text-center leading-tight px-1">{label}</span>
+      <div className="w-full h-full rounded-full flex flex-col items-center justify-center gap-1.5 px-2" style={{ background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%)' }}>
+        <span style={{ color: '#FFFFFF' }}>{icon}</span>
+        <span className="text-[10px] font-semibold text-center leading-tight px-1" style={{ color: '#FFFFFF' }}>{label}</span>
       </div>
     </div>
   );
