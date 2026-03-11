@@ -2311,7 +2311,7 @@ const ArtistDashboard = () => {
                                 <div className="flex items-center gap-2.5">
                                   <div
                                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${hasFlags ? 'bg-destructive/10 text-destructive' : 'text-white'}`}
-                                    style={hasFlags ? {} : { background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))' }}
+                                    style={hasFlags ? {} : { background: 'linear-gradient(145deg, #f0c8c8, #d8a0a0)', color: '#fff', border: '1px solid rgba(216, 180, 180, 0.6)' }}
                                   >
                                     {hasFlags ? <AlertTriangle className="w-4 h-4" /> : client.name.charAt(0)}
                                   </div>
