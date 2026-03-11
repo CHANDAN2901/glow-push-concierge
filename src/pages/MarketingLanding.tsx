@@ -254,7 +254,7 @@ const MarketingLanding = () => {
         className="font-semibold py-6 px-12 rounded-full text-lg border-0 tracking-wide"
         style={{
           background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37)',
-          color: '#5C4033',
+          color: '#4a3636',
           boxShadow: '0 4px 16px rgba(212, 175, 55, 0.35)',
         }}
       >

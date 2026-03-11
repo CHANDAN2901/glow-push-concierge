@@ -222,7 +222,7 @@ export default function OnboardingWizard({
           style={{
             background: '#ffffff',
             border: '2px solid #D4AF37',
-            color: '#5C4033',
+            color: '#4a3636',
           }}
         >
           {isHe ? 'פתיחת עורך הטיימליין' : 'Open Timeline Editor'}

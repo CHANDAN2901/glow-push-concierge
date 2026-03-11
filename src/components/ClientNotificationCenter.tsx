@@ -241,7 +241,7 @@ export default function ClientNotificationCenter({
                             {lang === 'en' ? `Day ${notif.day}` : `יום ${notif.day}`}
                           </span>
                         </div>
-                        <p className="text-sm leading-relaxed" style={{ color: '#5C4033', fontFamily: FBAHAVA }}>
+                        <p className="text-sm leading-relaxed" style={{ color: '#4a3636', fontFamily: FBAHAVA }}>
                           {notif.body}
                         </p>
                       </div>

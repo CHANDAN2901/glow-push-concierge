@@ -112,7 +112,7 @@ export default function DeclarationViewer({
             <button
               onClick={handleShare}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033', boxShadow: '0 4px 18px rgba(212, 175, 55, 0.35)' }}
+              style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212, 175, 55, 0.35)' }}
             >
               <Printer className="w-3.5 h-3.5" />
               {isHe ? 'הדפסה / שיתוף' : 'Print / Share'}
