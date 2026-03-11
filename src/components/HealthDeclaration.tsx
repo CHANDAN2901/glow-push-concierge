@@ -389,107 +389,99 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       <div className="flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-8">
         <div className="w-full max-w-lg">
 
-          {/* ═══ Dark-to-White Luxury Header ═══ */}
-          <div
-            className="relative rounded-3xl overflow-hidden mb-6 sm:mb-8"
-            style={{
-              boxShadow: '0 16px 48px rgba(40,20,10,0.25), 0 4px 16px rgba(212,175,55,0.10)',
-            }}
-          >
-            {/* Dark realistic equipment image — full rich brown/gold palette */}
-            <div className="relative w-full" style={{ height: '200px' }}>
-              <img
-                src={equipmentHeroImg}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ filter: 'brightness(0.65) saturate(1.2) contrast(1.05)' }}
-              />
-              {/* Warm brown tint for richness */}
-              <div
-                className="absolute inset-0"
-                style={{ background: 'linear-gradient(180deg, rgba(35,18,8,0.25) 0%, rgba(50,25,12,0.15) 50%, transparent 100%)' }}
-              />
-              {/* Seamless fade from dark image → white (overlaid at bottom of image) */}
-              <div
-                className="absolute bottom-0 left-0 right-0"
-                style={{
-                  height: '120px',
-                  background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.08) 20%, rgba(255,255,255,0.25) 40%, rgba(255,255,255,0.55) 60%, rgba(255,255,255,0.85) 80%, #FFFFFF 100%)',
-                }}
-              />
-              {/* Back button + step row */}
-              <div className="relative z-10 flex items-center justify-between w-full px-6 pt-6">
-                <button
-                  onClick={onClose}
-                  className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0 backdrop-blur-sm"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: '#F9F295' }}
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-                <div className="flex items-center gap-1.5">
-                  <FileText className="w-4 h-4" style={{ color: '#F9F295' }} />
-                  <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                    {readOnly
-                      ? (isHe ? 'צפייה בלבד' : 'View only')
-                      : (isHe ? `שלב ${step} מתוך ${STEPS}` : `Step ${step} of ${STEPS}`)}
-                  </p>
-                </div>
+          {/* ═══ Seamless Luxury Header — no boxes/frames ═══ */}
+          {/* Dark equipment image fading into page background */}
+          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '220px' }}>
+            <img
+              src={equipmentHeroImg}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ filter: 'brightness(0.65) saturate(1.2) contrast(1.05)' }}
+            />
+            {/* Warm tint */}
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(180deg, rgba(35,18,8,0.2) 0%, rgba(50,25,12,0.1) 40%, transparent 100%)' }}
+            />
+            {/* Soft fade into page pink — no harsh line */}
+            <div
+              className="absolute bottom-0 left-0 right-0"
+              style={{
+                height: '140px',
+                background: 'linear-gradient(180deg, transparent 0%, hsla(350,50%,94%,0.1) 25%, hsla(350,50%,94%,0.35) 45%, hsla(350,50%,94%,0.65) 65%, hsla(350,50%,94%,0.9) 85%, hsl(350,50%,94%) 100%)',
+              }}
+            />
+            {/* Back button + step row */}
+            <div className="relative z-10 flex items-center justify-between w-full px-6 pt-6">
+              <button
+                onClick={onClose}
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0 backdrop-blur-sm"
+                style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: '#F9F295' }}
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <div className="flex items-center gap-1.5">
+                <FileText className="w-4 h-4" style={{ color: '#F9F295' }} />
+                <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  {readOnly
+                    ? (isHe ? 'צפייה בלבד' : 'View only')
+                    : (isHe ? `שלב ${step} מתוך ${STEPS}` : `Step ${step} of ${STEPS}`)}
+                </p>
               </div>
             </div>
+          </div>
 
-            {/* White field with logo + text — seamless continuation */}
-            <div className="relative z-10 flex flex-col items-center px-8 pt-6 pb-10" style={{ backgroundColor: '#FFFFFF' }}>
-              {/* Logo — SUPER SIZED 3x, centered with generous clear zone */}
-              <div className="w-full flex justify-center mb-6">
-                {instagramUrl ? (
-                  <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="block">
-                    <img
-                      src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
-                      alt="Studio Logo"
-                      className="w-full max-w-[280px] h-auto object-contain"
-                      style={{ filter: 'drop-shadow(0 4px 20px rgba(212,175,55,0.25))' }}
-                      onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
-                    />
-                  </a>
-                ) : (
+          {/* Logo + text — sits directly on page bg, no white box */}
+          <div className="flex flex-col items-center px-6 pt-4 pb-6">
+            {/* Logo — large, centered, borderless */}
+            <div className="w-full flex justify-center mb-5">
+              {instagramUrl ? (
+                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="block">
                   <img
                     src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
                     alt="Studio Logo"
-                    className="w-full max-w-[280px] h-auto object-contain"
-                    style={{ filter: 'drop-shadow(0 4px 20px rgba(212,175,55,0.25))' }}
+                    className="max-w-[260px] w-full h-auto object-contain"
+                    style={{ filter: 'drop-shadow(0 4px 16px rgba(212,175,55,0.25))' }}
                     onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
                   />
-                )}
-              </div>
-
-              {/* Welcome text — static polished metallic rose gold, FB Ahava */}
-              <h1
-                className="text-center text-lg sm:text-xl leading-relaxed mb-2"
-                style={{
-                  fontFamily: "'FB Ahava', 'Playfair Display', serif",
-                  fontWeight: 700,
-                  background: 'linear-gradient(135deg, #a07070 0%, #c9a0a0 20%, #dbbcbc 40%, #c9a0a0 60%, #b08888 80%, #a07070 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 1px 2px rgba(74,32,32,0.25))',
-                }}
-              >
-                {step === 1 && fullName.trim()
-                  ? (isHe ? `שלום ${fullName}, איזה כיף שאת מגיעה אלינו ✨` : `Hello ${fullName}, so glad you're coming ✨`)
-                  : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
-              </h1>
-              {/* Subtitle */}
-              <p className="text-center text-xs font-medium tracking-wide" style={{ color: '#6b4a4a' }}>
-                {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
-              </p>
-
-              {readOnly && existingData?.submittedAt && (
-                <p className="text-[11px] mt-3 font-medium" style={{ color: '#B8860B' }}>
-                  {isHe ? '📅 תאריך חתימה: ' : '📅 Signed: '}
-                  {new Date(existingData.submittedAt).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                </p>
+                </a>
+              ) : (
+                <img
+                  src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
+                  alt="Studio Logo"
+                  className="max-w-[260px] w-full h-auto object-contain"
+                  style={{ filter: 'drop-shadow(0 4px 16px rgba(212,175,55,0.25))' }}
+                  onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
+                />
               )}
             </div>
+
+            {/* Welcome text — static metallic rose gold, FB Ahava, no animation */}
+            <h1
+              className="text-center text-lg sm:text-xl leading-relaxed mb-2"
+              style={{
+                fontFamily: "'FB Ahava', 'Playfair Display', serif",
+                fontWeight: 700,
+                background: 'linear-gradient(135deg, #a07070 0%, #c9a0a0 20%, #dbbcbc 40%, #c9a0a0 60%, #b08888 80%, #a07070 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                filter: 'drop-shadow(0 1px 2px rgba(74,32,32,0.25))',
+              }}
+            >
+              {step === 1 && fullName.trim()
+                ? (isHe ? `שלום ${fullName}, איזה כיף שאת מגיעה אלינו ✨` : `Hello ${fullName}, so glad you're coming ✨`)
+                : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
+            </h1>
+            <p className="text-center text-xs font-medium tracking-wide" style={{ color: '#6b4a4a' }}>
+              {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
+            </p>
+
+            {readOnly && existingData?.submittedAt && (
+              <p className="text-[11px] mt-3 font-medium" style={{ color: '#B8860B' }}>
+                {isHe ? '📅 תאריך חתימה: ' : '📅 Signed: '}
+                {new Date(existingData.submittedAt).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            )}
           </div>
 
           {/* Elegant Progress Bar */}
