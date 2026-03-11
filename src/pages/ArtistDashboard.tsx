@@ -2294,7 +2294,7 @@ const ArtistDashboard = () => {
                           {birthdayWeek && (
                             <button type="button" onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
-                              style={{ background: 'linear-gradient(145deg, #E8A0B0, #D4838F)', color: '#fff', boxShadow: '0 4px 14px rgba(212, 131, 143, 0.3), 0 0 10px rgba(232, 160, 176, 0.15)' }}>
+                              style={{ background: 'rgba(216, 180, 180, 0.12)', color: '#4a3636', border: '1px solid #d8b4b4', boxShadow: '0 3px 10px rgba(216, 180, 180, 0.15)' }}>
                               🎂 {lang === 'en' ? 'Birthday Wish' : 'ברכת יום הולדת'}
                             </button>
                           )}
