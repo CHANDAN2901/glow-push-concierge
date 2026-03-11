@@ -207,7 +207,7 @@ export default function DailyGrowthEngine({ clients, artistName, lang, onBirthda
                   >
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
+                      style={{ background: 'linear-gradient(145deg, #fdf1f0, #eecaca)', color: '#8c6a6a', border: '1px solid #d8b4b4' }}
                     >
                       {client.name.charAt(0)}
                     </div>
