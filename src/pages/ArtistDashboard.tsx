@@ -2737,9 +2737,12 @@ const ArtistDashboard = () => {
                       if (logoUrl && logoUrl.startsWith('data:')) {
                         const blob = await fetch(logoUrl).then(r => r.blob());
                         const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-                        const path = `${userProfileId}/logo.${ext}`;
+                        const path = `${user.id}/logo.${ext}`;
                         const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
-                        if (uploadErr) throw uploadErr;
+                        if (uploadErr) {
+                          console.error('Business logo upload failed', { path, message: uploadErr.message, error: uploadErr });
+                          throw uploadErr;
+                        }
                         const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
                         finalLogoUrl = urlData.publicUrl;
                       }
@@ -2750,7 +2753,10 @@ const ArtistDashboard = () => {
                         logo_url: finalLogoUrl || null,
                       } as any).eq('id', userProfileId);
 
-                      if (error) throw error;
+                      if (error) {
+                        console.error('Business profile update failed', { userProfileId, finalLogoUrl, error });
+                        throw error;
+                      }
                       setSavedLogoUrl(finalLogoUrl || '');
                       setLogoUrl(finalLogoUrl || '');
                       setHasUnsavedLogoChange(false);
@@ -2808,9 +2814,12 @@ const ArtistDashboard = () => {
                       if (logoUrl && logoUrl.startsWith('data:')) {
                         const blob = await fetch(logoUrl).then(r => r.blob());
                         const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-                        const path = `${userProfileId}/logo.${ext}`;
+                        const path = `${user.id}/logo.${ext}`;
                         const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
-                        if (uploadErr) throw uploadErr;
+                        if (uploadErr) {
+                          console.error('Digital card logo upload failed', { path, message: uploadErr.message, error: uploadErr });
+                          throw uploadErr;
+                        }
                         const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
                         finalLogoUrl = urlData.publicUrl;
                       }
@@ -2821,7 +2830,10 @@ const ArtistDashboard = () => {
                         waze_address: wazeAddress,
                         logo_url: finalLogoUrl || null,
                       } as any).eq('id', userProfileId);
-                      if (error) throw error;
+                      if (error) {
+                        console.error('Digital card profile update failed', { userProfileId, finalLogoUrl, error });
+                        throw error;
+                      }
                       setSavedLogoUrl(finalLogoUrl || '');
                       setLogoUrl(finalLogoUrl || '');
                       setHasUnsavedLogoChange(false);
