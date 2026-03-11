@@ -389,26 +389,26 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       <div className="flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-8">
         <div className="w-full max-w-lg">
 
-          {/* ═══ Luxury Dark Equipment Header ═══ */}
+          {/* ═══ Bright Pastel Equipment Header ═══ */}
           <div
             className="relative rounded-3xl overflow-hidden mb-6 sm:mb-8"
             style={{
-              minHeight: '260px',
-              boxShadow: '0 16px 48px rgba(0,0,0,0.25), 0 4px 16px rgba(212,175,55,0.10)',
+              minHeight: '300px',
+              boxShadow: '0 16px 48px rgba(216,180,180,0.3), 0 4px 16px rgba(212,175,55,0.10)',
             }}
           >
-            {/* Background image – moody equipment */}
+            {/* Background image – brightened pastel */}
             <img
               src={equipmentHeroImg}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ filter: 'brightness(0.55) saturate(1.1)' }}
+              style={{ filter: 'brightness(1.4) saturate(0.5) sepia(0.25) hue-rotate(-10deg)' }}
             />
-            {/* Dark chocolate/mocha → pink fade overlay */}
+            {/* Soft pastel pink/cream → white fade overlay */}
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(180deg, hsla(20, 30%, 12%, 0.85) 0%, hsla(15, 25%, 18%, 0.78) 40%, hsla(350, 35%, 30%, 0.65) 75%, hsla(350, 50%, 93%, 0.95) 100%)',
+                background: 'linear-gradient(180deg, hsla(350, 60%, 95%, 0.7) 0%, hsla(30, 40%, 95%, 0.6) 30%, hsla(350, 40%, 92%, 0.65) 60%, hsla(350, 50%, 93%, 0.95) 100%)',
               }}
             />
             {/* Content */}
@@ -418,13 +418,13 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 <button
                   onClick={onClose}
                   className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0 backdrop-blur-sm"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1px solid rgba(212,175,55,0.3)', color: '#F9F295' }}
+                  style={{ backgroundColor: 'rgba(255,255,255,0.5)', border: '1px solid rgba(212,175,55,0.4)', color: '#B8860B' }}
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
                 <div className="flex items-center gap-1.5">
-                  <FileText className="w-4 h-4" style={{ color: '#F9F295' }} />
-                  <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  <FileText className="w-4 h-4" style={{ color: '#B8860B' }} />
+                  <p className="text-xs font-medium" style={{ color: '#4a3636' }}>
                     {readOnly
                       ? (isHe ? 'צפייה בלבד' : 'View only')
                       : (isHe ? `שלב ${step} מתוך ${STEPS}` : `Step ${step} of ${STEPS}`)}
@@ -432,15 +432,15 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 </div>
               </div>
 
-              {/* Logo */}
-              <div className="mb-4">
+              {/* Logo — SUPER SIZED 3x */}
+              <div className="mb-4 w-full flex justify-center">
                 {instagramUrl ? (
                   <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
                     <img
                       src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
                       alt="Studio Logo"
-                      className="h-16 sm:h-20 w-auto object-contain"
-                      style={{ filter: 'brightness(1.2) drop-shadow(0 2px 8px rgba(212,175,55,0.4))' }}
+                      className="w-full max-w-[320px] h-auto object-contain"
+                      style={{ filter: 'drop-shadow(0 4px 16px rgba(216,180,180,0.5)) drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
                       onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
                     />
                   </a>
@@ -448,8 +448,8 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                   <img
                     src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
                     alt="Studio Logo"
-                    className="h-16 sm:h-20 w-auto object-contain"
-                    style={{ filter: 'brightness(1.2) drop-shadow(0 2px 8px rgba(212,175,55,0.4))' }}
+                    className="w-full max-w-[320px] h-auto object-contain"
+                    style={{ filter: 'drop-shadow(0 4px 16px rgba(216,180,180,0.5)) drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
                     onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
                   />
                 )}
