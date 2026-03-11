@@ -2768,16 +2768,34 @@ const ArtistDashboard = () => {
               <Button
                   onClick={async () => {
                     if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
-                    setSavingCard(true);
-                    const { error } = await supabase.from('profiles').update({
-                      business_phone: artistPhone,
-                      instagram_url: instagramUrl,
-                      facebook_url: facebookUrl,
-                      waze_address: wazeAddress,
-                    } as any).eq('id', userProfileId);
+                     setSavingCard(true);
+                    try {
+                      let finalLogoUrl = logoUrl;
+                      if (logoUrl && logoUrl.startsWith('data:')) {
+                        const blob = await fetch(logoUrl).then(r => r.blob());
+                        const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
+                        const path = `${userProfileId}/logo.${ext}`;
+                        const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
+                        if (uploadErr) throw uploadErr;
+                        const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+                        finalLogoUrl = urlData.publicUrl;
+                        setLogoUrl(finalLogoUrl);
+                        localStorage.setItem('gp-artist-logo', finalLogoUrl);
+                      }
+                      const { error } = await supabase.from('profiles').update({
+                        business_phone: artistPhone,
+                        instagram_url: instagramUrl,
+                        facebook_url: facebookUrl,
+                        waze_address: wazeAddress,
+                        logo_url: finalLogoUrl || null,
+                      } as any).eq('id', userProfileId);
+                      if (error) throw error;
+                      toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
+                    } catch (err: any) {
+                      console.error('Save card settings error:', err);
+                      toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
+                    }
                     setSavingCard(false);
-                    if (error) { toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' }); }
-                    else { toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' }); }
                   }}
                   disabled={savingCard}
                   className="w-full mt-2 h-12 rounded-full text-white font-bold text-sm tracking-wide"
