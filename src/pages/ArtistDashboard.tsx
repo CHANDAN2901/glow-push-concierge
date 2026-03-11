@@ -315,6 +315,29 @@ const ArtistDashboard = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasUnsavedLogoChangeRef = useRef(false);
 
+  const uploadProfileLogo = useCallback(async (currentLogoUrl: string) => {
+    if (!currentLogoUrl?.startsWith('data:')) return currentLogoUrl || '';
+    if (!user) throw new Error('User not authenticated');
+
+    const blob = await fetch(currentLogoUrl).then((r) => r.blob());
+    const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
+    const version = Date.now();
+    const fileName = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${version}`;
+    const path = `${user.id}/logo-${fileName}.${ext}`;
+
+    const { error: uploadErr } = await supabase.storage
+      .from('portfolio')
+      .upload(path, blob, { upsert: false, contentType: blob.type, cacheControl: '3600' });
+
+    if (uploadErr) {
+      console.error('Profile logo upload failed', { path, message: uploadErr.message, error: uploadErr });
+      throw uploadErr;
+    }
+
+    const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+    return `${urlData.publicUrl}?v=${version}`;
+  }, [user]);
+
   useEffect(() => {
     hasUnsavedLogoChangeRef.current = hasUnsavedLogoChange;
   }, [hasUnsavedLogoChange]);
