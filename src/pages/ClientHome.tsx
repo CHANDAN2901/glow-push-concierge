@@ -557,17 +557,7 @@ const ClientHome = () => {
         <ClientPushBanner clientId={clientId} clientName={clientName} artistProfileId={artistProfileId} lang={lang} />
 
         {/* ─── GREETING CARD ─── */}
-        <div
-          className="relative mb-6 overflow-hidden"
-        >
-          {/* Soft white glow behind text — NO animation */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse 80% 70% at 50% 50%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.3) 40%, transparent 75%)',
-              filter: 'blur(18px)',
-            }}
-          />
+        <div className="relative mb-6">
           <div className="relative py-10 px-6 text-center">
             <h1
               className="font-extrabold tracking-wide mb-3"
@@ -579,7 +569,7 @@ const ClientHome = () => {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                filter: 'drop-shadow(0 1px 2px rgba(139,74,74,0.3)) drop-shadow(0 0 8px rgba(212,160,138,0.25))',
+                filter: 'drop-shadow(0 1.5px 0 rgba(100,40,40,0.35))',
               }}
             >
               ✨ {lang === 'en' ? `Welcome to your healing journey, ${clientName}!` : `ברוכה הבאה למסע ההחלמה שלך, ${clientName}!`} ✨
