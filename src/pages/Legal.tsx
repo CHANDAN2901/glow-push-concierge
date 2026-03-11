@@ -1,12 +1,11 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
-import BackButton from '@/components/BackButton';
 import glowPushLogo from '@/assets/glowpush-logo.png';
 
 const Legal = () => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
-  const navigate = useNavigate();
+  
 
   return (
     <div
@@ -89,13 +88,6 @@ const Legal = () => {
           </section>
         </div>
 
-        {/* Back button */}
-        <div className="text-center mt-8">
-          <BackButton
-            onClick={() => navigate('/')}
-            label={isHe ? 'חזרה לדף הראשי' : 'Back to home'}
-          />
-        </div>
       </div>
     </div>
   );

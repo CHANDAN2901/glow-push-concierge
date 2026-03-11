@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
-import BackButton from '@/components/BackButton';
 import glowPushLogo from '@/assets/glowpush-logo.png';
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -24,7 +23,7 @@ const Divider = () => (
 const PrivacyPolicy = () => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
-  const navigate = useNavigate();
+  
 
   return (
     <div
@@ -133,12 +132,6 @@ const PrivacyPolicy = () => {
           </Section>
         </div>
 
-        <div className="text-center mt-8">
-          <BackButton
-            onClick={() => navigate('/')}
-            label={isHe ? 'חזרה לדף הראשי' : 'Back to home'}
-          />
-        </div>
       </div>
     </div>
   );
