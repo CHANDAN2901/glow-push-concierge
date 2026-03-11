@@ -6,8 +6,8 @@ import { toast } from '@/hooks/use-toast';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import { useI18n } from '@/lib/i18n';
 
-const GOLD = '#D4AF37';
-const GOLD_DARK = '#B8860B';
+const ROSE = '#d8b4b4';
+const ROSE_DARK = '#4a3636';
 
 interface HealingPhotoGalleryProps {
   clientId: string;
