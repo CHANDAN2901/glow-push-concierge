@@ -213,7 +213,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
     <button
       onClick={handleSubscribe}
       disabled={status === 'loading'}
-      className="w-full rounded-2xl p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up relative overflow-hidden"
+      className="w-full rounded-lg p-4 mb-5 flex items-center justify-center gap-3 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up relative overflow-hidden"
       style={{
         animationDelay: '50ms',
         background: status === 'subscribed'
@@ -232,7 +232,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
     >
       {status !== 'subscribed' && (
         <span
-          className="absolute inset-0 rounded-2xl pointer-events-none"
+          className="absolute inset-0 rounded-lg pointer-events-none"
           style={{
             background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
             zIndex: 0,
@@ -241,7 +241,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
       )}
       {status !== 'subscribed' && (
         <span
-          className="absolute rounded-[13px] pointer-events-none"
+          className="absolute rounded-[6px] pointer-events-none"
           style={{
             inset: '3px',
             background: 'linear-gradient(135deg, #E8C0C8 0%, #DEB0BA 40%, #d69da9 70%, #c4869a 100%)',
@@ -586,15 +586,14 @@ const ClientHome = () => {
 
         {/* ─── GREETING CARD ─── */}
         <div
-          className="relative mb-6 rounded-3xl overflow-hidden client-glass-card"
+          className="relative mb-6 overflow-hidden"
         >
-          {/* Shine sweep overlay */}
+          {/* Soft white glow behind text */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.5) 50%, transparent 60%)',
-              backgroundSize: '200% 100%',
-              animation: 'hd-bronze-shimmer 4s ease-in-out infinite',
+              background: 'radial-gradient(ellipse 80% 70% at 50% 50%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.3) 40%, transparent 75%)',
+              filter: 'blur(18px)',
             }}
           />
           {/* Bokeh sparkles */}
