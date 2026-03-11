@@ -7,8 +7,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/lib/i18n';
 
+const ROSE = '#d8b4b4';
+const ROSE_DARK = '#4a3636';
+const ROSE_DEEP = '#6b3a3a';
 const GOLD = '#D4AF37';
-const GOLD_DARK = '#B8860B';
 const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)';
 
 interface Transform {
