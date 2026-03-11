@@ -285,7 +285,7 @@ const SuperAdmin = () => {
       <CouponManager />
 
       {/* Card B: Legal & Forms */}
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="rounded-xl p-6" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
         <div className="flex items-center gap-2 mb-5">
           <Settings className="w-5 h-5 text-accent" />
           <h2 className="font-serif font-semibold text-lg">ניהול טפסים ומשפטי</h2>
