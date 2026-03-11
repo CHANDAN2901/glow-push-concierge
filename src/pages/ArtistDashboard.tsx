@@ -2753,7 +2753,10 @@ const ArtistDashboard = () => {
                         logo_url: finalLogoUrl || null,
                       } as any).eq('id', userProfileId);
 
-                      if (error) throw error;
+                      if (error) {
+                        console.error('Business profile update failed', { userProfileId, finalLogoUrl, error });
+                        throw error;
+                      }
                       setSavedLogoUrl(finalLogoUrl || '');
                       setLogoUrl(finalLogoUrl || '');
                       setHasUnsavedLogoChange(false);
