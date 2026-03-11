@@ -455,15 +455,15 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 )}
               </div>
 
-              {/* Title – bright glowing gold */}
+              {/* Title – metallic rose gold on bright bg */}
               <h1
                 className="text-center font-serif font-light text-xl sm:text-2xl tracking-wider mb-1.5 hd-shimmer-text"
                 style={{
-                  background: 'linear-gradient(135deg, #F9F295 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 100%)',
+                  background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 30%, #e0c4c4 50%, #B8860B 70%, #D4AF37 100%)',
                   backgroundSize: '200% 100%',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 1px 6px rgba(249,242,149,0.4))',
+                  filter: 'drop-shadow(0 1px 4px rgba(74,32,32,0.2))',
                 }}
               >
                 {step === 1 && fullName.trim()
