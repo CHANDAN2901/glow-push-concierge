@@ -2586,20 +2586,6 @@ const ArtistDashboard = () => {
         {/* ===== BONUSES TAB ===== */}
         {activeTab === 'bonuses' && !subScreen && (
           <div className="space-y-4">
-            {/* Back button */}
-            <button
-              onClick={() => setActiveTab('profile')}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shadow-sm"
-              style={{
-                background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
-                color: '#fff',
-                border: '1px solid hsl(38 40% 50%)',
-                boxShadow: '0 2px 8px hsl(38 55% 62% / 0.25)',
-              }}
-            >
-              <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-              <span>{lang === 'he' ? 'חזרה' : 'Back'}</span>
-            </button>
             <BonusCenter
               userProfileId={userProfileId}
               onNavigateToReferrals={() => { setActiveTab('profile'); setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }}
