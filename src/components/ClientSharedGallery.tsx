@@ -183,7 +183,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
           className="flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 hover:brightness-105 active:scale-[0.98] disabled:opacity-60"
-          style={{ background: GOLD_BTN_GRADIENT, color: '#5C4033', boxShadow: '0 4px 15px rgba(212,175,55,0.3)' }}
+          style={{ background: GOLD_BTN_GRADIENT, color: '#4a3636', boxShadow: '0 4px 15px rgba(212,175,55,0.3)' }}
         >
           <Camera className="w-4 h-4" />
           {uploading ? (isHe ? 'מעלה...' : 'Uploading...') : (isHe ? 'העלאת תמונה 📸' : 'Upload Photo 📸')}
