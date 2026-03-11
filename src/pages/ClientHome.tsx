@@ -565,7 +565,7 @@ const ClientHome = () => {
                 fontFamily: FBAHAVA,
                 fontSize: '28px',
                 lineHeight: 1.6,
-                background: 'linear-gradient(160deg, #4A0E20 0%, #7A2845 12%, #B5546A 24%, #D4808E 36%, #FFF0F2 48%, #FFD6DC 52%, #D4808E 64%, #B5546A 76%, #7A2845 88%, #4A0E20 100%)',
+                background: 'linear-gradient(160deg, #4A0E20 0%, #7A2845 15%, #B5546A 35%, #D4808E 50%, #B5546A 65%, #7A2845 85%, #4A0E20 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
