@@ -2235,11 +2235,11 @@ const ArtistDashboard = () => {
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
                                 <button type="button" onClick={(e) => { e.stopPropagation(); openEditClient(client); }}
-                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}>
+                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#4a3636' }}>
                                   <Pencil className="w-3 h-3" />
                                 </button>
                                 <button type="button" onClick={(e) => { e.stopPropagation(); openWhatsApp(client.phone, client.name, client.link); }}
-                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#d8b4b4' }}>
+                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#4a3636' }}>
                                   <MessageCircle className="w-3 h-3" />
                                 </button>
                                 <button type="button" onClick={(e) => { e.stopPropagation(); setDeletingClient(client); }}
