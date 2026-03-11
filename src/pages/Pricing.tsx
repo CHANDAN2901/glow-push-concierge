@@ -113,7 +113,7 @@ const Pricing = () => {
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier]?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
-  const BG_GRADIENT = 'linear-gradient(160deg, #F5D5D5 0%, #F0D0D5 30%, #E8C0C8 60%, #E0B8C0 100%)';
+  const BG_GRADIENT = 'none';
 
   if (isLoading) {
     return (
