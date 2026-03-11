@@ -261,14 +261,16 @@ const Pricing = () => {
           return (
             <div
               key={plan.id}
-              className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center backdrop-blur-xl"
+              className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
               style={{
-                border: isElite ? '1.5px solid rgba(216, 180, 180, 0.35)' : '1px solid rgba(216, 180, 180, 0.2)',
-                background: isElite ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.4)',
-                borderRadius: '32px',
+                border: 'none',
+                background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.35) 60%, rgba(255,255,255,0) 100%)',
+                backdropFilter: 'blur(18px)',
+                WebkitBackdropFilter: 'blur(18px)',
+                borderRadius: '40px',
                 boxShadow: isElite
-                  ? '0 16px 48px rgba(216, 180, 180, 0.3), 0 0 40px rgba(216, 180, 180, 0.2), 0 0 80px rgba(232, 160, 176, 0.12)'
-                  : '0 12px 40px rgba(216, 180, 180, 0.22), 0 0 32px rgba(216, 180, 180, 0.15), 0 0 60px rgba(232, 160, 176, 0.08)',
+                  ? '0 18px 60px rgba(216, 180, 180, 0.28), 0 0 50px rgba(232, 160, 176, 0.18), 0 0 100px rgba(232, 160, 176, 0.08)'
+                  : '0 14px 50px rgba(216, 180, 180, 0.22), 0 0 40px rgba(232, 160, 176, 0.12), 0 0 80px rgba(232, 160, 176, 0.06)',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
