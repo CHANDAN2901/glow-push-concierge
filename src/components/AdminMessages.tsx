@@ -372,6 +372,23 @@ export default function AdminMessages() {
               <p className="text-xs mb-2" style={{ color: '#8c6a6a' }}>
                 ערכי את כותרות, תמונות והנחיות מסע ההחלמה. השינויים ישפיעו על כל הלקוחות בזמן אמת.
               </p>
+              {/* Treatment type toggle */}
+              <div className="flex gap-2 mb-2">
+                {(['eyebrows', 'lips'] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setActiveTreatment(t)}
+                    className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                    style={{
+                      color: activeTreatment === t ? '#4a2020' : '#8c6a6a',
+                      background: activeTreatment === t ? 'rgba(212, 175, 55, 0.12)' : 'rgba(216, 180, 180, 0.1)',
+                      border: activeTreatment === t ? '1.5px solid rgba(212, 175, 55, 0.5)' : '1.5px solid rgba(216, 180, 180, 0.25)',
+                    }}
+                  >
+                    {t === 'eyebrows' ? '✍️ גבות' : '👄 שפתיים'}
+                  </button>
+                ))}
+              </div>
               {loadingPhases ? (
                 <div className="text-center py-8" style={{ color: '#b8a090' }}>טוען...</div>
               ) : (
