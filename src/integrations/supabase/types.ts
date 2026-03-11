@@ -330,6 +330,7 @@ export type Database = {
           day_start: number
           icon: string
           id: string
+          image_url: string | null
           severity: string
           sort_order: number
           steps_en: string[]
@@ -344,6 +345,7 @@ export type Database = {
           day_start: number
           icon?: string
           id?: string
+          image_url?: string | null
           severity?: string
           sort_order?: number
           steps_en?: string[]
@@ -358,6 +360,7 @@ export type Database = {
           day_start?: number
           icon?: string
           id?: string
+          image_url?: string | null
           severity?: string
           sort_order?: number
           steps_en?: string[]
