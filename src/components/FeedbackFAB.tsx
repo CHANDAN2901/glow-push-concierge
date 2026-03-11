@@ -8,32 +8,28 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { useI18n } from "@/lib/i18n";
 
-const TOPICS = [
-  { value: "efficiency", label: "הצעת ייעול" },
-  { value: "feature", label: "בקשה לפיצ'ר חדש" },
-  { value: "bug", label: "דיווח על תקלה" },
-  { value: "other", label: "אחר" },
-];
+const TOPIC_KEYS = ["efficiency", "feature", "bug", "other"] as const;
 
 export default function FeedbackFAB() {
   const location = useLocation();
+  const { t, dir } = useI18n();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", topic: "", message: "" });
 
-  // Hide on landing/marketing pages
   const hiddenRoutes = ["/", "/pricing", "/auth", "/legal", "/privacy", "/terms", "/refund-policy"];
   if (hiddenRoutes.includes(location.pathname)) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.topic || !form.message.trim()) {
-      toast({ title: "נא למלא את כל השדות", variant: "destructive" });
+      toast({ title: t('feedback.fillAll'), variant: "destructive" });
       return;
     }
 
-    const topicLabel = TOPICS.find((t) => t.value === form.topic)?.label ?? form.topic;
+    const topicLabel = t(`feedback.topic.${form.topic}`);
     const subject = encodeURIComponent(`New Feedback: ${topicLabel}`);
     const body = encodeURIComponent(`Name: ${form.name.trim()}\n\nMessage: ${form.message.trim()}`);
     window.open(`mailto:hello@glowpush.app?subject=${subject}&body=${body}`, "_self");
@@ -41,17 +37,16 @@ export default function FeedbackFAB() {
     setForm({ name: "", email: "", topic: "", message: "" });
     setOpen(false);
     toast({
-      title: "תודה ששיתפת אותנו! 🤍",
-      description: "הרעיון שלך התקבל בהצלחה ויעזור לנו להשתפר.",
+      title: t('feedback.thanks'),
+      description: t('feedback.thanksDesc'),
     });
   };
 
   return (
     <>
-      {/* FAB */}
       <button
         onClick={() => setOpen(true)}
-        aria-label="שלחי משוב"
+        aria-label={t('feedback.aria')}
         className="fixed z-[9999] flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
         style={{
           bottom: 100,
@@ -67,7 +62,6 @@ export default function FeedbackFAB() {
         <Lightbulb className="h-6 w-6 text-white drop-shadow" />
       </button>
 
-      {/* Modal */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           className="max-w-md sm:rounded-2xl p-0 overflow-hidden"
@@ -77,9 +71,8 @@ export default function FeedbackFAB() {
             backgroundClip: "padding-box",
             boxShadow: "0 8px 40px rgba(0,0,0,0.10), 0 0 0 2px #D4AF3766",
           }}
-          dir="rtl"
+          dir={dir}
         >
-          {/* Gold accent line */}
           <div
             className="h-1 w-full"
             style={{
@@ -88,50 +81,49 @@ export default function FeedbackFAB() {
           />
 
           <div className="p-6 pt-5 space-y-4">
-            <DialogHeader className="text-right space-y-2">
-              <DialogTitle className="text-xl font-serif text-right" style={{ color: "#4a3636" }}>
-                הקול שלך משפיע ✨
+            <DialogHeader className={dir === 'rtl' ? 'text-right space-y-2' : 'text-left space-y-2'}>
+              <DialogTitle className={`text-xl font-serif ${dir === 'rtl' ? 'text-right' : 'text-left'}`} style={{ color: "#4a3636" }}>
+                {t('feedback.title')}
               </DialogTitle>
-              <DialogDescription className="text-right text-sm leading-relaxed" style={{ color: "#6B5E57" }}>
-                המערכת הזו נבנית עבורך. חסר לך פיצ׳ר ביומיום בקליניקה? יש לך רעיון לשדרוג? נשמח לשמוע ממך.
+              <DialogDescription className={`text-sm leading-relaxed ${dir === 'rtl' ? 'text-right' : 'text-left'}`} style={{ color: "#6B5E57" }}>
+                {t('feedback.description')}
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#4a3636" }}>שם מלא</Label>
+                <Label className={`block text-xs font-medium ${dir === 'rtl' ? 'text-right' : 'text-left'}`} style={{ color: "#4a3636" }}>{t('feedback.name')}</Label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="השם שלך"
-                  className="text-right border-[hsl(38_30%_82%)] focus-visible:ring-[#D4AF37]"
-                  dir="rtl"
+                  placeholder={t('feedback.namePlaceholder')}
+                  className={`${dir === 'rtl' ? 'text-right' : 'text-left'} border-[hsl(38_30%_82%)] focus-visible:ring-[#D4AF37]`}
+                  dir={dir}
                 />
               </div>
 
-
               <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#4a3636" }}>נושא</Label>
+                <Label className={`block text-xs font-medium ${dir === 'rtl' ? 'text-right' : 'text-left'}`} style={{ color: "#4a3636" }}>{t('feedback.topic')}</Label>
                 <Select value={form.topic} onValueChange={(v) => setForm({ ...form, topic: v })}>
-                  <SelectTrigger className="text-right border-[hsl(38_30%_82%)] focus:ring-[#D4AF37]" dir="rtl">
-                    <SelectValue placeholder="בחרי נושא" />
+                  <SelectTrigger className={`${dir === 'rtl' ? 'text-right' : 'text-left'} border-[hsl(38_30%_82%)] focus:ring-[#D4AF37]`} dir={dir}>
+                    <SelectValue placeholder={t('feedback.topicPlaceholder')} />
                   </SelectTrigger>
-                  <SelectContent dir="rtl">
-                    {TOPICS.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  <SelectContent dir={dir}>
+                    {TOPIC_KEYS.map((key) => (
+                      <SelectItem key={key} value={key}>{t(`feedback.topic.${key}`)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#4a3636" }}>ההודעה שלך</Label>
+                <Label className={`block text-xs font-medium ${dir === 'rtl' ? 'text-right' : 'text-left'}`} style={{ color: "#4a3636" }}>{t('feedback.message')}</Label>
                 <Textarea
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  placeholder="ספרי לנו מה עובר לך בראש..."
-                  className="min-h-[120px] text-right border-[hsl(38_30%_82%)] focus-visible:ring-[#D4AF37]"
-                  dir="rtl"
+                  placeholder={t('feedback.messagePlaceholder')}
+                  className={`min-h-[120px] ${dir === 'rtl' ? 'text-right' : 'text-left'} border-[hsl(38_30%_82%)] focus-visible:ring-[#D4AF37]`}
+                  dir={dir}
                 />
               </div>
 
@@ -147,7 +139,7 @@ export default function FeedbackFAB() {
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  "💡 שתפי אותנו ברעיון שלך"
+                  t('feedback.submit')
                 )}
               </Button>
             </form>
