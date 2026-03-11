@@ -552,7 +552,7 @@ const ArtistDashboard = () => {
             style={{
               background: 'white',
               border: '2.5px solid #D4AF37',
-              color: '#5C4033',
+              color: '#4a3636',
             }}
           >
             {lang === 'en' ? 'Undo' : 'ביטול'}
