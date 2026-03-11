@@ -383,10 +383,10 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
     <div className="space-y-4">
       {/* Instructions */}
       <div className="text-center space-y-1">
-        <p className="text-sm font-serif font-semibold" style={{ color: GOLD_DARK }}>
+        <p className="text-sm font-serif font-semibold" style={{ color: ROSE_DARK }}>
           📸 העלי תמונות של לפני ואחרי
         </p>
-        <p className="text-[10px] font-serif" style={{ color: GOLD_DARK, opacity: 0.75 }}>
+        <p className="text-[10px] font-serif" style={{ color: ROSE_DARK, opacity: 0.75 }}>
           לחצי על המסגרת כדי לבחור תמונה. גררי את הלוגו למיקום הרצוי.
         </p>
         {/* Upload Logo button */}
@@ -395,8 +395,8 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
             <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleLogoUpload(f); }} />
             <button
               onClick={() => logoInputRef.current?.click()}
-              className="flex items-center gap-1 text-[10px] font-medium px-3 py-1 rounded-full transition-all hover:scale-105"
-              style={{ border: `1px solid ${GOLD}`, color: GOLD_DARK }}
+              className="flex items-center gap-1 text-[10px] font-serif font-medium px-3 py-1 rounded-full transition-all hover:scale-105"
+              style={{ border: `1px solid ${ROSE}`, color: ROSE_DARK }}
             >
               <Upload className="w-3 h-3" />
               העלי לוגו לסימון מים
