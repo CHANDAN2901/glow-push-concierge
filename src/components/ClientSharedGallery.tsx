@@ -217,7 +217,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{ background: GOLD_GRADIENT }}
                 >
-                  <Download className="w-4 h-4" style={{ color: '#5C4033' }} />
+                  <Download className="w-4 h-4" style={{ color: '#4a3636' }} />
                 </button>
                 <button
                   onClick={() => setSelected(null)}

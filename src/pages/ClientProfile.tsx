@@ -641,7 +641,7 @@ const ClientProfile = () => {
             <button
               onClick={activateJourney}
               className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl text-white transition-all hover:opacity-90"
-              style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+              style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
             >
               <Play className="w-4 h-4" />
               {lang === 'en' ? 'Activate Healing Journey' : 'הפעילי מסע החלמה'}

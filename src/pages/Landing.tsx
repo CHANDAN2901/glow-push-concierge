@@ -73,7 +73,7 @@ const Landing = () => {
               className="inline-flex items-center justify-center gap-3 px-12 py-5 rounded-full text-lg font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
-                color: '#5C4033',
+                color: '#4a3636',
                 boxShadow: '0 6px 24px rgba(191, 149, 63, 0.35), inset 0 1px 0 rgba(252, 246, 186, 0.6)',
                 letterSpacing: '0.03em',
               }}

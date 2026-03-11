@@ -665,7 +665,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                         ? 'bg-accent/10 text-accent'
                         : 'hover:bg-muted text-foreground'
                     }`}
-                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' } : undefined}
+                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#4a3636' } : undefined}
                   >
                     <span className="text-[10px] font-medium opacity-70">{dayNames[i]}</span>
                     <span className="text-sm font-bold mt-0.5">{day.getDate()}</span>
