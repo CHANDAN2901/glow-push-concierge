@@ -264,13 +264,14 @@ const Pricing = () => {
               className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
               style={{
                 border: 'none',
-                background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.35) 60%, rgba(255,255,255,0) 100%)',
-                backdropFilter: 'blur(18px)',
-                WebkitBackdropFilter: 'blur(18px)',
-                borderRadius: '40px',
+                outline: 'none',
+                background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(255,240,243,0.25) 40%, rgba(232,160,176,0.08) 70%, transparent 100%)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                borderRadius: '48px',
                 boxShadow: isElite
-                  ? '0 18px 60px rgba(216, 180, 180, 0.28), 0 0 50px rgba(232, 160, 176, 0.18), 0 0 100px rgba(232, 160, 176, 0.08)'
-                  : '0 14px 50px rgba(216, 180, 180, 0.22), 0 0 40px rgba(232, 160, 176, 0.12), 0 0 80px rgba(232, 160, 176, 0.06)',
+                  ? '0 0 60px rgba(232, 160, 176, 0.22), 0 0 120px rgba(216, 180, 180, 0.12)'
+                  : '0 0 50px rgba(232, 160, 176, 0.16), 0 0 100px rgba(216, 180, 180, 0.08)',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
