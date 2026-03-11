@@ -141,17 +141,17 @@ function CircleButton({
 }) {
   const inner = (
     <div
-      className="w-[130px] h-[130px] rounded-full p-[3px] shadow-[0_4px_16px_rgba(216,180,180,0.35)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(216,180,180,0.5)] active:scale-95"
+      className="w-[130px] h-[130px] rounded-full p-[3px] shadow-[0_4px_16px_rgba(216,180,180,0.35)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(216,180,180,0.5)] active:scale-95 relative overflow-hidden"
       style={{
-        backgroundImage: `url(${roseGoldTexture})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #dbc0c0 55%, #c9a0a0 100%)',
         border: '1px solid rgba(216, 180, 180, 0.5)',
       }}
     >
-      <div className="w-full h-full rounded-full flex flex-col items-center justify-center gap-1.5 px-2" style={{ backgroundImage: `url(${roseGoldTexture})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      {/* Subtle texture overlay */}
+      <div className="absolute inset-0 rounded-full" style={{ backgroundImage: `url(${roseGoldTexture})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.35 }} />
+      <div className="w-full h-full rounded-full flex flex-col items-center justify-center gap-2 px-2 relative z-10">
         <span style={{ color: '#FFFFFF' }}>{icon}</span>
-        <span className="text-[10px] font-semibold text-center leading-tight px-1" style={{ color: '#FFFFFF' }}>{label}</span>
+        <span className="text-[12px] font-bold text-center leading-tight px-1" style={{ color: '#FFFFFF', textShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>{label}</span>
       </div>
     </div>
   );
