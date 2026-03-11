@@ -241,7 +241,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
       )}
       {status !== 'subscribed' && (
         <span
-          className="absolute rounded-[6px] pointer-events-none"
+          className="absolute rounded-[2px] pointer-events-none"
           style={{
             inset: '3px',
             background: 'linear-gradient(135deg, #E8C0C8 0%, #DEB0BA 40%, #d69da9 70%, #c4869a 100%)',
