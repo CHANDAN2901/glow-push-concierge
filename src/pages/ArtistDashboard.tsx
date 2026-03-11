@@ -2033,7 +2033,7 @@ const ArtistDashboard = () => {
                   <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                     <div className="px-5 py-4 border-b border-border">
                       <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                        <FileOutput className="w-4 h-4 text-accent" />
+                        <FileOutput className="w-4 h-4" style={{ color: '#d8b4b4' }} />
                         {lang === 'en' ? 'Treatment History' : 'היסטוריית טיפולים'}
                       </h3>
                     </div>
