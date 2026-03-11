@@ -561,13 +561,13 @@
   box-shadow: 0 10px 28px rgba(160,100,80,0.16), 0 5px 14px rgba(180,120,90,0.1), 0 2px 6px rgba(212,175,55,0.08);
 }
 
-/* ═══ Artist Dashboard — glassmorphism cards (clean & smooth) ═══ */
+/* ═══ Artist Dashboard — glassmorphism cards (clean milky-white) ═══ */
 .artist-dashboard .bg-card,
 .artist-dashboard .bg-white,
 .artist-dashboard [class*="rounded-2xl"][class*="p-"],
 .artist-dashboard [class*="rounded-3xl"][class*="p-"] {
   position: relative;
-  background: rgba(255, 255, 255, 0.7) !important;
+  background: rgba(255, 255, 255, 0.65) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 22px;
@@ -583,7 +583,23 @@
   display: none;
 }
 
-/* ═══ Artist Dashboard — inner action buttons (clean outline) ═══ */
+/* ═══ Artist Dashboard — letter circle avatar ═══ */
+.artist-dashboard .letter-circle {
+  width: 35px;
+  height: 35px;
+  background: linear-gradient(145deg, #fceceb, #eecaca);
+  color: #8c6a6a;
+  border-radius: 50%;
+  border: 1px solid #d8b4b4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 2px 2px 5px rgba(180, 110, 110, 0.15);
+}
+
+/* ═══ Artist Dashboard — small card action buttons (outline rose-gold) ═══ */
+.artist-dashboard .small-card-action,
 .artist-dashboard .inner-action-btn {
   background: transparent;
   border: 1px solid #d8b4b4;
@@ -591,10 +607,31 @@
   border-radius: 12px;
   padding: 8px 16px;
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   transition: all 0.3s ease;
 }
+.artist-dashboard .small-card-action:hover,
 .artist-dashboard .inner-action-btn:hover {
   background: rgba(238, 202, 202, 0.1);
+}
+
+/* ═══ Artist Dashboard — large action buttons (clean outline) ═══ */
+.artist-dashboard .large-action-btn {
+  background: transparent;
+  border: 1px solid #c88c8c;
+  color: #c88c8c;
+  border-radius: 15px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.artist-dashboard .large-action-btn:hover {
+  background: rgba(200, 140, 140, 0.05);
+  box-shadow: 0 4px 10px rgba(180, 110, 110, 0.1);
 }
 
 /* ═══ Client Premium Dashboard ═══ */
