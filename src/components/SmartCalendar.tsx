@@ -856,7 +856,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                         <button
                            onClick={(e) => { e.stopPropagation(); openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time); }}
                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all active:scale-95"
-                          style={{ borderColor: '#D4AF37', color: '#5C4033', background: 'transparent' }}
+                          style={{ borderColor: '#D4AF37', color: '#4a3636', background: 'transparent' }}
                         >
                           <ClipboardCheck className="w-3 h-3" />
                           {isHe ? 'שלח קישור' : 'Send Link'}
