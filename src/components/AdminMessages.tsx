@@ -69,10 +69,11 @@ function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
 
 const PUSH_EVENTS = [
   { key: 'appointment_reminder', label: 'תזכורת תור', icon: '📅', defaultText: 'היי {{client_name}}, תזכורת מהקליניקה — קבענו לתאריך {{date}} בשעה {{time}}. מחכה לראותך! ✨' },
-  { key: 'birthday_greeting', label: 'הודעת יום הולדת', icon: '🎂', defaultText: 'יום הולדת שמח {{client_name}}! 🎉 מאחלת לך שנה מלאה ביופי ובאושר 💕' },
+  { key: 'post_treatment_followup', label: 'מעקב אחרי טיפול', icon: '💌', defaultText: 'היי {{client_name}}, איך את מרגישה? 💕 היום מתחיל מסע ההחלמה שלך. נא לעקוב אחרי ההנחיות באפליקציה ולפנות אליי בכל שאלה!' },
+  { key: 'birthday_greeting', label: 'הודעת יום הולדת', icon: '🎂', defaultText: 'יום הולדת שמח {{client_name}}! 🎉🎂 מאחלת לך שנה מלאה ביופי ובאושר 💕 כמתנה — קבלי 10% הנחה על הטיפול הבא!' },
   { key: 'review_request', label: 'בקשת ביקורת', icon: '⭐', defaultText: 'היי {{client_name}}, נשמח מאוד לביקורת שלך ⭐ זה עוזר לנו להמשיך לתת שירות מעולה! {{review_link}}' },
-  { key: 'healing_day_notification', label: 'הודעת מסע החלמה', icon: '💧', defaultText: 'היי {{client_name}}, יום {{day_number}} במסע ההחלמה שלך 💧 הנה ההנחיות להיום...' },
-  { key: 'renewal_reminder', label: 'תזכורת חידוש', icon: '🔄', defaultText: 'היי {{client_name}}, הגיע הזמן לחידוש הטיפול שלך 🔄 נקבע תור?' },
+  { key: 'healing_day_notification', label: 'הודעת מסע החלמה', icon: '💧', defaultText: 'היי {{client_name}}, יום {{day_number}} במסע ההחלמה שלך 💧 הנה ההנחיות להיום — פתחי את האפליקציה לפרטים!' },
+  { key: 'renewal_reminder', label: 'תזכורת חידוש', icon: '🔄', defaultText: 'היי {{client_name}}, עברו כבר כמה חודשים מהטיפול האחרון 🔄 הגיע הזמן לחידוש! נקבע תור?' },
 ];
 
 // Auto-expanding textarea
