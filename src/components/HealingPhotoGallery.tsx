@@ -115,7 +115,7 @@ const HealingPhotoGallery = ({ clientId, clientName, treatmentDate, artistId }: 
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <div className="animate-spin w-6 h-6 border-2 rounded-full" style={{ borderColor: GOLD, borderTopColor: 'transparent' }} />
+        <div className="animate-spin w-6 h-6 border-2 rounded-full" style={{ borderColor: ROSE, borderTopColor: 'transparent' }} />
       </div>
     );
   }
