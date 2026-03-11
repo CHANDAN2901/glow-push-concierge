@@ -560,19 +560,19 @@ const ClientHome = () => {
         <div className="relative mb-6">
           <div className="relative py-10 px-6 text-center">
             <h1
-              className="tracking-wide mb-3 block"
+              className="font-extrabold tracking-wide mb-3"
               style={{
                 fontFamily: FBAHAVA,
                 fontSize: '28px',
                 lineHeight: 1.6,
-                fontWeight: 900,
-                display: 'block',
-                background: 'linear-gradient(160deg, #b5626a 0%, #d4878e 20%, #e8a8ae 40%, #c97880 60%, #b05860 80%, #d4878e 100%)',
+                background: 'linear-gradient(160deg, #4A0E20 0%, #7A2845 15%, #B5546A 35%, #D4808E 50%, #B5546A 65%, #7A2845 85%, #4A0E20 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                filter: 'drop-shadow(0px 1px 3px rgba(150, 60, 70, 0.35))',
-              }}
+                textShadow: 'none',
+                WebkitTextStrokeWidth: '0.3px',
+                WebkitTextStrokeColor: 'rgba(74,14,32,0.15)',
+              } as React.CSSProperties}
             >
               ✨ {lang === 'en' ? `Welcome to your healing journey, ${clientName}!` : `ברוכה הבאה למסע ההחלמה שלך, ${clientName}!`} ✨
             </h1>
