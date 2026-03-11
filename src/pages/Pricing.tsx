@@ -296,7 +296,7 @@ const Pricing = () => {
 
               <div className={`flex items-center justify-center gap-2 ${isElite ? 'mt-4' : ''} mb-6`}>
                 <PlanTitle slug={plan.slug} name={name} />
-                <Icon className="w-5 h-5" style={{ color: ROSE_GOLD_METALLIC }} />
+                <Icon className="w-5 h-5" style={{ color: '#d8b4b4' }} />
               </div>
 
               <div className="mb-8">
