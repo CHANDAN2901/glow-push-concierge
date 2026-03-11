@@ -1688,21 +1688,32 @@ const ArtistDashboard = () => {
             <div className="animate-fade-up mt-6 flex justify-center" style={{ animationDelay: '0.45s', opacity: 0 }}>
               <button
                 onClick={() => setActiveTab('bonuses')}
-                className="w-full max-w-md px-6 py-4 rounded-full font-bold text-lg shadow-lg transition-all active:scale-95 hover:scale-[1.02] flex items-center justify-center gap-2 relative overflow-hidden"
+                className="special-promo-btn w-[90%] max-w-[420px] min-h-[100px] rounded-[50px] flex items-center justify-center relative overflow-hidden transition-all active:scale-95"
                 style={{
-                  background: '#FFFFFF',
-                  color: '#3D3D3D',
-                  boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(253,242,242,0.85))',
+                  backdropFilter: 'blur(15px)',
+                  WebkitBackdropFilter: 'blur(15px)',
+                  border: '1.5px solid #eecaca',
+                  boxShadow: '0 20px 40px rgba(180, 110, 110, 0.25), inset 0 4px 12px rgba(255, 255, 255, 1)',
                 }}
               >
-                {/* Gold shimmer border */}
-                <div className="absolute inset-0 rounded-full pointer-events-none" style={{
-                  border: '2.5px solid transparent',
-                  background: 'white padding-box, linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%) border-box',
-                  borderRadius: 'inherit',
+                {/* Shine sweep animation */}
+                <div className="absolute inset-0 pointer-events-none z-[1]" style={{
+                  background: 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%)',
+                  transform: 'skewX(-25deg)',
+                  animation: 'premiumShine 5s infinite',
+                  width: '50%',
+                  left: '-100%',
                 }} />
-                <Gift className="w-5 h-5 relative z-10" style={{ color: '#D4AF37' }} />
-                <span className="relative z-10">{lang === 'en' ? 'Refer a Friend – Get ₪50 Gift! 🎁' : 'חברה מביאה חברה – קבלי 50₪ מתנה! 🎁'}</span>
+                <Gift className="absolute right-6 top-1/2 -translate-y-1/2 w-6 h-6 z-[2]" style={{ color: '#d8b4b4' }} />
+                <div className="text-center z-[2] relative px-12">
+                  <span className="block font-extrabold text-lg" style={{ color: '#5a4343' }}>
+                    {lang === 'en' ? 'Refer a Friend – Get ₪50' : 'חברה מביאה חברה – קבלי 50₪'}
+                  </span>
+                  <span className="font-black text-xl" style={{ color: '#c46464' }}>
+                    {lang === 'en' ? 'Gift! 🎁' : 'מתנה! 🎁'}
+                  </span>
+                </div>
               </button>
             </div>
 
