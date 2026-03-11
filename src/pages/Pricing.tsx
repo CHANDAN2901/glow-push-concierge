@@ -285,9 +285,9 @@ const Pricing = () => {
                 <span
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
                   style={{
-                    background: `linear-gradient(135deg, ${ROSE_GOLD_METALLIC}, #D4AF37, ${ROSE_GOLD_METALLIC})`,
+                    background: 'linear-gradient(135deg, #c9a0a0, #d8b4b4, #c9a0a0)',
                     color: '#FFFFFF',
-                    boxShadow: `0 2px 12px rgba(201, 149, 108, 0.4)`,
+                    boxShadow: '0 2px 12px rgba(216, 180, 180, 0.45)',
                   }}
                 >
                   {badge}
