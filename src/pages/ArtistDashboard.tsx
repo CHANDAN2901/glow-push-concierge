@@ -1434,10 +1434,10 @@ const ArtistDashboard = () => {
             <button
               type="button"
               onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-              className="pill-action-btn animate-fade-up"
+              className="pill-action-btn preview-pill-btn animate-fade-up"
               style={{ height: '56px' }}
             >
-              <span className="pill-icon-circle" style={{ width: '40px', height: '40px' }}>
+              <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
                 <Eye className="w-4 h-4" style={{ color: '#B8860B' }} strokeWidth={1.5} />
               </span>
               <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
@@ -2851,16 +2851,16 @@ const ArtistDashboard = () => {
             {/* Digital Card Preview Button */}
             <button
               onClick={() => setShowDigitalCardPreview(true)}
-              className="w-full flex items-center gap-4 bg-card rounded-3xl border border-accent/30 p-5 transition-all hover:shadow-gold active:scale-[0.98] shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]"
+              className="preview-card-btn w-full flex items-center gap-4 rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                <CreditCard className="w-6 h-6 text-accent" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, hsl(340 30% 90%), hsl(340 25% 85%))' }}>
+                <CreditCard className="w-6 h-6" style={{ color: '#B8860B' }} />
               </div>
               <div className="flex-1 text-start">
-                <p className="font-light text-sm">{lang === 'en' ? 'View Your Digital Card' : 'צפי בכרטיס הדיגיטלי שלך'}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{lang === 'en' ? 'Preview & share your professional card' : 'תצוגה מקדימה ושיתוף הכרטיס המקצועי'}</p>
+                <p className="font-light text-sm" style={{ color: '#4a3636' }}>{lang === 'en' ? 'View Your Digital Card' : 'צפי בכרטיס הדיגיטלי שלך'}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#B8860B' }}>{lang === 'en' ? 'Preview & share your professional card' : 'תצוגה מקדימה ושיתוף הכרטיס המקצועי'}</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-accent/50" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+              <ChevronRight className="w-5 h-5" style={{ color: '#D4AF37', transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
             </button>
 
             {/* Preview Client Page */}
@@ -2870,16 +2870,16 @@ const ArtistDashboard = () => {
                 const previewUrl = `${baseUrl}/c/demo?name=${encodeURIComponent('דנה לדוגמה')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`;
                 window.open(previewUrl, '_blank');
               }}
-              className="w-full bg-card rounded-3xl border border-accent/20 p-5 shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)] flex items-center gap-4 text-start transition-all hover:shadow-lg active:scale-[0.98]"
+              className="preview-card-btn w-full rounded-3xl p-5 flex items-center gap-4 text-start transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
-              <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, hsl(40 45% 95%), hsl(38 40% 90%))' }}>
-                <Eye className="w-5 h-5 text-accent" />
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, hsl(340 30% 90%), hsl(340 25% 85%))' }}>
+                <Eye className="w-5 h-5" style={{ color: '#B8860B' }} />
               </div>
               <div className="flex-1 text-start">
-                <p className="font-light text-sm">{lang === 'en' ? 'Preview Sample Client Page' : 'צפייה בדף לקוחה לדוגמה'}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{lang === 'en' ? 'See the logo, colors & fonts your clients see' : 'ראי את הלוגו, הצבעים והפונטים שהלקוחות רואות'}</p>
+                <p className="font-light text-sm" style={{ color: '#4a3636' }}>{lang === 'en' ? 'Preview Sample Client Page' : 'צפייה בדף לקוחה לדוגמה'}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#B8860B' }}>{lang === 'en' ? 'See the logo, colors & fonts your clients see' : 'ראי את הלוגו, הצבעים והפונטים שהלקוחות רואות'}</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-accent/50" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+              <ChevronRight className="w-5 h-5" style={{ color: '#D4AF37', transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
             </button>
 
 
@@ -3262,7 +3262,7 @@ const ArtistDashboard = () => {
             { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
             { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוחות', route: null },
             { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
-            { id: 'push' as const, icon: Clock, label: lang === 'en' ? 'Record' : 'רשומה', route: null },
+            { id: 'push' as const, icon: Clock, label: '!push', route: null },
             { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'ראשי', route: null },
           ].map((tab) => {
             const isActive = tab.route ? false : activeTab === tab.id;
