@@ -360,15 +360,16 @@ const SuperAdmin = () => {
     <div className="min-h-screen bg-background flex pt-16">
       <AdminSidebar active={view} onNavigate={setView} isAdmin={isAdmin} />
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border/50"
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40"
         style={{
-          background: 'hsl(350 15% 12%)',
-          backdropFilter: 'blur(16px) saturate(1.4)',
-          WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-          boxShadow: '0 -4px 30px -6px hsla(0, 0%, 0%, 0.25)',
+          background: 'rgba(255, 220, 230, 0.45)',
+          backdropFilter: 'blur(20px) saturate(1.6)',
+          WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.35)',
+          boxShadow: '0 -4px 30px rgba(216, 180, 180, 0.25)',
         }}
       >
-        <div className="flex items-center justify-around py-2.5 px-1">
+        <div className="flex items-center justify-around py-2 px-1 pb-[env(safe-area-inset-bottom,2px)]">
           {([
             { id: 'dashboard' as AdminView, icon: Shield, label: 'דאשבורד' },
             { id: 'users' as AdminView, icon: Users, label: 'משתמשים' },
@@ -381,16 +382,29 @@ const SuperAdmin = () => {
               <button
                 key={tab.id}
                 onClick={() => setView(tab.id)}
-                className="relative flex flex-col items-center gap-1.5 min-w-0 transition-all"
+                className="relative flex flex-col items-center gap-1 min-w-0 transition-all"
+                style={{
+                  ...(isActive ? {
+                    filter: 'drop-shadow(0 0 8px rgba(216, 180, 180, 0.7))',
+                  } : {}),
+                }}
               >
+                {isActive && (
+                  <span
+                    className="absolute -inset-2 rounded-full"
+                    style={{
+                      background: 'radial-gradient(circle, rgba(216, 180, 180, 0.5) 0%, transparent 70%)',
+                    }}
+                  />
+                )}
                 <tab.icon
-                  className="w-5 h-5 transition-colors"
-                  style={{ color: isActive ? '#D4AF37' : '#DCAE96' }}
-                  strokeWidth={isActive ? 2.2 : 1.4}
+                  className="w-5 h-5 transition-colors relative z-10"
+                  style={{ color: '#FFFFFF' }}
+                  strokeWidth={isActive ? 2.4 : 1.6}
                 />
                 <span
-                  className="text-[10px] tracking-wide truncate font-medium"
-                  style={{ color: isActive ? '#D4AF37' : 'hsl(350 10% 55%)' }}
+                  className="text-[10px] tracking-wide truncate font-semibold relative z-10"
+                  style={{ color: '#FFFFFF' }}
                 >
                   {tab.label}
                 </span>
@@ -400,7 +414,7 @@ const SuperAdmin = () => {
         </div>
       </nav>
 
-      <main className="flex-1 p-6 md:p-8 overflow-y-auto pb-24 md:pb-8">
+      <main className="flex-1 p-6 md:p-8 overflow-y-auto pb-16 md:pb-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center">
