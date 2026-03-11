@@ -2391,7 +2391,8 @@ const ArtistDashboard = () => {
                           <button
                             type="button"
                             onClick={() => setViewDeclarationFor(client.name)}
-                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium text-white border border-green-500/30 transition-all hover:opacity-90 bg-green-500"
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-white transition-all hover:opacity-90"
+                            style={{ background: 'linear-gradient(145deg, #4ade80, #22c55e)', boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3), 0 0 12px rgba(34, 197, 94, 0.15)' }}
                           >
                             <ClipboardCheck className="w-3.5 h-3.5" />
                             {lang === 'en' ? '✅ Signed' : '✅ חתומה'}
