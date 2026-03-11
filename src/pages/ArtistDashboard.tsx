@@ -1263,7 +1263,7 @@ const ArtistDashboard = () => {
             }}
           >
             <Crown className="w-5 h-5 shrink-0" style={{ color: '#B8860B' }} />
-            <p className="text-sm font-medium flex-1" style={{ color: '#5C4033' }}>
+            <p className="text-sm font-medium flex-1" style={{ color: '#4a3636' }}>
               {lang === 'en'
                 ? `${trialDaysLeft} days left in your free trial ✨`
                 : `נשארו לך עוד ${trialDaysLeft} ימים להתנסות בחינם ב-Glow Push ✨`}
