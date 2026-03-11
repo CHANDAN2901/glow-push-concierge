@@ -57,13 +57,13 @@ const formatPhone = (raw: string): string => {
   return digits;
 };
 
-/* ── Gold action button style (white bg, gold border, gold text) ── */
+/* ── Rose-gold outline action button style ── */
 const goldButtonStyle: React.CSSProperties = {
-  background: '#fff',
-  border: '2px solid transparent',
-  borderImage: 'linear-gradient(135deg, #F5E6A3, #D4AF37, #B8860B, #D4AF37) 1',
-  color: '#B8860B',
-  boxShadow: '0 2px 8px rgba(212,175,55,0.18)',
+  background: 'transparent',
+  border: '1px solid #d8b4b4',
+  color: '#c88c8c',
+  boxShadow: 'none',
+  borderRadius: '12px',
 };
 
 /* ── Thick shiny gold border wrapper ── */
