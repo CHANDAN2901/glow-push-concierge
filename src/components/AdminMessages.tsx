@@ -163,18 +163,19 @@ export default function AdminMessages() {
       <div
         className="rounded-2xl p-6"
         style={{
-          background: 'hsl(350 15% 12%)',
-          border: '1px solid hsl(38 55% 50% / 0.3)',
+          background: '#FFFFFF',
+          border: '1px solid rgba(216, 180, 180, 0.3)',
+          boxShadow: '0 4px 24px rgba(216, 180, 180, 0.15), 0 1px 4px rgba(0,0,0,0.04)',
         }}
       >
         <div className="flex items-center gap-2 mb-4">
           <Send className="w-5 h-5" style={{ color: '#D4AF37' }} strokeWidth={1.2} />
-          <h2 className="font-serif font-semibold text-lg" style={{ color: '#DCAE96' }}>
+          <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>
             שידור הודעה גלובלית
           </h2>
         </div>
 
-        <p className="text-sm mb-4" style={{ color: 'hsl(350 10% 60%)' }}>
+        <p className="text-sm mb-4" style={{ color: '#8c6a6a' }}>
           כתבי הודעה שתישלח לכל המשתמשות הרשומות במערכת בו-זמנית.
         </p>
 
@@ -184,22 +185,23 @@ export default function AdminMessages() {
           rows={5}
           dir="rtl"
           placeholder="כתבי את ההודעה כאן..."
-          className="resize-y border-none mb-4"
+          className="resize-y mb-4"
           style={{
-            background: 'hsl(350 12% 16%)',
-            color: 'hsl(350 10% 85%)',
+            background: '#FAFAF8',
+            color: '#4a3636',
+            border: '1px solid rgba(216, 180, 180, 0.3)',
             borderRadius: '12px',
           }}
         />
 
         <Button
-          className="w-full h-14 text-base font-bold transition-all hover:scale-[1.01] active:scale-[0.99]"
+          className="w-full h-14 text-base font-bold transition-all hover:scale-[1.01] active:scale-[0.99] rounded-2xl"
           style={{
-            background: 'hsl(350 15% 14%)',
+            background: '#FFFFFF',
             color: '#D4AF37',
             border: '3px solid transparent',
             borderImage: 'linear-gradient(135deg, #B8860B, #F9F295, #D4AF37, #F9F295, #B8860B) 1',
-            boxShadow: '0 0 24px hsla(38, 55%, 50%, 0.3), inset 0 1px 0 hsla(38, 55%, 70%, 0.1)',
+            boxShadow: '0 4px 20px hsla(38, 55%, 50%, 0.2)',
           }}
           onClick={handleBroadcast}
           disabled={broadcasting}
