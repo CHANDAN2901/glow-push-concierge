@@ -2005,8 +2005,8 @@ const ArtistDashboard = () => {
                     }
                   }}
                   disabled={sendingTestPush}
-                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide text-white transition-all active:scale-[0.97] disabled:opacity-60"
-                  style={{ background: '#2563eb', boxShadow: '0 4px 20px rgba(37,99,235,0.35)' }}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide transition-all active:scale-[0.97] disabled:opacity-60"
+                  style={{ background: 'hsl(340 30% 92%)', color: '#4a2020', border: '1.5px solid hsl(30 40% 72%)', boxShadow: '0 2px 10px rgba(180,110,110,0.12)' }}
                 >
                   <Bell className="w-5 h-5" />
                   {sendingTestPush
