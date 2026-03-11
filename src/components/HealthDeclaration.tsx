@@ -393,32 +393,32 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           <div
             className="relative rounded-3xl overflow-hidden mb-6 sm:mb-8"
             style={{
-              minHeight: '300px',
+              minHeight: '380px',
               boxShadow: '0 16px 48px rgba(216,180,180,0.3), 0 4px 16px rgba(212,175,55,0.10)',
             }}
           >
-            {/* Background image – brightened pastel */}
+            {/* Background image – ultra bright pastel */}
             <img
               src={equipmentHeroImg}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ filter: 'brightness(1.4) saturate(0.5) sepia(0.25) hue-rotate(-10deg)' }}
+              style={{ filter: 'brightness(1.8) saturate(0.35) sepia(0.3) hue-rotate(-10deg) contrast(0.9)' }}
             />
-            {/* Soft pastel pink/cream → white fade overlay */}
+            {/* Very light pastel wash overlay */}
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(180deg, hsla(350, 60%, 95%, 0.7) 0%, hsla(30, 40%, 95%, 0.6) 30%, hsla(350, 40%, 92%, 0.65) 60%, hsla(350, 50%, 93%, 0.95) 100%)',
+                background: 'linear-gradient(180deg, hsla(350, 50%, 97%, 0.8) 0%, hsla(30, 30%, 97%, 0.75) 25%, hsla(350, 35%, 95%, 0.7) 55%, hsla(350, 50%, 93%, 0.95) 100%)',
               }}
             />
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center px-5 pt-5 pb-8">
+            {/* Content — generous spacing */}
+            <div className="relative z-10 flex flex-col items-center px-6 pt-6 pb-10">
               {/* Back button + step row */}
-              <div className="flex items-center justify-between w-full mb-5">
+              <div className="flex items-center justify-between w-full mb-6">
                 <button
                   onClick={onClose}
                   className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0 backdrop-blur-sm"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.5)', border: '1px solid rgba(212,175,55,0.4)', color: '#B8860B' }}
+                  style={{ backgroundColor: 'rgba(255,255,255,0.6)', border: '1px solid rgba(212,175,55,0.4)', color: '#B8860B' }}
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
@@ -432,38 +432,42 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 </div>
               </div>
 
-              {/* Logo — SUPER SIZED 3x */}
-              <div className="mb-4 w-full flex justify-center">
+              {/* Logo — SUPER SIZED 3x with clear zone */}
+              <div className="my-6 w-full flex justify-center px-4">
                 {instagramUrl ? (
-                  <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
+                  <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="block px-4">
                     <img
                       src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
                       alt="Studio Logo"
-                      className="w-full max-w-[320px] h-auto object-contain"
+                      className="w-full max-w-[300px] h-auto object-contain"
                       style={{ filter: 'drop-shadow(0 4px 16px rgba(216,180,180,0.5)) drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
                       onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
                     />
                   </a>
                 ) : (
-                  <img
-                    src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
-                    alt="Studio Logo"
-                    className="w-full max-w-[320px] h-auto object-contain"
-                    style={{ filter: 'drop-shadow(0 4px 16px rgba(216,180,180,0.5)) drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
-                    onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
-                  />
+                  <div className="px-4">
+                    <img
+                      src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
+                      alt="Studio Logo"
+                      className="w-full max-w-[300px] h-auto object-contain"
+                      style={{ filter: 'drop-shadow(0 4px 16px rgba(216,180,180,0.5)) drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
+                      onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
+                    />
+                  </div>
                 )}
               </div>
 
-              {/* Title – metallic rose gold on bright bg */}
+              {/* Title – static metallic rose gold, FB Ahava font */}
               <h1
-                className="text-center font-serif font-light text-xl sm:text-2xl tracking-wider mb-1.5 hd-shimmer-text"
+                className="text-center text-xl sm:text-2xl tracking-wide mt-2 mb-2"
                 style={{
-                  background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 30%, #e0c4c4 50%, #B8860B 70%, #D4AF37 100%)',
-                  backgroundSize: '200% 100%',
+                  fontFamily: "'FB Ahava', 'Playfair Display', serif",
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, #c9a0a0 0%, #d8b4b4 20%, #e8cece 40%, #d8b4b4 60%, #c9a0a0 80%, #b08888 100%)',
+                  backgroundSize: '100% 100%',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 1px 4px rgba(74,32,32,0.2))',
+                  filter: 'drop-shadow(0 1px 3px rgba(74,32,32,0.25))',
                 }}
               >
                 {step === 1 && fullName.trim()
@@ -471,12 +475,12 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                   : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
               </h1>
               {/* Subtitle */}
-              <p className="text-center text-xs font-medium tracking-wide" style={{ color: '#4a3636' }}>
+              <p className="text-center text-xs font-medium tracking-wide mt-1" style={{ color: '#6b4a4a' }}>
                 {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
               </p>
 
               {readOnly && existingData?.submittedAt && (
-                <p className="text-[11px] mt-2 font-medium" style={{ color: '#B8860B' }}>
+                <p className="text-[11px] mt-3 font-medium" style={{ color: '#B8860B' }}>
                   {isHe ? '📅 תאריך חתימה: ' : '📅 Signed: '}
                   {new Date(existingData.submittedAt).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
