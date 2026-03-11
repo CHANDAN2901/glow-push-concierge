@@ -672,11 +672,17 @@ export default function MessageEditor() {
                 </span>
                 <button
                   onClick={() => setSendTypes(prev => ({ ...prev, [template.id]: 'push' }))}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border-none ${
                     type === 'push'
-                      ? 'bg-accent/15 text-accent border border-accent/30'
+                      ? 'text-white'
                       : 'text-muted-foreground hover:bg-muted'
                   }`}
+                  style={type === 'push' ? {
+                    background: 'linear-gradient(145deg, hsl(340 30% 88%), hsl(340 25% 82%))',
+                    boxShadow: '4px 4px 12px rgba(180, 110, 110, 0.25), -4px -4px 12px rgba(255, 255, 255, 0.8)',
+                    border: 'none',
+                    color: '#4A3520',
+                  } : undefined}
                 >
                   <Bell className="w-3.5 h-3.5" />
                   Push
