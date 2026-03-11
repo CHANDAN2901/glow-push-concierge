@@ -2419,7 +2419,7 @@ const ArtistDashboard = () => {
                                   }
                                 }}
                                 className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95"
-                                style={{ background: '#ffffff', border: '3px solid #D4AF37', color: '#333333', boxShadow: '0 3px 12px -2px hsla(38, 55%, 62%, 0.35)' }}
+                                style={{ background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)', color: '#fff', border: 'none', boxShadow: '0 6px 20px rgba(212, 131, 143, 0.35), 0 0 14px rgba(232, 160, 176, 0.2)' }}
                               >
                                 <MessageCircle className="w-3.5 h-3.5" />
                                 {lang === 'en' ? 'Send Health Declaration' : 'הצהרת בריאות לשליחה ללקוחה'}
