@@ -1874,14 +1874,12 @@ const ArtistDashboard = () => {
                           }}
                           className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
                           style={{
-                            background: 'rgba(255, 255, 255, 0.6)',
-                            backdropFilter: 'blur(8px)',
-                            border: '1.5px solid rgba(216, 180, 180, 0.5)',
+                            background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
                             color: '#4a3636',
-                            boxShadow: '0 2px 12px rgba(216, 180, 180, 0.15)',
+                            boxShadow: '0 4px 18px rgba(212,175,55,0.35)',
                           }}
                         >
-                          <Copy className="w-4 h-4" strokeWidth={2} style={{ color: '#d8b4b4' }} />
+                          <Copy className="w-4 h-4" strokeWidth={2} style={{ color: '#4a3636' }} />
                           {lang === 'en' ? 'Copy Link' : 'העתקת קישור'}
                         </button>
                       </div>
