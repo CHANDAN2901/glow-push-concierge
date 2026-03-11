@@ -193,7 +193,7 @@ const MarketingLanding = () => {
                 className="min-h-10 px-5 rounded-full text-sm font-bold border transition-all duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 style={isActive ? {
                   background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 45%, #B38728 100%)',
-                  color: '#5C4033',
+                  color: '#4a3636',
                   border: '1px solid rgba(191,149,63,0.5)',
                   boxShadow: '0 4px 14px -2px rgba(191,149,63,0.45)',
                 } : {
