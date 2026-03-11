@@ -1149,7 +1149,7 @@ const ArtistDashboard = () => {
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
   return (
-    <div className="min-h-screen flex flex-col relative artist-dashboard" style={{ background: 'radial-gradient(circle at 50% 50%, #FFFFFF 0%, #F8E0E4 25%, #F0C8CE 45%, #E8B8C0 65%, #E0A8B2 80%, #D49AA6 100%)', animation: 'bg-fade-to-pink 1.2s ease-out forwards' }}>
+    <div className="min-h-screen flex flex-col relative artist-dashboard" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #FDF5F3 15%, #F8E0E4 40%, #F0C8CE 65%, #E8B8C0 85%, #E0A8B2 100%)', animation: 'bg-fade-to-pink 1.2s ease-out forwards' }}>
       {/* Subtle diagonal line texture */}
       <div className="fixed inset-0 z-0 pointer-events-none" style={{
         backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 80px, rgba(212,175,55,0.03) 80px, rgba(212,175,55,0.03) 81px)`,
@@ -3433,8 +3433,8 @@ const ArtistDashboard = () => {
                   border: isActive ? '2px solid #D4AF37' : '1px solid #ecc6c6',
                   borderRadius: '50%',
                   boxShadow: isActive
-                    ? '0 4px 16px rgba(212, 175, 55, 0.3), inset 0 1px 3px rgba(255,255,255,0.7)'
-                    : '6px 6px 12px rgba(200, 170, 170, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.9)',
+                    ? '0 8px 30px rgba(212, 175, 55, 0.35), 0 4px 15px rgba(180, 110, 110, 0.2), inset 0 1px 3px rgba(255,255,255,0.7)'
+                    : '8px 8px 20px rgba(180, 140, 140, 0.45), -8px -8px 20px rgba(255, 255, 255, 0.95), 0 6px 24px rgba(160, 120, 120, 0.2)',
                 }}
               >
                 <tab.icon
