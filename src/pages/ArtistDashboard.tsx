@@ -2057,7 +2057,7 @@ const ArtistDashboard = () => {
                                 }
                               }}
                               className="w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-accent/20"
-                              style={{ color: 'hsl(38 55% 62%)' }}
+                              style={{ color: '#d8b4b4' }}
                             >
                               <Pencil className="w-3 h-3" />
                             </button>
