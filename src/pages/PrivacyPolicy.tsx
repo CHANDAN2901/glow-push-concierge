@@ -23,7 +23,7 @@ const Divider = () => (
 const PrivacyPolicy = () => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
-  const navigate = useNavigate();
+  
 
   return (
     <div

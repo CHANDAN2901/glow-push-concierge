@@ -5,7 +5,7 @@ import glowPushLogo from '@/assets/glowpush-logo.png';
 const Legal = () => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
-  const navigate = useNavigate();
+  
 
   return (
     <div
