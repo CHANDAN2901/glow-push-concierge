@@ -66,19 +66,20 @@ const goldButtonStyle: React.CSSProperties = {
   borderRadius: '12px',
 };
 
-/* ── Thick shiny gold border wrapper ── */
+/* ── Clean glassmorphism card wrapper ── */
 function GoldCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex-shrink-0 w-[280px] rounded-2xl p-[4px]"
+      className="flex-shrink-0 w-[280px] rounded-[22px] p-4"
       style={{
-        background: 'linear-gradient(135deg, #F5E6A3 0%, #D4AF37 20%, #B8860B 40%, #DAA520 60%, #D4AF37 80%, #F5E6A3 100%)',
-        boxShadow: '0 6px 28px rgba(212,175,55,0.35), 0 2px 8px rgba(184,134,11,0.25)',
+        background: 'rgba(255, 255, 255, 0.65)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(238, 202, 202, 0.4)',
+        boxShadow: '10px 10px 25px rgba(180, 110, 110, 0.08), -5px -5px 15px rgba(255, 255, 255, 0.8)',
       }}
     >
-      <div className="rounded-[12px] bg-card p-4 h-full">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
