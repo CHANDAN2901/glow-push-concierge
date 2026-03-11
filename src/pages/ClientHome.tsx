@@ -1062,8 +1062,8 @@ const ClientHome = () => {
                       style={{
                         height: '3px',
                         width: '80%',
-                        marginRight: isHe ? 0 : 'auto',
-                        marginLeft: isHe ? 'auto' : 0,
+                        marginRight: lang === 'he' ? 0 : 'auto',
+                        marginLeft: lang === 'he' ? 'auto' : 0,
                         borderRadius: '2px',
                         background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)',
                         boxShadow: '0 0 8px rgba(212,175,55,0.35), 0 0 16px rgba(212,175,55,0.1)',
