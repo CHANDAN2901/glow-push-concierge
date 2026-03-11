@@ -3410,7 +3410,7 @@ const ArtistDashboard = () => {
                   style={{
                     fontSize: '10px',
                     fontWeight: isActive ? 700 : 600,
-                    color: isActive ? '#4A3520' : '#8c6a6a',
+                    color: isActive ? '#4a3636' : '#8c6a6a',
                     fontFamily: "'Assistant', sans-serif",
                     lineHeight: 1,
                   }}
