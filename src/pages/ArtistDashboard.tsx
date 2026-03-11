@@ -2609,14 +2609,6 @@ const ArtistDashboard = () => {
         {/* ===== PUSH! TAB ===== */}
         {activeTab === 'push' && !subScreen && (
           <div className="space-y-4">
-            {/* Back button */}
-            <button
-              onClick={() => setActiveTab('home')}
-              className="flex items-center gap-2 text-sm font-medium text-accent hover:opacity-80 transition-opacity"
-            >
-              <ArrowRight className="w-4 h-4" style={{ transform: lang === 'en' ? 'rotate(180deg)' : undefined }} />
-              {lang === 'en' ? 'Back' : 'חזרה'}
-            </button>
             {/* Premium Upgrade Banner */}
             <button
               onClick={() => navigate('/pricing')}
