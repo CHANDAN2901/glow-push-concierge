@@ -1296,7 +1296,7 @@ const ArtistDashboard = () => {
       </header>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div id="main-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-[68px]" style={{ background: 'transparent' }}>
+      <div id="main-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-[56px]" style={{ background: 'transparent' }}>
         <div className="container mx-auto px-5 max-w-lg py-2">
 
         {/* ===== TRIAL COUNTDOWN BANNER ===== */}
@@ -1346,7 +1346,7 @@ const ArtistDashboard = () => {
 
         {/* ===== HOME TAB ===== */}
         {activeTab === 'home' && !subScreen && (
-          <div className="space-y-9" style={{ margin: '-0.5rem -1.25rem', padding: '0 1.25rem 10rem' }}>
+          <div className="space-y-9" style={{ margin: '-0.5rem -1.25rem', padding: '0 1.25rem 5.25rem' }}>
 
             {/* ═══ 1. HEADER / GREETING ═══ */}
             <div
@@ -3268,7 +3268,7 @@ const ArtistDashboard = () => {
 
 
       {/* ===== FIXED BOTTOM NAVIGATION BAR — Neumorphic Circles ===== */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-[450px] pb-[env(safe-area-inset-bottom,2px)]">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-[450px] pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-center justify-between px-2.5 py-1.5">
           {[
             { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
