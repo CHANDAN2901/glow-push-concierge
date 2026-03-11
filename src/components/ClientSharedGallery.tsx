@@ -141,7 +141,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                   {isNew && (
                     <span
                       className="absolute top-1 left-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10 animate-pulse"
-                      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+                      style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
                     >
                       {isHe ? 'חדש ✨' : 'New ✨'}
                     </span>
@@ -150,7 +150,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                   {photo.day_number !== null && (
                     <span
                       className="absolute top-1 right-1 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
-                      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+                      style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
                     >
                       {isHe ? `יום ${photo.day_number}` : `Day ${photo.day_number}`}
                     </span>
@@ -159,7 +159,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                   {photo.uploaded_by === 'client' && (
                     <span
                       className="absolute bottom-1 left-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                      style={{ background: 'hsl(350 50% 93%)', color: '#5C4033' }}
+                      style={{ background: 'hsl(350 50% 93%)', color: '#4a3636' }}
                     >
                       {isHe ? 'שלי' : 'Mine'}
                     </span>
@@ -183,7 +183,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
           className="flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold font-serif tracking-wide transition-all hover:scale-105 hover:brightness-105 active:scale-[0.98] disabled:opacity-60"
-          style={{ background: GOLD_BTN_GRADIENT, color: '#5C4033', boxShadow: '0 4px 15px rgba(212,175,55,0.3)' }}
+          style={{ background: GOLD_BTN_GRADIENT, color: '#4a3636', boxShadow: '0 4px 15px rgba(212,175,55,0.3)' }}
         >
           <Camera className="w-4 h-4" />
           {uploading ? (isHe ? 'מעלה...' : 'Uploading...') : (isHe ? 'העלאת תמונה 📸' : 'Upload Photo 📸')}
@@ -217,7 +217,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{ background: GOLD_GRADIENT }}
                 >
-                  <Download className="w-4 h-4" style={{ color: '#5C4033' }} />
+                  <Download className="w-4 h-4" style={{ color: '#4a3636' }} />
                 </button>
                 <button
                   onClick={() => setSelected(null)}

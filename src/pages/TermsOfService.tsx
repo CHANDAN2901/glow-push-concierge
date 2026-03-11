@@ -5,7 +5,7 @@ import glowPushLogo from '@/assets/glowpush-logo.png';
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="space-y-3">
-    <h2 className="text-lg font-serif font-medium tracking-wide" style={{ color: '#5C4033' }}>
+    <h2 className="text-lg font-serif font-medium tracking-wide" style={{ color: '#4a3636' }}>
       {title}
     </h2>
     <div className="text-sm leading-relaxed space-y-3" style={{ color: 'hsl(0 0% 30%)' }}>

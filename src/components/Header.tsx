@@ -65,7 +65,7 @@ const Header = () => {
           className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95 z-20"
           style={{
             background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-            color: '#5C4033',
+            color: '#4a3636',
             boxShadow: '0 2px 10px rgba(212,175,55,0.4)',
           }}
         >

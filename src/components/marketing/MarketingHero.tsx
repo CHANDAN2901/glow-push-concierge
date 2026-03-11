@@ -76,7 +76,7 @@ const MarketingHero = ({ isHe, user }: Props) => (
           <a
             href="#pricing"
             className="inline-flex items-center gap-2 px-10 py-4 text-base font-semibold rounded-full border-2 border-gold bg-white transition-all hover:shadow-gold"
-            style={{ color: '#5C4033' }}
+            style={{ color: '#4a3636' }}
           >
             {isHe ? 'פרטים ומחירים' : 'See Pricing'}
           </a>

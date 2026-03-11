@@ -115,7 +115,7 @@ const ClientPhotoTimeline = ({ clientId, artistId }: ClientPhotoTimelineProps) =
                 {idx === 0 && (
                   <span
                     className="absolute top-1.5 right-1.5 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
-                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                    style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}
                   >
                     {isHe ? 'חדש' : 'New'}
                   </span>

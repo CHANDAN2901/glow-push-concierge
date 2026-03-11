@@ -269,7 +269,7 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
         className="w-full py-4 rounded-2xl text-base font-bold border border-[#D4AF37]/30 transition-all active:scale-[0.97] hover:shadow-lg flex items-center justify-center gap-2"
         style={{
           background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-          color: '#5C4033',
+          color: '#4a3636',
           boxShadow: '0 4px 20px -4px rgba(212, 175, 55, 0.4)',
         }}
       >

@@ -602,7 +602,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
           <button
             onClick={() => { setNewDate(selectedDateStr); setShowAddModal(true); }}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95"
-            style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' }}
+            style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#4a3636' }}
           >
             <Plus className="w-4 h-4" />
             {isHe ? 'תור חדש' : 'New'}
@@ -665,7 +665,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                         ? 'bg-accent/10 text-accent'
                         : 'hover:bg-muted text-foreground'
                     }`}
-                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' } : undefined}
+                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#4a3636' } : undefined}
                   >
                     <span className="text-[10px] font-medium opacity-70">{dayNames[i]}</span>
                     <span className="text-sm font-bold mt-0.5">{day.getDate()}</span>
@@ -715,7 +715,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                         ? 'hover:bg-muted text-foreground'
                         : 'text-muted-foreground/40'
                     }`}
-                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033' } : undefined}
+                    style={isSelected(day) ? { background: '#ffffff', border: '2.5px solid #D4AF37', color: '#4a3636' } : undefined}
                   >
                     <span>{day.getDate()}</span>
                     {hasAppointments(day) && !isSelected(day) && (
@@ -856,7 +856,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                         <button
                            onClick={(e) => { e.stopPropagation(); openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time); }}
                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all active:scale-95"
-                          style={{ borderColor: '#D4AF37', color: '#5C4033', background: 'transparent' }}
+                          style={{ borderColor: '#D4AF37', color: '#4a3636', background: 'transparent' }}
                         >
                           <ClipboardCheck className="w-3 h-3" />
                           {isHe ? 'שלח קישור' : 'Send Link'}
@@ -1143,7 +1143,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                 style={{
                   background:
                     'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                  color: '#5C4033',
+                  color: '#4a3636',
                   boxShadow: '0 4px 20px rgba(212,175,55,0.45), inset 0 1px 0 rgba(249,242,149,0.6)',
                 }}
               >

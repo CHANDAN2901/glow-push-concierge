@@ -358,7 +358,7 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
               onClick={() => setDrawingMode(!drawingMode)}
               className="gap-1.5 rounded-xl text-xs font-medium"
               style={drawingMode
-                ? { background: GOLD_GRADIENT, color: '#5C4033', border: 'none' }
+                ? { background: GOLD_GRADIENT, color: '#4a3636', border: 'none' }
                 : { borderColor: GOLD, color: GOLD_DARK }
               }
             >
@@ -558,7 +558,7 @@ const ImageEditorDialog = ({ open, onClose, imageSrc, onSave }: ImageEditorDialo
             size="sm"
             onClick={handleSave}
             className="gap-1 rounded-xl px-5 font-bold border-0"
-            style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+            style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
           >
             <Check className="w-3.5 h-3.5" />
             {isHe ? 'שמירה' : 'Save'}

@@ -85,8 +85,8 @@ const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #99
 const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.45)';
 const CARD_BG = 'linear-gradient(145deg, rgba(60,40,45,0.55) 0%, rgba(80,55,60,0.5) 50%, rgba(60,40,45,0.5) 100%)';
 const CARD_SHADOW = '0 12px 40px rgba(0,0,0,0.25), 0 4px 12px rgba(0,0,0,0.15), 0 0 0 1px rgba(212,175,55,0.15)';
-const BODY_TEXT = '#4A3520';
-const SUBTEXT_COLOR = '#6B5744';
+const BODY_TEXT = '#4a3636';
+const SUBTEXT_COLOR = '#6b5a5a';
 const GOLD_ICON_GLOW = 'drop-shadow(0 0 8px rgba(212,175,55,0.6)) drop-shadow(0 2px 4px rgba(212,175,55,0.4))';
 const FBAHAVA = "'FB Ahava', 'Assistant', sans-serif";
 const TITLE_FONT = FBAHAVA;
@@ -111,7 +111,7 @@ const goldBtnStyle: React.CSSProperties = {
   backgroundSize: '200% 100%',
   border: 'none',
   boxShadow: '0 4px 20px rgba(212,175,55,0.4), 0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(249,242,149,0.6)',
-  color: '#4A3520',
+  color: '#4a3636',
   fontWeight: 700,
   borderRadius: '16px',
   letterSpacing: '0.03em',
@@ -127,7 +127,7 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'e
       style={{
         background: METALLIC_GOLD_GRADIENT,
         backgroundSize: '200% 100%',
-        color: '#5C4033',
+        color: '#4a3636',
         boxShadow: '0 2px 10px rgba(191,149,63,0.4)',
       }}
     >
@@ -151,7 +151,7 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'e
       }}
       aria-label="Notifications"
     >
-      <Bell className="w-[18px] h-[18px]" style={{ color: '#5C4033' }} strokeWidth={2.2} />
+      <Bell className="w-[18px] h-[18px]" style={{ color: '#4a3636' }} strokeWidth={2.2} />
       {hasUnread && (
         <span
           className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full border border-white/80"

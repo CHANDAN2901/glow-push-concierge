@@ -179,7 +179,7 @@ export default function OnboardingWizard({
         className="w-full h-12 rounded-xl font-serif text-base"
         style={{
           background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-          color: '#5C4033',
+          color: '#4a3636',
           border: 'none',
         }}
       >
@@ -222,7 +222,7 @@ export default function OnboardingWizard({
           style={{
             background: '#ffffff',
             border: '2px solid #D4AF37',
-            color: '#5C4033',
+            color: '#4a3636',
           }}
         >
           {isHe ? 'פתיחת עורך הטיימליין' : 'Open Timeline Editor'}
@@ -234,7 +234,7 @@ export default function OnboardingWizard({
         className="w-full h-12 rounded-xl font-serif text-base"
         style={{
           background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-          color: '#5C4033',
+          color: '#4a3636',
           border: 'none',
         }}
       >
@@ -294,7 +294,7 @@ export default function OnboardingWizard({
         className="w-full h-12 rounded-xl font-serif text-base"
         style={{
           background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-          color: '#5C4033',
+          color: '#4a3636',
           border: 'none',
         }}
       >

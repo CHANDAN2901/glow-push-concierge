@@ -545,7 +545,7 @@ export default function MessageEditor() {
               }`}
               style={isActive ? {
                 background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-                color: '#5C4033',
+                color: '#4a3636',
               } : undefined}
             >
               <Icon />
@@ -626,7 +626,7 @@ export default function MessageEditor() {
                 style={{
                   border: '2px solid #D4AF37',
                   background: 'rgba(212, 175, 55, 0.1)',
-                  color: '#5C4033',
+                  color: '#4a3636',
                   boxShadow: '0 3px 10px -2px rgba(212, 175, 55, 0.3)',
                 }}
               >
@@ -739,7 +739,7 @@ export default function MessageEditor() {
                     background: savedIds.has(template.id)
                       ? 'hsl(145 60% 45%)'
                       : 'linear-gradient(135deg, #B8860B, #D4AF37 40%, #F9F295 60%, #D4AF37)',
-                    color: savedIds.has(template.id) ? '#fff' : '#5C4033',
+                    color: savedIds.has(template.id) ? '#fff' : '#4a3636',
                     border: savedIds.has(template.id)
                       ? '1px solid hsl(145 60% 40%)'
                       : '1px solid #D4AF37',
@@ -771,7 +771,7 @@ export default function MessageEditor() {
         className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
         style={{
           background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-          color: '#5C4033',
+          color: '#4a3636',
           border: '1px solid #D4AF37',
         }}
       >
@@ -787,7 +787,7 @@ export default function MessageEditor() {
           className="flex items-center gap-2.5 px-10 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97] shadow-lg disabled:opacity-60"
             style={{
               background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-              color: '#5C4033',
+              color: '#4a3636',
               border: '1px solid #D4AF37',
           }}
         >

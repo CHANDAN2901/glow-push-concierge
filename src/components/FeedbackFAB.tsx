@@ -89,7 +89,7 @@ export default function FeedbackFAB() {
 
           <div className="p-6 pt-5 space-y-4">
             <DialogHeader className="text-right space-y-2">
-              <DialogTitle className="text-xl font-serif text-right" style={{ color: "#3D2B1F" }}>
+              <DialogTitle className="text-xl font-serif text-right" style={{ color: "#4a3636" }}>
                 הקול שלך משפיע ✨
               </DialogTitle>
               <DialogDescription className="text-right text-sm leading-relaxed" style={{ color: "#6B5E57" }}>
@@ -99,7 +99,7 @@ export default function FeedbackFAB() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#5C4033" }}>שם מלא</Label>
+                <Label className="text-right block text-xs font-medium" style={{ color: "#4a3636" }}>שם מלא</Label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -111,7 +111,7 @@ export default function FeedbackFAB() {
 
 
               <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#5C4033" }}>נושא</Label>
+                <Label className="text-right block text-xs font-medium" style={{ color: "#4a3636" }}>נושא</Label>
                 <Select value={form.topic} onValueChange={(v) => setForm({ ...form, topic: v })}>
                   <SelectTrigger className="text-right border-[hsl(38_30%_82%)] focus:ring-[#D4AF37]" dir="rtl">
                     <SelectValue placeholder="בחרי נושא" />
@@ -125,7 +125,7 @@ export default function FeedbackFAB() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#5C4033" }}>ההודעה שלך</Label>
+                <Label className="text-right block text-xs font-medium" style={{ color: "#4a3636" }}>ההודעה שלך</Label>
                 <Textarea
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}

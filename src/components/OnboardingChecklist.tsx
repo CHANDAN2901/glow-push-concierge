@@ -254,7 +254,7 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
               className="mt-4 px-5 py-2 rounded-full text-sm font-serif font-semibold transition-all active:scale-95"
               style={{
                 background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-                color: '#5C4033',
+                color: '#4a3636',
               }}
             >
               {isHe ? 'סגרי את הצ׳קליסט' : 'Dismiss'}

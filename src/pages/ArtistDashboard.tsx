@@ -552,7 +552,7 @@ const ArtistDashboard = () => {
             style={{
               background: 'white',
               border: '2.5px solid #D4AF37',
-              color: '#5C4033',
+              color: '#4a3636',
             }}
           >
             {lang === 'en' ? 'Undo' : 'ביטול'}
@@ -1239,7 +1239,7 @@ const ArtistDashboard = () => {
             className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg z-30"
             style={{
               background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-              color: '#5C4033',
+              color: '#4a3636',
               boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
             }}
           >
@@ -1263,7 +1263,7 @@ const ArtistDashboard = () => {
             }}
           >
             <Crown className="w-5 h-5 shrink-0" style={{ color: '#B8860B' }} />
-            <p className="text-sm font-medium flex-1" style={{ color: '#5C4033' }}>
+            <p className="text-sm font-medium flex-1" style={{ color: '#4a3636' }}>
               {lang === 'en'
                 ? `${trialDaysLeft} days left in your free trial ✨`
                 : `נשארו לך עוד ${trialDaysLeft} ימים להתנסות בחינם ב-Glow Push ✨`}
@@ -1350,7 +1350,7 @@ const ArtistDashboard = () => {
                   </button>
                   <div className="flex items-start gap-3 relative z-10">
                     <Sparkles className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#D4AF37' }} />
-                    <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#4A3520' }}>
+                    <p className="text-sm font-bold leading-relaxed pr-6" style={{ color: '#4a3636' }}>
                       {lang === 'en'
                         ? `🔥 Amazing week! You onboarded ${Math.min(clients.length, 5)} new clients. Keep it up!`
                         : `🔥 שבוע מטורף! הכנסת ${Math.min(clients.length, 5)} לקוחות חדשות השבוע. המשיכי כך!`}
@@ -1528,11 +1528,11 @@ const ArtistDashboard = () => {
                   <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.5} />
                   <p
                     className="text-xl font-extrabold mb-1 relative z-10"
-                    style={{ color: '#4A3520' }}
+                    style={{ color: '#4a3636' }}
                   >
                     {metric.value}
                   </p>
-                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#7A5C50' }}>{metric.label}</p>
+                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#6b5a5a' }}>{metric.label}</p>
                   {metric.trend && (
                     <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
                       ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
@@ -1597,7 +1597,7 @@ const ArtistDashboard = () => {
                         >
                           <div
                             className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg"
-                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}
                           >
                             {client.name.charAt(0)}
                           </div>
@@ -1656,7 +1656,7 @@ const ArtistDashboard = () => {
                         >
                           <div
                             className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg"
-                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}
                           >
                             {client.name.charAt(0)}
                           </div>
@@ -1828,7 +1828,7 @@ const ArtistDashboard = () => {
                           type="button"
                           onClick={() => setViewDeclarationFor(selectedClient.name)}
                           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold tracking-wide transition-all active:scale-[0.97]"
-                          style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                          style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}
                         >
                           <Eye className="w-4 h-4" strokeWidth={2} />
                           {lang === 'en' ? 'View Full Health Declaration' : 'צפייה בהצהרת הבריאות המלאה'}
@@ -2122,7 +2122,7 @@ const ArtistDashboard = () => {
                   <button
                     onClick={() => { if (navigator.vibrate) navigator.vibrate(50); setDispatchPrefill(null); setDispatchOpen(true); }}
                     className="w-full rounded-full py-4 text-base font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
-                    style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#5C4033', boxShadow: '0 4px 16px rgba(212, 175, 55, 0.15)' }}
+                    style={{ background: '#ffffff', border: '2.5px solid #D4AF37', color: '#4a3636', boxShadow: '0 4px 16px rgba(212, 175, 55, 0.15)' }}
                   >
                     <Plus className="w-5 h-5" strokeWidth={3} />
                     {lang === 'en' ? 'Add New Client' : 'הוספי לקוחה חדשה'}
@@ -2155,12 +2155,12 @@ const ArtistDashboard = () => {
                     }`}
                     style={clientListFilter === tab.key ? {
                       background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%)',
-                      color: '#3E2723',
+                      color: '#4a3636',
                       border: '2px solid #D4AF37',
                       boxShadow: '0 4px 16px rgba(212,175,55,0.4), inset 0 1px 2px rgba(255,255,255,0.4)',
                     } : {
                       background: 'linear-gradient(135deg, #FDF6E3 0%, #F5EDDA 100%)',
-                      color: '#5C4033',
+                      color: '#4a3636',
                       border: '2px solid hsl(38 55% 62% / 0.3)',
                     }}
                   >
@@ -2426,7 +2426,7 @@ const ArtistDashboard = () => {
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
                             className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
-                            style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#5C4033', border: 'none', boxShadow: '0 2px 8px rgba(255,165,0,0.3)' }}
+                            style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#4a3636', border: 'none', boxShadow: '0 2px 8px rgba(255,165,0,0.3)' }}
                           >
                             🎂 {lang === 'en' ? 'Send Birthday Wish' : 'שלחי ברכת יום הולדת'}
                           </button>
@@ -2533,7 +2533,7 @@ const ArtistDashboard = () => {
                 }
               }}
               className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033', boxShadow: '0 4px 18px rgba(212,175,55,0.35)' }}
+              style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212,175,55,0.35)' }}
             >
               <Share2 className="w-5 h-5" />
               {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}
@@ -2722,7 +2722,7 @@ const ArtistDashboard = () => {
             <button
               onClick={() => navigate('/pricing')}
               className="w-full flex items-center gap-3 py-4 px-5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
-              style={{ background: '#ffffff', color: '#5C4033', border: '3px solid #D4AF37', boxShadow: '0 6px 28px -4px hsla(38, 55%, 62%, 0.35)' }}
+              style={{ background: '#ffffff', color: '#4a3636', border: '3px solid #D4AF37', boxShadow: '0 6px 28px -4px hsla(38, 55%, 62%, 0.35)' }}
             >
               <Crown className="w-5 h-5" />
               <div className="flex-1 text-start">
@@ -2896,7 +2896,7 @@ const ArtistDashboard = () => {
                 className="w-full mt-2 h-12 rounded-full font-bold text-sm tracking-wide"
                 style={{
                   background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                  color: '#5C4033',
+                  color: '#4a3636',
                   border: '1px solid #B8860B',
                   boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
                 }}
@@ -2946,7 +2946,7 @@ const ArtistDashboard = () => {
                   className="w-full mt-2 h-12 rounded-full text-white font-bold text-sm tracking-wide"
                   style={{
                     background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                    color: '#5C4033',
+                    color: '#4a3636',
                     border: '1px solid #B8860B',
                     boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
                   }}
@@ -3068,7 +3068,7 @@ const ArtistDashboard = () => {
                   className="w-full mt-2 h-12 rounded-full font-bold text-sm tracking-wide"
                   style={{
                     background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                    color: '#5C4033',
+                    color: '#4a3636',
                     border: '1px solid #B8860B',
                     boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
                   }}
@@ -3178,7 +3178,7 @@ const ArtistDashboard = () => {
                           {/* Description */}
                           <p
                             className="text-[11px] leading-relaxed mb-4 px-2"
-                            style={{ color: '#4A3520' }}
+                            style={{ color: '#4a3636' }}
                           >
                             {(() => {
                               const v = promoDescription || 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.';
@@ -3191,7 +3191,7 @@ const ArtistDashboard = () => {
                             className="px-6 py-2.5 rounded-xl text-xs font-bold mx-auto inline-flex items-center gap-1.5"
                             style={{
                               background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
-                              color: '#4A3520',
+                              color: '#4a3636',
                               boxShadow: '0 4px 16px rgba(212,175,55,0.35)',
                             }}
                           >
@@ -3410,7 +3410,7 @@ const ArtistDashboard = () => {
                   style={{
                     fontSize: '10px',
                     fontWeight: isActive ? 700 : 600,
-                    color: isActive ? '#4A3520' : '#8c6a6a',
+                    color: isActive ? '#4a3636' : '#8c6a6a',
                     fontFamily: "'Assistant', sans-serif",
                     lineHeight: 1,
                   }}
@@ -3700,7 +3700,7 @@ const ArtistDashboard = () => {
               }
             }}
             className="mt-4 flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
-            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033', boxShadow: '0 4px 18px rgba(212,175,55,0.35)' }}
+            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212,175,55,0.35)' }}
           >
             <Share2 className="w-5 h-5" />
             {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}

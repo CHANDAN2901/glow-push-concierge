@@ -54,7 +54,7 @@ const MarketingLanding = () => {
           className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg"
           style={{
             background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-            color: '#5C4033',
+            color: '#4a3636',
             boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
           }}
         >
@@ -193,7 +193,7 @@ const MarketingLanding = () => {
                 className="min-h-10 px-5 rounded-full text-sm font-bold border transition-all duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 style={isActive ? {
                   background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 45%, #B38728 100%)',
-                  color: '#5C4033',
+                  color: '#4a3636',
                   border: '1px solid rgba(191,149,63,0.5)',
                   boxShadow: '0 4px 14px -2px rgba(191,149,63,0.45)',
                 } : {
@@ -254,7 +254,7 @@ const MarketingLanding = () => {
         className="font-semibold py-6 px-12 rounded-full text-lg border-0 tracking-wide"
         style={{
           background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37)',
-          color: '#5C4033',
+          color: '#4a3636',
           boxShadow: '0 4px 16px rgba(212, 175, 55, 0.35)',
         }}
       >

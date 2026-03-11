@@ -112,7 +112,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
           className="w-full py-3.5 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97] no-underline"
           style={{
             background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-            color: '#5C4033',
+            color: '#4a3636',
           }}
         >
           <MessageCircle className="w-5 h-5" />

@@ -156,7 +156,7 @@ const WelcomeTour = ({ open, onClose, lang }: WelcomeTourProps) => {
             className="flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
             style={{
               background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-              color: '#5C4033',
+              color: '#4a3636',
               boxShadow: '0 4px 16px rgba(212, 175, 55, 0.35)',
             }}
           >

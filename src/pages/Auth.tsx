@@ -381,7 +381,7 @@ const Auth = () => {
                     onClick={() => validatePromoCode(promoCode)}
                     disabled={!promoCode.trim() || promoStatus === 'checking'}
                     className="h-12 px-5 rounded-2xl font-serif"
-                    style={{ borderColor: '#D4AF37', color: '#5C4033' }}
+                    style={{ borderColor: '#D4AF37', color: '#4a3636' }}
                   >
                     {promoStatus === 'checking' ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -400,7 +400,7 @@ const Auth = () => {
               className="w-full h-13 rounded-2xl text-base font-serif tracking-wide border-none"
               style={{
                 background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
-                color: '#5C4033',
+                color: '#4a3636',
                 fontWeight: 400,
                 fontSize: '1rem',
                 letterSpacing: '0.04em',

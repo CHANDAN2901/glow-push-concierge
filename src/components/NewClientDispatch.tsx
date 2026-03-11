@@ -37,7 +37,7 @@ const GOLD = '#D4AF37';
 const GOLD_DARK = '#B8860B';
 const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)';
 const GOLD_BORDER = '2px solid #D4AF37';
-const GOLD_TEXT = '#5C4033';
+const GOLD_TEXT = '#4a3636';
 
 const NewClientDispatch = ({
   open, onClose, artistName, artistPhone, logoUrl, origin,
@@ -317,7 +317,7 @@ const NewClientDispatch = ({
               handleClose();
             }} disabled={!isValid}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
-              style={{ border: '2px solid #D4AF37', color: isValid ? '#5C4033' : '#aaa', background: isValid ? GOLD_GRADIENT : '#f0f0f0', boxShadow: isValid ? '0 2px 8px rgba(212, 175, 55, 0.15)' : 'none' }}>
+              style={{ border: '2px solid #D4AF37', color: isValid ? '#4a3636' : '#aaa', background: isValid ? GOLD_GRADIENT : '#f0f0f0', boxShadow: isValid ? '0 2px 8px rgba(212, 175, 55, 0.15)' : 'none' }}>
               <CheckCircle className="w-5 h-5" />
               {lang === 'en' ? 'Save Client Only' : 'שמירת לקוחה בלבד'}
             </button>
