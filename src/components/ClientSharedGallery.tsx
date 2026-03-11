@@ -150,7 +150,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                   {photo.day_number !== null && (
                     <span
                       className="absolute top-1 right-1 text-[8px] font-bold px-2 py-0.5 rounded-full z-10"
-                      style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+                      style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
                     >
                       {isHe ? `יום ${photo.day_number}` : `Day ${photo.day_number}`}
                     </span>
