@@ -2138,40 +2138,8 @@ const ArtistDashboard = () => {
                 </div>
 
             <div className="p-1">
-              {/* Filter tabs */}
-              <div className="flex items-center gap-3 mb-5 flex-wrap">
-                {([
-                  { key: 'all' as const, label: lang === 'en' ? 'All Clients' : 'כל הלקוחות', icon: '' },
-                  { key: 'birthdays' as const, label: lang === 'en' ? 'Birthdays' : 'ימי הולדת', icon: '🎂' },
-                  { key: 'renewal' as const, label: lang === 'en' ? 'Renewal Due' : 'לחידוש טיפול', icon: '🔄' },
-                ] as const).map(tab => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setClientListFilter(tab.key)}
-                    className={`px-6 py-3 rounded-full text-base font-black tracking-wide transition-all flex items-center gap-2 active:scale-95 ${
-                      clientListFilter === tab.key
-                        ? 'shadow-lg'
-                        : 'hover:shadow-md'
-                    }`}
-                    style={clientListFilter === tab.key ? {
-                      background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 25%, #F9F295 50%, #D4AF37 75%, #B8860B 100%)',
-                      color: '#4a3636',
-                      border: '2px solid #D4AF37',
-                      boxShadow: '0 4px 16px rgba(212,175,55,0.4), inset 0 1px 2px rgba(255,255,255,0.4)',
-                    } : {
-                      background: 'linear-gradient(135deg, #FDF6E3 0%, #F5EDDA 100%)',
-                      color: '#4a3636',
-                      border: '2px solid hsl(38 55% 62% / 0.3)',
-                    }}
-                  >
-                    {tab.icon && <span className="text-lg">{tab.icon}</span>}
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Search bar — always visible */}
-              <div className="relative mb-4">
+              {/* Search bar */}
+              <div className="relative mb-3">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#C4A265' }} />
                 <input
                   type="text"
