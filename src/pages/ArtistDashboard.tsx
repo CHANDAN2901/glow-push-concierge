@@ -1601,7 +1601,7 @@ const ArtistDashboard = () => {
             )}
 
             {/* ═══ 6. MANAGEMENT BUTTONS GROUP ═══ */}
-            <div className="space-y-3 pt-4">
+            <div className="space-y-4 pt-4">
               <h3 className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: 'hsl(14 29% 30%)' }}>
                 {lang === 'en' ? 'Management' : 'ניהול'}
               </h3>
