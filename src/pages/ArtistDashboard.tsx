@@ -252,7 +252,9 @@ const ArtistDashboard = () => {
   const [afterImg, setAfterImg] = useState('');
   const [formError, setFormError] = useState('');
   const [livePreviewLink, setLivePreviewLink] = useState('');
+  const [savedLogoUrl, setSavedLogoUrl] = useState(() => localStorage.getItem('gp-artist-logo') || '');
   const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem('gp-artist-logo') || '');
+  const [hasUnsavedLogoChange, setHasUnsavedLogoChange] = useState(false);
   const [artistName, setArtistName] = useState(() => localStorage.getItem('gp-artist-name') || '');
   const [artistPhone, setArtistPhone] = useState(() => localStorage.getItem('gp-artist-phone') || '');
   const [instagramUrl, setInstagramUrl] = useState('');
@@ -311,6 +313,11 @@ const ArtistDashboard = () => {
   }, [setSearchParams]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const hasUnsavedLogoChangeRef = useRef(false);
+
+  useEffect(() => {
+    hasUnsavedLogoChangeRef.current = hasUnsavedLogoChange;
+  }, [hasUnsavedLogoChange]);
 
 
   // Treatment notes history — persisted in localStorage per client
@@ -376,7 +383,13 @@ const ArtistDashboard = () => {
       if (data.instagram_url) setInstagramUrl(data.instagram_url);
       if (data.facebook_url) setFacebookUrl(data.facebook_url);
       if (data.waze_address) setWazeAddress(data.waze_address);
-      if (data.logo_url) { setLogoUrl(data.logo_url); localStorage.setItem('gp-artist-logo', data.logo_url); }
+      const fetchedLogoUrl = data.logo_url || '';
+      setSavedLogoUrl(fetchedLogoUrl);
+      if (!hasUnsavedLogoChangeRef.current) {
+        setLogoUrl(fetchedLogoUrl);
+        if (fetchedLogoUrl) localStorage.setItem('gp-artist-logo', fetchedLogoUrl);
+        else localStorage.removeItem('gp-artist-logo');
+      }
       if (data.full_name) { setArtistName(data.full_name); localStorage.setItem('gp-artist-name', data.full_name); }
     }
   }, [user]);
@@ -2640,8 +2653,8 @@ const ArtistDashboard = () => {
                   style={{ border: '2px solid hsl(38 55% 62%)' }}
                 >
                   {logoUrl ? (
-                    <div className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center" style={{ border: '2px solid hsl(38 55% 62%)', boxShadow: '0 0 12px -3px hsla(38, 55%, 62%, 0.3)' }}>
-                      <img src={logoUrl} alt="Studio logo" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
+                    <div className="w-20 h-20 overflow-hidden flex items-center justify-center">
+                      <img src={logoUrl} alt="Studio logo" className="w-full h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
                     </div>
                   ) : (
                     <Upload className="w-6 h-6 text-accent" />
@@ -2650,16 +2663,33 @@ const ArtistDashboard = () => {
                   <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    if (file.size > 10 * 1024 * 1024) { toast({ title: lang === 'en' ? 'File too large (max 10MB)' : 'הקובץ גדול מדי (מקס 10MB)', variant: 'destructive' }); return; }
+                    if (file.size > 10 * 1024 * 1024) { toast({ title: lang === 'en' ? 'File too large (max 10MB)' : 'הקובץ גדול מדי (מקס 10MB)', variant: 'destructive' }); e.target.value = ''; return; }
                     const reader = new FileReader();
-                    reader.onload = () => { const d = reader.result as string; setLogoUrl(d); localStorage.setItem('gp-artist-logo', d); toast({ title: '✨' }); };
+                    reader.onload = () => {
+                      const nextLogoUrl = reader.result as string;
+                      setLogoUrl(nextLogoUrl);
+                      setHasUnsavedLogoChange(true);
+                      toast({ title: lang === 'en' ? 'Logo updated locally' : 'הלוגו עודכן בתצוגה המקומית' });
+                    };
                     reader.readAsDataURL(file);
                     e.target.value = '';
                   }} />
                 </label>
                 {logoUrl && (
-                  <button type="button" onClick={() => { setLogoUrl(''); localStorage.removeItem('gp-artist-logo'); }} className="text-xs text-destructive hover:underline block mx-auto">
-                    {lang === 'en' ? 'Remove' : 'הסרה'}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (hasUnsavedLogoChange) {
+                        setLogoUrl(savedLogoUrl);
+                        setHasUnsavedLogoChange(false);
+                      } else {
+                        setLogoUrl('');
+                        setHasUnsavedLogoChange(true);
+                      }
+                    }}
+                    className="text-xs text-destructive hover:underline block mx-auto"
+                  >
+                    {hasUnsavedLogoChange ? (lang === 'en' ? 'Cancel logo change' : 'ביטול שינוי לוגו') : (lang === 'en' ? 'Remove' : 'הסרה')}
                   </button>
                 )}
                 <p className="text-xs text-muted-foreground text-center mt-2">
@@ -2699,36 +2729,39 @@ const ArtistDashboard = () => {
               <Button
                 onClick={async () => {
                   if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
-                  setSavingBusiness(true);
-                  try {
-                    let finalLogoUrl = logoUrl;
+                    setSavingBusiness(true);
+                    try {
+                      let finalLogoUrl = logoUrl;
 
-                    // If logo is a base64 data URL, upload to Supabase storage first
-                    if (logoUrl && logoUrl.startsWith('data:')) {
-                      const blob = await fetch(logoUrl).then(r => r.blob());
-                      const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-                      const path = `${userProfileId}/logo.${ext}`;
-                      const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
-                      if (uploadErr) throw uploadErr;
-                      const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
-                      finalLogoUrl = urlData.publicUrl;
-                      setLogoUrl(finalLogoUrl);
-                      localStorage.setItem('gp-artist-logo', finalLogoUrl);
+                      // If logo is a base64 data URL, upload to storage first
+                      if (logoUrl && logoUrl.startsWith('data:')) {
+                        const blob = await fetch(logoUrl).then(r => r.blob());
+                        const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
+                        const path = `${userProfileId}/logo.${ext}`;
+                        const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
+                        if (uploadErr) throw uploadErr;
+                        const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+                        finalLogoUrl = urlData.publicUrl;
+                      }
+
+                      const { error } = await supabase.from('profiles').update({
+                        full_name: artistName || null,
+                        business_phone: artistPhone || null,
+                        logo_url: finalLogoUrl || null,
+                      } as any).eq('id', userProfileId);
+
+                      if (error) throw error;
+                      setSavedLogoUrl(finalLogoUrl || '');
+                      setLogoUrl(finalLogoUrl || '');
+                      setHasUnsavedLogoChange(false);
+                      if (finalLogoUrl) localStorage.setItem('gp-artist-logo', finalLogoUrl);
+                      else localStorage.removeItem('gp-artist-logo');
+                      toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
+                    } catch (err: any) {
+                      console.error('Save business details error:', err);
+                      toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
                     }
-
-                    const { error } = await supabase.from('profiles').update({
-                      full_name: artistName || null,
-                      business_phone: artistPhone || null,
-                      logo_url: finalLogoUrl || null,
-                    } as any).eq('id', userProfileId);
-
-                    if (error) throw error;
-                    toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
-                  } catch (err: any) {
-                    console.error('Save business details error:', err);
-                    toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
-                  }
-                  setSavingBusiness(false);
+                    setSavingBusiness(false);
                 }}
                 disabled={savingBusiness}
                 className="w-full mt-2 h-12 rounded-full font-bold text-sm tracking-wide"
@@ -2780,8 +2813,6 @@ const ArtistDashboard = () => {
                         if (uploadErr) throw uploadErr;
                         const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
                         finalLogoUrl = urlData.publicUrl;
-                        setLogoUrl(finalLogoUrl);
-                        localStorage.setItem('gp-artist-logo', finalLogoUrl);
                       }
                       const { error } = await supabase.from('profiles').update({
                         business_phone: artistPhone,
@@ -2791,6 +2822,11 @@ const ArtistDashboard = () => {
                         logo_url: finalLogoUrl || null,
                       } as any).eq('id', userProfileId);
                       if (error) throw error;
+                      setSavedLogoUrl(finalLogoUrl || '');
+                      setLogoUrl(finalLogoUrl || '');
+                      setHasUnsavedLogoChange(false);
+                      if (finalLogoUrl) localStorage.setItem('gp-artist-logo', finalLogoUrl);
+                      else localStorage.removeItem('gp-artist-logo');
                       toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
                     } catch (err: any) {
                       console.error('Save card settings error:', err);
