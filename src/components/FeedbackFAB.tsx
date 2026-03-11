@@ -89,7 +89,7 @@ export default function FeedbackFAB() {
 
           <div className="p-6 pt-5 space-y-4">
             <DialogHeader className="text-right space-y-2">
-              <DialogTitle className="text-xl font-serif text-right" style={{ color: "#3D2B1F" }}>
+              <DialogTitle className="text-xl font-serif text-right" style={{ color: "#4a3636" }}>
                 הקול שלך משפיע ✨
               </DialogTitle>
               <DialogDescription className="text-right text-sm leading-relaxed" style={{ color: "#6B5E57" }}>
