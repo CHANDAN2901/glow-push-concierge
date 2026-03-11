@@ -111,7 +111,7 @@ export default function FeedbackFAB() {
 
 
               <div className="space-y-1.5">
-                <Label className="text-right block text-xs font-medium" style={{ color: "#5C4033" }}>נושא</Label>
+                <Label className="text-right block text-xs font-medium" style={{ color: "#4a3636" }}>נושא</Label>
                 <Select value={form.topic} onValueChange={(v) => setForm({ ...form, topic: v })}>
                   <SelectTrigger className="text-right border-[hsl(38_30%_82%)] focus:ring-[#D4AF37]" dir="rtl">
                     <SelectValue placeholder="בחרי נושא" />
