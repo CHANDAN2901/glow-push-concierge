@@ -172,6 +172,10 @@ const Pricing = () => {
           0%, 100% { background-position: -200% center; }
           50% { background-position: 200% center; }
         }
+        @keyframes metallic-shimmer {
+          0% { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
       `}</style>
 
       {/* Spacer for fixed header */}
@@ -325,10 +329,12 @@ const Pricing = () => {
                 <span
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
                   style={{
-                    background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 35%, #e0c4c4 55%, #c9a0a0 75%, #d8b4b4 100%)',
+                    backgroundImage: 'linear-gradient(105deg, #a08080 0%, #d8b4b4 12%, #f5e0e0 24%, #e8caca 32%, #c9a0a0 44%, #b89090 52%, #f0d8d8 58%, #d8b4b4 68%, #c09898 78%, #e8caca 88%, #a08080 100%)',
+                    backgroundSize: '300% 100%',
+                    animation: 'metallic-shimmer 4s linear infinite',
                     color: '#FFFFFF',
-                    boxShadow: '0 4px 16px rgba(216, 180, 180, 0.5), 0 0 8px rgba(216, 180, 180, 0.3)',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                    boxShadow: '0 4px 18px rgba(216, 180, 180, 0.55), 0 0 10px rgba(201, 160, 160, 0.3)',
+                    textShadow: '0 1px 3px rgba(0,0,0,0.15)',
                   }}
                 >
                   {badge}
@@ -345,12 +351,12 @@ const Pricing = () => {
                   <span
                     className="text-5xl font-serif font-bold"
                     style={{
-                      backgroundImage: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 30%, #e0c4c4 50%, #c9a0a0 70%, #d8b4b4 100%)',
-                      backgroundSize: '200% 100%',
-                      animation: 'gold-glint 5s ease-in-out infinite',
+                      backgroundImage: 'linear-gradient(105deg, #a08080 0%, #d8b4b4 12%, #f5e0e0 24%, #e8caca 32%, #c9a0a0 44%, #b89090 52%, #f0d8d8 58%, #d8b4b4 68%, #c09898 78%, #e8caca 88%, #a08080 100%)',
+                      backgroundSize: '300% 100%',
+                      animation: 'metallic-shimmer 4s linear infinite',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
-                      filter: 'drop-shadow(0 2px 6px rgba(216, 180, 180, 0.4))',
+                      filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
                     }}
                   >
                     {isHe ? `₪${plan.price_monthly.toLocaleString()}` : `$${plan.price_usd.toLocaleString()}`}
