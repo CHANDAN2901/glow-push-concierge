@@ -15,20 +15,7 @@ const PaymentHistory = () => {
   const isHe = lang === 'he';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF] pb-20" dir={isHe ? 'rtl' : 'ltr'}>
-      <header
-        className="sticky top-0 w-full z-50 flex items-center justify-between px-6 py-4"
-        style={{
-          background: 'rgba(255, 255, 255, 0.4)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          borderBottom: '3px solid',
-          borderImage: `linear-gradient(to ${isHe ? 'left' : 'right'}, #D4AF37 40%, rgba(212, 175, 55, 0.1) 90%) 1`,
-        }}
-      >
-        <div className="text-sm" style={{ color: '#333' }}>{t('payment.header')}</div>
-        <BackButton />
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF] pb-20 pt-14" dir={isHe ? 'rtl' : 'ltr'}>
 
       <div className="pt-8 pb-6 text-center px-4">
         <h1

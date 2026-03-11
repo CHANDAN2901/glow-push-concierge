@@ -89,13 +89,6 @@ const Legal = () => {
           </section>
         </div>
 
-        {/* Back button */}
-        <div className="text-center mt-8">
-          <BackButton
-            onClick={() => navigate('/')}
-            label={isHe ? 'חזרה לדף הראשי' : 'Back to home'}
-          />
-        </div>
       </div>
     </div>
   );

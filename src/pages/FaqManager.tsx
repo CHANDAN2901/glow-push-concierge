@@ -202,11 +202,7 @@ export default function FaqManager() {
             <h1 className="text-2xl font-bold">ניהול שאלות נפוצות</h1>
             <p className="text-sm text-muted-foreground mt-1">שאלות אלו מוצגות בדף הנחיתה הראשי</p>
           </div>
-          <div className="flex gap-2">
-            <BackButton
-              onClick={() => navigate('/super-admin')}
-              label="חזרה לניהול"
-            />
+            <div className="flex gap-2">
             {canManageFaq && (
               <Button onClick={openNew} size="sm">
                 <Plus className="w-4 h-4 ml-1" /> Add New FAQ

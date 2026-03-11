@@ -170,12 +170,8 @@ const Pricing = () => {
         }
       `}</style>
 
-      {/* Back button */}
-      <div className="mx-auto px-4 max-w-lg pt-20 pb-2 flex justify-end">
-        <BackButton
-          className="!bg-[rgba(255,255,255,0.55)] backdrop-blur-lg"
-        />
-      </div>
+      {/* Spacer for fixed header */}
+      <div className="pt-16" />
 
       {/* Personal Status Card */}
       {user && (
