@@ -2592,19 +2592,36 @@ const ArtistDashboard = () => {
         {/* ===== PUSH! TAB ===== */}
         {activeTab === 'push' && !subScreen && (
           <div className="space-y-4">
-            {/* Premium Upgrade Banner */}
-            <button
-              onClick={() => navigate('/pricing')}
-              className="w-full flex items-center gap-3 py-4 px-5 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
-              style={{ background: '#ffffff', color: '#4a3636', border: '3px solid #D4AF37', boxShadow: '0 6px 28px -4px hsla(38, 55%, 62%, 0.35)' }}
+            {/* Coming Soon — WhatsApp Automation */}
+            <div
+              className="w-full rounded-2xl px-5 py-4 relative overflow-hidden"
+              style={{
+                background: 'rgba(255, 255, 255, 0.45)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(216, 180, 180, 0.4)',
+                boxShadow: '0 4px 20px rgba(216, 180, 180, 0.12)',
+              }}
             >
-              <Crown className="w-5 h-5" />
-              <div className="flex-1 text-start">
-                <p className="font-bold text-sm">{lang === 'en' ? 'Upgrade to Full WhatsApp Automation (Pro)' : 'שדרגי לאוטומציה מלאה בוואטסאפ (Pro)'}</p>
-                <p className="text-[10px] font-normal opacity-70 mt-0.5">{lang === 'en' ? 'Messages send automatically — zero clicks' : 'ההודעות נשלחות לבד — בלי ללחוץ על כלום'}</p>
+              {/* Coming Soon tag */}
+              <span
+                className="absolute top-3 end-3 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
+                style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#fff' }}
+              >
+                Coming Soon
+              </span>
+              <div className="flex items-center gap-3">
+                <Crown className="w-5 h-5 shrink-0" style={{ color: '#d8b4b4' }} />
+                <div className="flex-1">
+                  <p className="font-bold text-sm" style={{ color: '#4a3636' }}>
+                    {lang === 'en' ? 'Full WhatsApp Automation — Coming Soon!' : 'אוטומציה מלאה בוואטסאפ — בקרוב!'}
+                  </p>
+                  <p className="text-[10px] mt-0.5" style={{ color: '#8c6a6a' }}>
+                    {lang === 'en' ? 'Messages will send automatically — zero clicks' : 'ההודעות יישלחו לבד — בלי ללחוץ על כלום'}
+                  </p>
+                </div>
               </div>
-              <ChevronRight className="w-5 h-5 opacity-60" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
-            </button>
+            </div>
             <MessageEditor />
           </div>
         )}
