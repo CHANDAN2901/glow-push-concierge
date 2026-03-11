@@ -3399,25 +3399,35 @@ const ArtistDashboard = () => {
         </div>{/* end scrollable content inner */}
       </div>{/* end scrollable content */}
 
-      {/* ===== FIXED BOTTOM NAVIGATION BAR ===== */}
-      <nav className="fixed bottom-0 left-0 right-0 z-[60] safe-area-bottom"
+      {/* ===== FLOATING LIGHTBULB BUTTON ===== */}
+      <button
+        onClick={() => setShowHelpCenter(true)}
+        className="fixed z-[70] flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
         style={{
-          background: 'linear-gradient(180deg, hsla(350, 35%, 92%, 0.95) 0%, hsla(350, 40%, 90%, 0.98) 100%)',
-          backdropFilter: 'blur(16px) saturate(1.4)',
-          WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-          boxShadow: '0 -1px 0 hsl(38 40% 82%), 0 -4px 24px -6px hsla(350, 30%, 60%, 0.15)',
+          bottom: '140px',
+          left: '25px',
+          width: '62px',
+          height: '62px',
+          background: 'linear-gradient(145deg, #e6b1b1, #c88c8c)',
+          border: '2px solid #eebaba',
+          borderRadius: '50%',
+          boxShadow: '0 10px 20px rgba(180, 110, 110, 0.4), inset 0 2px 5px rgba(255, 255, 255, 0.6)',
         }}
       >
-        <div className="container mx-auto max-w-lg flex items-start justify-between py-2.5 px-2 gap-1">
+        <Sparkles size={24} strokeWidth={1.5} style={{ color: '#fff' }} />
+      </button>
+
+      {/* ===== FIXED BOTTOM NAVIGATION BAR — Neumorphic Circles ===== */}
+      <nav className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-[450px]">
+        <div className="flex items-center justify-between px-2.5 py-2.5">
           {[
-            { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'ראשי', route: null },
-            { id: 'push' as const, icon: Bell, label: lang === 'en' ? 'Push!' : 'רשנה', route: null },
-            { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
-            { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוהות', route: null },
             { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
+            { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוחות', route: null },
+            { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
+            { id: 'push' as const, icon: Clock, label: lang === 'en' ? 'Record' : 'רשומה', route: null },
+            { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'ראשי', route: null },
           ].map((tab) => {
             const isActive = tab.route ? false : activeTab === tab.id;
-            const isUpgrade = tab.id === 'upgrade';
             return (
               <button
                 key={tab.id}
@@ -3430,41 +3440,32 @@ const ArtistDashboard = () => {
                     setHealingJourneyClient(null);
                   }
                 }}
-                className="relative flex-1 flex flex-col items-center gap-1.5 min-w-0 transition-all py-1 px-0.5"
+                className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 active:scale-95"
+                style={{
+                  width: '60px',
+                  height: '60px',
+                  background: isActive
+                    ? 'linear-gradient(145deg, #fff5f0, #f0dcd5)'
+                    : 'linear-gradient(145deg, #ffffff, #f0e4e4)',
+                  border: isActive ? '2px solid #D4AF37' : '1px solid #ecc6c6',
+                  borderRadius: '50%',
+                  boxShadow: isActive
+                    ? '0 4px 16px rgba(212, 175, 55, 0.3), inset 0 1px 3px rgba(255,255,255,0.7)'
+                    : '6px 6px 12px rgba(200, 170, 170, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.9)',
+                }}
               >
-                {/* Active gold ring indicator */}
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center transition-all relative"
-                  style={{
-                    background: isActive
-                      ? 'linear-gradient(135deg, rgba(255,230,236,0.95), rgba(255,220,230,0.9))'
-                      : isUpgrade
-                      ? 'linear-gradient(135deg, rgba(255,230,236,0.95), rgba(255,220,230,0.9))'
-                      : 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
-                    boxShadow: isActive
-                      ? '0 3px 12px rgba(212, 175, 55, 0.25), inset 0 1px 3px rgba(255,255,255,0.5)'
-                      : '0 2px 8px rgba(0,0,0,0.05), inset 0 1px 2px rgba(255,255,255,0.4)',
-                  }}
-                >
-                  {/* Gold border ring */}
-                  <div className="absolute inset-0 rounded-full pointer-events-none" style={{
-                    border: isActive ? '2.5px solid transparent' : '1.5px solid transparent',
-                    background: `transparent padding-box, linear-gradient(135deg, ${isActive ? '#BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%' : '#D4AF37 0%, #E8D5A0 50%, #D4AF37 100%'}) border-box`,
-                    borderRadius: 'inherit',
-                  }} />
-                  <tab.icon
-                    className="relative z-10"
-                    size={20}
-                    strokeWidth={1.5}
-                    style={{ color: isActive ? '#B8860B' : '#C4956A' }}
-                  />
-                </div>
+                <tab.icon
+                  size={20}
+                  strokeWidth={1.5}
+                  style={{ color: isActive ? '#B8860B' : '#a88383' }}
+                />
                 <span
-                  className="text-[9px] sm:text-[10px] leading-[1.05] tracking-tight text-center whitespace-normal max-w-[56px]"
                   style={{
-                    color: isActive ? '#4A3520' : '#9B7B6B',
-                    fontWeight: isActive ? 700 : 400,
+                    fontSize: '10px',
+                    fontWeight: isActive ? 700 : 600,
+                    color: isActive ? '#4A3520' : '#8c6a6a',
                     fontFamily: "'Assistant', sans-serif",
+                    lineHeight: 1,
                   }}
                 >
                   {tab.label}
