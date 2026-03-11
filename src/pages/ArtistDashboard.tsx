@@ -2827,19 +2827,7 @@ const ArtistDashboard = () => {
                     if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
                      setSavingCard(true);
                     try {
-                      let finalLogoUrl = logoUrl;
-                      if (logoUrl && logoUrl.startsWith('data:')) {
-                        const blob = await fetch(logoUrl).then(r => r.blob());
-                        const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-                        const path = `${user.id}/logo.${ext}`;
-                        const { error: uploadErr } = await supabase.storage.from('portfolio').upload(path, blob, { upsert: true, contentType: blob.type });
-                        if (uploadErr) {
-                          console.error('Digital card logo upload failed', { path, message: uploadErr.message, error: uploadErr });
-                          throw uploadErr;
-                        }
-                        const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
-                        finalLogoUrl = urlData.publicUrl;
-                      }
+                      const finalLogoUrl = await uploadProfileLogo(logoUrl);
                       const { error } = await supabase.from('profiles').update({
                         business_phone: artistPhone,
                         instagram_url: instagramUrl,
