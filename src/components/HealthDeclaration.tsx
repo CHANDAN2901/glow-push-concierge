@@ -389,85 +389,92 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       <div className="flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-8">
         <div className="w-full max-w-lg">
 
-          {/* ═══ Bright Pastel Equipment Header ═══ */}
+          {/* ═══ Dark-to-White Luxury Header ═══ */}
           <div
             className="relative rounded-3xl overflow-hidden mb-6 sm:mb-8"
             style={{
-              minHeight: '380px',
-              boxShadow: '0 16px 48px rgba(216,180,180,0.3), 0 4px 16px rgba(212,175,55,0.10)',
+              boxShadow: '0 16px 48px rgba(40,20,10,0.25), 0 4px 16px rgba(212,175,55,0.10)',
             }}
           >
-            {/* Background image – ultra bright pastel */}
-            <img
-              src={equipmentHeroImg}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ filter: 'brightness(1.8) saturate(0.35) sepia(0.3) hue-rotate(-10deg) contrast(0.9)' }}
-            />
-            {/* Very light pastel wash overlay */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(180deg, hsla(350, 50%, 97%, 0.8) 0%, hsla(30, 30%, 97%, 0.75) 25%, hsla(350, 35%, 95%, 0.7) 55%, hsla(350, 50%, 93%, 0.95) 100%)',
-              }}
-            />
-            {/* Content — generous spacing */}
-            <div className="relative z-10 flex flex-col items-center px-6 pt-6 pb-10">
+            {/* TOP HALF: Dark realistic equipment image */}
+            <div className="relative w-full" style={{ height: '180px' }}>
+              <img
+                src={equipmentHeroImg}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ filter: 'brightness(0.55) saturate(1.15) contrast(1.1)' }}
+              />
+              {/* Subtle warm tint overlay for richness */}
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(180deg, rgba(30,15,8,0.3) 0%, rgba(40,20,10,0.2) 60%, transparent 100%)' }}
+              />
               {/* Back button + step row */}
-              <div className="flex items-center justify-between w-full mb-6">
+              <div className="relative z-10 flex items-center justify-between w-full px-6 pt-6">
                 <button
                   onClick={onClose}
                   className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0 backdrop-blur-sm"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.6)', border: '1px solid rgba(212,175,55,0.4)', color: '#B8860B' }}
+                  style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: '#F9F295' }}
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
                 <div className="flex items-center gap-1.5">
-                  <FileText className="w-4 h-4" style={{ color: '#B8860B' }} />
-                  <p className="text-xs font-medium" style={{ color: '#4a3636' }}>
+                  <FileText className="w-4 h-4" style={{ color: '#F9F295' }} />
+                  <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
                     {readOnly
                       ? (isHe ? 'צפייה בלבד' : 'View only')
                       : (isHe ? `שלב ${step} מתוך ${STEPS}` : `Step ${step} of ${STEPS}`)}
                   </p>
                 </div>
               </div>
+            </div>
 
-              {/* Logo — SUPER SIZED 3x with clear zone */}
-              <div className="my-6 w-full flex justify-center px-4">
+            {/* FADE ZONE: dark → white gradient bridge */}
+            <div
+              className="relative w-full"
+              style={{
+                height: '80px',
+                background: 'linear-gradient(180deg, rgba(30,15,8,0.55) 0%, rgba(60,30,15,0.3) 25%, rgba(255,255,255,0.7) 60%, #FFFFFF 100%)',
+                marginTop: '-1px',
+              }}
+            />
+
+            {/* BOTTOM HALF: Clean white field with logo + text */}
+            <div className="relative z-10 flex flex-col items-center px-6 pb-10" style={{ backgroundColor: '#FFFFFF' }}>
+              {/* Logo — SUPER SIZED 3x with generous clear zone */}
+              <div className="w-full flex justify-center py-8 px-4" style={{ marginTop: '-40px' }}>
                 {instagramUrl ? (
-                  <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="block px-4">
+                  <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="block">
                     <img
                       src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
                       alt="Studio Logo"
                       className="w-full max-w-[300px] h-auto object-contain"
-                      style={{ filter: 'drop-shadow(0 4px 16px rgba(216,180,180,0.5)) drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
+                      style={{ filter: 'drop-shadow(0 4px 20px rgba(212,175,55,0.3))' }}
                       onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
                     />
                   </a>
                 ) : (
-                  <div className="px-4">
-                    <img
-                      src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
-                      alt="Studio Logo"
-                      className="w-full max-w-[300px] h-auto object-contain"
-                      style={{ filter: 'drop-shadow(0 4px 16px rgba(216,180,180,0.5)) drop-shadow(0 2px 8px rgba(212,175,55,0.3))' }}
-                      onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
-                    />
-                  </div>
+                  <img
+                    src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
+                    alt="Studio Logo"
+                    className="w-full max-w-[300px] h-auto object-contain"
+                    style={{ filter: 'drop-shadow(0 4px 20px rgba(212,175,55,0.3))' }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
+                  />
                 )}
               </div>
 
-              {/* Title – static metallic rose gold, FB Ahava font */}
+              {/* Welcome text – static polished metallic rose gold, FB Ahava */}
               <h1
-                className="text-center text-xl sm:text-2xl tracking-wide mt-2 mb-2"
+                className="text-center text-lg sm:text-xl leading-relaxed mt-2 mb-3 px-2"
                 style={{
                   fontFamily: "'FB Ahava', 'Playfair Display', serif",
                   fontWeight: 700,
-                  background: 'linear-gradient(135deg, #c9a0a0 0%, #d8b4b4 20%, #e8cece 40%, #d8b4b4 60%, #c9a0a0 80%, #b08888 100%)',
+                  background: 'linear-gradient(135deg, #b08888 0%, #c9a0a0 15%, #d8b4b4 30%, #e8cece 45%, #d8b4b4 60%, #c9a0a0 75%, #b08888 90%, #a07878 100%)',
                   backgroundSize: '100% 100%',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 1px 3px rgba(74,32,32,0.25))',
+                  filter: 'drop-shadow(0 1px 2px rgba(74,32,32,0.2))',
                 }}
               >
                 {step === 1 && fullName.trim()
@@ -475,7 +482,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                   : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
               </h1>
               {/* Subtitle */}
-              <p className="text-center text-xs font-medium tracking-wide mt-1" style={{ color: '#6b4a4a' }}>
+              <p className="text-center text-xs font-medium tracking-wide" style={{ color: '#6b4a4a' }}>
                 {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
               </p>
 
