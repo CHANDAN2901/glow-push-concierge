@@ -2103,7 +2103,7 @@ const ArtistDashboard = () => {
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                   <div className="px-5 py-4 border-b border-border">
                     <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                      <Camera className="w-4 h-4 text-accent" />
+                      <Camera className="w-4 h-4" style={{ color: '#d8b4b4' }} />
                       {lang === 'en' ? 'Shared Healing Gallery' : 'גלריית החלמה משותפת'}
                     </h3>
                     <p className="text-xs text-muted-foreground mt-1">
