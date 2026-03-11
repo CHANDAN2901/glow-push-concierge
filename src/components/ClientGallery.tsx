@@ -101,7 +101,7 @@ const ClientGallery = ({ clientId }: ClientGalleryProps) => {
             {item.type === 'collage' && (
               <span
                 className="absolute top-1 right-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                style={{ background: GOLD_GRADIENT, color: '#5C4033' }}
+                style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
               >
                 {isHe ? 'קולאז׳' : 'Collage'}
               </span>
