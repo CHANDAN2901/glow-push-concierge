@@ -1656,7 +1656,7 @@ const ArtistDashboard = () => {
                         >
                           <div
                             className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg"
-                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#5C4033' }}
+                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}
                           >
                             {client.name.charAt(0)}
                           </div>
