@@ -3433,8 +3433,8 @@ const ArtistDashboard = () => {
                   border: isActive ? '2px solid #D4AF37' : '1px solid #ecc6c6',
                   borderRadius: '50%',
                   boxShadow: isActive
-                    ? '0 4px 16px rgba(212, 175, 55, 0.3), inset 0 1px 3px rgba(255,255,255,0.7)'
-                    : '6px 6px 12px rgba(200, 170, 170, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.9)',
+                    ? '0 8px 30px rgba(212, 175, 55, 0.35), 0 4px 15px rgba(180, 110, 110, 0.2), inset 0 1px 3px rgba(255,255,255,0.7)'
+                    : '8px 8px 20px rgba(180, 140, 140, 0.45), -8px -8px 20px rgba(255, 255, 255, 0.95), 0 6px 24px rgba(160, 120, 120, 0.2)',
                 }}
               >
                 <tab.icon
