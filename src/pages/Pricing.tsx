@@ -324,7 +324,7 @@ const Pricing = () => {
                       <span>{f}</span>
                     </div>
                     {i < features.length - 1 && (
-                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: `rgba(216, 180, 180, 0.3)` }} />
+                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: 'rgba(216, 180, 180, 0.2)' }} />
                     )}
                   </li>
                 ))}
