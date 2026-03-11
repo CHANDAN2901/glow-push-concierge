@@ -2079,7 +2079,7 @@ const ArtistDashboard = () => {
                   <button
                     onClick={() => { if (navigator.vibrate) navigator.vibrate(50); setDispatchPrefill(null); setDispatchOpen(true); }}
                     className="w-full rounded-full py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                    style={{ background: '#ffffff', border: '2px solid #D4AF37', color: '#4a3636', boxShadow: '0 3px 12px rgba(212, 175, 55, 0.12)' }}
+                    style={{ background: '#ffffff', border: '2.5px solid #d8b4b4', color: '#4a3636', boxShadow: '0 4px 16px rgba(216, 180, 180, 0.3), 0 2px 8px rgba(216, 180, 180, 0.15)' }}
                   >
                     <Plus className="w-4 h-4" strokeWidth={3} />
                     {lang === 'en' ? 'Add New Client' : 'הוספי לקוחה חדשה'}
