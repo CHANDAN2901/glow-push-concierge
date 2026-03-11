@@ -1431,6 +1431,11 @@ const ArtistDashboard = () => {
                     background: 'transparent padding-box, linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%) border-box',
                     borderRadius: 'inherit',
                   }} />
+                  {'comingSoon' in metric && metric.comingSoon && (
+                    <span className="absolute top-1.5 right-1.5 z-20 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide" style={{ background: 'linear-gradient(135deg, #BF953F, #FCF6BA, #B38728)', color: '#4a2020' }}>
+                      {lang === 'en' ? 'Coming Soon' : 'בקרוב'}
+                    </span>
+                  )}
                   <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.5} />
                   <p className="text-xl font-extrabold mb-1 relative z-10" style={{ color: '#4a3636' }}>{metric.value}</p>
                   <p className="text-[10px] font-medium relative z-10" style={{ color: '#6b5a5a' }}>{metric.label}</p>
