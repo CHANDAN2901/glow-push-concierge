@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: "btn-metallic-gold font-semibold hover:brightness-105 active:scale-[0.98]",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-[hsl(38_30%_80%)] bg-white text-[#5C4033] hover:bg-[hsl(38_40%_95%)] hover:border-[#D4AF37]",
+        outline: "border border-[hsl(38_30%_80%)] bg-white text-[#4a3636] hover:bg-[hsl(38_40%_95%)] hover:border-[#D4AF37]",
         secondary: "btn-metallic-gold font-semibold hover:brightness-105 active:scale-[0.98]",
         ghost: "hover:bg-[hsl(38_40%_92%)] hover:text-[#5C4033]",
         link: "text-[#B8860B] underline-offset-4 hover:underline",
