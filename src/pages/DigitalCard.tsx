@@ -64,7 +64,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
             />
           </div>
         ) : (
-          <div className="w-40 h-40 rounded-full bg-transparent flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
+          <div className="w-60 h-60 rounded-full bg-transparent flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
             <span className="text-gold-gradient font-serif text-5xl font-bold">
               {name.slice(0, 2)}
             </span>
