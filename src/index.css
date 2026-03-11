@@ -688,5 +688,18 @@
   }
   50% {
     box-shadow: 0 0 30px rgba(212, 175, 55, 0.7), 0 0 60px rgba(212, 175, 55, 0.35), 0 4px 20px -2px rgba(212, 175, 55, 0.5);
-  }
+}
+
+/* Premium promo button shine animation */
+@keyframes premiumShine {
+  0% { left: -100%; }
+  15% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.special-promo-btn:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow:
+    0 25px 50px rgba(180, 110, 110, 0.35),
+    inset 0 4px 12px rgba(255, 255, 255, 1) !important;
 }
