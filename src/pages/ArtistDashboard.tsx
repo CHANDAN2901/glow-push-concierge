@@ -1296,7 +1296,7 @@ const ArtistDashboard = () => {
       </header>
 
       {/* ===== SCROLLABLE CONTENT ===== */}
-      <div id="main-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-[68px]" style={{ background: 'transparent' }}>
+      <div id="main-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-14 pb-[56px]" style={{ background: 'transparent' }}>
         <div className="container mx-auto px-5 max-w-lg py-2">
 
         {/* ===== TRIAL COUNTDOWN BANNER ===== */}
