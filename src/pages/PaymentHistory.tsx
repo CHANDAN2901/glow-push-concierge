@@ -1,5 +1,4 @@
 import { ExternalLink } from 'lucide-react';
-import BackButton from '@/components/BackButton';
 import { useI18n } from '@/lib/i18n';
 
 const GOLD_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)';

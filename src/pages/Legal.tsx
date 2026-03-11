@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
-import BackButton from '@/components/BackButton';
 import glowPushLogo from '@/assets/glowpush-logo.png';
 
 const Legal = () => {
