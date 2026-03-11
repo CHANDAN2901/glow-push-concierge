@@ -2568,7 +2568,7 @@ const ArtistDashboard = () => {
                 className="absolute top-3 end-3 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
                 style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#fff' }}
               >
-                Coming Soon
+                {lang === 'en' ? 'Coming Soon' : 'בקרוב'}
               </span>
               <div className="flex items-center gap-3">
                 <Crown className="w-5 h-5 shrink-0" style={{ color: '#d8b4b4' }} />
