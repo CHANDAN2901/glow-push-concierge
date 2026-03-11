@@ -143,11 +143,13 @@ function CircleButton({
     <div
       className="w-[130px] h-[130px] rounded-full p-[3px] shadow-[0_4px_16px_rgba(216,180,180,0.35)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(216,180,180,0.5)] active:scale-95"
       style={{
-        background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%)',
+        backgroundImage: `url(${roseGoldTexture})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         border: '1px solid rgba(216, 180, 180, 0.5)',
       }}
     >
-      <div className="w-full h-full rounded-full flex flex-col items-center justify-center gap-1.5 px-2" style={{ background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%)' }}>
+      <div className="w-full h-full rounded-full flex flex-col items-center justify-center gap-1.5 px-2" style={{ backgroundImage: `url(${roseGoldTexture})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <span style={{ color: '#FFFFFF' }}>{icon}</span>
         <span className="text-[10px] font-semibold text-center leading-tight px-1" style={{ color: '#FFFFFF' }}>{label}</span>
       </div>
