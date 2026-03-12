@@ -523,7 +523,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         <div className="w-full max-w-lg">
 
           {/* ═══ Seamless Luxury Header — Metallic Rose Gold Gradient ═══ */}
-          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '260px', background: 'linear-gradient(180deg, hsl(350 35% 65%) 0%, hsl(350 40% 72%) 20%, hsl(350 45% 80%) 45%, hsl(350 50% 88%) 70%, hsl(350 50% 93%) 90%, hsl(350 50% 94%) 100%)' }}>
+          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '140px', background: 'linear-gradient(180deg, hsl(350 35% 65%) 0%, hsl(350 40% 72%) 25%, hsl(350 45% 80%) 50%, hsl(350 50% 88%) 75%, hsl(350 50% 93%) 95%, hsl(350 50% 94%) 100%)' }}>
 
             {/* Back button + step row */}
             <div className="relative z-10 flex items-center justify-between w-full px-6 pt-6">
