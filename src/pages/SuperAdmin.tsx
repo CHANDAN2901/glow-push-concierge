@@ -210,7 +210,7 @@ const SuperAdmin = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {artists.map(u => (
+            {artistList.map(u => (
               <TableRow key={u.id}>
                 <TableCell>
                   <p className="font-medium text-sm">{u.name}</p>
