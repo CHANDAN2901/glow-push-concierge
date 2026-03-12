@@ -16,6 +16,7 @@ import HealthDeclaration, { type HealthDeclarationData } from '@/components/Heal
 import VoiceTreatmentRecord from '@/components/VoiceTreatmentRecord';
 import NewClientDispatch from '@/components/NewClientDispatch';
 import UpgradeModal from '@/components/UpgradeModal';
+import FeatureGate from '@/components/FeatureGate';
 import ReferralTab from '@/components/ReferralTab';
 import HealthDeclarationPreview from '@/components/HealthDeclarationPreview';
 import AiMagicSection from '@/components/AiMagicSection';
@@ -2075,6 +2076,7 @@ const ArtistDashboard = () => {
                 )}
 
                 {/* Before & After Collage Builder — Artist only */}
+                <FeatureGate featureKey="before_after_collage" mode="badge">
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                   <div className="px-5 py-4 border-b border-border">
                     <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
@@ -2094,6 +2096,7 @@ const ArtistDashboard = () => {
                     />
                   </div>
                 </div>
+                </FeatureGate>
 
                 {/* 5. Shared Healing Photo Gallery */}
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
