@@ -8,6 +8,10 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { TIERS, type TierSlug } from '@/lib/subscriptionConfig';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Table, TableBody, TableCell, TableHead,
@@ -97,6 +101,9 @@ const SuperAdmin = () => {
     'האם שתית אלכוהול או נטלת משככי כאבים ב-24 השעות האחרונות?',
   ]);
   const [newQuestion, setNewQuestion] = useState('');
+  const [editingUser, setEditingUser] = useState<typeof artists[0] | null>(null);
+  const [editTier, setEditTier] = useState<TierSlug>('lite');
+  const [artistList, setArtistList] = useState(artists);
   const [upsellEnabled, setUpsellEnabled] = useState(true);
   const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
   const [upsellDescription, setUpsellDescription] = useState('אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה');
@@ -183,75 +190,125 @@ const SuperAdmin = () => {
 
   /* ── Users View ── */
   const renderUsers = () => (
-    <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
-      <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(216,180,180,0.3)' }}>
-        <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>User Management</h2>
-        <span className="text-xs" style={{ color: '#8c6a6a' }}>{artists.length} artists</span>
-      </div>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Artist & Studio</TableHead>
-              <TableHead>Plan</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-center">WA Auto</TableHead>
-              <TableHead className="text-center">WA Usage</TableHead>
-              <TableHead className="text-center">Referrals</TableHead>
-              <TableHead>Join Date</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {artists.map(u => (
-              <TableRow key={u.id}>
-                <TableCell>
-                  <p className="font-medium text-sm">{u.name}</p>
-                  <p className="text-xs text-muted-foreground">{u.studio}</p>
-                </TableCell>
-                <TableCell>{planBadge(u.plan)}</TableCell>
-                <TableCell>{statusBadge(u.status)}</TableCell>
-                <TableCell className="text-center">
-                  {u.waAutomation ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>⚡ ON</span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-center">
-                  {u.waAutomation ? (
-                    <span className={`text-xs font-semibold ${u.waUsage > 180 ? 'text-destructive' : 'text-foreground'}`}>
-                      {u.waUsage}/200
-                    </span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-center font-medium text-sm">{u.referrals}</TableCell>
-                <TableCell className="text-right font-medium text-sm">{u.revenue.toLocaleString()} ₪</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{u.joinDate}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => toast({ title: `Simulating login as ${u.name}...` })}>
-                          <Eye className="w-3.5 h-3.5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Login as this user</TooltipContent>
-                    </Tooltip>
-                    <Button variant="ghost" size="icon" className="h-8 w-8"><Pencil className="w-3.5 h-3.5" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"><Ban className="w-3.5 h-3.5" /></Button>
-                  </div>
-                </TableCell>
+    <>
+      <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
+        <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(216,180,180,0.3)' }}>
+          <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>User Management</h2>
+          <span className="text-xs" style={{ color: '#8c6a6a' }}>{artistList.length} artists</span>
+        </div>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>Artist & Studio</TableHead>
+                <TableHead>Plan</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-center">WA Auto</TableHead>
+                <TableHead className="text-center">WA Usage</TableHead>
+                <TableHead className="text-center">Referrals</TableHead>
+                <TableHead>Join Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {artistList.map(u => (
+                <TableRow key={u.id}>
+                  <TableCell>
+                    <p className="font-medium text-sm">{u.name}</p>
+                    <p className="text-xs text-muted-foreground">{u.studio}</p>
+                  </TableCell>
+                  <TableCell>{planBadge(u.plan)}</TableCell>
+                  <TableCell>{statusBadge(u.status)}</TableCell>
+                  <TableCell className="text-center">
+                    {u.waAutomation ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>⚡ ON</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {u.waAutomation ? (
+                      <span className={`text-xs font-semibold ${u.waUsage > 180 ? 'text-destructive' : 'text-foreground'}`}>
+                        {u.waUsage}/200
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center font-medium text-sm">{u.referrals}</TableCell>
+                  <TableCell className="text-right font-medium text-sm">{u.revenue.toLocaleString()} ₪</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{u.joinDate}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => toast({ title: `Simulating login as ${u.name}...` })}>
+                            <Eye className="w-3.5 h-3.5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Login as this user</TooltipContent>
+                      </Tooltip>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingUser(u); setEditTier(u.plan as TierSlug); }}><Pencil className="w-3.5 h-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"><Ban className="w-3.5 h-3.5" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
-  );
 
+      <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-lg">Edit User</DialogTitle>
+          </DialogHeader>
+          {editingUser && (
+            <div className="space-y-5 py-2">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40">
+                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                  <span className="text-sm font-bold text-accent">{editingUser.name.charAt(0)}</span>
+                </div>
+                <div>
+                  <p className="font-medium text-sm">{editingUser.name}</p>
+                  <p className="text-xs text-muted-foreground">{editingUser.studio}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Subscription Tier</Label>
+                <Select value={editTier} onValueChange={(v) => setEditTier(v as TierSlug)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIERS.map(t => (
+                      <SelectItem key={t.slug} value={t.slug}>
+                        {t.name.en} — {t.price.ils === 0 ? 'Free' : `₪${t.price.ils}/mo`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingUser(null)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                setArtistList(prev => prev.map(a => a.id === editingUser?.id ? { ...a, plan: editTier } : a));
+                toast({ title: `${editingUser?.name}'s plan updated to ${TIERS.find(t => t.slug === editTier)?.name.en}` });
+                setEditingUser(null);
+              }}
+            >
+              <Save className="w-4 h-4 mr-1" /> Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
   /* ── Announcements View ── */
   const renderAnnouncements = () => (
     <div className="rounded-xl p-6 max-w-2xl" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
