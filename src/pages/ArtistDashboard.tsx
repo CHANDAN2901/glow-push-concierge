@@ -1680,7 +1680,7 @@ const ArtistDashboard = () => {
                 {lang === 'en' ? 'Management' : 'ניהול'}
               </h3>
 
-              <FeatureGate featureKey="digital_card" mode="badge">
+              <FeatureGate featureKey={FK.DIGITAL_CARD} mode="badge">
                 <div className="relative">
                   <button onClick={() => setShowDigitalCardPreview(true)} className="pill-action-btn animate-fade-up">
                     <span className="pill-icon-circle"><CreditCard className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
