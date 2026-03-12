@@ -395,6 +395,10 @@ const ArtistDashboard = () => {
   // Appointment lookup for dynamic reminders
   const [appointmentLookup, setAppointmentLookup] = useState<Record<string, { date: string; time: string }>>({});
 
+  // ── Impersonation state (must be checked before any profile fetch) ──
+  const impersonation = useMemo(() => getImpersonation(), []);
+  const isImpersonating = !!impersonation;
+
   const fetchProfileId = useCallback(async () => {
     if (!user) return;
     const { data, error } = await supabase
@@ -411,39 +415,37 @@ const ArtistDashboard = () => {
     if (data) {
       setUserProfileId(data.id);
       setHasWhatsAppAutomation(!!data.has_whatsapp_automation);
-      setProfileCreatedAt(data.created_at || null);
-      setSubscriptionStatus(data.subscription_status || 'trial');
-      setSubscriptionTier(data.subscription_tier || 'lite');
-      if (data.business_phone) { setArtistPhone(data.business_phone); localStorage.setItem('gp-artist-phone', data.business_phone); }
-      if (data.instagram_url) setInstagramUrl(data.instagram_url);
-      if (data.facebook_url) setFacebookUrl(data.facebook_url);
-      if (data.waze_address) setWazeAddress(data.waze_address);
-      const fetchedLogoUrl = data.logo_url || '';
-      setSavedLogoUrl(fetchedLogoUrl);
-      if (!hasUnsavedLogoChangeRef.current) {
-        setLogoUrl(fetchedLogoUrl);
-        if (fetchedLogoUrl) localStorage.setItem('gp-artist-logo', fetchedLogoUrl);
-        else localStorage.removeItem('gp-artist-logo');
+
+      // When impersonating, ONLY set profile ID and WA automation (needed for DB queries)
+      // Block all display-facing fields from being overwritten
+      if (!isImpersonating) {
+        setProfileCreatedAt(data.created_at || null);
+        setSubscriptionStatus(data.subscription_status || 'trial');
+        setSubscriptionTier(data.subscription_tier || 'lite');
+        if (data.business_phone) { setArtistPhone(data.business_phone); localStorage.setItem('gp-artist-phone', data.business_phone); }
+        if (data.instagram_url) setInstagramUrl(data.instagram_url);
+        if (data.facebook_url) setFacebookUrl(data.facebook_url);
+        if (data.waze_address) setWazeAddress(data.waze_address);
+        const fetchedLogoUrl = data.logo_url || '';
+        setSavedLogoUrl(fetchedLogoUrl);
+        if (!hasUnsavedLogoChangeRef.current) {
+          setLogoUrl(fetchedLogoUrl);
+          if (fetchedLogoUrl) localStorage.setItem('gp-artist-logo', fetchedLogoUrl);
+          else localStorage.removeItem('gp-artist-logo');
+        }
+        if (data.full_name) { setArtistName(data.full_name); localStorage.setItem('gp-artist-name', data.full_name); }
       }
-      if (data.full_name) { setArtistName(data.full_name); localStorage.setItem('gp-artist-name', data.full_name); }
     }
-  }, [user]);
+  }, [user, isImpersonating]);
 
   useEffect(() => { fetchProfileId(); }, [fetchProfileId]);
 
-  // ── Impersonation Override ──
-  // When admin is impersonating a user, override the displayed name, studio, and tier
-  const impersonation = useMemo(() => getImpersonation(), []);
+  // ── Apply impersonation overrides (runs once, locked) ──
   useEffect(() => {
     if (impersonation) {
       setArtistName(impersonation.userName);
       localStorage.setItem('gp-artist-name', impersonation.userName);
       setSubscriptionTier(impersonation.tier);
-      // studioName is available in impersonation state
-      if (impersonation.studioName) {
-        // studio_name is not a separate state var — it's part of artistName context
-        // The greeting uses artistName which we've already overridden
-      }
     }
   }, [impersonation]);
 
