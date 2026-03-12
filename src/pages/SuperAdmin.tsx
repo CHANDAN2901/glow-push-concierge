@@ -247,7 +247,7 @@ const SuperAdmin = () => {
                       </TooltipTrigger>
                       <TooltipContent>Login as this user</TooltipContent>
                     </Tooltip>
-                    <Button variant="ghost" size="icon" className="h-8 w-8"><Pencil className="w-3.5 h-3.5" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingUser(u); setEditTier(u.plan as TierSlug); }}><Pencil className="w-3.5 h-3.5" /></Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"><Ban className="w-3.5 h-3.5" /></Button>
                   </div>
                 </TableCell>
