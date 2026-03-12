@@ -2543,8 +2543,8 @@ const ArtistDashboard = () => {
             console.error('Error rendering treatment selection:', err);
             return (
               <div className="p-6 text-center text-muted-foreground">
-                <p>שגיאה בטעינת בחירת הטיפול. נסי לרענן.</p>
-                <button onClick={() => setHealingJourneyClient(null)} className="mt-3 px-4 py-2 rounded-full text-sm btn-metallic-gold">חזרה</button>
+                <p>{lang === 'en' ? 'Error loading treatment selection. Please refresh.' : 'שגיאה בטעינת בחירת הטיפול. נסי לרענן.'}</p>
+                <button onClick={() => setHealingJourneyClient(null)} className="mt-3 px-4 py-2 rounded-full text-sm btn-metallic-gold">{lang === 'en' ? 'Go Back' : 'חזרה'}</button>
               </div>
             );
           }
