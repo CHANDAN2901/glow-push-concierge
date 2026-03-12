@@ -770,7 +770,7 @@ const ArtistDashboard = () => {
   // Open WhatsApp with health form signing request
   const sendHealthFormWhatsApp = (clientName: string, clientPhone?: string) => {
     if (!clientPhone || clientPhone.replace(/[^0-9]/g, '').length === 0) {
-      toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
+      toast({ title: lang === 'en' ? 'Cannot send — phone number missing for this client. Please update her details.' : 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
       return;
     }
     const formLink = buildHealthFormLink(clientName, clientPhone);
