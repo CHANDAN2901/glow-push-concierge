@@ -110,6 +110,7 @@ const SuperAdmin = () => {
   const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
   const [upsellDescription, setUpsellDescription] = useState('אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה');
   const [upsellButtonText, setUpsellButtonText] = useState('למימוש ההטבה');
+  const { data: dbPlans = [] } = usePricingPlans();
 
   if (loading || roleLoading) {
     return (
