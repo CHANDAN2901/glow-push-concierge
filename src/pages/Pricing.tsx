@@ -9,7 +9,7 @@ import { usePricingPlans, useVipTakenCount } from '@/hooks/usePricingPlans';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BackButton from '@/components/BackButton';
-import { TIERS, FEATURES, type TierDefinition } from '@/lib/subscriptionConfig';
+import { FEATURES } from '@/lib/subscriptionConfig';
 
 const ROSE_GOLD = '#d8b4b4';
 const ROSE_GOLD_DARK = 'hsl(14 29% 30%)';
