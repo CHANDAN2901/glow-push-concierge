@@ -3,15 +3,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import {
-  TIERS,
   FEATURES,
-  tierHasFeature,
   getDevTierOverride,
   type TierSlug,
   type FeatureFlag,
 } from '@/lib/subscriptionConfig';
 
 const TIER_QUERY_KEY = 'user-tier';
+const TIER_FEATURES_QUERY_KEY = 'tier-feature-keys';
 
 /** Fetch the current user's subscription_tier from profiles */
 function useUserTier() {
@@ -34,21 +33,46 @@ function useUserTier() {
 }
 
 /**
+ * Fetch the feature_keys array from pricing_plans for a given tier slug.
+ * This is the LIVE database source of truth for which features a tier unlocks.
+ */
+function useTierFeatureKeys(tierSlug: TierSlug) {
+  return useQuery({
+    queryKey: [TIER_FEATURES_QUERY_KEY, tierSlug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pricing_plans')
+        .select('feature_keys')
+        .eq('slug', tierSlug)
+        .single();
+      if (error) {
+        console.warn('Failed to fetch tier feature_keys from DB, falling back to empty', error);
+        return [] as string[];
+      }
+      return (data?.feature_keys ?? []) as string[];
+    },
+    staleTime: 30_000, // refresh every 30s to pick up admin changes quickly
+  });
+}
+
+/**
  * Central hook for checking feature access.
- * Respects dev tier override in development mode.
+ * Reads feature_keys from the LIVE pricing_plans table in the database.
+ * Respects dev tier override / impersonation in development mode.
  */
 export function useFeatureAccess() {
   const { data: dbTier = 'lite' as TierSlug, isLoading: tierLoading } = useUserTier();
   const { user, loading: authLoading } = useAuth();
 
-  // Dev override takes precedence in non-production
+  // Dev override / impersonation takes precedence
   const effectiveTier: TierSlug = getDevTierOverride() ?? dbTier;
 
+  // Fetch the LIVE feature_keys from the database for the effective tier
+  const { data: liveFeatureKeys = [], isLoading: featuresLoading } = useTierFeatureKeys(effectiveTier);
+
   const allowedFeatures = useMemo(() => {
-    const tier = TIERS.find(t => t.slug === effectiveTier);
-    if (!tier) return new Set<string>();
-    return new Set<string>(tier.featureKeys);
-  }, [effectiveTier]);
+    return new Set<string>(liveFeatureKeys);
+  }, [liveFeatureKeys]);
 
   const hasFeature = (key: string) => allowedFeatures.has(key);
 
@@ -64,7 +88,7 @@ export function useFeatureAccess() {
     getLockedFeature,
     userTier: effectiveTier,
     dbTier,
-    isLoading: authLoading || tierLoading,
+    isLoading: authLoading || tierLoading || featuresLoading,
     isLoggedIn: !!user,
   };
 }
@@ -72,5 +96,8 @@ export function useFeatureAccess() {
 /** Hook to invalidate the tier query (e.g. after dev override change) */
 export function useInvalidateTier() {
   const qc = useQueryClient();
-  return () => qc.invalidateQueries({ queryKey: [TIER_QUERY_KEY] });
+  return () => {
+    qc.invalidateQueries({ queryKey: [TIER_QUERY_KEY] });
+    qc.invalidateQueries({ queryKey: [TIER_FEATURES_QUERY_KEY] });
+  };
 }
