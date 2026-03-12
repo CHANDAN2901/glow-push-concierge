@@ -1,11 +1,25 @@
 import { useState, useEffect } from 'react';
-import { Save, Plus, X, CreditCard } from 'lucide-react';
+import { Save, Plus, X, CreditCard, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { usePricingPlans, useInvalidatePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
+import { FEATURES } from '@/lib/subscriptionConfig';
+
+/** Get human-readable name for a feature key */
+function featureLabel(key: string): string {
+  const feat = FEATURES.find(f => f.id === key);
+  return feat ? `${feat.name.he} / ${feat.name.en}` : key;
+}
+
+/** Get available feature keys not already assigned to this plan */
+function availableKeys(plan: PricingPlan): string[] {
+  const used = new Set(plan.feature_keys || []);
+  return FEATURES.map(f => f.id).filter(k => !used.has(k));
+}
 
 export default function AdminPricingEditor() {
   const { toast } = useToast();
@@ -54,6 +68,23 @@ export default function AdminPricingEditor() {
     }));
   };
 
+  /** Add a feature key from the dropdown */
+  const addFeatureKey = (planId: string, key: string) => {
+    setPlans(plans.map(p => {
+      if (p.id !== planId) return p;
+      if ((p.feature_keys || []).includes(key)) return p;
+      return { ...p, feature_keys: [...(p.feature_keys || []), key] };
+    }));
+  };
+
+  /** Remove a feature key */
+  const removeFeatureKey = (planId: string, key: string) => {
+    setPlans(plans.map(p => {
+      if (p.id !== planId) return p;
+      return { ...p, feature_keys: (p.feature_keys || []).filter(k => k !== key) };
+    }));
+  };
+
   const saveAll = async () => {
     setSaving(true);
     let hasError = false;
@@ -70,6 +101,7 @@ export default function AdminPricingEditor() {
           badge_he: plan.badge_he,
           features_en: plan.features_en,
           features_he: plan.features_he,
+          feature_keys: plan.feature_keys || [],
           cta_en: plan.cta_en,
           cta_he: plan.cta_he,
           sort_order: plan.sort_order,
@@ -168,9 +200,47 @@ export default function AdminPricingEditor() {
             </div>
           </div>
 
-          {/* Features */}
+          {/* Feature Keys (linked to FeatureGate system) */}
           <div>
-            <label className="text-sm font-medium mb-2 block">פיצ'רים</label>
+            <label className="text-sm font-medium mb-2 block">🔑 פיצ'רים מערכתיים (FeatureGate)</label>
+            <p className="text-xs text-muted-foreground mb-2">
+              הפיצ'רים האלה קובעים אילו תכונות מערכת יהיו פתוחות למנויות בחבילה זו.
+            </p>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {(plan.feature_keys || []).map((key) => (
+                <span
+                  key={key}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-accent/15 text-accent border border-accent/30"
+                >
+                  {featureLabel(key)}
+                  <button
+                    onClick={() => removeFeatureKey(plan.id, key)}
+                    className="hover:text-destructive transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+            {availableKeys(plan).length > 0 && (
+              <Select onValueChange={(val) => addFeatureKey(plan.id, val)}>
+                <SelectTrigger className="w-64 h-9 text-sm">
+                  <SelectValue placeholder="הוסיפי פיצ'ר מערכתי..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableKeys(plan).map((key) => (
+                    <SelectItem key={key} value={key}>
+                      {featureLabel(key)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          {/* Display Features (marketing copy) */}
+          <div>
+            <label className="text-sm font-medium mb-2 block">📝 פיצ'רים לתצוגה (טקסט שיווקי)</label>
             <div className="space-y-2">
               {plan.features_he.map((feat, idx) => (
                 <div key={idx} className="flex items-center gap-2">
@@ -194,7 +264,7 @@ export default function AdminPricingEditor() {
               ))}
             </div>
             <Button variant="outline" size="sm" className="mt-2" onClick={() => addFeature(plan.id)}>
-              <Plus className="w-3.5 h-3.5 ml-1" /> הוסיפי פיצ'ר
+              <Plus className="w-3.5 h-3.5 ml-1" /> הוסיפי טקסט תצוגה
             </Button>
           </div>
         </div>
