@@ -110,8 +110,10 @@ const NewClientDispatch = ({
 
   const buildMessage = (link: string) => {
     const firstName = name.trim().split(/\s+/)[0];
-    const senderName = artistName || 'המטפלת שלך';
-    return `היי ${firstName} אהובה, איזה כיף שאת מגיעה אלינו! ✨\n\nכדי שנוכל להעניק לך את הטיפול המדויק והמקצועי ביותר עבורך, אשמח שתקדישי דקה למילוי הצהרת הבריאות בקישור המצורף:\n\n${link}\n\nמחכה לראות אותך ולעשות לך הכי יפה שיש,\n\n${senderName} 💖`;
+    const senderName = artistName || (lang === 'en' ? 'Your artist' : 'המטפלת שלך');
+    return lang === 'en'
+      ? `Hey ${firstName}! So excited you're coming in! ✨\n\nTo ensure we provide you with the most precise and professional treatment, please take a moment to fill out the health declaration form:\n\n${link}\n\nLooking forward to seeing you!\n\n${senderName} 💖`
+      : `היי ${firstName} אהובה, איזה כיף שאת מגיעה אלינו! ✨\n\nכדי שנוכל להעניק לך את הטיפול המדויק והמקצועי ביותר עבורך, אשמח שתקדישי דקה למילוי הצהרת הבריאות בקישור המצורף:\n\n${link}\n\nמחכה לראות אותך ולעשות לך הכי יפה שיש,\n\n${senderName} 💖`;
   };
 
   const markDispatched = (link: string) => {
