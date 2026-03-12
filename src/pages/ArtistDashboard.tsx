@@ -1140,7 +1140,7 @@ const ArtistDashboard = () => {
     }
   }, [selectedClientParam, clients, selectedClient]);
 
-  const displayName = artistName || 'אורית אהרוני';
+  const displayName = artistName || (lang === 'en' ? 'My Studio' : 'הסטודיו שלי');
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (lang === 'en') {
