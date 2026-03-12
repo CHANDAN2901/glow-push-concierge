@@ -30,17 +30,20 @@ import AdminPricingEditor from '@/components/AdminPricingEditor';
 import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
 import CouponManager from '@/components/CouponManager';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
 
-/* ── dummy data ── */
-const artists = [
-  { id: '1', name: 'Dana Cohen', studio: 'DC Brows', plan: 'master', status: 'active', referrals: 28, revenue: 8400, joinDate: '12/03/2024', waAutomation: true, waUsage: 147 },
-  { id: '2', name: 'Maya Levi', studio: 'Glow Beauty', plan: 'professional', status: 'active', referrals: 12, revenue: 3200, joinDate: '05/07/2024', waAutomation: true, waUsage: 82 },
-  { id: '3', name: 'Shira Avital', studio: 'Shira PMU', plan: 'professional', status: 'active', referrals: 6, revenue: 1800, joinDate: '19/09/2024', waAutomation: false, waUsage: 0 },
-  { id: '4', name: 'Noa Ben David', studio: 'NB Studio', plan: 'lite', status: 'suspended', referrals: 0, revenue: 0, joinDate: '02/01/2025', waAutomation: false, waUsage: 0 },
-  { id: '5', name: 'Orit Hadad', studio: 'Beauty Lab TLV', plan: 'professional', status: 'active', referrals: 3, revenue: 960, joinDate: '28/11/2024', waAutomation: false, waUsage: 0 },
-];
+interface ArtistRow {
+  id: string;
+  name: string;
+  studio: string;
+  plan: string;
+  status: string;
+  joinDate: string;
+  profileId: string;
+}
 
 const revenueChart = [
   { month: 'Sep', revenue: 6200 },
@@ -104,14 +107,49 @@ const SuperAdmin = () => {
     'האם שתית אלכוהול או נטלת משככי כאבים ב-24 השעות האחרונות?',
   ]);
   const [newQuestion, setNewQuestion] = useState('');
-  const [editingUser, setEditingUser] = useState<typeof artists[0] | null>(null);
+  const [editingUser, setEditingUser] = useState<ArtistRow | null>(null);
   const [editTier, setEditTier] = useState<TierSlug>('lite');
-  const [artistList, setArtistList] = useState(artists);
   const [upsellEnabled, setUpsellEnabled] = useState(true);
   const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
   const [upsellDescription, setUpsellDescription] = useState('אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה');
   const [upsellButtonText, setUpsellButtonText] = useState('למימוש ההטבה');
   const { data: dbPlans = [] } = usePricingPlans();
+  const queryClient = useQueryClient();
+
+  // Fetch real users from database
+  const { data: artistList = [], isLoading: usersLoading } = useQuery({
+    queryKey: ['superAdminUsers'],
+    queryFn: async (): Promise<ArtistRow[]> => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, user_id, full_name, studio_name, subscription_tier, subscription_status, created_at, has_whatsapp_automation')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(p => ({
+        id: p.user_id,
+        profileId: p.id,
+        name: p.full_name || 'ללא שם',
+        studio: p.studio_name || '—',
+        plan: p.subscription_tier || 'lite',
+        status: p.subscription_status === 'canceled' ? 'suspended' : 'active',
+        joinDate: new Date(p.created_at).toLocaleDateString('he-IL'),
+      }));
+    },
+  });
+
+  // Mutation to persist tier changes
+  const updateTierMutation = useMutation({
+    mutationFn: async ({ profileId, newTier }: { profileId: string; newTier: TierSlug }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ subscription_tier: newTier })
+        .eq('id', profileId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['superAdminUsers'] });
+    },
+  });
 
   if (loading || roleLoading) {
     return (
@@ -204,13 +242,9 @@ const SuperAdmin = () => {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="text-right">אמנית וסטודיו</TableHead>
+                 <TableHead className="text-right">אמנית וסטודיו</TableHead>
                 <TableHead className="text-right">חבילה</TableHead>
                 <TableHead className="text-right">סטטוס</TableHead>
-                <TableHead className="text-center">WA אוטומציה</TableHead>
-                <TableHead className="text-center">שימוש WA</TableHead>
-                <TableHead className="text-center">הפניות</TableHead>
-                <TableHead className="text-right">הכנסות</TableHead>
                 <TableHead className="text-right">תאריך הצטרפות</TableHead>
                 <TableHead className="text-right">פעולות</TableHead>
               </TableRow>
@@ -224,24 +258,6 @@ const SuperAdmin = () => {
                   </TableCell>
                   <TableCell className="text-right">{planBadge(u.plan, dbPlans)}</TableCell>
                   <TableCell className="text-right">{statusBadge(u.status)}</TableCell>
-                  <TableCell className="text-center">
-                    {u.waAutomation ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>⚡ פעיל</span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {u.waAutomation ? (
-                      <span className={`text-xs font-semibold ${u.waUsage > 180 ? 'text-destructive' : 'text-foreground'}`}>
-                        {u.waUsage}/200
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center font-medium text-sm">{u.referrals}</TableCell>
-                  <TableCell className="text-right font-medium text-sm">₪{u.revenue.toLocaleString()}</TableCell>
                   <TableCell className="text-right text-sm text-muted-foreground">{u.joinDate}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center gap-1 justify-end">
@@ -305,10 +321,21 @@ const SuperAdmin = () => {
           <DialogFooter className="flex-row-reverse gap-2">
             <Button variant="outline" onClick={() => setEditingUser(null)}>ביטול</Button>
             <Button
+              disabled={updateTierMutation.isPending}
               onClick={() => {
-                setArtistList(prev => prev.map(a => a.id === editingUser?.id ? { ...a, plan: editTier } : a));
-                toast({ title: `החבילה של ${editingUser?.name} עודכנה ל-${dbPlans.find(p => p.slug === editTier)?.name_he ?? editTier}` });
-                setEditingUser(null);
+                if (!editingUser) return;
+                updateTierMutation.mutate(
+                  { profileId: editingUser.profileId, newTier: editTier },
+                  {
+                    onSuccess: () => {
+                      toast({ title: `החבילה של ${editingUser.name} עודכנה ל-${dbPlans.find(p => p.slug === editTier)?.name_he ?? editTier}` });
+                      setEditingUser(null);
+                    },
+                    onError: (err) => {
+                      toast({ title: 'שגיאה בשמירת החבילה', description: (err as Error).message, variant: 'destructive' });
+                    },
+                  }
+                );
               }}
             >
               <Save className="w-4 h-4 ml-1" /> שמירה
