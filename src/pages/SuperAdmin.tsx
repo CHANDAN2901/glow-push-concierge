@@ -11,7 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { TIERS, type TierSlug } from '@/lib/subscriptionConfig';
+import { type TierSlug } from '@/lib/subscriptionConfig';
+import { usePricingPlans } from '@/hooks/usePricingPlans';
 import { startImpersonation } from '@/lib/impersonation';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
