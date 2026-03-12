@@ -1809,6 +1809,7 @@ const ArtistDashboard = () => {
                 </div>
 
                 {/* 2.5 Health Declaration Button */}
+                <FeatureGate featureKey="health_declaration" mode="badge">
                 {(() => {
                   const signed = hasSignedDeclaration(selectedClient.name);
                   const hasFlags = clientHasRedFlags(selectedClient.name) && !selectedClient.medicalExceptionApproved;
