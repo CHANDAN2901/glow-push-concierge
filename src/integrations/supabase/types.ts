@@ -300,6 +300,62 @@ export type Database = {
           },
         ]
       }
+      clinic_policies: {
+        Row: {
+          artist_profile_id: string
+          content_en: string
+          content_he: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          artist_profile_id: string
+          content_en?: string
+          content_he?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          artist_profile_id?: string
+          content_en?: string
+          content_he?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_policies_artist_profile_id_fkey"
+            columns: ["artist_profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinic_policy_master: {
+        Row: {
+          content_en: string
+          content_he: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          content_en?: string
+          content_he?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          content_en?: string
+          content_he?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       faqs: {
         Row: {
           answer_en: string
