@@ -409,15 +409,38 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
             />
           </div>
 
-          {/* Logo — centered below image */}
-          <div className="flex justify-center -mt-6 mb-8 px-6 relative z-10">
-            <img
-              src={introLogoSrc}
-              alt="Studio Logo"
-              className="max-w-[240px] w-full h-auto object-contain"
-              style={{ filter: 'drop-shadow(0 4px 16px rgba(212,175,55,0.25))' }}
-              onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
-            />
+          {/* Logo — centered below image with gold glow */}
+          <div className="flex justify-center -mt-6 mb-4 px-6 relative z-10">
+            <div
+              className="relative flex items-center justify-center"
+              style={{
+                background: 'radial-gradient(ellipse 120% 100% at 50% 50%, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 50%, transparent 80%)',
+                padding: '12px 16px',
+                borderRadius: '24px',
+              }}
+            >
+              <img
+                src={introLogoSrc}
+                alt="Studio Logo"
+                className="max-w-[220px] w-full h-auto object-contain"
+                style={{ filter: 'drop-shadow(0 4px 20px rgba(212,175,55,0.3))' }}
+                onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
+              />
+            </div>
+          </div>
+
+          {/* Progress indicator */}
+          <div className="mb-6">
+            <span
+              className="text-xs font-medium tracking-wider px-4 py-1.5 rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06))',
+                color: T.gold,
+                border: '1px solid rgba(212,175,55,0.2)',
+              }}
+            >
+              {isHe ? 'שלב 1 מתוך 3 ✓' : 'Step 1 of 3 ✓'}
+            </span>
           </div>
 
           {/* Primary CTA */}
@@ -431,7 +454,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 boxShadow: '0 8px 32px rgba(212,175,55,0.35), 0 0 20px rgba(212,175,55,0.15)',
               }}
             >
-              {isHe ? 'המשך לשלב הבא' : 'Continue to Next Step'}
+              {isHe ? '✨ התחילי את הבדיקה' : '✨ Start the Check'}
             </button>
           </div>
 
