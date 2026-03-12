@@ -7,10 +7,11 @@ export interface ArtistHealthQuestion extends HealthQuestion {
   custom_text_he?: string;
   custom_text_en?: string;
   has_override: boolean;
+  is_custom?: boolean; // true = artist-created question
 }
 
 /**
- * For the artist editor: fetches all active admin questions + artist overrides.
+ * For the artist editor: fetches all active admin questions + artist overrides + artist custom questions.
  */
 export function useArtistHealthQuestionsEditor(artistProfileId: string | null) {
   const [questions, setQuestions] = useState<ArtistHealthQuestion[]>([]);
@@ -35,6 +36,14 @@ export function useArtistHealthQuestionsEditor(artistProfileId: string | null) {
         .eq('artist_profile_id', artistProfileId);
       if (oErr) throw oErr;
 
+      // Fetch artist custom questions
+      const { data: customQs, error: cErr } = await supabase
+        .from('artist_custom_health_questions' as any)
+        .select('*')
+        .eq('artist_profile_id', artistProfileId)
+        .order('sort_order', { ascending: true });
+      if (cErr) throw cErr;
+
       const overrideMap = new Map(
         (overrides || []).map((o: any) => [o.question_id, o])
       );
@@ -47,10 +56,28 @@ export function useArtistHealthQuestionsEditor(artistProfileId: string | null) {
           custom_text_he: override?.custom_text_he || undefined,
           custom_text_en: override?.custom_text_en || undefined,
           has_override: !!override,
+          is_custom: false,
         } as ArtistHealthQuestion;
       });
 
-      setQuestions(merged);
+      // Append artist custom questions
+      const customMapped: ArtistHealthQuestion[] = (customQs || []).map((q: any) => ({
+        id: q.id,
+        question_he: q.question_he,
+        question_en: q.question_en,
+        icon: q.icon,
+        risk_level: q.risk_level,
+        has_detail_field: q.has_detail_field,
+        detail_placeholder_he: q.detail_placeholder_he,
+        detail_placeholder_en: q.detail_placeholder_en,
+        sort_order: q.sort_order,
+        is_active: true,
+        is_included: true,
+        has_override: false,
+        is_custom: true,
+      }));
+
+      setQuestions([...merged, ...customMapped]);
     } catch (err) {
       console.error('Failed to fetch artist health questions:', err);
     } finally {
@@ -66,8 +93,7 @@ export function useArtistHealthQuestionsEditor(artistProfileId: string | null) {
 }
 
 /**
- * For client-facing form: fetches active admin questions filtered by artist overrides.
- * Returns only the questions the artist has included (or all if no overrides exist).
+ * For client-facing form: fetches active admin questions filtered by artist overrides + artist custom questions.
  */
 export function useClientHealthQuestions(artistId: string | null) {
   const [questions, setQuestions] = useState<HealthQuestion[]>([]);
@@ -85,6 +111,17 @@ export function useClientHealthQuestions(artistId: string | null) {
           .order('sort_order', { ascending: true });
         if (qErr) throw qErr;
 
+        // Fetch artist custom questions
+        let customQs: any[] = [];
+        if (artistId) {
+          const { data, error: cErr } = await supabase
+            .from('artist_custom_health_questions' as any)
+            .select('*')
+            .eq('artist_profile_id', artistId)
+            .order('sort_order', { ascending: true });
+          if (!cErr && data) customQs = data;
+        }
+
         if (!artistId) {
           setQuestions((adminQs || []) as HealthQuestion[]);
           setLoading(false);
@@ -98,9 +135,24 @@ export function useClientHealthQuestions(artistId: string | null) {
           .eq('artist_profile_id', artistId);
         if (oErr) throw oErr;
 
-        // If no overrides exist, return all admin questions
+        // If no overrides exist, return all admin questions + custom
         if (!overrides || overrides.length === 0) {
-          setQuestions((adminQs || []) as HealthQuestion[]);
+          const allQs = [
+            ...((adminQs || []) as HealthQuestion[]),
+            ...customQs.map((q: any) => ({
+              id: q.id,
+              question_he: q.question_he,
+              question_en: q.question_en,
+              icon: q.icon,
+              risk_level: q.risk_level,
+              has_detail_field: q.has_detail_field,
+              detail_placeholder_he: q.detail_placeholder_he,
+              detail_placeholder_en: q.detail_placeholder_en,
+              sort_order: q.sort_order,
+              is_active: true,
+            } as HealthQuestion)),
+          ];
+          setQuestions(allQs);
           setLoading(false);
           return;
         }
@@ -112,20 +164,32 @@ export function useClientHealthQuestions(artistId: string | null) {
         const filtered: HealthQuestion[] = (adminQs || [])
           .filter((q: any) => {
             const override = overrideMap.get(q.id);
-            // If override exists and is_included is false, exclude
             return !override || override.is_included !== false;
           })
           .map((q: any) => {
             const override = overrideMap.get(q.id);
             return {
               ...q,
-              // Apply custom text if exists
               question_he: override?.custom_text_he || q.question_he,
               question_en: override?.custom_text_en || q.question_en,
             } as HealthQuestion;
           });
 
-        setQuestions(filtered);
+        // Append custom questions
+        const customMapped: HealthQuestion[] = customQs.map((q: any) => ({
+          id: q.id,
+          question_he: q.question_he,
+          question_en: q.question_en,
+          icon: q.icon,
+          risk_level: q.risk_level,
+          has_detail_field: q.has_detail_field,
+          detail_placeholder_he: q.detail_placeholder_he,
+          detail_placeholder_en: q.detail_placeholder_en,
+          sort_order: q.sort_order,
+          is_active: true,
+        }));
+
+        setQuestions([...filtered, ...customMapped]);
       } catch (err) {
         console.error('Failed to fetch client health questions:', err);
       } finally {
