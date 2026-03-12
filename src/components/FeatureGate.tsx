@@ -2,10 +2,11 @@ import { useState, type ReactNode } from 'react';
 import { Lock, Crown } from 'lucide-react';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { useI18n } from '@/lib/i18n';
+import { getFeature, getMinTierForFeature, getTier } from '@/lib/subscriptionConfig';
 import UpgradeModal from '@/components/UpgradeModal';
 
 interface FeatureGateProps {
-  /** The machine-readable key stored in pricing_plans.feature_keys */
+  /** The machine-readable key from subscriptionConfig */
   featureKey: string;
   /** Human-readable feature name (for the upgrade modal) */
   featureName?: string;
@@ -13,23 +14,42 @@ interface FeatureGateProps {
   children: ReactNode;
   /** Optional: render a custom locked placeholder instead of default */
   lockedFallback?: ReactNode;
+  /**
+   * "badge" mode: renders children but adds a 👑 badge overlay.
+   * Clicking triggers the upgrade modal instead of the feature action.
+   */
+  mode?: 'block' | 'badge';
 }
 
 /**
  * Wraps a feature behind a dynamic plan gate.
  * If the user's plan includes the featureKey → renders children.
- * Otherwise → shows a locked placeholder + upgrade modal on click.
+ * Otherwise:
+ *   mode="block" (default) → shows a locked placeholder + upgrade modal on click.
+ *   mode="badge" → renders children with a 👑 badge; clicking opens upgrade modal.
  */
 export default function FeatureGate({
   featureKey,
   featureName,
   children,
   lockedFallback,
+  mode = 'block',
 }: FeatureGateProps) {
-  const { hasFeature, isLoading } = useFeatureAccess();
+  const { hasFeature, isLoading, userTier } = useFeatureAccess();
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const [showUpgrade, setShowUpgrade] = useState(false);
+
+  // Resolve display name from config if not provided
+  const feature = getFeature(featureKey);
+  const displayName = featureName ?? (feature ? (isHe ? feature.name.he : feature.name.en) : featureKey);
+
+  // Get the tier name needed
+  const minTier = getMinTierForFeature(featureKey);
+  const requiredTierDef = minTier ? getTier(minTier) : null;
+  const requiredTierName = requiredTierDef
+    ? (isHe ? requiredTierDef.name.he : requiredTierDef.name.en)
+    : '';
 
   // While loading, render nothing to avoid flash
   if (isLoading) return null;
@@ -39,7 +59,44 @@ export default function FeatureGate({
     return <>{children}</>;
   }
 
-  // ---- Locked state ----
+  // ── Badge mode: show children with a crown overlay ──
+  if (mode === 'badge') {
+    return (
+      <>
+        <div
+          className="relative cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowUpgrade(true);
+          }}
+        >
+          <div className="pointer-events-none opacity-75">
+            {children}
+          </div>
+          {/* Crown badge */}
+          <span
+            className="absolute -top-1.5 -right-1.5 rtl:-left-1.5 rtl:right-auto flex items-center justify-center w-5 h-5 rounded-full text-[10px] shadow-md z-10"
+            style={{
+              background: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)',
+              color: '#fff',
+            }}
+          >
+            👑
+          </span>
+        </div>
+        <UpgradeModal
+          open={showUpgrade}
+          onClose={() => setShowUpgrade(false)}
+          featureId={featureKey}
+          featureName={displayName}
+        />
+      </>
+    );
+  }
+
+  // ── Block mode ──
+
   if (lockedFallback) {
     return (
       <>
@@ -50,7 +107,7 @@ export default function FeatureGate({
           open={showUpgrade}
           onClose={() => setShowUpgrade(false)}
           featureId={featureKey}
-          featureName={featureName}
+          featureName={displayName}
         />
       </>
     );
@@ -75,10 +132,12 @@ export default function FeatureGate({
         {/* Text */}
         <div className="flex-1 text-start">
           <p className="text-sm font-semibold text-foreground">
-            {featureName ?? featureKey}
+            {displayName}
           </p>
           <p className="text-xs text-muted-foreground">
-            {isHe ? 'שדרגי את המנוי כדי לפתוח' : 'Upgrade your plan to unlock'}
+            {isHe
+              ? `שדרגי ל-${requiredTierName} כדי לפתוח`
+              : `Upgrade to ${requiredTierName} to unlock`}
           </p>
         </div>
 
@@ -98,7 +157,7 @@ export default function FeatureGate({
         open={showUpgrade}
         onClose={() => setShowUpgrade(false)}
         featureId={featureKey}
-        featureName={featureName}
+        featureName={displayName}
       />
     </>
   );
