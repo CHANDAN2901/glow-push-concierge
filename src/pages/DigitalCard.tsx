@@ -124,8 +124,6 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
         </a>
       </div>
 
-      {/* Policy Viewer Modal */}
-      <ClinicPolicyViewer open={showPolicy} onClose={() => setShowPolicy(false)} />
 
     </div>
   );
