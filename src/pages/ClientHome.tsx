@@ -68,9 +68,14 @@ try {
   if (cartist) localStorage.setItem(LS_ARTIST_ID, cartist);
 } catch (_) { /* SSR-safe */ }
 
-// Time-based greeting (forced Hebrew for client recovery flow consistency)
-function getTimeGreeting(name: string): string {
+// Time-based greeting
+function getTimeGreeting(name: string, lang: 'en' | 'he' = 'he'): string {
   const hour = new Date().getHours();
+  if (lang === 'en') {
+    if (hour < 12) return `Good morning, ${name}`;
+    if (hour < 18) return `Good afternoon, ${name}`;
+    return `Good evening, ${name}`;
+  }
   if (hour < 12) return `בוקר זוהר, ${name}`;
   if (hour < 18) return `צהריים זוהרים, ${name}`;
   return `ערב זוהר, ${name}`;
@@ -250,7 +255,7 @@ const ClientHome = () => {
 
   const urlClientId = pathClientId || searchParams.get('client_id') || searchParams.get('clientId') || '';
   const urlClientName = searchParams.get('name') || searchParams.get('clientName') || '';
-  const fallbackName = 'לקוחה';
+  const fallbackName = lang === 'en' ? 'Client' : 'לקוחה';
 
   // Auto-redirect: if on /client with no identity in URL but localStorage has one, redirect to /c/:id
   useEffect(() => {
@@ -580,7 +585,7 @@ const ClientHome = () => {
               {lang === 'en' ? 'Follow your progress daily' : 'עקבי אחר ההתקדמות שלך בכל יום'}
             </p>
             <p className="text-xs mt-2 opacity-80" style={{ color: SUBTEXT_COLOR, fontFamily: FBAHAVA }}>
-              {getTimeGreeting(clientName)}
+              {getTimeGreeting(clientName, lang)}
             </p>
             <span className="sr-only" data-client-identity-source={identity.source}>
               {`client-identity-source:${identity.source}|client-id:${clientId || 'none'}|client-name:${clientName || 'none'}`}

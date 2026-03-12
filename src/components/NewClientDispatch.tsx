@@ -110,8 +110,10 @@ const NewClientDispatch = ({
 
   const buildMessage = (link: string) => {
     const firstName = name.trim().split(/\s+/)[0];
-    const senderName = artistName || 'המטפלת שלך';
-    return `היי ${firstName} אהובה, איזה כיף שאת מגיעה אלינו! ✨\n\nכדי שנוכל להעניק לך את הטיפול המדויק והמקצועי ביותר עבורך, אשמח שתקדישי דקה למילוי הצהרת הבריאות בקישור המצורף:\n\n${link}\n\nמחכה לראות אותך ולעשות לך הכי יפה שיש,\n\n${senderName} 💖`;
+    const senderName = artistName || (lang === 'en' ? 'Your artist' : 'המטפלת שלך');
+    return lang === 'en'
+      ? `Hey ${firstName}! So excited you're coming in! ✨\n\nTo ensure we provide you with the most precise and professional treatment, please take a moment to fill out the health declaration form:\n\n${link}\n\nLooking forward to seeing you!\n\n${senderName} 💖`
+      : `היי ${firstName} אהובה, איזה כיף שאת מגיעה אלינו! ✨\n\nכדי שנוכל להעניק לך את הטיפול המדויק והמקצועי ביותר עבורך, אשמח שתקדישי דקה למילוי הצהרת הבריאות בקישור המצורף:\n\n${link}\n\nמחכה לראות אותך ולעשות לך הכי יפה שיש,\n\n${senderName} 💖`;
   };
 
   const markDispatched = (link: string) => {
@@ -137,7 +139,7 @@ const NewClientDispatch = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'הצהרת בריאות לטיפול',
+          title: lang === 'en' ? 'Health Declaration Form' : 'הצהרת בריאות לטיפול',
           text: msg,
         });
         markDispatched(link);
@@ -313,7 +315,7 @@ const NewClientDispatch = ({
                 treatment: treatLabel ? (lang === 'en' ? treatLabel.en : treatLabel.he) : treatment,
                 link: '',
               });
-              toast({ title: 'הלקוחה נשמרה בהצלחה ✨' });
+              toast({ title: lang === 'en' ? 'Client saved successfully ✨' : 'הלקוחה נשמרה בהצלחה ✨' });
               handleClose();
             }} disabled={!isValid}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"

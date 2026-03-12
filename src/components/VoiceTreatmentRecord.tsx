@@ -149,7 +149,7 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
       console.error('Speech recognition error:', event.error);
       if (event.error === 'not-allowed' || event.error === 'permission-denied') {
         toast({
-          title: 'כדי להקליט, יש לאשר גישה למיקרופון בהגדרות הדפדפן',
+          title: lang === 'en' ? 'Please allow microphone access in browser settings to record' : 'כדי להקליט, יש לאשר גישה למיקרופון בהגדרות הדפדפן',
           variant: 'destructive',
         });
         handleFullReset();
@@ -171,7 +171,7 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
       recognition.start();
     } catch (e) {
       console.error('Failed to start recognition:', e);
-      toast({ title: 'שגיאה בהפעלת זיהוי דיבור', variant: 'destructive' });
+      toast({ title: lang === 'en' ? 'Failed to start speech recognition' : 'שגיאה בהפעלת זיהוי דיבור', variant: 'destructive' });
       handleFullReset();
       return;
     } finally {

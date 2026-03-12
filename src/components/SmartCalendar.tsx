@@ -327,8 +327,8 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     }
     const formattedDate = new Date(date).toLocaleDateString('he-IL');
     const link = getHealthFormLink(name, phone);
-    const artistDisplayName = 'האמנית שלך';
-    const text = `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨`;
+    const artistDisplayName = isHe ? 'האמנית שלך' : 'your artist';
+    const text = isHe ? `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨` : `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nBefore the treatment, please fill out a brief health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`;
     const waUrl = `https://wa.me/${formatPhoneForWA(phone)}?text=${encodeURIComponent(text)}`;
     window.open(waUrl, '_blank');
     toast({ title: isHe ? 'הודעה נשלחה בהצלחה ✉️' : 'Message sent successfully ✉️' });
@@ -345,10 +345,14 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       toast({ title: isHe ? 'לא ניתן לשלוח — חסר מספר טלפון' : 'Cannot send — phone number missing', variant: 'destructive' });
       return;
     }
-    let text = `היי ${apt.clientName}, מזכירה לך את התור שלנו מחר ב-${apt.time}. מחכה לראותך! ✨`;
+    let text = isHe
+      ? `היי ${apt.clientName}, מזכירה לך את התור שלנו מחר ב-${apt.time}. מחכה לראותך! ✨`
+      : `Hey ${apt.clientName}, just a reminder about your appointment tomorrow at ${apt.time}. Can't wait to see you! ✨`;
     if (apt.healthFormStatus === 'pending') {
       const link = getHealthFormLink(apt.clientName, apt.clientPhone);
-      text += `\n\nשימי לב שטרם מילאת את הצהרת הבריאות, אנא עשי זאת כעת בקישור:\n${link}`;
+      text += isHe
+        ? `\n\nשימי לב שטרם מילאת את הצהרת הבריאות, אנא עשי זאת כעת בקישור:\n${link}`
+        : `\n\nPlease note you haven't filled out the health declaration yet. Please do so now:\n${link}`;
     }
     const waUrl = `https://wa.me/${formatPhoneForWA(apt.clientPhone)}?text=${encodeURIComponent(text)}`;
     window.open(waUrl, '_blank');
@@ -480,7 +484,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
             artist_id: artistProfileId,
             full_name: newName.trim(),
             phone: newPhone.trim() || null,
-            treatment_type: newType === 'eyebrows' ? 'גבות' : newType === 'lips' ? 'שפתיים' : 'אייליינר',
+            treatment_type: newType === 'eyebrows' ? (isHe ? 'גבות' : 'Brows') : newType === 'lips' ? (isHe ? 'שפתיים' : 'Lips') : (isHe ? 'אייליינר' : 'Eyeliner'),
             treatment_date: newDate,
           }).select('id').single();
           if (!clientError && newClient) {

@@ -512,11 +512,11 @@ const ArtistDashboard = () => {
   });
 
   const marketplaceFeatures = [
-    { id: 'language-pack', name: 'חבילת שפות', desc: 'תרגום אוטומטי לרוסית, אנגלית וערבית', icon: Globe, emoji: '🌍' },
-    { id: 'before-after', name: 'מחולל לפני/אחרי', desc: 'כלי ליצירת תמונות השוואה ממותגות לאינסטגרם', icon: Camera, emoji: '📸' },
-    { id: 'review-bot', name: 'בוט ביקורות', desc: 'שליחת בקשת דירוג אוטומטית ללקוחה ביום ה-30', icon: Star, emoji: '⭐' },
-    { id: 'auto-messages', name: 'אוטומציית הודעות', desc: 'שליחת הקישור ללקוחה בוואטסאפ ללא מגע יד אדם', icon: Zap, emoji: '⚡' },
-    { id: 'health-declaration', name: 'הצהרת בריאות דיגיטלית', desc: 'טופס הצהרת בריאות עם חתימה דיגיטלית', icon: ClipboardCheck, emoji: '📋' },
+    { id: 'language-pack', name: lang === 'en' ? 'Language Pack' : 'חבילת שפות', desc: lang === 'en' ? 'Auto-translate to Russian, English and Arabic' : 'תרגום אוטומטי לרוסית, אנגלית וערבית', icon: Globe, emoji: '🌍' },
+    { id: 'before-after', name: lang === 'en' ? 'Before & After Generator' : 'מחולל לפני/אחרי', desc: lang === 'en' ? 'Create branded comparison photos for Instagram' : 'כלי ליצירת תמונות השוואה ממותגות לאינסטגרם', icon: Camera, emoji: '📸' },
+    { id: 'review-bot', name: lang === 'en' ? 'Review Bot' : 'בוט ביקורות', desc: lang === 'en' ? 'Auto-send review request on day 30' : 'שליחת בקשת דירוג אוטומטית ללקוחה ביום ה-30', icon: Star, emoji: '⭐' },
+    { id: 'auto-messages', name: lang === 'en' ? 'Message Automation' : 'אוטומציית הודעות', desc: lang === 'en' ? 'Send client link via WhatsApp automatically' : 'שליחת הקישור ללקוחה בוואטסאפ ללא מגע יד אדם', icon: Zap, emoji: '⚡' },
+    { id: 'health-declaration', name: lang === 'en' ? 'Digital Health Declaration' : 'הצהרת בריאות דיגיטלית', desc: lang === 'en' ? 'Health declaration form with digital signature' : 'טופס הצהרת בריאות עם חתימה דיגיטלית', icon: ClipboardCheck, emoji: '📋' },
   ];
 
   const toggleFeature = (featureId: string) => {
@@ -618,7 +618,7 @@ const ArtistDashboard = () => {
   const buildReminderWhatsAppUrl = (clientName: string, clientPhone: string): string => {
     const appt = appointmentLookup[clientName];
     const cleanP = clientPhone ? formatPhone(clientPhone) : '';
-    const studioLabel = artistName || 'אורית אהרוני';
+    const studioLabel = artistName || (lang === 'en' ? 'Your Studio' : 'הסטודיו שלך');
     let text: string;
     if (appt) {
       const dateFormatted = new Date(appt.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -770,7 +770,7 @@ const ArtistDashboard = () => {
   // Open WhatsApp with health form signing request
   const sendHealthFormWhatsApp = (clientName: string, clientPhone?: string) => {
     if (!clientPhone || clientPhone.replace(/[^0-9]/g, '').length === 0) {
-      toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
+      toast({ title: lang === 'en' ? 'Cannot send — phone number missing for this client. Please update her details.' : 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
       return;
     }
     const formLink = buildHealthFormLink(clientName, clientPhone);
@@ -1140,7 +1140,7 @@ const ArtistDashboard = () => {
     }
   }, [selectedClientParam, clients, selectedClient]);
 
-  const displayName = artistName || 'אורית אהרוני';
+  const displayName = artistName || (lang === 'en' ? 'My Studio' : 'הסטודיו שלי');
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (lang === 'en') {
@@ -1951,8 +1951,8 @@ const ArtistDashboard = () => {
                             endpoint: sub.endpoint,
                             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
                           },
-                          title: 'בדיקת מערכת GlowPush 🔔',
-                          body: `היי ${selectedClient.name}, זו התראת ניסיון מהמערכת! ✨`,
+                          title: lang === 'en' ? 'GlowPush System Test 🔔' : 'בדיקת מערכת GlowPush 🔔',
+                          body: lang === 'en' ? `Hey ${selectedClient.name}, this is a test notification! ✨` : `היי ${selectedClient.name}, זו התראת ניסיון מהמערכת! ✨`,
                           day: 1,
                         },
                       });
@@ -2416,21 +2416,21 @@ const ArtistDashboard = () => {
                 if (wazeAddress) params.set('waze', wazeAddress);
                 const qs = params.toString();
                 const shareUrl = `${BASE}${qs ? `?${qs}` : ''}`;
-                const shareTitle = 'כרטיס ביקור דיגיטלי';
-                const shareText = 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
+                const shareTitle = lang === 'en' ? 'Digital Business Card' : 'כרטיס ביקור דיגיטלי';
+                const shareText = lang === 'en' ? 'Hey! ✨ Check out my new digital studio card. All the ways to reach me and see my work — just one click away:' : 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
                 try {
                   if (navigator.share) {
                     await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
-                    toast({ title: 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                    toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
                   } else {
                     await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                    toast({ title: 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                    toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
                   }
                 } catch (e: any) {
                   if (e?.name !== 'AbortError') {
                     try {
                       await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                      toast({ title: 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                      toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
                     } catch {
                       window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', shareUrl);
                     }
@@ -2543,8 +2543,8 @@ const ArtistDashboard = () => {
             console.error('Error rendering treatment selection:', err);
             return (
               <div className="p-6 text-center text-muted-foreground">
-                <p>שגיאה בטעינת בחירת הטיפול. נסי לרענן.</p>
-                <button onClick={() => setHealingJourneyClient(null)} className="mt-3 px-4 py-2 rounded-full text-sm btn-metallic-gold">חזרה</button>
+                <p>{lang === 'en' ? 'Error loading treatment selection. Please refresh.' : 'שגיאה בטעינת בחירת הטיפול. נסי לרענן.'}</p>
+                <button onClick={() => setHealingJourneyClient(null)} className="mt-3 px-4 py-2 rounded-full text-sm btn-metallic-gold">{lang === 'en' ? 'Go Back' : 'חזרה'}</button>
               </div>
             );
           }
@@ -3537,7 +3537,7 @@ const ArtistDashboard = () => {
             <button onClick={() => setShowHealthEditor(false)} className="p-2 -m-2 rounded-xl hover:bg-accent/10 transition-colors">
               <X className="w-5 h-5 text-foreground" />
             </button>
-            <h2 className="font-serif font-bold text-lg flex-1 text-right">ניהול שאלות הצהרת בריאות</h2>
+            <h2 className="font-serif font-bold text-lg flex-1 text-right">{lang === 'en' ? 'Manage Health Declaration Questions' : 'ניהול שאלות הצהרת בריאות'}</h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <HealthQuestionsEditor />
@@ -3558,7 +3558,7 @@ const ArtistDashboard = () => {
             <div className="w-full h-full overflow-y-auto">
               <DigitalCard
                 embedded
-                previewName={artistName || 'שם העסק'}
+                previewName={artistName || (lang === 'en' ? 'Business Name' : 'שם העסק')}
                 previewPhone={artistPhone ? formatPhone(artistPhone) : '972508855329'}
                 previewLogo={logoUrl}
                 previewIg={instagramUrl}
@@ -3581,23 +3581,23 @@ const ArtistDashboard = () => {
               if (wazeAddress) params.set('waze', wazeAddress);
               const qs = params.toString();
               const shareUrl = `${BASE}${qs ? `?${qs}` : ''}`;
-              const shareTitle = 'כרטיס ביקור דיגיטלי';
-              const shareText = 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
+              const shareTitle = lang === 'en' ? 'Digital Business Card' : 'כרטיס ביקור דיגיטלי';
+              const shareText = lang === 'en' ? 'Hey! ✨ Check out my new digital studio card. All the ways to reach me and see my work — just one click away:' : 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
               try {
                 if (navigator.share) {
                   await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
-                  toast({ title: 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                  toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
                 } else {
                   await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                  toast({ title: 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                  toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
                 }
               } catch (e: any) {
                 if (e?.name !== 'AbortError') {
                   try {
                     await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                    toast({ title: 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                    toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
                   } catch {
-                    window.prompt('העתיקי את הקישור:', shareUrl);
+                    window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', shareUrl);
                   }
                 }
               }
@@ -3703,7 +3703,7 @@ const ArtistDashboard = () => {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 rounded-b-2xl z-10" style={{ background: 'hsl(38 55% 62%)' }} />
               {/* Iframe */}
               <iframe
-                src={`${window.location.origin}/client?name=${encodeURIComponent('דנה לדוגמה')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`}
+                src={`${window.location.origin}/client?name=${encodeURIComponent(lang === 'en' ? 'Dana Example' : 'דנה לדוגמה')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`}
                 className="w-full h-full border-none"
                 title="Client page preview"
               />
