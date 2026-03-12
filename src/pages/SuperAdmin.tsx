@@ -269,9 +269,9 @@ const SuperAdmin = () => {
       </div>
 
       <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="font-serif text-lg">Edit User</DialogTitle>
+            <DialogTitle className="font-serif text-lg">עריכת משתמשת</DialogTitle>
           </DialogHeader>
           {editingUser && (
             <div className="space-y-5 py-2">
@@ -286,7 +286,7 @@ const SuperAdmin = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Subscription Tier</Label>
+                <Label className="text-sm font-medium">חבילת מנוי</Label>
                 <Select value={editTier} onValueChange={(v) => setEditTier(v as TierSlug)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -294,7 +294,7 @@ const SuperAdmin = () => {
                   <SelectContent>
                     {dbPlans.map(p => (
                       <SelectItem key={p.slug} value={p.slug}>
-                        {p.name_en} — {p.price_monthly === 0 ? 'Free' : `₪${p.price_monthly}/mo`}
+                        {p.name_he} — {p.price_monthly === 0 ? 'חינם' : `₪${p.price_monthly}/חודש`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -302,16 +302,16 @@ const SuperAdmin = () => {
               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingUser(null)}>Cancel</Button>
+          <DialogFooter className="flex-row-reverse gap-2">
+            <Button variant="outline" onClick={() => setEditingUser(null)}>ביטול</Button>
             <Button
               onClick={() => {
                 setArtistList(prev => prev.map(a => a.id === editingUser?.id ? { ...a, plan: editTier } : a));
-                toast({ title: `${editingUser?.name}'s plan updated to ${dbPlans.find(p => p.slug === editTier)?.name_en ?? editTier}` });
+                toast({ title: `החבילה של ${editingUser?.name} עודכנה ל-${dbPlans.find(p => p.slug === editTier)?.name_he ?? editTier}` });
                 setEditingUser(null);
               }}
             >
-              <Save className="w-4 h-4 mr-1" /> Save Changes
+              <Save className="w-4 h-4 ml-1" /> שמירה
             </Button>
           </DialogFooter>
         </DialogContent>
