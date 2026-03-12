@@ -30,11 +30,12 @@ import AdminPricingEditor from '@/components/AdminPricingEditor';
 import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
 import { useAllHealthQuestions } from '@/hooks/useHealthQuestions';
 import CouponManager from '@/components/CouponManager';
+import AdminPolicyEditor from '@/components/AdminPolicyEditor';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
+type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'clinic-policy' | 'faq' | 'faq-manager' | 'settings';
 
 interface ArtistRow {
   id: string;
@@ -578,6 +579,7 @@ const SuperAdmin = () => {
           {view === 'timeline' && <AdminHealingEditor />}
           {view === 'aftercare' && <AdminAftercareEditor />}
           {view === 'health-questions' && <HealthQuestionsEditor />}
+          {view === 'clinic-policy' && <AdminPolicyEditor />}
           {view === 'settings' && renderSettings()}
         </div>
       </main>

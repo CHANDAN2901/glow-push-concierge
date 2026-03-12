@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Phone, MessageCircle, Instagram, Facebook } from 'lucide-react';
+import { Phone, MessageCircle, Instagram, Facebook, ScrollText } from 'lucide-react';
 import heroBg from '@/assets/card-hero-bg.jpg';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import defaultLogo from '@/assets/glowpush-logo.png';
 import { useI18n } from '@/lib/i18n';
+import ClinicPolicyViewer from '@/components/ClinicPolicyViewer';
 
 const WHATSAPP_NUMBER = '972508855329';
 const WHATSAPP_MESSAGE = 'היי! הגעתי דרך הכרטיס הדיגיטלי, אשמח לקבל פרטים ולתאם תור ✨';
@@ -23,6 +24,7 @@ interface DigitalCardProps {
 const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, previewIg, previewFacebook }: DigitalCardProps = {}) => {
   const [searchParams] = useSearchParams();
   const [profileError, setProfileError] = useState(false);
+  const [showPolicy, setShowPolicy] = useState(false);
   const { lang } = useI18n();
   const isHe = lang === 'he';
 
@@ -104,8 +106,24 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
         />
       </div>
 
+      {/* ===== Clinic Policy Button ===== */}
+      <div className="w-full max-w-sm px-6 mt-8">
+        <button
+          onClick={() => setShowPolicy(true)}
+          className="w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(216,180,180,0.3), rgba(201,160,160,0.15))',
+            border: '1.5px solid rgba(212,175,55,0.3)',
+            color: '#4a3636',
+          }}
+        >
+          <ScrollText className="w-5 h-5" style={{ color: '#B8860B' }} />
+          {isHe ? 'מידע על הטיפול ומדיניות הקליניקה' : 'Treatment Info & Clinic Policy'}
+        </button>
+      </div>
+
       {/* ===== Share on WhatsApp Button ===== */}
-      <div className="w-full max-w-sm px-6 mt-10 mb-10">
+      <div className="w-full max-w-sm px-6 mt-4 mb-10">
         <a
           href={`https://wa.me/?text=${encodeURIComponent(`היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:\n${window.location.origin}/digital-card${window.location.search}`)}`}
           target="_blank"
@@ -120,6 +138,9 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
           {isHe ? 'שתפי בוואטסאפ' : 'Share on WhatsApp'}
         </a>
       </div>
+
+      {/* Policy Viewer Modal */}
+      <ClinicPolicyViewer open={showPolicy} onClose={() => setShowPolicy(false)} />
 
     </div>
   );

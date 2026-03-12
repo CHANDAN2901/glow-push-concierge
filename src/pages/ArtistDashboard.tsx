@@ -23,6 +23,7 @@ import HealthDeclarationPreview from '@/components/HealthDeclarationPreview';
 import AiMagicSection from '@/components/AiMagicSection';
 import HelpCenter from '@/components/HelpCenter';
 import HealthDeclarationEditor from '@/components/HealthDeclarationEditor';
+import ClinicPolicyEditor from '@/components/ClinicPolicyEditor';
 import SmartCalendar from '@/components/SmartCalendar';
 import SimpleGallery from '@/components/SimpleGallery';
 import { DualPhotoGallery } from '@/components/DualPhotoGallery';
@@ -701,6 +702,7 @@ const ArtistDashboard = () => {
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showHealthEditor, setShowHealthEditor] = useState(false);
+  const [showPolicyEditor, setShowPolicyEditor] = useState(false);
   const [showVoucherEditor, setShowVoucherEditor] = useState(false);
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -1715,6 +1717,16 @@ const ArtistDashboard = () => {
                   </span>
                 </div>
               </FeatureGate>
+
+              <div className="relative">
+                <button onClick={() => setShowPolicyEditor(true)} className="pill-action-btn animate-fade-up">
+                  <span className="pill-icon-circle"><ScrollText className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Clinic Policy' : 'עריכת מדיניות ותנאי שירות'}</span>
+                </button>
+                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                  <HelpTooltip id="clinic-policy" text={lang === 'en' ? 'Edit your clinic policy and terms of service that clients can view.' : 'ערכי את מדיניות הקליניקה ותנאי השירות שלך — הלקוחות יוכלו לצפות בהם מהכרטיס הדיגיטלי.'} />
+                </span>
+              </div>
 
               <button
                   type="button"
@@ -3587,6 +3599,13 @@ const ArtistDashboard = () => {
       <HealthDeclarationEditor
         open={showHealthEditor}
         onClose={() => setShowHealthEditor(false)}
+        artistProfileId={userProfileId}
+      />
+
+      {/* Clinic Policy Editor */}
+      <ClinicPolicyEditor
+        open={showPolicyEditor}
+        onClose={() => setShowPolicyEditor(false)}
         artistProfileId={userProfileId}
       />
 
