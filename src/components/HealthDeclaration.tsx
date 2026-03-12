@@ -570,11 +570,14 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           {/* Welcome text — compact */}
           <div className="flex flex-col items-center px-5 pt-2 pb-2 text-center">
             <h1
-              className="text-lg sm:text-xl leading-snug mb-1"
+              className="text-base sm:text-lg leading-snug mb-1"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 fontWeight: 700,
-                color: '#4A2C2C',
+                background: 'linear-gradient(135deg, #D4AF37, #F5D76E, #B8860B)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
               }}
             >
               {step === 1 && fullName.trim()
