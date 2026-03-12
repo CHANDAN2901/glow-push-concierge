@@ -448,10 +448,10 @@ const SuperAdmin = () => {
           <div>
             <label className="text-sm font-medium mb-2 block">שאלות הצהרת בריאות (ברירת מחדל)</label>
             <div className="space-y-2 mb-3">
-              {healthQuestions.map((q, i) => (
-                <div key={i} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
-                  <span className="text-sm flex-1">{q}</span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={() => removeQuestion(i)}>
+              {healthQuestions.map((q) => (
+                <div key={q.id} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
+                  <span className="text-sm flex-1">{q.question_he}</span>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={() => removeQuestion(q.id)}>
                     <X className="w-3.5 h-3.5" />
                   </Button>
                 </div>
