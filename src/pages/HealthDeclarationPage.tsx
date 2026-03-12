@@ -115,34 +115,50 @@ const HealthDeclarationPage = () => {
     return result;
   };
 
+  const handlePreviewExit = () => {
+    if (isPreview) {
+      navigate('/artist', { replace: true });
+      return;
+    }
+
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/artist', { replace: true });
+  };
+
   return (
     <div className="relative">
-      {(isArtist || isPreview) && (
-        <div className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-4 py-3 pointer-events-auto" style={{ background: 'linear-gradient(135deg, rgba(216,180,180,0.95), rgba(201,160,160,0.95))', boxShadow: '0 2px 12px rgba(216,180,180,0.4)', backdropFilter: 'blur(12px)' }}>
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95 cursor-pointer pointer-events-auto"
-            style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
-          >
-            ✕ {isPreview ? 'סגור תצוגה מקדימה' : 'חזרה לדשבורד'}
-          </button>
-          {isPreview && (
-            <span className="text-xs font-bold tracking-wide" style={{ color: '#4a3636' }}>
-              👁️ תצוגה מקדימה
-            </span>
-          )}
-        </div>
-      )}
       <HealthDeclaration
         clientName={clientName}
         clientPhone={clientPhone}
         logoUrl={logo}
         onComplete={handleComplete}
-        onClose={() => {}}
+        onClose={handlePreviewExit}
         isPreview={isPreview}
         appointmentDate={appointmentDate}
         appointmentTime={appointmentTime}
       />
+
+      {(isArtist || isPreview) && (
+        <div className="fixed top-0 left-0 right-0 z-[120] flex items-center justify-between px-4 py-3 pointer-events-auto" style={{ background: 'linear-gradient(135deg, rgba(216,180,180,0.95), rgba(201,160,160,0.95))', boxShadow: '0 2px 12px rgba(216,180,180,0.4)', backdropFilter: 'blur(12px)' }}>
+          <button
+            onClick={handlePreviewExit}
+            className="relative z-[121] flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-95 cursor-pointer pointer-events-auto"
+            style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff', fontFamily: "'FB Ahava', 'Playfair Display', serif" }}
+          >
+            <span aria-hidden="true">✕</span>
+            <span>{isPreview ? 'סגור תצוגה מקדימה' : 'חזרה לדשבורד'}</span>
+          </button>
+          {isPreview && (
+            <span className="text-xs font-medium" style={{ color: '#4a3636', fontFamily: "'FB Ahava', 'Playfair Display', serif" }}>
+              👁️ תצוגה מקדימה
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 };
