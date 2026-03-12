@@ -522,20 +522,20 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       <div className="flex flex-col items-center px-4 sm:px-5 pt-0 pb-8">
         <div className="w-full max-w-lg">
 
-          {/* ═══ Seamless Luxury Header — Metallic Rose Gold Gradient ═══ */}
-          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '140px', background: 'linear-gradient(180deg, hsl(350 35% 65%) 0%, hsl(350 40% 72%) 25%, hsl(350 45% 80%) 50%, hsl(350 50% 88%) 75%, hsl(350 50% 93%) 95%, hsl(350 50% 94%) 100%)' }}>
+          {/* ═══ Luxury Header — Deep Charcoal & Gold ═══ */}
+          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ background: '#2A2A2A' }}>
 
             <div className="relative z-10 flex items-center justify-between w-full px-5 pt-3">
               <button
                 onClick={onClose}
-                className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0 backdrop-blur-sm"
-                style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1px solid rgba(212,175,55,0.4)', color: '#F9F295' }}
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0"
+                style={{ backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(212,175,55,0.4)', color: '#D4AF37' }}
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
               <div className="flex items-center gap-1.5">
-                <FileText className="w-4 h-4" style={{ color: '#F9F295' }} />
-                <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                <FileText className="w-4 h-4" style={{ color: '#D4AF37' }} />
+                <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>
                   {readOnly
                     ? (isHe ? 'צפייה בלבד' : 'View only')
                     : (isHe ? `שלב ${step} מתוך ${STEPS}` : `Step ${step} of ${STEPS}`)}
@@ -543,15 +543,15 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               </div>
             </div>
 
-            {/* Logo centered in header */}
-            <div className="relative z-10 flex justify-center mt-1">
+            {/* Logo centered — no white frame */}
+            <div className="relative z-10 flex justify-center mt-3 mb-2">
               {instagramUrl ? (
                 <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="block">
                   <img
                     src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
                     alt="Studio Logo"
-                    className="max-w-[160px] w-full h-auto object-contain"
-                    style={{ filter: 'drop-shadow(0 3px 12px rgba(255,255,255,0.3))' }}
+                    className="max-w-[180px] w-full h-auto object-contain"
+                    style={{ filter: 'drop-shadow(0 4px 16px rgba(212,175,55,0.25))' }}
                     onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
                   />
                 </a>
@@ -559,44 +559,44 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 <img
                   src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
                   alt="Studio Logo"
-                  className="max-w-[160px] w-full h-auto object-contain"
-                  style={{ filter: 'drop-shadow(0 3px 12px rgba(255,255,255,0.3))' }}
+                  className="max-w-[180px] w-full h-auto object-contain"
+                  style={{ filter: 'drop-shadow(0 4px 16px rgba(212,175,55,0.25))' }}
                   onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
                 />
               )}
             </div>
-          </div>
 
-          {/* Welcome text — compact */}
-          <div className="flex flex-col items-center px-5 pt-2 pb-2 text-center">
-            <h1
-              className="text-lg sm:text-xl leading-snug mb-1"
-              style={{
-                fontFamily: "'FB Ahava', 'Playfair Display', serif",
-                fontWeight: 700,
-                color: '#4A2C2C',
-              }}
-            >
-              {step === 1 && fullName.trim()
-                ? (isHe ? `שלום ${fullName}, איזה כיף שאת מגיעה אלינו ✨` : `Hello ${fullName}, so glad you're coming ✨`)
-                : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
-            </h1>
-            <p
-              className="text-xs font-bold tracking-wide"
-              style={{
-                fontFamily: "'FB Ahava', 'Playfair Display', serif",
-                color: '#4A2C2C',
-              }}
-            >
-              {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
-            </p>
-
-            {readOnly && existingData?.submittedAt && (
-              <p className="text-[11px] mt-2 font-medium" style={{ color: '#B8860B' }}>
-                {isHe ? '📅 תאריך חתימה: ' : '📅 Signed: '}
-                {new Date(existingData.submittedAt).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            {/* Welcome text — gold on charcoal */}
+            <div className="flex flex-col items-center px-5 pt-2 pb-5 text-center">
+              <h1
+                className="text-lg sm:text-xl leading-snug mb-1"
+                style={{
+                  fontFamily: "'FB Ahava', 'Playfair Display', serif",
+                  fontWeight: 700,
+                  color: '#D4AF37',
+                }}
+              >
+                {step === 1 && fullName.trim()
+                  ? (isHe ? `שלום ${fullName}, איזה כיף שאת מגיעה אלינו ✨` : `Hello ${fullName}, so glad you're coming ✨`)
+                  : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
+              </h1>
+              <p
+                className="text-xs font-bold tracking-wide"
+                style={{
+                  fontFamily: "'FB Ahava', 'Playfair Display', serif",
+                  color: '#D4AF37',
+                }}
+              >
+                {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
               </p>
-            )}
+
+              {readOnly && existingData?.submittedAt && (
+                <p className="text-[11px] mt-2 font-medium" style={{ color: 'rgba(212,175,55,0.7)' }}>
+                  {isHe ? '📅 תאריך חתימה: ' : '📅 Signed: '}
+                  {new Date(existingData.submittedAt).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Elegant Progress Bar */}
