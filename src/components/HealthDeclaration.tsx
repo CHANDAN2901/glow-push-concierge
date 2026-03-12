@@ -57,19 +57,21 @@ interface Props {
 // Ultra-Luxury theme
 const T = {
   bg: 'linear-gradient(145deg, hsl(350 50% 95%), hsl(350 50% 93%), hsl(350 45% 91%))',
-  card: '#ffffff',
-  cardBorder: 'rgba(212, 175, 55, 0.12)',
-  cardShadow: '0 20px 60px rgba(0,0,0,0.04), 0 8px 24px rgba(212,175,55,0.06)',
+  card: 'linear-gradient(135deg, rgba(216,180,180,0.25) 0%, rgba(201,160,160,0.15) 100%)',
+  cardBg: 'rgba(255,255,255,0.35)',
+  cardBorder: 'rgba(216,180,180,0.4)',
+  cardShadow: '0 20px 60px rgba(216,180,180,0.15), 0 8px 24px rgba(212,175,55,0.06), 0 0 40px rgba(216,180,180,0.08)',
   input: 'transparent',
   inputBorder: 'rgba(200, 200, 200, 0.4)',
   inputFocus: '#D4AF37',
-  text: '#333333',
-  textMuted: '#999999',
+  text: '#4a3636',
+  textMuted: '#6b4a4a',
   textLabel: '#B8860B',
   gold: '#D4AF37',
   goldDark: '#B8860B',
   gradient: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
   radialGlow: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 70%)',
+  roseGoldText: 'linear-gradient(135deg, #a07070 0%, #c9a0a0 15%, #dbbcbc 30%, #e8d0d0 45%, #dbbcbc 55%, #c9a0a0 70%, #b08888 85%, #a07070 100%)',
 };
 
 const STEPS = 3;
