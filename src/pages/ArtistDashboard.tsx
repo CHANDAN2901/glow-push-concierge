@@ -3558,7 +3558,7 @@ const ArtistDashboard = () => {
             <div className="w-full h-full overflow-y-auto">
               <DigitalCard
                 embedded
-                previewName={artistName || 'שם העסק'}
+                previewName={artistName || (lang === 'en' ? 'Business Name' : 'שם העסק')}
                 previewPhone={artistPhone ? formatPhone(artistPhone) : '972508855329'}
                 previewLogo={logoUrl}
                 previewIg={instagramUrl}
