@@ -345,10 +345,14 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       toast({ title: isHe ? 'לא ניתן לשלוח — חסר מספר טלפון' : 'Cannot send — phone number missing', variant: 'destructive' });
       return;
     }
-    let text = `היי ${apt.clientName}, מזכירה לך את התור שלנו מחר ב-${apt.time}. מחכה לראותך! ✨`;
+    let text = isHe
+      ? `היי ${apt.clientName}, מזכירה לך את התור שלנו מחר ב-${apt.time}. מחכה לראותך! ✨`
+      : `Hey ${apt.clientName}, just a reminder about your appointment tomorrow at ${apt.time}. Can't wait to see you! ✨`;
     if (apt.healthFormStatus === 'pending') {
       const link = getHealthFormLink(apt.clientName, apt.clientPhone);
-      text += `\n\nשימי לב שטרם מילאת את הצהרת הבריאות, אנא עשי זאת כעת בקישור:\n${link}`;
+      text += isHe
+        ? `\n\nשימי לב שטרם מילאת את הצהרת הבריאות, אנא עשי זאת כעת בקישור:\n${link}`
+        : `\n\nPlease note you haven't filled out the health declaration yet. Please do so now:\n${link}`;
     }
     const waUrl = `https://wa.me/${formatPhoneForWA(apt.clientPhone)}?text=${encodeURIComponent(text)}`;
     window.open(waUrl, '_blank');
