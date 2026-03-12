@@ -561,6 +561,72 @@ export type Database = {
           },
         ]
       }
+      pricing_features: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          key: string
+          name_en: string
+          name_he: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key: string
+          name_en?: string
+          name_he?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          name_en?: string
+          name_he?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_plan_features: {
+        Row: {
+          created_at: string
+          feature_id: string
+          id: string
+          plan_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_id: string
+          id?: string
+          plan_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_id?: string
+          id?: string
+          plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_plan_features_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_features"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_plan_features_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_plans: {
         Row: {
           badge_en: string | null
@@ -1084,6 +1150,10 @@ export type Database = {
       }
       save_client_referral_code: {
         Args: { p_client_id: string; p_code: string }
+        Returns: undefined
+      }
+      sync_pricing_plan_feature_keys: {
+        Args: { p_plan_id: string }
         Returns: undefined
       }
     }
