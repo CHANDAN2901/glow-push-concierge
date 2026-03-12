@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Crown, Sparkles, Star, Flame, Receipt } from 'lucide-react';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
-import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/usePricingPlans';
+import { usePricingPlans, useVipTakenCount } from '@/hooks/usePricingPlans';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BackButton from '@/components/BackButton';
+import { TIERS, FEATURES, type TierDefinition } from '@/lib/subscriptionConfig';
 
 const ROSE_GOLD = '#d8b4b4';
 const ROSE_GOLD_DARK = 'hsl(14 29% 30%)';
