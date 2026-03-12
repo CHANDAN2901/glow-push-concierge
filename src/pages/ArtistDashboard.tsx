@@ -2359,7 +2359,7 @@ const ArtistDashboard = () => {
                               {lang === 'en' ? `Sent: ${lastSent}` : `נשלח: ${lastSent}`}
                             </span>
                           )}
-                          <FeatureGate featureKey="health_declaration" mode="badge">
+                          <FeatureGate featureKey={FK.HEALTH_DECLARATION} mode="badge">
                           {hasSignedDeclaration(client.name) ? (
                             <button type="button" onClick={() => setViewDeclarationFor(client.name)}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold text-white transition-all active:scale-95"
