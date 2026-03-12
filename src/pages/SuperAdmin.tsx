@@ -11,7 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { TIERS, type TierSlug } from '@/lib/subscriptionConfig';
+import { type TierSlug } from '@/lib/subscriptionConfig';
+import { usePricingPlans } from '@/hooks/usePricingPlans';
 import { startImpersonation } from '@/lib/impersonation';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -109,6 +110,7 @@ const SuperAdmin = () => {
   const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
   const [upsellDescription, setUpsellDescription] = useState('אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה');
   const [upsellButtonText, setUpsellButtonText] = useState('למימוש ההטבה');
+  const { data: dbPlans = [] } = usePricingPlans();
 
   if (loading || roleLoading) {
     return (
@@ -288,9 +290,9 @@ const SuperAdmin = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {TIERS.map(t => (
-                      <SelectItem key={t.slug} value={t.slug}>
-                        {t.name.en} — {t.price.ils === 0 ? 'Free' : `₪${t.price.ils}/mo`}
+                    {dbPlans.map(p => (
+                      <SelectItem key={p.slug} value={p.slug}>
+                        {p.name_en} — {p.price_monthly === 0 ? 'Free' : `₪${p.price_monthly}/mo`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -303,7 +305,7 @@ const SuperAdmin = () => {
             <Button
               onClick={() => {
                 setArtistList(prev => prev.map(a => a.id === editingUser?.id ? { ...a, plan: editTier } : a));
-                toast({ title: `${editingUser?.name}'s plan updated to ${TIERS.find(t => t.slug === editTier)?.name.en}` });
+                toast({ title: `${editingUser?.name}'s plan updated to ${dbPlans.find(p => p.slug === editTier)?.name_en ?? editTier}` });
                 setEditingUser(null);
               }}
             >
