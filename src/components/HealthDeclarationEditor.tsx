@@ -87,8 +87,6 @@ export default function HealthDeclarationEditor({ open, onClose, artistProfileId
       detail_placeholder_en: '',
       sort_order: questions.length + 1,
       is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
       is_included: true,
       has_override: false,
       is_custom: true,
