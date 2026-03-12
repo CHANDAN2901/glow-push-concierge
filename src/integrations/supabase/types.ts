@@ -1152,6 +1152,7 @@ export type Database = {
         Args: { p_client_id: string; p_code: string }
         Returns: undefined
       }
+      seed_mock_users: { Args: never; Returns: undefined }
       sync_pricing_plan_feature_keys: {
         Args: { p_plan_id: string }
         Returns: undefined
