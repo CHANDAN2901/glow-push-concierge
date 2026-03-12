@@ -3703,7 +3703,7 @@ const ArtistDashboard = () => {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 rounded-b-2xl z-10" style={{ background: 'hsl(38 55% 62%)' }} />
               {/* Iframe */}
               <iframe
-                src={`${window.location.origin}/client?name=${encodeURIComponent('דנה לדוגמה')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`}
+                src={`${window.location.origin}/client?name=${encodeURIComponent(lang === 'en' ? 'Dana Example' : 'דנה לדוגמה')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`}
                 className="w-full h-full border-none"
                 title="Client page preview"
               />
