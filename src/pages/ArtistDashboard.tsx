@@ -2052,7 +2052,7 @@ const ArtistDashboard = () => {
                 </button>
 
                 {/* 3. AI Voice Treatment Record */}
-                <FeatureGate featureKey="ai_magic" mode="badge">
+                <FeatureGate featureKey={FK.VOICE_NOTES} mode="badge">
                   <VoiceTreatmentRecord
                     lang={lang as 'en' | 'he'}
                     clientName={selectedClient.name}
