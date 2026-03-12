@@ -60,21 +60,22 @@ const recentSignups = [
 ];
 
 /* ── helpers ── */
-const planBadge = (plan: string) => {
+const planBadge = (plan: string, plans: import('@/hooks/usePricingPlans').PricingPlan[] = []) => {
   const styles: Record<string, string> = {
     lite: 'bg-muted text-muted-foreground',
     professional: 'bg-accent/10 text-accent',
     master: 'bg-foreground text-background',
   };
-  const labels: Record<string, string> = { lite: 'Lite', professional: 'Pro', master: 'Master' };
-  return <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${styles[plan]}`}>{labels[plan]}</span>;
+  const dbPlan = plans.find(p => p.slug === plan);
+  const label = dbPlan?.name_he ?? plan;
+  return <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${styles[plan] || 'bg-muted text-muted-foreground'}`}>{label}</span>;
 };
 
 const statusBadge = (status: string) => (
   <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
     status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'
   }`}>
-    {status === 'active' ? 'Active' : 'Suspended'}
+    {status === 'active' ? 'פעילה' : 'מושעית'}
   </span>
 );
 
@@ -194,37 +195,38 @@ const SuperAdmin = () => {
   /* ── Users View ── */
   const renderUsers = () => (
     <>
-      <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
+      <div dir="rtl" className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
         <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(216,180,180,0.3)' }}>
-          <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>User Management</h2>
-          <span className="text-xs" style={{ color: '#8c6a6a' }}>{artistList.length} artists</span>
+          <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>ניהול משתמשות</h2>
+          <span className="text-xs" style={{ color: '#8c6a6a' }}>{artistList.length} משתמשות</span>
         </div>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead>Artist & Studio</TableHead>
-                <TableHead>Plan</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-center">WA Auto</TableHead>
-                <TableHead className="text-center">WA Usage</TableHead>
-                <TableHead className="text-center">Referrals</TableHead>
-                <TableHead>Join Date</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-right">אמנית וסטודיו</TableHead>
+                <TableHead className="text-right">חבילה</TableHead>
+                <TableHead className="text-right">סטטוס</TableHead>
+                <TableHead className="text-center">WA אוטומציה</TableHead>
+                <TableHead className="text-center">שימוש WA</TableHead>
+                <TableHead className="text-center">הפניות</TableHead>
+                <TableHead className="text-right">הכנסות</TableHead>
+                <TableHead className="text-right">תאריך הצטרפות</TableHead>
+                <TableHead className="text-right">פעולות</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {artistList.map(u => (
                 <TableRow key={u.id}>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <p className="font-medium text-sm">{u.name}</p>
                     <p className="text-xs text-muted-foreground">{u.studio}</p>
                   </TableCell>
-                  <TableCell>{planBadge(u.plan)}</TableCell>
-                  <TableCell>{statusBadge(u.status)}</TableCell>
+                  <TableCell className="text-right">{planBadge(u.plan, dbPlans)}</TableCell>
+                  <TableCell className="text-right">{statusBadge(u.status)}</TableCell>
                   <TableCell className="text-center">
                     {u.waAutomation ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>⚡ ON</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>⚡ פעיל</span>
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>
                     )}
@@ -239,10 +241,10 @@ const SuperAdmin = () => {
                     )}
                   </TableCell>
                   <TableCell className="text-center font-medium text-sm">{u.referrals}</TableCell>
-                  <TableCell className="text-right font-medium text-sm">{u.revenue.toLocaleString()} ₪</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{u.joinDate}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
+                  <TableCell className="text-right font-medium text-sm">₪{u.revenue.toLocaleString()}</TableCell>
+                  <TableCell className="text-right text-sm text-muted-foreground">{u.joinDate}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center gap-1 justify-end">
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => {
@@ -253,7 +255,7 @@ const SuperAdmin = () => {
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Login as this user</TooltipContent>
+                        <TooltipContent>כניסה כמשתמשת זו</TooltipContent>
                       </Tooltip>
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingUser(u); setEditTier(u.plan as TierSlug); }}><Pencil className="w-3.5 h-3.5" /></Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"><Ban className="w-3.5 h-3.5" /></Button>
@@ -267,9 +269,9 @@ const SuperAdmin = () => {
       </div>
 
       <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="font-serif text-lg">Edit User</DialogTitle>
+            <DialogTitle className="font-serif text-lg">עריכת משתמשת</DialogTitle>
           </DialogHeader>
           {editingUser && (
             <div className="space-y-5 py-2">
@@ -284,7 +286,7 @@ const SuperAdmin = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Subscription Tier</Label>
+                <Label className="text-sm font-medium">חבילת מנוי</Label>
                 <Select value={editTier} onValueChange={(v) => setEditTier(v as TierSlug)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -292,7 +294,7 @@ const SuperAdmin = () => {
                   <SelectContent>
                     {dbPlans.map(p => (
                       <SelectItem key={p.slug} value={p.slug}>
-                        {p.name_en} — {p.price_monthly === 0 ? 'Free' : `₪${p.price_monthly}/mo`}
+                        {p.name_he} — {p.price_monthly === 0 ? 'חינם' : `₪${p.price_monthly}/חודש`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -300,16 +302,16 @@ const SuperAdmin = () => {
               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingUser(null)}>Cancel</Button>
+          <DialogFooter className="flex-row-reverse gap-2">
+            <Button variant="outline" onClick={() => setEditingUser(null)}>ביטול</Button>
             <Button
               onClick={() => {
                 setArtistList(prev => prev.map(a => a.id === editingUser?.id ? { ...a, plan: editTier } : a));
-                toast({ title: `${editingUser?.name}'s plan updated to ${dbPlans.find(p => p.slug === editTier)?.name_en ?? editTier}` });
+                toast({ title: `החבילה של ${editingUser?.name} עודכנה ל-${dbPlans.find(p => p.slug === editTier)?.name_he ?? editTier}` });
                 setEditingUser(null);
               }}
             >
-              <Save className="w-4 h-4 mr-1" /> Save Changes
+              <Save className="w-4 h-4 ml-1" /> שמירה
             </Button>
           </DialogFooter>
         </DialogContent>
