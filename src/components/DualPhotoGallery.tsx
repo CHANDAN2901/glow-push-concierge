@@ -384,10 +384,10 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
       {/* Instructions */}
       <div className="text-center space-y-1">
         <p className="text-sm font-serif font-semibold" style={{ color: ROSE_DARK }}>
-          📸 העלי תמונות של לפני ואחרי
+          {isHe ? '📸 העלי תמונות של לפני ואחרי' : 'Upload Before & After Photos 📸'}
         </p>
         <p className="text-[10px] font-serif" style={{ color: ROSE_DARK, opacity: 0.75 }}>
-          לחצי על המסגרת כדי לבחור תמונה. גררי את הלוגו למיקום הרצוי.
+          {isHe ? 'לחצי על המסגרת כדי לבחור תמונה. גררי את הלוגו למיקום הרצוי.' : 'Tap the frame to select a photo. Drag your logo to the desired position.'}
         </p>
         {/* Upload Logo button */}
         {!resolvedLogo && (
