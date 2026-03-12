@@ -101,6 +101,9 @@ const SuperAdmin = () => {
     'האם שתית אלכוהול או נטלת משככי כאבים ב-24 השעות האחרונות?',
   ]);
   const [newQuestion, setNewQuestion] = useState('');
+  const [editingUser, setEditingUser] = useState<typeof artists[0] | null>(null);
+  const [editTier, setEditTier] = useState<TierSlug>('lite');
+  const [artistList, setArtistList] = useState(artists);
   const [upsellEnabled, setUpsellEnabled] = useState(true);
   const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
   const [upsellDescription, setUpsellDescription] = useState('אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה');
