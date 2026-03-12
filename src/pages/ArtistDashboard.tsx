@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { TREATMENT_OPTIONS, getTreatmentLabel as getTreatmentLabelFn } from '@/lib/treatment-options';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
@@ -71,6 +71,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { extractEdgeFunctionError, isPushSubscriptionExpired } from '@/lib/edge-function-errors';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/useAuth';
+import { getImpersonation } from '@/lib/impersonation';
 
 interface ClientEntry {
   dbId?: string;
@@ -429,6 +430,22 @@ const ArtistDashboard = () => {
   }, [user]);
 
   useEffect(() => { fetchProfileId(); }, [fetchProfileId]);
+
+  // ── Impersonation Override ──
+  // When admin is impersonating a user, override the displayed name, studio, and tier
+  const impersonation = useMemo(() => getImpersonation(), []);
+  useEffect(() => {
+    if (impersonation) {
+      setArtistName(impersonation.userName);
+      localStorage.setItem('gp-artist-name', impersonation.userName);
+      setSubscriptionTier(impersonation.tier);
+      // studioName is available in impersonation state
+      if (impersonation.studioName) {
+        // studio_name is not a separate state var — it's part of artistName context
+        // The greeting uses artistName which we've already overridden
+      }
+    }
+  }, [impersonation]);
 
   // Fetch health declarations from DB for this artist's clients
   const fetchDbDeclarations = useCallback(async () => {
