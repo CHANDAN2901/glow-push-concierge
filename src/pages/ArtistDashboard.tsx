@@ -1888,6 +1888,7 @@ const ArtistDashboard = () => {
                     </a>
                   );
                 })()}
+                </FeatureGate>
 
                 {/* === Share Client Portal Link === */}
                 {(() => {
