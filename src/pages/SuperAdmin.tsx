@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { TIERS, type TierSlug } from '@/lib/subscriptionConfig';
+import { startImpersonation } from '@/lib/impersonation';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Table, TableBody, TableCell, TableHead,
@@ -242,7 +243,11 @@ const SuperAdmin = () => {
                     <div className="flex items-center gap-1">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => toast({ title: `Simulating login as ${u.name}...` })}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => {
+                            startImpersonation({ userName: u.name, studioName: u.studio, tier: u.plan as TierSlug });
+                            window.dispatchEvent(new Event('impersonation-changed'));
+                            navigate('/artist');
+                          }}>
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
                         </TooltipTrigger>
