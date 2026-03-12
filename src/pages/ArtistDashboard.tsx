@@ -512,11 +512,11 @@ const ArtistDashboard = () => {
   });
 
   const marketplaceFeatures = [
-    { id: 'language-pack', name: 'חבילת שפות', desc: 'תרגום אוטומטי לרוסית, אנגלית וערבית', icon: Globe, emoji: '🌍' },
-    { id: 'before-after', name: 'מחולל לפני/אחרי', desc: 'כלי ליצירת תמונות השוואה ממותגות לאינסטגרם', icon: Camera, emoji: '📸' },
-    { id: 'review-bot', name: 'בוט ביקורות', desc: 'שליחת בקשת דירוג אוטומטית ללקוחה ביום ה-30', icon: Star, emoji: '⭐' },
-    { id: 'auto-messages', name: 'אוטומציית הודעות', desc: 'שליחת הקישור ללקוחה בוואטסאפ ללא מגע יד אדם', icon: Zap, emoji: '⚡' },
-    { id: 'health-declaration', name: 'הצהרת בריאות דיגיטלית', desc: 'טופס הצהרת בריאות עם חתימה דיגיטלית', icon: ClipboardCheck, emoji: '📋' },
+    { id: 'language-pack', name: lang === 'en' ? 'Language Pack' : 'חבילת שפות', desc: lang === 'en' ? 'Auto-translate to Russian, English and Arabic' : 'תרגום אוטומטי לרוסית, אנגלית וערבית', icon: Globe, emoji: '🌍' },
+    { id: 'before-after', name: lang === 'en' ? 'Before & After Generator' : 'מחולל לפני/אחרי', desc: lang === 'en' ? 'Create branded comparison photos for Instagram' : 'כלי ליצירת תמונות השוואה ממותגות לאינסטגרם', icon: Camera, emoji: '📸' },
+    { id: 'review-bot', name: lang === 'en' ? 'Review Bot' : 'בוט ביקורות', desc: lang === 'en' ? 'Auto-send review request on day 30' : 'שליחת בקשת דירוג אוטומטית ללקוחה ביום ה-30', icon: Star, emoji: '⭐' },
+    { id: 'auto-messages', name: lang === 'en' ? 'Message Automation' : 'אוטומציית הודעות', desc: lang === 'en' ? 'Send client link via WhatsApp automatically' : 'שליחת הקישור ללקוחה בוואטסאפ ללא מגע יד אדם', icon: Zap, emoji: '⚡' },
+    { id: 'health-declaration', name: lang === 'en' ? 'Digital Health Declaration' : 'הצהרת בריאות דיגיטלית', desc: lang === 'en' ? 'Health declaration form with digital signature' : 'טופס הצהרת בריאות עם חתימה דיגיטלית', icon: ClipboardCheck, emoji: '📋' },
   ];
 
   const toggleFeature = (featureId: string) => {
