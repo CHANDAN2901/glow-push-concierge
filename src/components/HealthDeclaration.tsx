@@ -53,6 +53,7 @@ interface Props {
   appointmentDate?: string;
   appointmentTime?: string;
   isPreview?: boolean;
+  artistId?: string;
 }
 
 // Ultra-Luxury theme
