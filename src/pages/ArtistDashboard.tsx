@@ -618,7 +618,7 @@ const ArtistDashboard = () => {
   const buildReminderWhatsAppUrl = (clientName: string, clientPhone: string): string => {
     const appt = appointmentLookup[clientName];
     const cleanP = clientPhone ? formatPhone(clientPhone) : '';
-    const studioLabel = artistName || 'אורית אהרוני';
+    const studioLabel = artistName || (lang === 'en' ? 'Your Studio' : 'הסטודיו שלך');
     let text: string;
     if (appt) {
       const dateFormatted = new Date(appt.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
