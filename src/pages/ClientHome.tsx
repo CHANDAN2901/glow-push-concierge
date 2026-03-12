@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { usePromoSettings } from '@/hooks/usePromoSettings';
 import { TreatmentType } from '@/lib/recovery-data';
 import { useHealingPhases } from '@/hooks/useHealingPhases';
-import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp, Bell, Phone, Navigation } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp, Bell, Phone, Navigation, FileText } from 'lucide-react';
 import { subscribeToPush } from '@/lib/push-utils';
 import {
   Accordion,
