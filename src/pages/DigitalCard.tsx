@@ -117,8 +117,8 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
             color: '#4a3636',
           }}
         >
-          <ScrollText className="w-5 h-5" style={{ color: '#B8860B' }} />
-          {isHe ? 'מידע על הטיפול ומדיניות הקליניקה' : 'Treatment Info & Clinic Policy'}
+          <FileText className="w-5 h-5" style={{ color: '#B8860B' }} />
+          {isHe ? 'מידע חשוב ומדיניות הקליניקה' : 'Important Info & Clinic Policy'}
         </button>
       </div>
 
