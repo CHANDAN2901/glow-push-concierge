@@ -519,7 +519,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
     <div className="fixed inset-0 z-[70] flex flex-col" style={{ background: T.bg }}>
       {/* Scrollable content area */}
       <div className="flex-1 overflow-y-auto">
-      <div className="flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-8">
+      <div className="flex flex-col items-center px-4 sm:px-5 pt-0 pb-8">
         <div className="w-full max-w-lg">
 
           {/* ═══ Seamless Luxury Header — Metallic Rose Gold Gradient ═══ */}
