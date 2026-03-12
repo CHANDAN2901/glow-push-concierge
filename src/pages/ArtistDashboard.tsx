@@ -2494,6 +2494,7 @@ const ArtistDashboard = () => {
         )}
         {/* ===== HEALING TAB ===== */}
         {activeTab === 'healing' && !subScreen && healingJourneyClient && healingJourneyClient.day > 0 && (
+          <FeatureGate featureKey={FK.HEALING_TIMELINE} mode="block">
           <HealingJourneyTimeline
             clientName={healingJourneyClient.name}
             clientPhone={healingJourneyClient.phone}
