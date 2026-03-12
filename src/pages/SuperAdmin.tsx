@@ -257,9 +257,57 @@ const SuperAdmin = () => {
         </Table>
       </div>
     </div>
-  );
+      {/* Edit User Modal */}
+      <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-lg">Edit User</DialogTitle>
+          </DialogHeader>
+          {editingUser && (
+            <div className="space-y-5 py-2">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40">
+                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                  <span className="text-sm font-bold text-accent">{editingUser.name.charAt(0)}</span>
+                </div>
+                <div>
+                  <p className="font-medium text-sm">{editingUser.name}</p>
+                  <p className="text-xs text-muted-foreground">{editingUser.studio}</p>
+                </div>
+              </div>
 
-  /* ── Announcements View ── */
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Subscription Tier</Label>
+                <Select value={editTier} onValueChange={(v) => setEditTier(v as TierSlug)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIERS.map(t => (
+                      <SelectItem key={t.slug} value={t.slug}>
+                        {t.name.en} — {t.price.ils === 0 ? 'Free' : `₪${t.price.ils}/mo`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingUser(null)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                setArtistList(prev => prev.map(a => a.id === editingUser?.id ? { ...a, plan: editTier } : a));
+                toast({ title: `${editingUser?.name}'s plan updated to ${TIERS.find(t => t.slug === editTier)?.name.en}` });
+                setEditingUser(null);
+              }}
+            >
+              <Save className="w-4 h-4 mr-1" /> Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
   const renderAnnouncements = () => (
     <div className="rounded-xl p-6 max-w-2xl" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
       <h2 className="font-serif font-semibold text-lg mb-4" style={{ color: '#4a3636' }}>Send System Message</h2>
