@@ -24,7 +24,6 @@ interface DigitalCardProps {
 const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, previewIg, previewFacebook }: DigitalCardProps = {}) => {
   const [searchParams] = useSearchParams();
   const [profileError, setProfileError] = useState(false);
-  const [showPolicy, setShowPolicy] = useState(false);
   const { lang } = useI18n();
   const isHe = lang === 'he';
 
