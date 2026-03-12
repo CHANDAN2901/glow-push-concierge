@@ -389,15 +389,42 @@ const SuperAdmin = () => {
 
   /* ── Settings View ── */
 
-  const addQuestion = () => {
-    if (newQuestion.trim()) {
-      setHealthQuestions([...healthQuestions, newQuestion.trim()]);
+  const addQuestion = async () => {
+    if (!newQuestion.trim()) return;
+    try {
+      const maxOrder = healthQuestions.reduce((max, q) => Math.max(max, q.sort_order), 0);
+      const { error } = await supabase
+        .from('health_questions')
+        .insert({
+          question_he: newQuestion.trim(),
+          question_en: '',
+          risk_level: 'yellow',
+          icon: '❓',
+          has_detail_field: false,
+          sort_order: maxOrder + 1,
+          is_active: true,
+        });
+      if (error) throw error;
       setNewQuestion('');
+      await refetchHealthQuestions();
+      toast({ title: 'השאלה נוספה ✅' });
+    } catch (err: any) {
+      toast({ title: 'שגיאה בהוספת שאלה', description: err.message, variant: 'destructive' });
     }
   };
 
-  const removeQuestion = (idx: number) => {
-    setHealthQuestions(healthQuestions.filter((_, i) => i !== idx));
+  const removeQuestion = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('health_questions')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      await refetchHealthQuestions();
+      toast({ title: 'השאלה נמחקה ✅' });
+    } catch (err: any) {
+      toast({ title: 'שגיאה במחיקת שאלה', description: err.message, variant: 'destructive' });
+    }
   };
 
   const renderSettings = () => (
