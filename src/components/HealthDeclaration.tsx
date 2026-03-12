@@ -785,7 +785,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           {/* STEP 3: Consent & Signature */}
           {step === 3 && (
             <motion.div key="step3" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }} className="space-y-4">
-              <div className="rounded-3xl p-7 sm:p-8" style={{ background: T.card, backgroundColor: T.cardBg, backdropFilter: 'blur(16px)', boxShadow: T.cardShadow, border: `1.5px solid ${T.cardBorder}` }}>
+              <div className="rounded-2xl p-6 sm:p-7" style={{ backgroundColor: '#FFFFFF', boxShadow: '0 8px 40px rgba(216,180,180,0.18), 0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(212,175,55,0.2)' }}>
                 <h2 className="font-serif font-bold text-lg tracking-wide mb-6 pb-3 hd-shimmer-text" style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0, #B8860B, #D4AF37)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', borderBottom: `1px solid rgba(212,175,55,0.12)` }}>
                   {isHe ? 'הסכמה וחתימה' : 'Consent & Signature'}
                 </h2>
