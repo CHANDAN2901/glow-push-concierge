@@ -306,7 +306,7 @@ const Pricing = () => {
           // Prefer DB display features (richer marketing copy), fallback to config descriptions
           const features = plan.displayFeatures
             ? (isHe ? plan.displayFeatures.he : plan.displayFeatures.en)
-            : plan.features.map(f => isHe ? f.desc.he : f.desc.en);
+            : plan.configFeatures.map(f => isHe ? f.desc.he : f.desc.en);
           const name = isHe ? plan.name.he : plan.name.en;
           const cta = isHe ? plan.cta.he : plan.cta.en;
           const badge = plan.badge ? (isHe ? plan.badge.he : plan.badge.en) : null;
