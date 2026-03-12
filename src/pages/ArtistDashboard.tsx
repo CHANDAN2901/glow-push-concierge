@@ -2897,14 +2897,16 @@ const ArtistDashboard = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => setShowDigitalCardPreview(true)}
-              className="preview-card-btn w-full flex items-center justify-center rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
-            >
-              <span className="block w-full text-center font-bold text-base tracking-wide relative z-10" style={{ color: '#FFFFFF' }}>
-                {lang === 'en' ? 'View Digital Card' : 'תצוגת כרטיס דיגיטלי'}
-              </span>
-            </button>
+            <FeatureGate featureKey="digital_card" mode="badge">
+              <button
+                onClick={() => setShowDigitalCardPreview(true)}
+                className="preview-card-btn w-full flex items-center justify-center rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
+              >
+                <span className="block w-full text-center font-bold text-base tracking-wide relative z-10" style={{ color: '#FFFFFF' }}>
+                  {lang === 'en' ? 'View Digital Card' : 'תצוגת כרטיס דיגיטלי'}
+                </span>
+              </button>
+            </FeatureGate>
 
             {/* Preview Client Page */}
             <button
