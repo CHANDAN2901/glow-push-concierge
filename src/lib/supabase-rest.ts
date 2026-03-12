@@ -20,7 +20,6 @@ export async function restSelect<T = any>(
   params: string = '',
   accessToken?: string
 ): Promise<T[]> {
-  const sep = params ? '&' : '';
   const url = `${SUPABASE_URL}/rest/v1/${table}?${params}`;
   const res = await fetch(url, { headers: headers(accessToken) });
   if (!res.ok) {
@@ -45,6 +44,39 @@ export async function restUpdate(
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`REST UPDATE ${table} failed (${res.status}): ${text}`);
+  }
+}
+
+export async function restInsert(
+  table: string,
+  body: Record<string, any> | Record<string, any>[],
+  accessToken?: string
+): Promise<void> {
+  const url = `${SUPABASE_URL}/rest/v1/${table}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: headers(accessToken, 'return=minimal'),
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`REST INSERT ${table} failed (${res.status}): ${text}`);
+  }
+}
+
+export async function restDeleteWhere(
+  table: string,
+  filters: string,
+  accessToken?: string
+): Promise<void> {
+  const url = `${SUPABASE_URL}/rest/v1/${table}?${filters}`;
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: headers(accessToken, 'return=minimal'),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`REST DELETE ${table} failed (${res.status}): ${text}`);
   }
 }
 
