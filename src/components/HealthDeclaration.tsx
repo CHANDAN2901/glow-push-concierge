@@ -388,13 +388,12 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 
   // ═══════════════ INTRO / WELCOME SCREEN ═══════════════
   if (showIntro) {
-    const introLogoSrc = logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg;
     return (
-      <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto" style={{ background: 'linear-gradient(180deg, hsl(350 50% 95%) 0%, hsl(350 45% 93%) 50%, hsl(350 40% 91%) 100%)' }}>
+      <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto" style={{ background: 'linear-gradient(180deg, hsl(350 50% 95%) 0%, hsl(350 48% 94%) 50%, hsl(350 45% 93%) 100%)' }}>
         <div className="flex flex-col items-center min-h-screen">
 
           {/* Hero image with soft fade */}
-          <div className="relative w-full" style={{ height: '320px' }}>
+          <div className="relative w-full" style={{ height: '280px' }}>
             <img
               src={eyebrowHeroImg}
               alt=""
@@ -404,77 +403,25 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(180deg, transparent 25%, hsla(350,50%,95%,0.3) 55%, hsl(350,50%,95%) 100%)',
+                background: 'linear-gradient(180deg, transparent 20%, hsla(350,50%,95%,0.3) 50%, hsl(350,50%,95%) 100%)',
               }}
             />
-          </div>
-
-          {/* ═══ Luxury Brand Section ═══ */}
-          <div
-            className="w-full relative z-10 -mt-4 pb-8"
-            style={{
-              background: 'linear-gradient(180deg, hsl(350 50% 95%) 0%, hsl(350 48% 94%) 50%, hsl(350 45% 93%) 100%)',
-              boxShadow: '0 12px 40px rgba(216,180,180,0.15)',
-            }}
-          >
-            {/* Thin gold separator */}
-            <div className="flex justify-center pt-5 mb-6">
-              <div style={{ width: '60px', height: '1px', background: T.gradient }} />
-            </div>
-
-            {/* Logo */}
-            <div className="flex justify-center mb-5 px-6">
-              <img
-                src={introLogoSrc}
-                alt="Studio Logo"
-                className="max-w-[250px] w-full h-auto object-contain"
-                style={{ filter: 'drop-shadow(0 4px 20px rgba(212,175,55,0.3))' }}
-                onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
-              />
-            </div>
-
-            {/* Brand text with sparkle accents */}
-            <div className="text-center px-6">
-              <div className="flex items-center justify-center gap-3 mb-1">
-                <span className="text-xs" style={{ color: 'rgba(212,175,55,0.5)' }}>✦</span>
-                <p
-                  className="text-sm tracking-widest uppercase"
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    color: '#4A2C2C',
-                    fontWeight: 600,
-                    letterSpacing: '0.18em',
-                  }}
-                >
-                  Orit Aharoni
-                </p>
-                <span className="text-xs" style={{ color: 'rgba(212,175,55,0.5)' }}>✦</span>
-              </div>
-              <p
-                className="text-[11px] tracking-wider uppercase mb-2.5"
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  color: T.gold,
-                  fontWeight: 500,
-                  letterSpacing: '0.15em',
-                }}
+            {/* Title overlay */}
+            <div className="absolute bottom-0 left-0 right-0 text-center px-6 pb-5 z-10">
+              <h1
+                className="text-xl leading-snug mb-1.5"
+                style={{ fontFamily: "'FB Ahava', 'Playfair Display', serif", fontWeight: 700, color: '#4A2C2C' }}
               >
-                Permanent Makeup Studio
-              </p>
-              <p
-                className="text-xs"
-                style={{
-                  fontFamily: "'FB Ahava', serif",
-                  color: '#6b4a4a',
-                }}
-              >
-                קליניקה מקצועית לאיפור קבוע
+                {isHe ? 'הצהרת בריאות לפני טיפול' : 'Health Declaration Before Treatment'}
+              </h1>
+              <p className="text-xs leading-relaxed" style={{ fontFamily: "'FB Ahava', serif", color: '#6b4a4a' }}>
+                {isHe ? 'בדיקה קצרה לשמירה על בטיחותך לפני איפור קבוע' : 'A quick check to ensure your safety before permanent makeup'}
               </p>
             </div>
           </div>
 
           {/* Progress indicator */}
-          <div className="my-5">
+          <div className="my-4">
             <span
               className="text-xs font-medium tracking-wider px-4 py-1.5 rounded-full"
               style={{
@@ -487,25 +434,75 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
             </span>
           </div>
 
-          {/* Primary CTA */}
-          <div className="px-8 w-full max-w-md">
-            <button
-              onClick={() => setShowIntro(false)}
-              className="w-full py-4 rounded-full text-base font-bold transition-all min-h-[52px] active:scale-[0.97] text-white"
+          {/* Floating center card */}
+          <div className="px-5 w-full max-w-md">
+            <div
+              className="rounded-3xl p-7 text-center"
               style={{
-                fontFamily: "'FB Ahava', 'Playfair Display', serif",
-                background: T.gradient,
-                boxShadow: '0 8px 32px rgba(212,175,55,0.35), 0 0 20px rgba(212,175,55,0.15)',
+                backgroundColor: 'rgba(255,255,255,0.92)',
+                boxShadow: '0 20px 60px rgba(216,180,180,0.2), 0 8px 24px rgba(0,0,0,0.04)',
+                border: '1px solid rgba(216,180,180,0.25)',
               }}
             >
-              {isHe ? '✨ התחילי את הבדיקה' : '✨ Start the Check'}
-            </button>
+              <h2
+                className="text-lg font-bold mb-2"
+                style={{ fontFamily: "'FB Ahava', 'Playfair Display', serif", color: '#4A2C2C' }}
+              >
+                {isHe ? 'בדיקת התאמה לטיפול' : 'Treatment Compatibility Check'}
+              </h2>
+              <p className="text-sm mb-4 leading-relaxed" style={{ color: '#6b4a4a' }}>
+                {isHe ? 'שאלות קצרות שיעזרו לנו לוודא שהטיפול בטוח עבורך.' : 'Quick questions to help us ensure the treatment is safe for you.'}
+              </p>
+
+              {/* Time estimate */}
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <span className="text-xs" style={{ color: '#999' }}>⏱</span>
+                <span className="text-xs font-medium" style={{ color: '#999' }}>
+                  {isHe ? 'זמן מילוי: פחות מדקה' : 'Completion time: less than a minute'}
+                </span>
+              </div>
+
+              {/* Primary CTA */}
+              <button
+                onClick={() => setShowIntro(false)}
+                className="w-full py-4 rounded-full text-base font-bold transition-all min-h-[52px] active:scale-[0.97] text-white mb-4"
+                style={{
+                  fontFamily: "'FB Ahava', 'Playfair Display', serif",
+                  background: T.gradient,
+                  boxShadow: '0 8px 32px rgba(212,175,55,0.35), 0 0 20px rgba(212,175,55,0.15)',
+                }}
+              >
+                {isHe ? '✨ התחילי את הבדיקה' : '✨ Start the Check'}
+              </button>
+
+              {/* Trust indicators */}
+              <div className="space-y-1.5 mb-5">
+                {[
+                  isHe ? '✓ מאושר משרד הבריאות' : '✓ Ministry of Health approved',
+                  isHe ? '✓ פרטיות מלאה' : '✓ Full privacy',
+                  isHe ? '✓ פחות מדקה' : '✓ Less than a minute',
+                ].map((item, i) => (
+                  <p key={i} className="text-[11px] font-medium" style={{ color: '#8a7070' }}>
+                    {item}
+                  </p>
+                ))}
+              </div>
+
+              {/* Secondary back button */}
+              <button
+                onClick={onClose}
+                className="w-full py-3 rounded-full text-sm font-medium transition-all min-h-[44px] active:scale-[0.97]"
+                style={{ border: '1.5px solid rgba(212,175,55,0.35)', color: T.gold, backgroundColor: 'transparent' }}
+              >
+                {isHe ? 'חזרה' : 'Back'}
+              </button>
+            </div>
           </div>
 
           {/* Footer */}
           <div className="mt-auto py-8 text-center">
             <p className="text-xs font-medium" style={{ color: 'rgba(92,64,51,0.5)' }}>
-              ✨ {isHe ? 'נוצר באמצעות' : 'Powered by'} Glow Push
+              ✨ Glow Push
             </p>
             <p className="text-[10px] mt-0.5" style={{ color: 'rgba(92,64,51,0.35)' }}>
               {isHe ? 'המערכת החכמה לניהול קליניקות' : 'Smart clinic management system'}
