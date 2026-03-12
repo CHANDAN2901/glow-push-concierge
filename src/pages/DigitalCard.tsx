@@ -106,21 +106,6 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
         />
       </div>
 
-      {/* ===== Clinic Policy Button ===== */}
-      <div className="w-full max-w-sm px-6 mt-8">
-        <button
-          onClick={() => setShowPolicy(true)}
-          className="w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
-          style={{
-            background: 'linear-gradient(135deg, rgba(216,180,180,0.3), rgba(201,160,160,0.15))',
-            border: '1.5px solid rgba(212,175,55,0.3)',
-            color: '#4a3636',
-          }}
-        >
-          <FileText className="w-5 h-5" style={{ color: '#B8860B' }} />
-          {isHe ? 'מידע חשוב ומדיניות הקליניקה' : 'Important Info & Clinic Policy'}
-        </button>
-      </div>
 
       {/* ===== Share on WhatsApp Button ===== */}
       <div className="w-full max-w-sm px-6 mt-4 mb-10">
