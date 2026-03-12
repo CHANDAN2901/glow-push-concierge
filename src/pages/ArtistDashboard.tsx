@@ -1692,6 +1692,7 @@ const ArtistDashboard = () => {
                 </div>
               </FeatureGate>
 
+              <FeatureGate featureKey={FK.HEALING_TIMELINE} mode="badge">
               <div className="relative">
                 <button onClick={() => navigate('/admin/timeline-settings')} className="pill-action-btn animate-fade-up">
                   <span className="pill-icon-circle"><Pencil className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
@@ -1701,6 +1702,7 @@ const ArtistDashboard = () => {
                   <HelpTooltip id="healing-journey" text={lang === 'en' ? 'Customize the 30-day healing timeline — edit daily care instructions, tips, and notifications for your clients.' : 'התאימי את ציר הזמן של 30 ימי ההחלמה — ערכי הוראות טיפול, טיפים והתראות לכל יום.'} />
                 </span>
               </div>
+              </FeatureGate>
 
               <FeatureGate featureKey="health_declaration" mode="badge">
                 <div className="relative">
