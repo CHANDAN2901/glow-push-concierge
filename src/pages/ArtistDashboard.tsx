@@ -2045,14 +2045,16 @@ const ArtistDashboard = () => {
                 </button>
 
                 {/* 3. AI Voice Treatment Record */}
-                <VoiceTreatmentRecord
-                  lang={lang as 'en' | 'he'}
-                  clientName={selectedClient.name}
-                  onSave={(text, structured) => {
-                    saveTreatmentNote(selectedClient.name, text, structured);
-                    toast({ title: lang === 'en' ? `Notes saved to ${selectedClient.name}'s file ✅` : `התיעוד נשמר בהצלחה בתיק של ${selectedClient.name}! ✅` });
-                  }}
-                />
+                <FeatureGate featureKey="ai_magic" mode="badge">
+                  <VoiceTreatmentRecord
+                    lang={lang as 'en' | 'he'}
+                    clientName={selectedClient.name}
+                    onSave={(text, structured) => {
+                      saveTreatmentNote(selectedClient.name, text, structured);
+                      toast({ title: lang === 'en' ? `Notes saved to ${selectedClient.name}'s file ✅` : `התיעוד נשמר בהצלחה בתיק של ${selectedClient.name}! ✅` });
+                    }}
+                  />
+                </FeatureGate>
 
                 {/* 3.5 Treatment History */}
                 {(treatmentNotes[selectedClient.name] || []).length > 0 && (
