@@ -1701,27 +1701,31 @@ const ArtistDashboard = () => {
                 </span>
               </div>
 
-              <div className="relative">
-                <button onClick={() => setShowHealthEditor(true)} className="pill-action-btn animate-fade-up">
-                  <span className="pill-icon-circle"><ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
-                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Health Declaration' : 'עריכת הצהרת בריאות'}</span>
-                </button>
-                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                  <HelpTooltip id="health-declaration" text={lang === 'en' ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.' : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'} />
-                </span>
-              </div>
+              <FeatureGate featureKey="health_declaration" mode="badge">
+                <div className="relative">
+                  <button onClick={() => setShowHealthEditor(true)} className="pill-action-btn animate-fade-up">
+                    <span className="pill-icon-circle"><ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                    <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Health Declaration' : 'עריכת הצהרת בריאות'}</span>
+                  </button>
+                  <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                    <HelpTooltip id="health-declaration" text={lang === 'en' ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.' : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'} />
+                  </span>
+                </div>
+              </FeatureGate>
 
-              <button
-                type="button"
-                onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-                className="pill-action-btn preview-pill-btn animate-fade-up"
-                style={{ height: '56px' }}
-              >
-                <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
-                  <Eye className="w-4 h-4" style={{ color: '#FFFFFF' }} strokeWidth={1.5} />
-                </span>
-              <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
-              </button>
+              <FeatureGate featureKey="health_declaration" mode="badge">
+                <button
+                  type="button"
+                  onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
+                  className="pill-action-btn preview-pill-btn animate-fade-up"
+                  style={{ height: '56px' }}
+                >
+                  <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
+                    <Eye className="w-4 h-4" style={{ color: '#FFFFFF' }} strokeWidth={1.5} />
+                  </span>
+                <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
+                </button>
+              </FeatureGate>
 
               <div className="relative">
                 <button onClick={() => setShowVoucherEditor(true)} className="pill-action-btn animate-fade-up">
