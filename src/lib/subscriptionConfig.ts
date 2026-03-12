@@ -194,7 +194,6 @@ export const PROTECTED_ROUTES: { path: string; minTier: TierSlug; featureId: str
 const DEV_TIER_KEY = 'gp-dev-tier-override';
 
 export function getDevTierOverride(): TierSlug | null {
-  if (import.meta.env.PROD) return null;
   const val = localStorage.getItem(DEV_TIER_KEY);
   if (val === 'lite' || val === 'professional' || val === 'master') return val;
   return null;
