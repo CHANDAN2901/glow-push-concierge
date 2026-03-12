@@ -701,6 +701,7 @@ const ArtistDashboard = () => {
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showHealthEditor, setShowHealthEditor] = useState(false);
+  const [showPolicyEditor, setShowPolicyEditor] = useState(false);
   const [showVoucherEditor, setShowVoucherEditor] = useState(false);
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
