@@ -2640,12 +2640,14 @@ const ArtistDashboard = () => {
         )}
         {/* ===== BONUSES TAB ===== */}
         {activeTab === 'bonuses' && !subScreen && (
-          <div className="space-y-4">
-            <BonusCenter
-              userProfileId={userProfileId}
-              onNavigateToReferrals={() => { setActiveTab('profile'); setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }}
-            />
-          </div>
+          <FeatureGate featureKey={FK.BONUS_CENTER} mode="block">
+            <div className="space-y-4">
+              <BonusCenter
+                userProfileId={userProfileId}
+                onNavigateToReferrals={() => { setActiveTab('profile'); setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }}
+              />
+            </div>
+          </FeatureGate>
         )}
         {/* ===== PUSH! TAB ===== */}
         {activeTab === 'push' && !subScreen && (
