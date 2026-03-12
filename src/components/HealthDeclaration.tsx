@@ -302,9 +302,11 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           <div
             className="hd-flip-card hd-shine-overlay relative w-full max-w-sm rounded-3xl overflow-hidden"
             style={{
-              backgroundColor: T.card,
+              background: T.card,
+              backgroundColor: T.cardBg,
+              backdropFilter: 'blur(16px)',
               border: `3px solid ${T.gold}`,
-              boxShadow: '0 16px 60px rgba(212,175,55,0.25), 0 4px 20px rgba(0,0,0,0.08)',
+              boxShadow: '0 16px 60px rgba(212,175,55,0.25), 0 4px 20px rgba(216,180,180,0.15)',
             }}
           >
             {/* Gold header band */}
