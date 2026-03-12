@@ -760,8 +760,8 @@ export type Database = {
           referral_credit: number | null
           referred_by_profile_id: string | null
           studio_name: string | null
-          subscription_status: Database["public"]["Enums"]["subscription_status"]
-          subscription_tier: Database["public"]["Enums"]["subscription_tier"]
+          subscription_status: string
+          subscription_tier: string
           updated_at: string
           user_id: string
           waze_address: string | null
@@ -785,8 +785,8 @@ export type Database = {
           referral_credit?: number | null
           referred_by_profile_id?: string | null
           studio_name?: string | null
-          subscription_status?: Database["public"]["Enums"]["subscription_status"]
-          subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
+          subscription_status?: string
+          subscription_tier?: string
           updated_at?: string
           user_id: string
           waze_address?: string | null
@@ -810,8 +810,8 @@ export type Database = {
           referral_credit?: number | null
           referred_by_profile_id?: string | null
           studio_name?: string | null
-          subscription_status?: Database["public"]["Enums"]["subscription_status"]
-          subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
+          subscription_status?: string
+          subscription_tier?: string
           updated_at?: string
           user_id?: string
           waze_address?: string | null
