@@ -2411,63 +2411,65 @@ const ArtistDashboard = () => {
 
         {/* ===== DIGITAL CARD TAB ===== */}
         {activeTab === 'digital-card' && (
-          <div className="space-y-6">
-            <div className="text-center mb-4">
-              <h2 className="text-xl font-bold text-foreground">{lang === 'en' ? 'Your Digital Card' : 'הכרטיס הדיגיטלי שלך'}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{lang === 'en' ? 'Share with clients for booking & info' : 'שתפי עם לקוחות להזמנות ומידע'}</p>
-            </div>
-            <div className="rounded-2xl overflow-hidden border border-border shadow-md bg-background">
-              <DigitalCard
-                embedded
-                previewName={artistName || 'שם העסק'}
-                previewPhone={artistPhone ? formatPhone(artistPhone) : '972508855329'}
-                previewLogo={logoUrl}
-                previewIg={instagramUrl}
-                previewFacebook={facebookUrl}
-                previewWaze={wazeAddress}
-              />
-            </div>
-            <button
-              onClick={async () => {
-                const BASE = 'https://glow-push-concierge.lovable.app/digital-card';
-                const params = new URLSearchParams();
-                if (artistName) params.set('name', artistName);
-                const ph = artistPhone ? formatPhone(artistPhone) : '972508855329';
-                params.set('phone', ph);
-                if (logoUrl) params.set('logo', logoUrl);
-                if (instagramUrl) params.set('ig', instagramUrl);
-                if (facebookUrl) params.set('facebook', facebookUrl);
-                if (wazeAddress) params.set('waze', wazeAddress);
-                const qs = params.toString();
-                const shareUrl = `${BASE}${qs ? `?${qs}` : ''}`;
-                const shareTitle = lang === 'en' ? 'Digital Business Card' : 'כרטיס ביקור דיגיטלי';
-                const shareText = lang === 'en' ? 'Hey! ✨ Check out my new digital studio card. All the ways to reach me and see my work — just one click away:' : 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
-                try {
-                  if (navigator.share) {
-                    await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
-                    toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
-                  } else {
-                    await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                    toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
-                  }
-                } catch (e: any) {
-                  if (e?.name !== 'AbortError') {
-                    try {
+          <FeatureGate featureKey="digital_card" mode="block">
+            <div className="space-y-6">
+              <div className="text-center mb-4">
+                <h2 className="text-xl font-bold text-foreground">{lang === 'en' ? 'Your Digital Card' : 'הכרטיס הדיגיטלי שלך'}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{lang === 'en' ? 'Share with clients for booking & info' : 'שתפי עם לקוחות להזמנות ומידע'}</p>
+              </div>
+              <div className="rounded-2xl overflow-hidden border border-border shadow-md bg-background">
+                <DigitalCard
+                  embedded
+                  previewName={artistName || 'שם העסק'}
+                  previewPhone={artistPhone ? formatPhone(artistPhone) : '972508855329'}
+                  previewLogo={logoUrl}
+                  previewIg={instagramUrl}
+                  previewFacebook={facebookUrl}
+                  previewWaze={wazeAddress}
+                />
+              </div>
+              <button
+                onClick={async () => {
+                  const BASE = 'https://glow-push-concierge.lovable.app/digital-card';
+                  const params = new URLSearchParams();
+                  if (artistName) params.set('name', artistName);
+                  const ph = artistPhone ? formatPhone(artistPhone) : '972508855329';
+                  params.set('phone', ph);
+                  if (logoUrl) params.set('logo', logoUrl);
+                  if (instagramUrl) params.set('ig', instagramUrl);
+                  if (facebookUrl) params.set('facebook', facebookUrl);
+                  if (wazeAddress) params.set('waze', wazeAddress);
+                  const qs = params.toString();
+                  const shareUrl = `${BASE}${qs ? `?${qs}` : ''}`;
+                  const shareTitle = lang === 'en' ? 'Digital Business Card' : 'כרטיס ביקור דיגיטלי';
+                  const shareText = lang === 'en' ? 'Hey! ✨ Check out my new digital studio card. All the ways to reach me and see my work — just one click away:' : 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
+                  try {
+                    if (navigator.share) {
+                      await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
+                      toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                    } else {
                       await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
                       toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
-                    } catch {
-                      window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', shareUrl);
+                    }
+                  } catch (e: any) {
+                    if (e?.name !== 'AbortError') {
+                      try {
+                        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+                        toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                      } catch {
+                        window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', shareUrl);
+                      }
                     }
                   }
-                }
-              }}
-              className="preview-card-btn w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
-            >
-              <Share2 className="w-5 h-5" />
-              {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}
-            </button>
-          </div>
+                }}
+                className="preview-card-btn w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
+                style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
+              >
+                <Share2 className="w-5 h-5" />
+                {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}
+              </button>
+            </div>
+          </FeatureGate>
         )}
         {/* ===== HEALING TAB ===== */}
         {activeTab === 'healing' && !subScreen && healingJourneyClient && healingJourneyClient.day > 0 && (
