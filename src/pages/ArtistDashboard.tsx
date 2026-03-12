@@ -3601,6 +3601,13 @@ const ArtistDashboard = () => {
         artistProfileId={userProfileId}
       />
 
+      {/* Clinic Policy Editor */}
+      <ClinicPolicyEditor
+        open={showPolicyEditor}
+        onClose={() => setShowPolicyEditor(false)}
+        artistProfileId={userProfileId}
+      />
+
       {/* Digital Card Preview Modal */}
       {showDigitalCardPreview && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
