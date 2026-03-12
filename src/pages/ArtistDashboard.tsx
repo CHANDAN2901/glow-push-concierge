@@ -1716,8 +1716,7 @@ const ArtistDashboard = () => {
                 </div>
               </FeatureGate>
 
-              <FeatureGate featureKey={FK.HEALTH_DECLARATION} mode="badge">
-                <button
+              <button
                   type="button"
                   onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
                   className="pill-action-btn preview-pill-btn animate-fade-up"
@@ -1728,7 +1727,6 @@ const ArtistDashboard = () => {
                   </span>
                 <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
                 </button>
-              </FeatureGate>
 
               <FeatureGate featureKey={FK.REFERRALS} mode="badge">
               <div className="relative">
