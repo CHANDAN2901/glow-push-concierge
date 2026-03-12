@@ -2130,29 +2130,31 @@ const ArtistDashboard = () => {
                 </FeatureGate>
 
                 {/* 5. Shared Healing Photo Gallery */}
-                <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
-                  <div className="px-5 py-4 border-b border-border">
-                    <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                      <Camera className="w-4 h-4" style={{ color: '#d8b4b4' }} />
-                      {lang === 'en' ? 'Shared Healing Gallery' : 'גלריית החלמה משותפת'}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {lang === 'en' ? 'Upload photos visible to the client in real-time' : 'העלי תמונות שהלקוחה תראה בזמן אמת'}
-                    </p>
+                <FeatureGate featureKey="shared_client_gallery" mode="badge">
+                  <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
+                    <div className="px-5 py-4 border-b border-border">
+                      <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
+                        <Camera className="w-4 h-4" style={{ color: '#d8b4b4' }} />
+                        {lang === 'en' ? 'Shared Healing Gallery' : 'גלריית החלמה משותפת'}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {lang === 'en' ? 'Upload photos visible to the client in real-time' : 'העלי תמונות שהלקוחה תראה בזמן אמת'}
+                      </p>
+                    </div>
+                    <div className="p-5">
+                      <HealingPhotoGallery
+                        clientId={selectedClient.dbId || selectedClient.name}
+                        clientName={selectedClient.name}
+                        treatmentDate={(() => {
+                          const startDate = new Date();
+                          startDate.setDate(startDate.getDate() - selectedClient.day + 1);
+                          return startDate.toISOString().split('T')[0];
+                        })()}
+                        artistId={userProfileId || undefined}
+                      />
+                    </div>
                   </div>
-                  <div className="p-5">
-                    <HealingPhotoGallery
-                      clientId={selectedClient.dbId || selectedClient.name}
-                      clientName={selectedClient.name}
-                      treatmentDate={(() => {
-                        const startDate = new Date();
-                        startDate.setDate(startDate.getDate() - selectedClient.day + 1);
-                        return startDate.toISOString().split('T')[0];
-                      })()}
-                      artistId={userProfileId || undefined}
-                    />
-                  </div>
-                </div>
+                </FeatureGate>
               </div>
             ) : (
               /* ── Client List (only when no client selected) ── */
