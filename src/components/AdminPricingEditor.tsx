@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Save, Plus, X, CreditCard, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,10 +15,25 @@ function featureLabel(key: string): string {
   return feat ? `${feat.name.he} / ${feat.name.en}` : key;
 }
 
-/** Get available feature keys not already assigned to this plan */
-function availableKeys(plan: PricingPlan): string[] {
+/**
+ * Master Feature Bank: merges static FEATURES config with any
+ * custom keys found across all DB plans. This list is NEVER modified
+ * by add/remove actions on individual plans.
+ */
+function buildMasterFeatureBank(allPlans: PricingPlan[]): string[] {
+  const bank = new Set(FEATURES.map(f => f.id));
+  for (const plan of allPlans) {
+    for (const key of (plan.feature_keys || [])) {
+      bank.add(key);
+    }
+  }
+  return Array.from(bank);
+}
+
+/** Get features from the Master Bank not already assigned to this plan */
+function availableKeys(plan: PricingPlan, masterBank: string[]): string[] {
   const used = new Set(plan.feature_keys || []);
-  return FEATURES.map(f => f.id).filter(k => !used.has(k));
+  return masterBank.filter(k => !used.has(k));
 }
 
 export default function AdminPricingEditor() {
@@ -27,6 +42,8 @@ export default function AdminPricingEditor() {
   const invalidatePlans = useInvalidatePricingPlans();
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [saving, setSaving] = useState(false);
+  // Master bank: built from static config + all DB keys (survives remove actions)
+  const masterBank = useMemo(() => buildMasterFeatureBank(fetchedPlans), [fetchedPlans]);
 
   useEffect(() => {
     setPlans(fetchedPlans);
@@ -222,13 +239,13 @@ export default function AdminPricingEditor() {
                 </span>
               ))}
             </div>
-            {availableKeys(plan).length > 0 && (
+            {availableKeys(plan, masterBank).length > 0 && (
               <Select onValueChange={(val) => addFeatureKey(plan.id, val)}>
                 <SelectTrigger className="w-64 h-9 text-sm">
                   <SelectValue placeholder="הוסיפי פיצ'ר מערכתי..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableKeys(plan).map((key) => (
+                  {availableKeys(plan, masterBank).map((key) => (
                     <SelectItem key={key} value={key}>
                       {featureLabel(key)}
                     </SelectItem>
