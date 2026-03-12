@@ -60,14 +60,15 @@ const recentSignups = [
 ];
 
 /* ── helpers ── */
-const planBadge = (plan: string) => {
+const planBadge = (plan: string, plans: import('@/hooks/usePricingPlans').PricingPlan[] = []) => {
   const styles: Record<string, string> = {
     lite: 'bg-muted text-muted-foreground',
     professional: 'bg-accent/10 text-accent',
     master: 'bg-foreground text-background',
   };
-  const labels: Record<string, string> = { lite: 'Lite', professional: 'Pro', master: 'Master' };
-  return <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${styles[plan]}`}>{labels[plan]}</span>;
+  const dbPlan = plans.find(p => p.slug === plan);
+  const label = dbPlan?.name_he ?? plan;
+  return <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${styles[plan] || 'bg-muted text-muted-foreground'}`}>{label}</span>;
 };
 
 const statusBadge = (status: string) => (
