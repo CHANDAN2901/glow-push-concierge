@@ -1157,6 +1157,7 @@ export type Database = {
         Args: { p_plan_id: string }
         Returns: undefined
       }
+      upgrade_self_to_master: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"

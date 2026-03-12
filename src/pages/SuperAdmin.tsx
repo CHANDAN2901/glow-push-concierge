@@ -253,7 +253,7 @@ const SuperAdmin = () => {
       <div dir="rtl" className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
         <div className="p-5 flex items-center justify-between gap-2 flex-wrap" style={{ borderBottom: '1px solid rgba(216,180,180,0.3)' }}>
           <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>ניהול משתמשות</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="outline"
               size="sm"
@@ -262,6 +262,21 @@ const SuperAdmin = () => {
             >
               <UserPlus className="w-3.5 h-3.5 ml-1" />
               {seedUsersMutation.isPending ? 'יוצרת...' : 'הוספת משתמשות טסט'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                const { error } = await supabase.rpc('upgrade_self_to_master' as any);
+                if (error) {
+                  toast({ title: 'שגיאה', description: error.message, variant: 'destructive' });
+                } else {
+                  queryClient.invalidateQueries({ queryKey: ['superAdminUsers'] });
+                  toast({ title: 'החבילה שלך שודרגה ל-Master! 👑' });
+                }
+              }}
+            >
+              👑 שדרוג עצמי ל-Master
             </Button>
             <span className="text-xs" style={{ color: '#8c6a6a' }}>{artistList.length} משתמשות</span>
           </div>
