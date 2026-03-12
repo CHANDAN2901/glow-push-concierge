@@ -305,7 +305,7 @@ const SuperAdmin = () => {
             <Button
               onClick={() => {
                 setArtistList(prev => prev.map(a => a.id === editingUser?.id ? { ...a, plan: editTier } : a));
-                toast({ title: `${editingUser?.name}'s plan updated to ${TIERS.find(t => t.slug === editTier)?.name.en}` });
+                toast({ title: `${editingUser?.name}'s plan updated to ${dbPlans.find(p => p.slug === editTier)?.name_en ?? editTier}` });
                 setEditingUser(null);
               }}
             >
