@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import ClinicPolicyViewer from '@/components/ClinicPolicyViewer';
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
