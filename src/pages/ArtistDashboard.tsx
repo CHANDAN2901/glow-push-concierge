@@ -3537,7 +3537,7 @@ const ArtistDashboard = () => {
             <button onClick={() => setShowHealthEditor(false)} className="p-2 -m-2 rounded-xl hover:bg-accent/10 transition-colors">
               <X className="w-5 h-5 text-foreground" />
             </button>
-            <h2 className="font-serif font-bold text-lg flex-1 text-right">ניהול שאלות הצהרת בריאות</h2>
+            <h2 className="font-serif font-bold text-lg flex-1 text-right">{lang === 'en' ? 'Manage Health Declaration Questions' : 'ניהול שאלות הצהרת בריאות'}</h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <HealthQuestionsEditor />
