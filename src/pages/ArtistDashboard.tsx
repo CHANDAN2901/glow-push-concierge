@@ -1730,6 +1730,7 @@ const ArtistDashboard = () => {
                 </button>
               </FeatureGate>
 
+              <FeatureGate featureKey={FK.REFERRALS} mode="badge">
               <div className="relative">
                 <button onClick={() => setShowVoucherEditor(true)} className="pill-action-btn animate-fade-up">
                   <span className="pill-icon-circle"><Gift className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
@@ -1739,6 +1740,7 @@ const ArtistDashboard = () => {
                   <HelpTooltip id="referral-voucher" text={lang === 'en' ? 'Customize the referral voucher text and WhatsApp message your clients see and share.' : 'התאימי את טקסט שובר ההפניה והודעת הוואטסאפ שהלקוחות שלך רואות ומשתפות.'} />
                 </span>
               </div>
+              </FeatureGate>
             </div>
 
           </div>
