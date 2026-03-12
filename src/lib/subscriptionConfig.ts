@@ -190,13 +190,22 @@ export const PROTECTED_ROUTES: { path: string; minTier: TierSlug; featureId: str
   { path: '/admin/timeline-settings', minTier: 'professional', featureId: 'ai_magic' },
 ];
 
-// ─── Dev Override ───────────────────────────────────────────────
+// ─── Dev / Impersonation Override ───────────────────────────────
 const DEV_TIER_KEY = 'gp-dev-tier-override';
 
+const OVERRIDE_TO_TIER: Record<string, TierSlug> = {
+  lite: 'lite',
+  professional: 'professional',
+  master: 'master',
+  pro: 'lite',
+  elite: 'professional',
+  'vip-3year': 'master',
+};
+
 export function getDevTierOverride(): TierSlug | null {
-  const val = localStorage.getItem(DEV_TIER_KEY);
-  if (val === 'lite' || val === 'professional' || val === 'master') return val;
-  return null;
+  const raw = localStorage.getItem(DEV_TIER_KEY);
+  if (!raw) return null;
+  return OVERRIDE_TO_TIER[raw] ?? null;
 }
 
 export function setDevTierOverride(tier: TierSlug | null): void {
