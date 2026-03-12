@@ -1675,15 +1675,17 @@ const ArtistDashboard = () => {
                 {lang === 'en' ? 'Management' : 'ניהול'}
               </h3>
 
-              <div className="relative">
-                <button onClick={() => setShowDigitalCardPreview(true)} className="pill-action-btn animate-fade-up">
-                  <span className="pill-icon-circle"><CreditCard className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
-                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'My Digital Card' : 'הכרטיס הדיגיטלי שלי'}</span>
-                </button>
-                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                  <HelpTooltip id="digital-card" text={lang === 'en' ? 'Your luxury digital business card — share it with clients via WhatsApp or social media in one tap.' : 'כרטיס ביקור דיגיטלי יוקרתי — שתפי אותו עם לקוחות בוואטסאפ או ברשתות בלחיצה אחת.'} />
-                </span>
-              </div>
+              <FeatureGate featureKey="digital_card" mode="badge">
+                <div className="relative">
+                  <button onClick={() => setShowDigitalCardPreview(true)} className="pill-action-btn animate-fade-up">
+                    <span className="pill-icon-circle"><CreditCard className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                    <span className="flex-1 text-right pr-3">{lang === 'en' ? 'My Digital Card' : 'הכרטיס הדיגיטלי שלי'}</span>
+                  </button>
+                  <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                    <HelpTooltip id="digital-card" text={lang === 'en' ? 'Your luxury digital business card — share it with clients via WhatsApp or social media in one tap.' : 'כרטיס ביקור דיגיטלי יוקרתי — שתפי אותו עם לקוחות בוואטסאפ או ברשתות בלחיצה אחת.'} />
+                  </span>
+                </div>
+              </FeatureGate>
 
               <div className="relative">
                 <button onClick={() => navigate('/admin/timeline-settings')} className="pill-action-btn animate-fade-up">
