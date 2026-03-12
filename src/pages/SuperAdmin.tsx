@@ -28,6 +28,7 @@ import AdminHealingEditor from '@/components/AdminHealingEditor';
 import AdminAftercareEditor from '@/components/AdminAftercareEditor';
 import AdminPricingEditor from '@/components/AdminPricingEditor';
 import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
+import { useAllHealthQuestions } from '@/hooks/useHealthQuestions';
 import CouponManager from '@/components/CouponManager';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
@@ -89,23 +90,6 @@ const SuperAdmin = () => {
   const navigate = useNavigate();
   const [view, setView] = useState<AdminView>('dashboard');
   const [termsText, setTermsText] = useState('הריני מאשרת כי כל הפרטים שמסרתי בטופס זה הם נכונים ומדויקים. אני מבינה כי הטיפול מבוצע בהסכמתי המלאה, וכי הוסברו לי הסיכונים האפשריים, תהליך ההחלמה והוראות הטיפול בבית. ידוע לי שתוצאות הטיפול משתנות מאחת לאחת ותלויות גם בסוג העור ובשמירה על ההוראות.');
-  const [healthQuestions, setHealthQuestions] = useState([
-    'האם את בהריון או מניקה?',
-    'האם את נוטלת מדללי דם (אספירין, קומדין) או תרופות באופן קבוע?',
-    'האם את סובלת מסוכרת (ובאיזה רמת איזון)?',
-    'האם יש לך נטייה להצטלקות (קלואידים) או ריפוי איטי של פצעים?',
-    'האם נטלת רואקוטן (Roaccutane) בשנה האחרונה?',
-    'האם את משתמשת בתכשירים עם רטינול A או חומצות לפנים?',
-    'האם יש לך מחלות מדבקות המועברות בדם (HIV, הפטיטיס)?',
-    'האם עברת טיפולי כימותרפיה או הקרנות בחצי השנה האחרונה?',
-    'האם את סובלת מאפילפסיה?',
-    'האם יש לך קוצב לב או בעיות לבביות?',
-    'האם ביצעת הזרקות (בוטוקס/חומצה היאלורונית) באזור הטיפול בחודש האחרון?',
-    'האם את סובלת מהרפס (פצעי חום) בשפתיים? (קריטי לטיפולי שפתיים)',
-    'האם ידועה רגישות לחומרי אלחוש (לידוקאין), לטקס או מתכות?',
-    'האם קיים איפור קבוע ישן באזור הטיפול?',
-    'האם שתית אלכוהול או נטלת משככי כאבים ב-24 השעות האחרונות?',
-  ]);
   const [newQuestion, setNewQuestion] = useState('');
   const [editingUser, setEditingUser] = useState<ArtistRow | null>(null);
   const [editTier, setEditTier] = useState<TierSlug>('lite');
@@ -115,6 +99,7 @@ const SuperAdmin = () => {
   const [upsellButtonText, setUpsellButtonText] = useState('למימוש ההטבה');
   const { data: dbPlans = [] } = usePricingPlans();
   const queryClient = useQueryClient();
+  const { questions: healthQuestions, refetch: refetchHealthQuestions } = useAllHealthQuestions();
 
   // Fetch real users from database
   const { data: artistList = [], isLoading: usersLoading } = useQuery({
@@ -404,15 +389,42 @@ const SuperAdmin = () => {
 
   /* ── Settings View ── */
 
-  const addQuestion = () => {
-    if (newQuestion.trim()) {
-      setHealthQuestions([...healthQuestions, newQuestion.trim()]);
+  const addQuestion = async () => {
+    if (!newQuestion.trim()) return;
+    try {
+      const maxOrder = healthQuestions.reduce((max, q) => Math.max(max, q.sort_order), 0);
+      const { error } = await supabase
+        .from('health_questions')
+        .insert({
+          question_he: newQuestion.trim(),
+          question_en: '',
+          risk_level: 'yellow',
+          icon: '❓',
+          has_detail_field: false,
+          sort_order: maxOrder + 1,
+          is_active: true,
+        });
+      if (error) throw error;
       setNewQuestion('');
+      await refetchHealthQuestions();
+      toast({ title: 'השאלה נוספה ✅' });
+    } catch (err: any) {
+      toast({ title: 'שגיאה בהוספת שאלה', description: err.message, variant: 'destructive' });
     }
   };
 
-  const removeQuestion = (idx: number) => {
-    setHealthQuestions(healthQuestions.filter((_, i) => i !== idx));
+  const removeQuestion = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('health_questions')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      await refetchHealthQuestions();
+      toast({ title: 'השאלה נמחקה ✅' });
+    } catch (err: any) {
+      toast({ title: 'שגיאה במחיקת שאלה', description: err.message, variant: 'destructive' });
+    }
   };
 
   const renderSettings = () => (
@@ -436,10 +448,10 @@ const SuperAdmin = () => {
           <div>
             <label className="text-sm font-medium mb-2 block">שאלות הצהרת בריאות (ברירת מחדל)</label>
             <div className="space-y-2 mb-3">
-              {healthQuestions.map((q, i) => (
-                <div key={i} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
-                  <span className="text-sm flex-1">{q}</span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={() => removeQuestion(i)}>
+              {healthQuestions.map((q) => (
+                <div key={q.id} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
+                  <span className="text-sm flex-1">{q.question_he}</span>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={() => removeQuestion(q.id)}>
                     <X className="w-3.5 h-3.5" />
                   </Button>
                 </div>
