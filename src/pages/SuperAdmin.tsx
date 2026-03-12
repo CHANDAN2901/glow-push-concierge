@@ -107,14 +107,49 @@ const SuperAdmin = () => {
     'האם שתית אלכוהול או נטלת משככי כאבים ב-24 השעות האחרונות?',
   ]);
   const [newQuestion, setNewQuestion] = useState('');
-  const [editingUser, setEditingUser] = useState<typeof artists[0] | null>(null);
+  const [editingUser, setEditingUser] = useState<ArtistRow | null>(null);
   const [editTier, setEditTier] = useState<TierSlug>('lite');
-  const [artistList, setArtistList] = useState(artists);
   const [upsellEnabled, setUpsellEnabled] = useState(true);
   const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
   const [upsellDescription, setUpsellDescription] = useState('אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה');
   const [upsellButtonText, setUpsellButtonText] = useState('למימוש ההטבה');
   const { data: dbPlans = [] } = usePricingPlans();
+  const queryClient = useQueryClient();
+
+  // Fetch real users from database
+  const { data: artistList = [], isLoading: usersLoading } = useQuery({
+    queryKey: ['superAdminUsers'],
+    queryFn: async (): Promise<ArtistRow[]> => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, user_id, full_name, studio_name, subscription_tier, subscription_status, created_at, has_whatsapp_automation')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(p => ({
+        id: p.user_id,
+        profileId: p.id,
+        name: p.full_name || 'ללא שם',
+        studio: p.studio_name || '—',
+        plan: p.subscription_tier || 'lite',
+        status: p.subscription_status === 'canceled' ? 'suspended' : 'active',
+        joinDate: new Date(p.created_at).toLocaleDateString('he-IL'),
+      }));
+    },
+  });
+
+  // Mutation to persist tier changes
+  const updateTierMutation = useMutation({
+    mutationFn: async ({ profileId, newTier }: { profileId: string; newTier: TierSlug }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ subscription_tier: newTier })
+        .eq('id', profileId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['superAdminUsers'] });
+    },
+  });
 
   if (loading || roleLoading) {
     return (
