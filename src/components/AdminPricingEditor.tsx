@@ -15,10 +15,25 @@ function featureLabel(key: string): string {
   return feat ? `${feat.name.he} / ${feat.name.en}` : key;
 }
 
-/** Get available feature keys not already assigned to this plan */
-function availableKeys(plan: PricingPlan): string[] {
+/**
+ * Master Feature Bank: merges static FEATURES config with any
+ * custom keys found across all DB plans. This list is NEVER modified
+ * by add/remove actions on individual plans.
+ */
+function buildMasterFeatureBank(allPlans: PricingPlan[]): string[] {
+  const bank = new Set(FEATURES.map(f => f.id));
+  for (const plan of allPlans) {
+    for (const key of (plan.feature_keys || [])) {
+      bank.add(key);
+    }
+  }
+  return Array.from(bank);
+}
+
+/** Get features from the Master Bank not already assigned to this plan */
+function availableKeys(plan: PricingPlan, masterBank: string[]): string[] {
   const used = new Set(plan.feature_keys || []);
-  return FEATURES.map(f => f.id).filter(k => !used.has(k));
+  return masterBank.filter(k => !used.has(k));
 }
 
 export default function AdminPricingEditor() {
