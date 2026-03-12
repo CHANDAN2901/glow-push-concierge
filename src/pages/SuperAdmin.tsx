@@ -34,7 +34,7 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTo
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
+type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'clinic-policy' | 'faq' | 'faq-manager' | 'settings';
 
 interface ArtistRow {
   id: string;
