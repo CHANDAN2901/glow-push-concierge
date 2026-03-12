@@ -23,6 +23,7 @@ import HealthDeclarationPreview from '@/components/HealthDeclarationPreview';
 import AiMagicSection from '@/components/AiMagicSection';
 import HelpCenter from '@/components/HelpCenter';
 import HealthDeclarationEditor from '@/components/HealthDeclarationEditor';
+import ClinicPolicyEditor from '@/components/ClinicPolicyEditor';
 import SmartCalendar from '@/components/SmartCalendar';
 import SimpleGallery from '@/components/SimpleGallery';
 import { DualPhotoGallery } from '@/components/DualPhotoGallery';
