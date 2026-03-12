@@ -12,6 +12,21 @@ import {
 const TIER_QUERY_KEY = 'user-tier';
 const TIER_FEATURES_QUERY_KEY = 'tier-feature-keys';
 
+/**
+ * Maps profile subscription_tier values to pricing_plans.slug in the DB.
+ * Profiles store: lite / professional / master
+ * pricing_plans stores: pro / elite / vip-3year
+ */
+const TIER_TO_PLAN_SLUG: Record<string, string> = {
+  lite: 'pro',
+  professional: 'elite',
+  master: 'vip-3year',
+};
+
+function resolvePlanSlug(tierSlug: string): string {
+  return TIER_TO_PLAN_SLUG[tierSlug] ?? tierSlug;
+}
+
 /** Fetch the current user's subscription_tier from profiles */
 function useUserTier() {
   const { user } = useAuth();
@@ -34,24 +49,26 @@ function useUserTier() {
 
 /**
  * Fetch the feature_keys array from pricing_plans for a given tier slug.
- * This is the LIVE database source of truth for which features a tier unlocks.
+ * Resolves the profile tier slug to the DB plan slug automatically.
  */
 function useTierFeatureKeys(tierSlug: TierSlug) {
+  const planSlug = resolvePlanSlug(tierSlug);
   return useQuery({
-    queryKey: [TIER_FEATURES_QUERY_KEY, tierSlug],
+    queryKey: [TIER_FEATURES_QUERY_KEY, planSlug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pricing_plans')
         .select('feature_keys')
-        .eq('slug', tierSlug)
+        .eq('slug', planSlug)
         .single();
       if (error) {
-        console.warn('Failed to fetch tier feature_keys from DB, falling back to empty', error);
+        console.warn(`[FeatureAccess] Failed to fetch features for plan slug "${planSlug}" (tier: "${tierSlug}")`, error);
         return [] as string[];
       }
+      console.log(`[FeatureAccess] Tier "${tierSlug}" → plan "${planSlug}" → features:`, data?.feature_keys);
       return (data?.feature_keys ?? []) as string[];
     },
-    staleTime: 30_000, // refresh every 30s to pick up admin changes quickly
+    staleTime: 30_000,
   });
 }
 
