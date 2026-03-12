@@ -1951,8 +1951,8 @@ const ArtistDashboard = () => {
                             endpoint: sub.endpoint,
                             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
                           },
-                          title: 'בדיקת מערכת GlowPush 🔔',
-                          body: `היי ${selectedClient.name}, זו התראת ניסיון מהמערכת! ✨`,
+                          title: lang === 'en' ? 'GlowPush System Test 🔔' : 'בדיקת מערכת GlowPush 🔔',
+                          body: lang === 'en' ? `Hey ${selectedClient.name}, this is a test notification! ✨` : `היי ${selectedClient.name}, זו התראת ניסיון מהמערכת! ✨`,
                           day: 1,
                         },
                       });
