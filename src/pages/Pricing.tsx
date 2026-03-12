@@ -103,12 +103,35 @@ const Pricing = () => {
   const { lang, t } = useI18n();
   const isHe = lang === 'he';
   const { toast } = useToast();
-  const { data: plans = [], isLoading } = usePricingPlans();
+  const { data: dbPlans = [] } = usePricingPlans();
   const { data: vipTaken = 0 } = useVipTakenCount();
   const { user } = useAuth();
 
-  const [artistName, setArtistName] = useState('');
-  const [currentTier, setCurrentTier] = useState('lite');
+  // Derive plan cards from central config, merge DB overrides (stripe_price_id, promo spots, CTA)
+  const plans = useMemo(() => {
+    const dbBySlug = Object.fromEntries(dbPlans.map(p => [p.slug, p]));
+
+    return TIERS.map((tier) => {
+      const db = dbBySlug[tier.slug];
+      // Get features belonging to this tier but NOT to any cheaper tier
+      const tierFeatures = FEATURES.filter(f => tier.featureKeys.includes(f.id));
+
+      return {
+        slug: tier.slug,
+        name: tier.name,
+        price: tier.price,
+        isHighlighted: tier.isHighlighted ?? false,
+        badge: tier.badge ?? null,
+        features: tierFeatures.map(f => ({ name: f.name, desc: f.desc })),
+        // DB overrides for payment / promo
+        stripe_price_id: db?.stripe_price_id ?? null,
+        total_promo_spots: db?.total_promo_spots ?? 0,
+        cta: db ? { en: db.cta_en, he: db.cta_he } : { en: 'Get Started', he: 'בואי נתחיל' },
+        // Keep DB display features if available (richer marketing copy)
+        displayFeatures: db ? { en: db.features_en, he: db.features_he } : null,
+      };
+    });
+  }, [dbPlans]);
 
   useEffect(() => {
     if (!user) return;
