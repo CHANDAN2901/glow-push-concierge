@@ -149,14 +149,26 @@ export default function ClinicPolicyEditor({ open, onClose, artistProfileId }: C
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="gap-2"
+            className="gap-2 min-w-[120px] transition-all"
             style={{
-              background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #B8860B 100%)',
+              background: saving
+                ? 'linear-gradient(135deg, #9a7209 0%, #b8960f 50%, #9a7209 100%)'
+                : 'linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #B8860B 100%)',
               color: '#fff',
+              opacity: saving ? 0.8 : 1,
             }}
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {isHe ? 'שמירה' : 'Save'}
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {isHe ? 'שומר...' : 'Saving...'}
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                {isHe ? 'שמירה' : 'Save'}
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
