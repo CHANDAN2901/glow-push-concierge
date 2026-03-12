@@ -4,6 +4,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { I18nProvider } from "@/components/I18nProvider";
 import Header from "@/components/Header";
@@ -62,7 +63,7 @@ const App = () => (
               <Route path="/admin/aftercare" element={<AftercareEditorPage />} />
               <Route path="/admin/timeline" element={<TimelineEditorPage />} />
               <Route path="/admin/timeline-content" element={<TimelineContentEditorPage />} />
-              <Route path="/admin/timeline-settings" element={<TimelineSettings />} />
+              <Route path="/admin/timeline-settings" element={<ProtectedRoute featureId="ai_magic"><TimelineSettings /></ProtectedRoute>} />
               <Route path="/admin/faq" element={<FaqPage />} />
               <Route path="/admin/faq-manager" element={<FaqManager />} />
               <Route path="/super-admin" element={<SuperAdmin />} />
