@@ -3583,20 +3583,12 @@ const ArtistDashboard = () => {
         lang={lang}
       />
 
-      {/* Health Declaration Editor - Full Screen */}
-      {showHealthEditor && (
-        <div className="fixed inset-0 z-[60] bg-background flex flex-col">
-          <div className="flex-shrink-0 border-b border-border bg-card px-4 py-3 flex items-center gap-3">
-            <button onClick={() => setShowHealthEditor(false)} className="p-2 -m-2 rounded-xl hover:bg-accent/10 transition-colors">
-              <X className="w-5 h-5 text-foreground" />
-            </button>
-            <h2 className="font-serif font-bold text-lg flex-1 text-right">{lang === 'en' ? 'Manage Health Declaration Questions' : 'ניהול שאלות הצהרת בריאות'}</h2>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4">
-            <HealthQuestionsEditor />
-          </div>
-        </div>
-      )}
+      {/* Health Declaration Editor - Artist Override Dialog */}
+      <HealthDeclarationEditor
+        open={showHealthEditor}
+        onClose={() => setShowHealthEditor(false)}
+        artistProfileId={userProfileId}
+      />
 
       {/* Digital Card Preview Modal */}
       {showDigitalCardPreview && (
