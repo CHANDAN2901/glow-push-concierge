@@ -133,6 +133,9 @@ const Pricing = () => {
     });
   }, [dbPlans]);
 
+  const [artistName, setArtistName] = useState('');
+  const [currentTier, setCurrentTier] = useState('lite');
+
   useEffect(() => {
     if (!user) return;
     supabase
@@ -150,14 +153,6 @@ const Pricing = () => {
 
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier]?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse font-serif" style={{ color: ROSE_GOLD_METALLIC }}>טוען...</div>
-      </div>
-    );
-  }
 
   const BOKEH_CIRCLES = [
     { size: 200, top: '5%', left: '8%', color: 'rgba(216,180,180,0.3)', blur: 70, delay: 0 },
