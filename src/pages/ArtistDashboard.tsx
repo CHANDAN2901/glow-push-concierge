@@ -16,6 +16,7 @@ import HealthDeclaration, { type HealthDeclarationData } from '@/components/Heal
 import VoiceTreatmentRecord from '@/components/VoiceTreatmentRecord';
 import NewClientDispatch from '@/components/NewClientDispatch';
 import UpgradeModal from '@/components/UpgradeModal';
+import FeatureGate from '@/components/FeatureGate';
 import ReferralTab from '@/components/ReferralTab';
 import HealthDeclarationPreview from '@/components/HealthDeclarationPreview';
 import AiMagicSection from '@/components/AiMagicSection';
