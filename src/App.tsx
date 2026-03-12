@@ -80,6 +80,7 @@ const App = () => (
             </Routes>
           </ErrorBoundary>
           <DevSwitcher />
+          <ImpersonationBanner />
           <CookieConsentBanner />
           <FeedbackFAB />
         </BrowserRouter>
