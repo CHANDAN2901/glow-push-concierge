@@ -1,11 +1,12 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import ClinicPolicyViewer from '@/components/ClinicPolicyViewer';
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { usePromoSettings } from '@/hooks/usePromoSettings';
 import { TreatmentType } from '@/lib/recovery-data';
 import { useHealingPhases } from '@/hooks/useHealingPhases';
-import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp, Bell, Phone, Navigation } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp, Bell, Phone, Navigation, FileText } from 'lucide-react';
 import { subscribeToPush } from '@/lib/push-utils';
 import {
   Accordion,
@@ -491,6 +492,7 @@ const ClientHome = () => {
 
   /* ─── Notification Center ─── */
   const [notifOpen, setNotifOpen] = useState(false);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const treatmentStartDate = useMemo(() => {
     if (!startDateParam) return new Date();
@@ -592,6 +594,21 @@ const ClientHome = () => {
             </span>
           </div>
         </div>
+
+        {/* ─── CLINIC POLICY BUTTON ─── */}
+        <button
+          onClick={() => setShowPolicyModal(true)}
+          className="w-full mb-5 py-3.5 text-sm font-semibold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(216,180,180,0.3), rgba(201,160,160,0.15))',
+            border: GOLD_BORDER,
+            color: BODY_TEXT,
+            fontFamily: FBAHAVA,
+          }}
+        >
+          <FileText className="w-5 h-5" style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
+          {lang === 'en' ? 'Important Info & Clinic Policy' : 'מידע חשוב ומדיניות הקליניקה'}
+        </button>
 
         {/* ─── CURRENT TREATMENT STATUS ─── */}
         <div
@@ -1214,6 +1231,9 @@ const ClientHome = () => {
           </div>
         </div>
       )}
+
+      {/* Policy Modal */}
+      <ClinicPolicyViewer open={showPolicyModal} onClose={() => setShowPolicyModal(false)} artistProfileId={artistProfileId || undefined} />
     </div>
   );
 };
