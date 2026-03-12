@@ -190,74 +190,75 @@ const SuperAdmin = () => {
 
   /* ── Users View ── */
   const renderUsers = () => (
-    <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
-      <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(216,180,180,0.3)' }}>
-        <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>User Management</h2>
-        <span className="text-xs" style={{ color: '#8c6a6a' }}>{artistList.length} artists</span>
-      </div>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Artist & Studio</TableHead>
-              <TableHead>Plan</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-center">WA Auto</TableHead>
-              <TableHead className="text-center">WA Usage</TableHead>
-              <TableHead className="text-center">Referrals</TableHead>
-              <TableHead>Join Date</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {artistList.map(u => (
-              <TableRow key={u.id}>
-                <TableCell>
-                  <p className="font-medium text-sm">{u.name}</p>
-                  <p className="text-xs text-muted-foreground">{u.studio}</p>
-                </TableCell>
-                <TableCell>{planBadge(u.plan)}</TableCell>
-                <TableCell>{statusBadge(u.status)}</TableCell>
-                <TableCell className="text-center">
-                  {u.waAutomation ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>⚡ ON</span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-center">
-                  {u.waAutomation ? (
-                    <span className={`text-xs font-semibold ${u.waUsage > 180 ? 'text-destructive' : 'text-foreground'}`}>
-                      {u.waUsage}/200
-                    </span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-center font-medium text-sm">{u.referrals}</TableCell>
-                <TableCell className="text-right font-medium text-sm">{u.revenue.toLocaleString()} ₪</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{u.joinDate}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => toast({ title: `Simulating login as ${u.name}...` })}>
-                          <Eye className="w-3.5 h-3.5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Login as this user</TooltipContent>
-                    </Tooltip>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingUser(u); setEditTier(u.plan as TierSlug); }}><Pencil className="w-3.5 h-3.5" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"><Ban className="w-3.5 h-3.5" /></Button>
-                  </div>
-                </TableCell>
+    <>
+      <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
+        <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(216,180,180,0.3)' }}>
+          <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>User Management</h2>
+          <span className="text-xs" style={{ color: '#8c6a6a' }}>{artistList.length} artists</span>
+        </div>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>Artist & Studio</TableHead>
+                <TableHead>Plan</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-center">WA Auto</TableHead>
+                <TableHead className="text-center">WA Usage</TableHead>
+                <TableHead className="text-center">Referrals</TableHead>
+                <TableHead>Join Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {artistList.map(u => (
+                <TableRow key={u.id}>
+                  <TableCell>
+                    <p className="font-medium text-sm">{u.name}</p>
+                    <p className="text-xs text-muted-foreground">{u.studio}</p>
+                  </TableCell>
+                  <TableCell>{planBadge(u.plan)}</TableCell>
+                  <TableCell>{statusBadge(u.status)}</TableCell>
+                  <TableCell className="text-center">
+                    {u.waAutomation ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>⚡ ON</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {u.waAutomation ? (
+                      <span className={`text-xs font-semibold ${u.waUsage > 180 ? 'text-destructive' : 'text-foreground'}`}>
+                        {u.waUsage}/200
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center font-medium text-sm">{u.referrals}</TableCell>
+                  <TableCell className="text-right font-medium text-sm">{u.revenue.toLocaleString()} ₪</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{u.joinDate}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => toast({ title: `Simulating login as ${u.name}...` })}>
+                            <Eye className="w-3.5 h-3.5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Login as this user</TooltipContent>
+                      </Tooltip>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingUser(u); setEditTier(u.plan as TierSlug); }}><Pencil className="w-3.5 h-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"><Ban className="w-3.5 h-3.5" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
-      {/* Edit User Modal */}
+
       <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -306,7 +307,7 @@ const SuperAdmin = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
   /* ── Announcements View ── */
   const renderAnnouncements = () => (
