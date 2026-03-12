@@ -68,9 +68,14 @@ try {
   if (cartist) localStorage.setItem(LS_ARTIST_ID, cartist);
 } catch (_) { /* SSR-safe */ }
 
-// Time-based greeting (forced Hebrew for client recovery flow consistency)
-function getTimeGreeting(name: string): string {
+// Time-based greeting
+function getTimeGreeting(name: string, lang: 'en' | 'he' = 'he'): string {
   const hour = new Date().getHours();
+  if (lang === 'en') {
+    if (hour < 12) return `Good morning, ${name}`;
+    if (hour < 18) return `Good afternoon, ${name}`;
+    return `Good evening, ${name}`;
+  }
   if (hour < 12) return `בוקר זוהר, ${name}`;
   if (hour < 18) return `צהריים זוהרים, ${name}`;
   return `ערב זוהר, ${name}`;
