@@ -52,9 +52,11 @@ export default function FeatureGate({
     : '';
 
   // While loading, render children to avoid false-negative lock flash
+  // ONLY while auth/tier data is loading; once loaded, enforce strictly
   if (isLoading) return <>{children}</>;
 
-  // User has access → render the feature
+  // STRICT FAIL-CLOSED: feature is only unlocked if the key is
+  // explicitly present in the live DB feature_keys array for the user's tier.
   if (hasFeature(featureKey)) {
     return <>{children}</>;
   }

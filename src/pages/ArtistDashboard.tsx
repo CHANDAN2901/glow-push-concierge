@@ -17,6 +17,7 @@ import VoiceTreatmentRecord from '@/components/VoiceTreatmentRecord';
 import NewClientDispatch from '@/components/NewClientDispatch';
 import UpgradeModal from '@/components/UpgradeModal';
 import FeatureGate from '@/components/FeatureGate';
+import { FK } from '@/lib/featureKeys';
 import ReferralTab from '@/components/ReferralTab';
 import HealthDeclarationPreview from '@/components/HealthDeclarationPreview';
 import AiMagicSection from '@/components/AiMagicSection';
@@ -1499,7 +1500,7 @@ const ArtistDashboard = () => {
             </div>
 
             {/* ═══ 4. DAILY GROWTH ENGINE ═══ */}
-            <FeatureGate featureKey="daily_growth_engine" mode="badge">
+            <FeatureGate featureKey={FK.DAILY_GROWTH_ENGINE} mode="badge">
               <div>
                 <div className="flex justify-end">
                   <button
@@ -1679,7 +1680,7 @@ const ArtistDashboard = () => {
                 {lang === 'en' ? 'Management' : 'ניהול'}
               </h3>
 
-              <FeatureGate featureKey="digital_card" mode="badge">
+              <FeatureGate featureKey={FK.DIGITAL_CARD} mode="badge">
                 <div className="relative">
                   <button onClick={() => setShowDigitalCardPreview(true)} className="pill-action-btn animate-fade-up">
                     <span className="pill-icon-circle"><CreditCard className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
@@ -1691,6 +1692,7 @@ const ArtistDashboard = () => {
                 </div>
               </FeatureGate>
 
+              <FeatureGate featureKey={FK.HEALING_TIMELINE} mode="badge">
               <div className="relative">
                 <button onClick={() => navigate('/admin/timeline-settings')} className="pill-action-btn animate-fade-up">
                   <span className="pill-icon-circle"><Pencil className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
@@ -1700,8 +1702,9 @@ const ArtistDashboard = () => {
                   <HelpTooltip id="healing-journey" text={lang === 'en' ? 'Customize the 30-day healing timeline — edit daily care instructions, tips, and notifications for your clients.' : 'התאימי את ציר הזמן של 30 ימי ההחלמה — ערכי הוראות טיפול, טיפים והתראות לכל יום.'} />
                 </span>
               </div>
+              </FeatureGate>
 
-              <FeatureGate featureKey="health_declaration" mode="badge">
+              <FeatureGate featureKey={FK.HEALTH_DECLARATION} mode="badge">
                 <div className="relative">
                   <button onClick={() => setShowHealthEditor(true)} className="pill-action-btn animate-fade-up">
                     <span className="pill-icon-circle"><ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
@@ -1713,7 +1716,7 @@ const ArtistDashboard = () => {
                 </div>
               </FeatureGate>
 
-              <FeatureGate featureKey="health_declaration" mode="badge">
+              <FeatureGate featureKey={FK.HEALTH_DECLARATION} mode="badge">
                 <button
                   type="button"
                   onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
@@ -1727,6 +1730,7 @@ const ArtistDashboard = () => {
                 </button>
               </FeatureGate>
 
+              <FeatureGate featureKey={FK.REFERRALS} mode="badge">
               <div className="relative">
                 <button onClick={() => setShowVoucherEditor(true)} className="pill-action-btn animate-fade-up">
                   <span className="pill-icon-circle"><Gift className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
@@ -1736,6 +1740,7 @@ const ArtistDashboard = () => {
                   <HelpTooltip id="referral-voucher" text={lang === 'en' ? 'Customize the referral voucher text and WhatsApp message your clients see and share.' : 'התאימי את טקסט שובר ההפניה והודעת הוואטסאפ שהלקוחות שלך רואות ומשתפות.'} />
                 </span>
               </div>
+              </FeatureGate>
             </div>
 
           </div>
@@ -1809,7 +1814,7 @@ const ArtistDashboard = () => {
                 </div>
 
                 {/* 2.5 Health Declaration Button */}
-                <FeatureGate featureKey="health_declaration" mode="badge">
+                <FeatureGate featureKey={FK.HEALTH_DECLARATION} mode="badge">
                 {(() => {
                   const signed = hasSignedDeclaration(selectedClient.name);
                   const hasFlags = clientHasRedFlags(selectedClient.name) && !selectedClient.medicalExceptionApproved;
@@ -2047,7 +2052,7 @@ const ArtistDashboard = () => {
                 </button>
 
                 {/* 3. AI Voice Treatment Record */}
-                <FeatureGate featureKey="ai_magic" mode="badge">
+                <FeatureGate featureKey={FK.VOICE_NOTES} mode="badge">
                   <VoiceTreatmentRecord
                     lang={lang as 'en' | 'he'}
                     clientName={selectedClient.name}
@@ -2109,7 +2114,7 @@ const ArtistDashboard = () => {
                 )}
 
                 {/* Before & After Collage Builder — Artist only */}
-                <FeatureGate featureKey="before_after_collage" mode="badge">
+                <FeatureGate featureKey={FK.BEFORE_AFTER_COLLAGE} mode="badge">
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                   <div className="px-5 py-4 border-b border-border">
                     <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
@@ -2132,7 +2137,7 @@ const ArtistDashboard = () => {
                 </FeatureGate>
 
                 {/* 5. Shared Healing Photo Gallery */}
-                <FeatureGate featureKey="shared_client_gallery" mode="badge">
+                <FeatureGate featureKey={FK.SHARED_CLIENT_GALLERY} mode="badge">
                   <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                     <div className="px-5 py-4 border-b border-border">
                       <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
@@ -2354,7 +2359,7 @@ const ArtistDashboard = () => {
                               {lang === 'en' ? `Sent: ${lastSent}` : `נשלח: ${lastSent}`}
                             </span>
                           )}
-                          <FeatureGate featureKey="health_declaration" mode="badge">
+                          <FeatureGate featureKey={FK.HEALTH_DECLARATION} mode="badge">
                           {hasSignedDeclaration(client.name) ? (
                             <button type="button" onClick={() => setViewDeclarationFor(client.name)}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold text-white transition-all active:scale-95"
@@ -2427,7 +2432,7 @@ const ArtistDashboard = () => {
 
         {/* ===== DIGITAL CARD TAB ===== */}
         {activeTab === 'digital-card' && (
-          <FeatureGate featureKey="digital_card" mode="block">
+          <FeatureGate featureKey={FK.DIGITAL_CARD} mode="block">
             <div className="space-y-6">
               <div className="text-center mb-4">
                 <h2 className="text-xl font-bold text-foreground">{lang === 'en' ? 'Your Digital Card' : 'הכרטיס הדיגיטלי שלך'}</h2>
@@ -2489,6 +2494,7 @@ const ArtistDashboard = () => {
         )}
         {/* ===== HEALING TAB ===== */}
         {activeTab === 'healing' && !subScreen && healingJourneyClient && healingJourneyClient.day > 0 && (
+          <FeatureGate featureKey={FK.HEALING_TIMELINE} mode="block">
           <HealingJourneyTimeline
             clientName={healingJourneyClient.name}
             clientPhone={healingJourneyClient.phone}
@@ -2510,6 +2516,7 @@ const ArtistDashboard = () => {
               toast({ title: lang === 'en' ? 'WhatsApp opened!' : 'וואטסאפ נפתח!' });
             }}
           />
+          </FeatureGate>
         )}
         {/* ── Healing: Treatment Type Selection ── */}
         {activeTab === 'healing' && !subScreen && healingJourneyClient && healingJourneyClient.day === 0 && (() => {
@@ -2633,48 +2640,52 @@ const ArtistDashboard = () => {
         )}
         {/* ===== BONUSES TAB ===== */}
         {activeTab === 'bonuses' && !subScreen && (
-          <div className="space-y-4">
-            <BonusCenter
-              userProfileId={userProfileId}
-              onNavigateToReferrals={() => { setActiveTab('profile'); setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }}
-            />
-          </div>
+          <FeatureGate featureKey={FK.BONUS_CENTER} mode="block">
+            <div className="space-y-4">
+              <BonusCenter
+                userProfileId={userProfileId}
+                onNavigateToReferrals={() => { setActiveTab('profile'); setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }}
+              />
+            </div>
+          </FeatureGate>
         )}
         {/* ===== PUSH! TAB ===== */}
         {activeTab === 'push' && !subScreen && (
-          <div className="space-y-4">
-            {/* Coming Soon — WhatsApp Automation */}
-            <div
-              className="w-full rounded-2xl px-5 py-4 relative overflow-hidden"
-              style={{
-                background: 'rgba(255, 255, 255, 0.45)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: '1px solid rgba(216, 180, 180, 0.4)',
-                boxShadow: '0 4px 20px rgba(216, 180, 180, 0.12)',
-              }}
-            >
-              {/* Coming Soon tag */}
-              <span
-                className="absolute top-3 end-3 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
-                style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#fff' }}
+          <FeatureGate featureKey={FK.MESSAGES} mode="block">
+            <div className="space-y-4">
+              {/* Coming Soon — WhatsApp Automation */}
+              <div
+                className="w-full rounded-2xl px-5 py-4 relative overflow-hidden"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.45)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(216, 180, 180, 0.4)',
+                  boxShadow: '0 4px 20px rgba(216, 180, 180, 0.12)',
+                }}
               >
-                {lang === 'en' ? 'Coming Soon' : 'בקרוב'}
-              </span>
-              <div className="flex items-center gap-3">
-                <Crown className="w-5 h-5 shrink-0" style={{ color: '#d8b4b4' }} />
-                <div className="flex-1">
-                  <p className="font-bold text-sm" style={{ color: '#4a3636' }}>
-                    {lang === 'en' ? 'Full WhatsApp Automation — Coming Soon!' : 'אוטומציה מלאה בוואטסאפ — בקרוב!'}
-                  </p>
-                  <p className="text-[10px] mt-0.5" style={{ color: '#8c6a6a' }}>
-                    {lang === 'en' ? 'Messages will send automatically — zero clicks' : 'ההודעות יישלחו לבד — בלי ללחוץ על כלום'}
-                  </p>
+                {/* Coming Soon tag */}
+                <span
+                  className="absolute top-3 end-3 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
+                  style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#fff' }}
+                >
+                  {lang === 'en' ? 'Coming Soon' : 'בקרוב'}
+                </span>
+                <div className="flex items-center gap-3">
+                  <Crown className="w-5 h-5 shrink-0" style={{ color: '#d8b4b4' }} />
+                  <div className="flex-1">
+                    <p className="font-bold text-sm" style={{ color: '#4a3636' }}>
+                      {lang === 'en' ? 'Full WhatsApp Automation — Coming Soon!' : 'אוטומציה מלאה בוואטסאפ — בקרוב!'}
+                    </p>
+                    <p className="text-[10px] mt-0.5" style={{ color: '#8c6a6a' }}>
+                      {lang === 'en' ? 'Messages will send automatically — zero clicks' : 'ההודעות יישלחו לבד — בלי ללחוץ על כלום'}
+                    </p>
+                  </div>
                 </div>
               </div>
+              <MessageEditor />
             </div>
-            <MessageEditor />
-          </div>
+          </FeatureGate>
         )}
         {/* ===== CALENDAR TAB ===== */}
         {activeTab === 'calendar' && (
@@ -2913,7 +2924,7 @@ const ArtistDashboard = () => {
               </div>
             </div>
 
-            <FeatureGate featureKey="digital_card" mode="badge">
+            <FeatureGate featureKey={FK.DIGITAL_CARD} mode="badge">
               <button
                 onClick={() => setShowDigitalCardPreview(true)}
                 className="preview-card-btn w-full flex items-center justify-center rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
