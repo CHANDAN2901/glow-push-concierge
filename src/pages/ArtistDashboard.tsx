@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { TREATMENT_OPTIONS, getTreatmentLabel as getTreatmentLabelFn } from '@/lib/treatment-options';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
