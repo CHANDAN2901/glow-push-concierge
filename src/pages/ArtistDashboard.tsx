@@ -2432,7 +2432,7 @@ const ArtistDashboard = () => {
 
         {/* ===== DIGITAL CARD TAB ===== */}
         {activeTab === 'digital-card' && (
-          <FeatureGate featureKey="digital_card" mode="block">
+          <FeatureGate featureKey={FK.DIGITAL_CARD} mode="block">
             <div className="space-y-6">
               <div className="text-center mb-4">
                 <h2 className="text-xl font-bold text-foreground">{lang === 'en' ? 'Your Digital Card' : 'הכרטיס הדיגיטלי שלך'}</h2>
