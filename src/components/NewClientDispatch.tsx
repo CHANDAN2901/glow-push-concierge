@@ -139,7 +139,7 @@ const NewClientDispatch = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'הצהרת בריאות לטיפול',
+          title: lang === 'en' ? 'Health Declaration Form' : 'הצהרת בריאות לטיפול',
           text: msg,
         });
         markDispatched(link);
