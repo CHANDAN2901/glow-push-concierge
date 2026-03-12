@@ -594,6 +594,21 @@ const ClientHome = () => {
           </div>
         </div>
 
+        {/* ─── CLINIC POLICY BUTTON ─── */}
+        <button
+          onClick={() => setShowPolicyModal(true)}
+          className="w-full mb-5 py-3.5 text-sm font-semibold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(216,180,180,0.3), rgba(201,160,160,0.15))',
+            border: GOLD_BORDER,
+            color: BODY_TEXT,
+            fontFamily: FBAHAVA,
+          }}
+        >
+          <FileText className="w-5 h-5" style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
+          {lang === 'en' ? 'Important Info & Clinic Policy' : 'מידע חשוב ומדיניות הקליניקה'}
+        </button>
+
         {/* ─── CURRENT TREATMENT STATUS ─── */}
         <div
           className="mb-5 rounded-3xl overflow-hidden"
