@@ -525,8 +525,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           {/* ═══ Seamless Luxury Header — Metallic Rose Gold Gradient ═══ */}
           <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '140px', background: 'linear-gradient(180deg, hsl(350 35% 65%) 0%, hsl(350 40% 72%) 25%, hsl(350 45% 80%) 50%, hsl(350 50% 88%) 75%, hsl(350 50% 93%) 95%, hsl(350 50% 94%) 100%)' }}>
 
-            {/* Back button + step row */}
-            <div className="relative z-10 flex items-center justify-between w-full px-6 pt-6">
+            <div className="relative z-10 flex items-center justify-between w-full px-5 pt-3">
               <button
                 onClick={onClose}
                 className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0 backdrop-blur-sm"
@@ -542,6 +541,29 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                     : (isHe ? `שלב ${step} מתוך ${STEPS}` : `Step ${step} of ${STEPS}`)}
                 </p>
               </div>
+            </div>
+
+            {/* Logo centered in header */}
+            <div className="relative z-10 flex justify-center mt-1">
+              {instagramUrl ? (
+                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="block">
+                  <img
+                    src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
+                    alt="Studio Logo"
+                    className="max-w-[160px] w-full h-auto object-contain"
+                    style={{ filter: 'drop-shadow(0 3px 12px rgba(255,255,255,0.3))' }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
+                  />
+                </a>
+              ) : (
+                <img
+                  src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
+                  alt="Studio Logo"
+                  className="max-w-[160px] w-full h-auto object-contain"
+                  style={{ filter: 'drop-shadow(0 3px 12px rgba(255,255,255,0.3))' }}
+                  onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
+                />
+              )}
             </div>
           </div>
 
