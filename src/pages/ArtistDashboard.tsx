@@ -1499,31 +1499,35 @@ const ArtistDashboard = () => {
             </div>
 
             {/* ═══ 4. DAILY GROWTH ENGINE ═══ */}
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowTemplateEditor(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-[1.02] active:scale-[0.98] border"
-                style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 10px 28px rgba(160,100,80,0.16), 0 4px 12px rgba(180,120,90,0.1), 0 2px 6px rgba(212,175,55,0.08)',
-                }}
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                {lang === 'en' ? 'Edit Growth Engine' : 'עריכת מנוע צמיחה יומי'}
-              </button>
-            </div>
+            <FeatureGate featureKey="daily_growth_engine" mode="badge">
+              <div>
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setShowTemplateEditor(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-[1.02] active:scale-[0.98] border"
+                    style={{
+                      background: 'hsl(0 0% 100%)',
+                      borderColor: 'hsl(38 55% 58%)',
+                      color: 'hsl(36 50% 42%)',
+                      boxShadow: '0 10px 28px rgba(160,100,80,0.16), 0 4px 12px rgba(180,120,90,0.1), 0 2px 6px rgba(212,175,55,0.08)',
+                    }}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    {lang === 'en' ? 'Edit Growth Engine' : 'עריכת מנוע צמיחה יומי'}
+                  </button>
+                </div>
 
-            <DailyGrowthEngine
-              clients={clients}
-              artistName={artistName}
-              lang={lang as 'en' | 'he'}
-              onBirthdayClick={(client) => setBirthdayWishClient(client)}
-              onRenewalClick={(client) => setRenewalClient(client)}
-              reviewTemplate={customTemplates.review}
-              reviewTemplateEn={customTemplates.review_en}
-            />
+                <DailyGrowthEngine
+                  clients={clients}
+                  artistName={artistName}
+                  lang={lang as 'en' | 'he'}
+                  onBirthdayClick={(client) => setBirthdayWishClient(client)}
+                  onRenewalClick={(client) => setRenewalClient(client)}
+                  reviewTemplate={customTemplates.review}
+                  reviewTemplateEn={customTemplates.review_en}
+                />
+              </div>
+            </FeatureGate>
 
             {/* ── Today's Appointments ── */}
             {(() => {
@@ -1697,27 +1701,31 @@ const ArtistDashboard = () => {
                 </span>
               </div>
 
-              <div className="relative">
-                <button onClick={() => setShowHealthEditor(true)} className="pill-action-btn animate-fade-up">
-                  <span className="pill-icon-circle"><ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
-                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Health Declaration' : 'עריכת הצהרת בריאות'}</span>
-                </button>
-                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                  <HelpTooltip id="health-declaration" text={lang === 'en' ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.' : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'} />
-                </span>
-              </div>
+              <FeatureGate featureKey="health_declaration" mode="badge">
+                <div className="relative">
+                  <button onClick={() => setShowHealthEditor(true)} className="pill-action-btn animate-fade-up">
+                    <span className="pill-icon-circle"><ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                    <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Health Declaration' : 'עריכת הצהרת בריאות'}</span>
+                  </button>
+                  <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
+                    <HelpTooltip id="health-declaration" text={lang === 'en' ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.' : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'} />
+                  </span>
+                </div>
+              </FeatureGate>
 
-              <button
-                type="button"
-                onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
-                className="pill-action-btn preview-pill-btn animate-fade-up"
-                style={{ height: '56px' }}
-              >
-                <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
-                  <Eye className="w-4 h-4" style={{ color: '#FFFFFF' }} strokeWidth={1.5} />
-                </span>
-              <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
-              </button>
+              <FeatureGate featureKey="health_declaration" mode="badge">
+                <button
+                  type="button"
+                  onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
+                  className="pill-action-btn preview-pill-btn animate-fade-up"
+                  style={{ height: '56px' }}
+                >
+                  <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
+                    <Eye className="w-4 h-4" style={{ color: '#FFFFFF' }} strokeWidth={1.5} />
+                  </span>
+                <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
+                </button>
+              </FeatureGate>
 
               <div className="relative">
                 <button onClick={() => setShowVoucherEditor(true)} className="pill-action-btn animate-fade-up">
@@ -1801,6 +1809,7 @@ const ArtistDashboard = () => {
                 </div>
 
                 {/* 2.5 Health Declaration Button */}
+                <FeatureGate featureKey="health_declaration" mode="badge">
                 {(() => {
                   const signed = hasSignedDeclaration(selectedClient.name);
                   const hasFlags = clientHasRedFlags(selectedClient.name) && !selectedClient.medicalExceptionApproved;
@@ -1879,6 +1888,7 @@ const ArtistDashboard = () => {
                     </a>
                   );
                 })()}
+                </FeatureGate>
 
                 {/* === Share Client Portal Link === */}
                 {(() => {
@@ -2037,14 +2047,16 @@ const ArtistDashboard = () => {
                 </button>
 
                 {/* 3. AI Voice Treatment Record */}
-                <VoiceTreatmentRecord
-                  lang={lang as 'en' | 'he'}
-                  clientName={selectedClient.name}
-                  onSave={(text, structured) => {
-                    saveTreatmentNote(selectedClient.name, text, structured);
-                    toast({ title: lang === 'en' ? `Notes saved to ${selectedClient.name}'s file ✅` : `התיעוד נשמר בהצלחה בתיק של ${selectedClient.name}! ✅` });
-                  }}
-                />
+                <FeatureGate featureKey="ai_magic" mode="badge">
+                  <VoiceTreatmentRecord
+                    lang={lang as 'en' | 'he'}
+                    clientName={selectedClient.name}
+                    onSave={(text, structured) => {
+                      saveTreatmentNote(selectedClient.name, text, structured);
+                      toast({ title: lang === 'en' ? `Notes saved to ${selectedClient.name}'s file ✅` : `התיעוד נשמר בהצלחה בתיק של ${selectedClient.name}! ✅` });
+                    }}
+                  />
+                </FeatureGate>
 
                 {/* 3.5 Treatment History */}
                 {(treatmentNotes[selectedClient.name] || []).length > 0 && (
@@ -2120,29 +2132,31 @@ const ArtistDashboard = () => {
                 </FeatureGate>
 
                 {/* 5. Shared Healing Photo Gallery */}
-                <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
-                  <div className="px-5 py-4 border-b border-border">
-                    <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                      <Camera className="w-4 h-4" style={{ color: '#d8b4b4' }} />
-                      {lang === 'en' ? 'Shared Healing Gallery' : 'גלריית החלמה משותפת'}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {lang === 'en' ? 'Upload photos visible to the client in real-time' : 'העלי תמונות שהלקוחה תראה בזמן אמת'}
-                    </p>
+                <FeatureGate featureKey="shared_client_gallery" mode="badge">
+                  <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
+                    <div className="px-5 py-4 border-b border-border">
+                      <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
+                        <Camera className="w-4 h-4" style={{ color: '#d8b4b4' }} />
+                        {lang === 'en' ? 'Shared Healing Gallery' : 'גלריית החלמה משותפת'}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {lang === 'en' ? 'Upload photos visible to the client in real-time' : 'העלי תמונות שהלקוחה תראה בזמן אמת'}
+                      </p>
+                    </div>
+                    <div className="p-5">
+                      <HealingPhotoGallery
+                        clientId={selectedClient.dbId || selectedClient.name}
+                        clientName={selectedClient.name}
+                        treatmentDate={(() => {
+                          const startDate = new Date();
+                          startDate.setDate(startDate.getDate() - selectedClient.day + 1);
+                          return startDate.toISOString().split('T')[0];
+                        })()}
+                        artistId={userProfileId || undefined}
+                      />
+                    </div>
                   </div>
-                  <div className="p-5">
-                    <HealingPhotoGallery
-                      clientId={selectedClient.dbId || selectedClient.name}
-                      clientName={selectedClient.name}
-                      treatmentDate={(() => {
-                        const startDate = new Date();
-                        startDate.setDate(startDate.getDate() - selectedClient.day + 1);
-                        return startDate.toISOString().split('T')[0];
-                      })()}
-                      artistId={userProfileId || undefined}
-                    />
-                  </div>
-                </div>
+                </FeatureGate>
               </div>
             ) : (
               /* ── Client List (only when no client selected) ── */
@@ -2340,6 +2354,7 @@ const ArtistDashboard = () => {
                               {lang === 'en' ? `Sent: ${lastSent}` : `נשלח: ${lastSent}`}
                             </span>
                           )}
+                          <FeatureGate featureKey="health_declaration" mode="badge">
                           {hasSignedDeclaration(client.name) ? (
                             <button type="button" onClick={() => setViewDeclarationFor(client.name)}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold text-white transition-all active:scale-95"
@@ -2364,6 +2379,7 @@ const ArtistDashboard = () => {
                                 </a>
                               );
                             })()}
+                          </FeatureGate>
                           {birthdayWeek && (
                             <button type="button" onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
