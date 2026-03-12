@@ -441,17 +441,13 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               )}
             </div>
 
-            {/* Welcome text — metallic rose gold, FB Ahava, static */}
+            {/* Welcome text — solid Deep Burgundy, FB Ahava, static, no effects */}
             <h1
               className="text-center text-xl sm:text-2xl leading-relaxed mb-2"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 fontWeight: 700,
-                background: T.roseGoldText,
-                backgroundSize: '100% 100%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 1px 2px rgba(160,112,112,0.15))',
+                color: '#4A2C2C',
               }}
             >
               {step === 1 && fullName.trim()
@@ -462,9 +458,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               className="text-center text-sm font-bold tracking-wide"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
-                background: T.roseGoldText,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                color: '#4A2C2C',
               }}
             >
               {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
