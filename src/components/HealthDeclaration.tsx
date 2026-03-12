@@ -567,34 +567,10 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
             </div>
           </div>
 
-          {/* Logo + text — sits directly on page bg, no white box */}
-          <div className="flex flex-col items-center px-6 pt-4 pb-6">
-            {/* Logo — large, centered, borderless */}
-            <div className="w-full flex justify-center mb-5">
-              {instagramUrl ? (
-                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="block">
-                  <img
-                    src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
-                    alt="Studio Logo"
-                    className="max-w-[260px] w-full h-auto object-contain"
-                    style={{ filter: 'drop-shadow(0 4px 16px rgba(212,175,55,0.25))' }}
-                    onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
-                  />
-                </a>
-              ) : (
-                <img
-                  src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
-                  alt="Studio Logo"
-                  className="max-w-[260px] w-full h-auto object-contain"
-                  style={{ filter: 'drop-shadow(0 4px 16px rgba(212,175,55,0.25))' }}
-                  onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
-                />
-              )}
-            </div>
-
-            {/* Welcome text — solid Deep Burgundy, FB Ahava, static, no effects */}
+          {/* Welcome text — compact */}
+          <div className="flex flex-col items-center px-5 pt-2 pb-2 text-center">
             <h1
-              className="text-center text-xl sm:text-2xl leading-relaxed mb-2"
+              className="text-lg sm:text-xl leading-snug mb-1"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 fontWeight: 700,
@@ -606,7 +582,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
             </h1>
             <p
-              className="text-center text-sm font-bold tracking-wide"
+              className="text-xs font-bold tracking-wide"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 color: '#4A2C2C',
@@ -616,7 +592,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
             </p>
 
             {readOnly && existingData?.submittedAt && (
-              <p className="text-[11px] mt-3 font-medium" style={{ color: '#B8860B' }}>
+              <p className="text-[11px] mt-2 font-medium" style={{ color: '#B8860B' }}>
                 {isHe ? '📅 תאריך חתימה: ' : '📅 Signed: '}
                 {new Date(existingData.submittedAt).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -625,7 +601,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 
           {/* Elegant Progress Bar */}
           {!readOnly && (
-            <div className="mb-8 sm:mb-10">
+            <div className="mb-4 sm:mb-5">
               <div className="w-full h-[3px] rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(212,175,55,0.1)' }}>
                 <motion.div
                   className="h-full rounded-full"
