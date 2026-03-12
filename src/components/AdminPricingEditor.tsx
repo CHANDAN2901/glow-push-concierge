@@ -239,13 +239,13 @@ export default function AdminPricingEditor() {
                 </span>
               ))}
             </div>
-            {availableKeys(plan).length > 0 && (
+            {availableKeys(plan, masterBank).length > 0 && (
               <Select onValueChange={(val) => addFeatureKey(plan.id, val)}>
                 <SelectTrigger className="w-64 h-9 text-sm">
                   <SelectValue placeholder="הוסיפי פיצ'ר מערכתי..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableKeys(plan).map((key) => (
+                  {availableKeys(plan, masterBank).map((key) => (
                     <SelectItem key={key} value={key}>
                       {featureLabel(key)}
                     </SelectItem>
