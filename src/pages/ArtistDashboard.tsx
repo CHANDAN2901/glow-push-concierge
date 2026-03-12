@@ -2651,39 +2651,41 @@ const ArtistDashboard = () => {
         )}
         {/* ===== PUSH! TAB ===== */}
         {activeTab === 'push' && !subScreen && (
-          <div className="space-y-4">
-            {/* Coming Soon — WhatsApp Automation */}
-            <div
-              className="w-full rounded-2xl px-5 py-4 relative overflow-hidden"
-              style={{
-                background: 'rgba(255, 255, 255, 0.45)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: '1px solid rgba(216, 180, 180, 0.4)',
-                boxShadow: '0 4px 20px rgba(216, 180, 180, 0.12)',
-              }}
-            >
-              {/* Coming Soon tag */}
-              <span
-                className="absolute top-3 end-3 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
-                style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#fff' }}
+          <FeatureGate featureKey={FK.MESSAGES} mode="block">
+            <div className="space-y-4">
+              {/* Coming Soon — WhatsApp Automation */}
+              <div
+                className="w-full rounded-2xl px-5 py-4 relative overflow-hidden"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.45)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(216, 180, 180, 0.4)',
+                  boxShadow: '0 4px 20px rgba(216, 180, 180, 0.12)',
+                }}
               >
-                {lang === 'en' ? 'Coming Soon' : 'בקרוב'}
-              </span>
-              <div className="flex items-center gap-3">
-                <Crown className="w-5 h-5 shrink-0" style={{ color: '#d8b4b4' }} />
-                <div className="flex-1">
-                  <p className="font-bold text-sm" style={{ color: '#4a3636' }}>
-                    {lang === 'en' ? 'Full WhatsApp Automation — Coming Soon!' : 'אוטומציה מלאה בוואטסאפ — בקרוב!'}
-                  </p>
-                  <p className="text-[10px] mt-0.5" style={{ color: '#8c6a6a' }}>
-                    {lang === 'en' ? 'Messages will send automatically — zero clicks' : 'ההודעות יישלחו לבד — בלי ללחוץ על כלום'}
-                  </p>
+                {/* Coming Soon tag */}
+                <span
+                  className="absolute top-3 end-3 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
+                  style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#fff' }}
+                >
+                  {lang === 'en' ? 'Coming Soon' : 'בקרוב'}
+                </span>
+                <div className="flex items-center gap-3">
+                  <Crown className="w-5 h-5 shrink-0" style={{ color: '#d8b4b4' }} />
+                  <div className="flex-1">
+                    <p className="font-bold text-sm" style={{ color: '#4a3636' }}>
+                      {lang === 'en' ? 'Full WhatsApp Automation — Coming Soon!' : 'אוטומציה מלאה בוואטסאפ — בקרוב!'}
+                    </p>
+                    <p className="text-[10px] mt-0.5" style={{ color: '#8c6a6a' }}>
+                      {lang === 'en' ? 'Messages will send automatically — zero clicks' : 'ההודעות יישלחו לבד — בלי ללחוץ על כלום'}
+                    </p>
+                  </div>
                 </div>
               </div>
+              <MessageEditor />
             </div>
-            <MessageEditor />
-          </div>
+          </FeatureGate>
         )}
         {/* ===== CALENDAR TAB ===== */}
         {activeTab === 'calendar' && (
