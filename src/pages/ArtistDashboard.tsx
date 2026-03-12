@@ -71,6 +71,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { extractEdgeFunctionError, isPushSubscriptionExpired } from '@/lib/edge-function-errors';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/useAuth';
+import { getImpersonation } from '@/lib/impersonation';
 
 interface ClientEntry {
   dbId?: string;
