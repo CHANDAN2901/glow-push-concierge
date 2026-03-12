@@ -171,7 +171,7 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
       recognition.start();
     } catch (e) {
       console.error('Failed to start recognition:', e);
-      toast({ title: 'שגיאה בהפעלת זיהוי דיבור', variant: 'destructive' });
+      toast({ title: lang === 'en' ? 'Failed to start speech recognition' : 'שגיאה בהפעלת זיהוי דיבור', variant: 'destructive' });
       handleFullReset();
       return;
     } finally {
