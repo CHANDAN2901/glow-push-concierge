@@ -42,6 +42,8 @@ export default function AdminPricingEditor() {
   const invalidatePlans = useInvalidatePricingPlans();
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [saving, setSaving] = useState(false);
+  // Master bank: built from static config + all DB keys (survives remove actions)
+  const masterBank = useMemo(() => buildMasterFeatureBank(fetchedPlans), [fetchedPlans]);
 
   useEffect(() => {
     setPlans(fetchedPlans);
