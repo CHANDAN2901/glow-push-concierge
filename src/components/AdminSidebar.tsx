@@ -21,6 +21,7 @@ const navItems: { id: AdminView; label: string; labelHe: string; icon: React.Ele
   { id: 'timeline-settings', label: 'Edit Journey', labelHe: 'עריכת מסע החלמה', icon: Pencil, path: '/admin/timeline-settings' },
   { id: 'aftercare', label: 'Aftercare', labelHe: 'הודעות החלמה', icon: Stethoscope, path: '/admin/aftercare' },
   { id: 'health-questions', label: 'Health Questions', labelHe: 'שאלות הצהרת בריאות', icon: ClipboardList },
+  { id: 'clinic-policy', label: 'Clinic Policy', labelHe: 'מדיניות קליניקה', icon: ScrollText },
   { id: 'faq', label: 'FAQ & Help', labelHe: 'שאלות ותשובות / עזרה', icon: HelpCircle, path: '/admin/faq' },
   { id: 'faq-manager', label: 'FAQ Manager', labelHe: 'ניהול FAQ לנחיתה', icon: ListChecks, path: '/admin/faq-manager' },
   { id: 'settings', label: 'Settings', labelHe: 'הגדרות', icon: Settings },
