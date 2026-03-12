@@ -574,10 +574,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 fontWeight: 700,
-                background: 'linear-gradient(135deg, #D4AF37, #F5D76E, #B8860B)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                color: '#4a3636',
               }}
             >
               {step === 1 && fullName.trim()
