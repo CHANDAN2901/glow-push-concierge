@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Phone, MessageCircle, Instagram, Facebook, FileText } from 'lucide-react';
+import { Phone, MessageCircle, Instagram, Facebook } from 'lucide-react';
 import heroBg from '@/assets/card-hero-bg.jpg';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import defaultLogo from '@/assets/glowpush-logo.png';
