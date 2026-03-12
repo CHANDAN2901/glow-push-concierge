@@ -51,8 +51,8 @@ export default function FeatureGate({
     ? (isHe ? requiredTierDef.name.he : requiredTierDef.name.en)
     : '';
 
-  // While loading, render nothing to avoid flash
-  if (isLoading) return null;
+  // While loading, render children to avoid false-negative lock flash
+  if (isLoading) return <>{children}</>;
 
   // User has access → render the feature
   if (hasFeature(featureKey)) {
