@@ -1716,7 +1716,7 @@ const ArtistDashboard = () => {
                 </div>
               </FeatureGate>
 
-              <FeatureGate featureKey="health_declaration" mode="badge">
+              <FeatureGate featureKey={FK.HEALTH_DECLARATION} mode="badge">
                 <button
                   type="button"
                   onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
