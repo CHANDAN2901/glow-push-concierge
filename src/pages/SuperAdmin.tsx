@@ -30,6 +30,7 @@ import AdminPricingEditor from '@/components/AdminPricingEditor';
 import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
 import { useAllHealthQuestions } from '@/hooks/useHealthQuestions';
 import CouponManager from '@/components/CouponManager';
+import AdminPolicyEditor from '@/components/AdminPolicyEditor';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
