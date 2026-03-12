@@ -99,6 +99,7 @@ const SuperAdmin = () => {
   const [upsellButtonText, setUpsellButtonText] = useState('למימוש ההטבה');
   const { data: dbPlans = [] } = usePricingPlans();
   const queryClient = useQueryClient();
+  const { questions: healthQuestions, refetch: refetchHealthQuestions } = useAllHealthQuestions();
 
   // Fetch real users from database
   const { data: artistList = [], isLoading: usersLoading } = useQuery({
