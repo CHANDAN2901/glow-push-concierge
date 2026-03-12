@@ -30,6 +30,8 @@ import AdminPricingEditor from '@/components/AdminPricingEditor';
 import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
 import CouponManager from '@/components/CouponManager';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
 
