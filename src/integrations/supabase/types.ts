@@ -107,6 +107,57 @@ export type Database = {
           },
         ]
       }
+      artist_health_question_overrides: {
+        Row: {
+          artist_profile_id: string
+          created_at: string
+          custom_text_en: string | null
+          custom_text_he: string | null
+          id: string
+          is_included: boolean
+          question_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          artist_profile_id: string
+          created_at?: string
+          custom_text_en?: string | null
+          custom_text_he?: string | null
+          id?: string
+          is_included?: boolean
+          question_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          artist_profile_id?: string
+          created_at?: string
+          custom_text_en?: string | null
+          custom_text_he?: string | null
+          id?: string
+          is_included?: boolean
+          question_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_health_question_overrides_artist_profile_id_fkey"
+            columns: ["artist_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_health_question_overrides_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "health_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artist_message_settings: {
         Row: {
           artist_profile_id: string

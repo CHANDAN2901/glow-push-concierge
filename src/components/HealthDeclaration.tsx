@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, FileText, Check, ArrowLeft, Eraser, Loader2, MapPin, CalendarPlus, Bell } from 'lucide-react';
-import { useHealthQuestions, type HealthQuestion } from '@/hooks/useHealthQuestions';
+import { useClientHealthQuestions } from '@/hooks/useArtistHealthQuestions';
+import type { HealthQuestion } from '@/hooks/useHealthQuestions';
 import eyebrowHeroImg from '@/assets/eyebrow-hero.png';
 import glowpushLogoImg from '@/assets/glowpush-logo.png';
 
@@ -52,6 +53,7 @@ interface Props {
   appointmentDate?: string;
   appointmentTime?: string;
   isPreview?: boolean;
+  artistId?: string;
 }
 
 // Ultra-Luxury theme
@@ -76,11 +78,11 @@ const T = {
 
 const STEPS = 3;
 
-export default function HealthDeclaration({ clientName = '', clientPhone = '', onComplete, onClose, readOnly = false, existingData, logoUrl, instagramUrl, wazeAddress, appointmentDate, appointmentTime, isPreview = false }: Props) {
+export default function HealthDeclaration({ clientName = '', clientPhone = '', onComplete, onClose, readOnly = false, existingData, logoUrl, instagramUrl, wazeAddress, appointmentDate, appointmentTime, isPreview = false, artistId }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
 
-  const { questions: dbQuestions, loading: questionsLoading } = useHealthQuestions();
+  const { questions: dbQuestions, loading: questionsLoading } = useClientHealthQuestions(artistId || null);
 
   const [showIntro, setShowIntro] = useState(!readOnly && !existingData);
   const [step, setStep] = useState(1);

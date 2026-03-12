@@ -140,6 +140,7 @@ const HealthDeclarationPage = () => {
         isPreview={isPreview}
         appointmentDate={appointmentDate}
         appointmentTime={appointmentTime}
+        artistId={artistId}
       />
 
       {(isArtist || isPreview) && (
