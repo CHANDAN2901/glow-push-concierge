@@ -321,10 +321,21 @@ const SuperAdmin = () => {
           <DialogFooter className="flex-row-reverse gap-2">
             <Button variant="outline" onClick={() => setEditingUser(null)}>ביטול</Button>
             <Button
+              disabled={updateTierMutation.isPending}
               onClick={() => {
-                setArtistList(prev => prev.map(a => a.id === editingUser?.id ? { ...a, plan: editTier } : a));
-                toast({ title: `החבילה של ${editingUser?.name} עודכנה ל-${dbPlans.find(p => p.slug === editTier)?.name_he ?? editTier}` });
-                setEditingUser(null);
+                if (!editingUser) return;
+                updateTierMutation.mutate(
+                  { profileId: editingUser.profileId, newTier: editTier },
+                  {
+                    onSuccess: () => {
+                      toast({ title: `החבילה של ${editingUser.name} עודכנה ל-${dbPlans.find(p => p.slug === editTier)?.name_he ?? editTier}` });
+                      setEditingUser(null);
+                    },
+                    onError: (err) => {
+                      toast({ title: 'שגיאה בשמירת החבילה', description: (err as Error).message, variant: 'destructive' });
+                    },
+                  }
+                );
               }}
             >
               <Save className="w-4 h-4 ml-1" /> שמירה
