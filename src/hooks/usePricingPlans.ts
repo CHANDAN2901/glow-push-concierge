@@ -14,6 +14,7 @@ export interface PricingPlan {
   badge_he: string | null;
   features_en: string[];
   features_he: string[];
+  feature_keys: string[];
   cta_en: string;
   cta_he: string;
   sort_order: number;

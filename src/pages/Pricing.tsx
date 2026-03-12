@@ -9,7 +9,7 @@ import { usePricingPlans, useVipTakenCount } from '@/hooks/usePricingPlans';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BackButton from '@/components/BackButton';
-import { TIERS, FEATURES, type TierDefinition } from '@/lib/subscriptionConfig';
+import { FEATURES } from '@/lib/subscriptionConfig';
 
 const ROSE_GOLD = '#d8b4b4';
 const ROSE_GOLD_DARK = 'hsl(14 29% 30%)';
@@ -107,28 +107,28 @@ const Pricing = () => {
   const { data: vipTaken = 0 } = useVipTakenCount();
   const { user } = useAuth();
 
-  // Derive plan cards from central config, merge DB overrides (stripe_price_id, promo spots, CTA)
+  // Fully DB-driven plan cards from pricing_plans table
   const plans = useMemo(() => {
-    const dbBySlug = Object.fromEntries(dbPlans.map(p => [p.slug, p]));
-
-    return TIERS.map((tier) => {
-      const db = dbBySlug[tier.slug];
-      // Get features belonging to this tier but NOT to any cheaper tier
-      const tierFeatures = FEATURES.filter(f => tier.featureKeys.includes(f.id));
+    return dbPlans.map((db) => {
+      // Resolve feature keys to human-readable names from central config
+      const resolvedFeatures = (db.feature_keys || []).map(key => {
+        const feat = FEATURES.find(f => f.id === key);
+        return feat ? { name: feat.name, desc: feat.desc } : null;
+      }).filter(Boolean) as { name: { en: string; he: string }; desc: { en: string; he: string } }[];
 
       return {
-        slug: tier.slug,
-        name: tier.name,
-        price: tier.price,
-        isHighlighted: tier.isHighlighted ?? false,
-        badge: tier.badge ?? null,
-        features: tierFeatures.map(f => ({ name: f.name, desc: f.desc })),
-        // DB overrides for payment / promo
-        stripe_price_id: db?.stripe_price_id ?? null,
-        total_promo_spots: db?.total_promo_spots ?? 0,
-        cta: db ? { en: db.cta_en, he: db.cta_he } : { en: 'Get Started', he: 'בואי נתחיל' },
-        // Keep DB display features if available (richer marketing copy)
-        displayFeatures: db ? { en: db.features_en, he: db.features_he } : null,
+        slug: db.slug,
+        name: { en: db.name_en, he: db.name_he },
+        price: { ils: db.price_monthly, usd: db.price_usd },
+        isHighlighted: db.is_highlighted,
+        badge: db.badge_en || db.badge_he ? { en: db.badge_en || '', he: db.badge_he || '' } : null,
+        stripe_price_id: db.stripe_price_id,
+        total_promo_spots: db.total_promo_spots,
+        cta: { en: db.cta_en, he: db.cta_he },
+        // DB display features for marketing copy
+        displayFeatures: db.features_en.length > 0 ? { en: db.features_en, he: db.features_he } : null,
+        // Resolved feature descriptions from config as fallback
+        configFeatures: resolvedFeatures,
       };
     });
   }, [dbPlans]);
@@ -306,7 +306,7 @@ const Pricing = () => {
           // Prefer DB display features (richer marketing copy), fallback to config descriptions
           const features = plan.displayFeatures
             ? (isHe ? plan.displayFeatures.he : plan.displayFeatures.en)
-            : plan.features.map(f => isHe ? f.desc.he : f.desc.en);
+            : plan.configFeatures.map(f => isHe ? f.desc.he : f.desc.en);
           const name = isHe ? plan.name.he : plan.name.en;
           const cta = isHe ? plan.cta.he : plan.cta.en;
           const badge = plan.badge ? (isHe ? plan.badge.he : plan.badge.en) : null;
