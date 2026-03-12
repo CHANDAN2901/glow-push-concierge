@@ -75,7 +75,7 @@ const statusBadge = (status: string) => (
   <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
     status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'
   }`}>
-    {status === 'active' ? 'Active' : 'Suspended'}
+    {status === 'active' ? 'פעילה' : 'מושעית'}
   </span>
 );
 
