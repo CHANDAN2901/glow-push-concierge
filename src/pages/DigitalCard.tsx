@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Phone, MessageCircle, Instagram, Facebook, ScrollText } from 'lucide-react';
+import { Phone, MessageCircle, Instagram, Facebook, FileText } from 'lucide-react';
 import heroBg from '@/assets/card-hero-bg.jpg';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import defaultLogo from '@/assets/glowpush-logo.png';
@@ -117,8 +117,8 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
             color: '#4a3636',
           }}
         >
-          <ScrollText className="w-5 h-5" style={{ color: '#B8860B' }} />
-          {isHe ? 'מידע על הטיפול ומדיניות הקליניקה' : 'Treatment Info & Clinic Policy'}
+          <FileText className="w-5 h-5" style={{ color: '#B8860B' }} />
+          {isHe ? 'מידע חשוב ומדיניות הקליניקה' : 'Important Info & Clinic Policy'}
         </button>
       </div>
 
