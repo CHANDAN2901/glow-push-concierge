@@ -29,8 +29,11 @@ const GLASS_SHADOW = '0 8px 32px rgba(216, 180, 180, 0.2), 0 2px 8px rgba(0,0,0,
 const GLASS_SHADOW_HIGHLIGHT = '0 12px 40px rgba(216, 180, 180, 0.3), 0 4px 16px rgba(201, 149, 108, 0.1)';
 
 const iconMap: Record<string, React.ElementType> = {
+  lite: Sparkles,
   pro: Sparkles,
+  professional: Star,
   elite: Star,
+  master: Crown,
   'vip-3year': Crown,
 };
 
