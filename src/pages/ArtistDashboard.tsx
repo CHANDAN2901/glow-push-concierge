@@ -431,6 +431,22 @@ const ArtistDashboard = () => {
 
   useEffect(() => { fetchProfileId(); }, [fetchProfileId]);
 
+  // ── Impersonation Override ──
+  // When admin is impersonating a user, override the displayed name, studio, and tier
+  const impersonation = useMemo(() => getImpersonation(), []);
+  useEffect(() => {
+    if (impersonation) {
+      setArtistName(impersonation.userName);
+      localStorage.setItem('gp-artist-name', impersonation.userName);
+      setSubscriptionTier(impersonation.tier);
+      // studioName is available in impersonation state
+      if (impersonation.studioName) {
+        // studio_name is not a separate state var — it's part of artistName context
+        // The greeting uses artistName which we've already overridden
+      }
+    }
+  }, [impersonation]);
+
   // Fetch health declarations from DB for this artist's clients
   const fetchDbDeclarations = useCallback(async () => {
     if (!userProfileId) return;
