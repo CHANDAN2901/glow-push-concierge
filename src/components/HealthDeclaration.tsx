@@ -78,11 +78,11 @@ const T = {
 
 const STEPS = 3;
 
-export default function HealthDeclaration({ clientName = '', clientPhone = '', onComplete, onClose, readOnly = false, existingData, logoUrl, instagramUrl, wazeAddress, appointmentDate, appointmentTime, isPreview = false }: Props) {
+export default function HealthDeclaration({ clientName = '', clientPhone = '', onComplete, onClose, readOnly = false, existingData, logoUrl, instagramUrl, wazeAddress, appointmentDate, appointmentTime, isPreview = false, artistId }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
 
-  const { questions: dbQuestions, loading: questionsLoading } = useHealthQuestions();
+  const { questions: dbQuestions, loading: questionsLoading } = useClientHealthQuestions(artistId || null);
 
   const [showIntro, setShowIntro] = useState(!readOnly && !existingData);
   const [step, setStep] = useState(1);
