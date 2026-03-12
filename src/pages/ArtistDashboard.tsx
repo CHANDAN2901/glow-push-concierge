@@ -3586,7 +3586,7 @@ const ArtistDashboard = () => {
               try {
                 if (navigator.share) {
                   await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
-                  toast({ title: 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                  toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
                 } else {
                   await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
                   toast({ title: 'ההודעה והקישור הועתקו בהצלחה ✨' });
