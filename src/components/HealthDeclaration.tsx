@@ -519,14 +519,13 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
     <div className="fixed inset-0 z-[70] flex flex-col" style={{ background: T.bg }}>
       {/* Scrollable content area */}
       <div className="flex-1 overflow-y-auto">
-      <div className="flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-8">
+      <div className="flex flex-col items-center px-4 sm:px-5 pt-0 pb-8">
         <div className="w-full max-w-lg">
 
           {/* ═══ Seamless Luxury Header — Metallic Rose Gold Gradient ═══ */}
-          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '260px', background: 'linear-gradient(180deg, hsl(350 35% 65%) 0%, hsl(350 40% 72%) 20%, hsl(350 45% 80%) 45%, hsl(350 50% 88%) 70%, hsl(350 50% 93%) 90%, hsl(350 50% 94%) 100%)' }}>
+          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '140px', background: 'linear-gradient(180deg, hsl(350 35% 65%) 0%, hsl(350 40% 72%) 25%, hsl(350 45% 80%) 50%, hsl(350 50% 88%) 75%, hsl(350 50% 93%) 95%, hsl(350 50% 94%) 100%)' }}>
 
-            {/* Back button + step row */}
-            <div className="relative z-10 flex items-center justify-between w-full px-6 pt-6">
+            <div className="relative z-10 flex items-center justify-between w-full px-5 pt-3">
               <button
                 onClick={onClose}
                 className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0 backdrop-blur-sm"
@@ -543,19 +542,16 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* Logo + text — sits directly on page bg, no white box */}
-          <div className="flex flex-col items-center px-6 pt-4 pb-6">
-            {/* Logo — large, centered, borderless */}
-            <div className="w-full flex justify-center mb-5">
+            {/* Logo centered in header */}
+            <div className="relative z-10 flex justify-center mt-1">
               {instagramUrl ? (
                 <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="block">
                   <img
                     src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
                     alt="Studio Logo"
-                    className="max-w-[260px] w-full h-auto object-contain"
-                    style={{ filter: 'drop-shadow(0 4px 16px rgba(212,175,55,0.25))' }}
+                    className="max-w-[160px] w-full h-auto object-contain"
+                    style={{ filter: 'drop-shadow(0 3px 12px rgba(255,255,255,0.3))' }}
                     onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
                   />
                 </a>
@@ -563,16 +559,18 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 <img
                   src={logoUrl && !logoUrl.includes('svg+xml') ? logoUrl : glowpushLogoImg}
                   alt="Studio Logo"
-                  className="max-w-[260px] w-full h-auto object-contain"
-                  style={{ filter: 'drop-shadow(0 4px 16px rgba(212,175,55,0.25))' }}
+                  className="max-w-[160px] w-full h-auto object-contain"
+                  style={{ filter: 'drop-shadow(0 3px 12px rgba(255,255,255,0.3))' }}
                   onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
                 />
               )}
             </div>
+          </div>
 
-            {/* Welcome text — solid Deep Burgundy, FB Ahava, static, no effects */}
+          {/* Welcome text — compact */}
+          <div className="flex flex-col items-center px-5 pt-2 pb-2 text-center">
             <h1
-              className="text-center text-xl sm:text-2xl leading-relaxed mb-2"
+              className="text-lg sm:text-xl leading-snug mb-1"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 fontWeight: 700,
@@ -584,7 +582,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
             </h1>
             <p
-              className="text-center text-sm font-bold tracking-wide"
+              className="text-xs font-bold tracking-wide"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 color: '#4A2C2C',
@@ -594,7 +592,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
             </p>
 
             {readOnly && existingData?.submittedAt && (
-              <p className="text-[11px] mt-3 font-medium" style={{ color: '#B8860B' }}>
+              <p className="text-[11px] mt-2 font-medium" style={{ color: '#B8860B' }}>
                 {isHe ? '📅 תאריך חתימה: ' : '📅 Signed: '}
                 {new Date(existingData.submittedAt).toLocaleDateString(isHe ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -603,7 +601,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 
           {/* Elegant Progress Bar */}
           {!readOnly && (
-            <div className="mb-8 sm:mb-10">
+            <div className="mb-4 sm:mb-5">
               <div className="w-full h-[3px] rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(212,175,55,0.1)' }}>
                 <motion.div
                   className="h-full rounded-full"
@@ -635,7 +633,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           {/* STEP 1: Personal Details */}
           {step === 1 && (
              <motion.div key="step1" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }} className="space-y-4">
-              <div className="rounded-3xl p-7 sm:p-8" style={{ background: T.card, backgroundColor: T.cardBg, backdropFilter: 'blur(16px)', boxShadow: T.cardShadow, border: `1.5px solid ${T.cardBorder}` }}>
+              <div className="rounded-2xl p-6 sm:p-7" style={{ backgroundColor: '#FFFFFF', boxShadow: '0 8px 40px rgba(216,180,180,0.18), 0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(212,175,55,0.2)' }}>
                 <h2 className="font-serif font-bold text-lg tracking-wide mb-6 pb-3 hd-shimmer-text" style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0, #B8860B, #D4AF37)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', borderBottom: `1px solid rgba(212,175,55,0.12)` }}>
                   {isHe ? 'פרטים אישיים' : 'Personal Details'}
                 </h2>
@@ -660,7 +658,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           {/* STEP 2: Dynamic Medical Questionnaire */}
           {step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }} className="space-y-4">
-              <div className="rounded-3xl p-7 sm:p-8" style={{ background: T.card, backgroundColor: T.cardBg, backdropFilter: 'blur(16px)', boxShadow: T.cardShadow, border: `1.5px solid ${T.cardBorder}` }}>
+              <div className="rounded-2xl p-6 sm:p-7" style={{ backgroundColor: '#FFFFFF', boxShadow: '0 8px 40px rgba(216,180,180,0.18), 0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(212,175,55,0.2)' }}>
                 <h2 className="font-serif font-bold text-lg tracking-wide mb-2 pb-3 hd-shimmer-text" style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0, #B8860B, #D4AF37)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', borderBottom: `1px solid rgba(212,175,55,0.12)` }}>
                   {isHe ? 'שאלון רפואי' : 'Medical Questionnaire'}
                 </h2>
@@ -787,7 +785,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           {/* STEP 3: Consent & Signature */}
           {step === 3 && (
             <motion.div key="step3" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }} className="space-y-4">
-              <div className="rounded-3xl p-7 sm:p-8" style={{ background: T.card, backgroundColor: T.cardBg, backdropFilter: 'blur(16px)', boxShadow: T.cardShadow, border: `1.5px solid ${T.cardBorder}` }}>
+              <div className="rounded-2xl p-6 sm:p-7" style={{ backgroundColor: '#FFFFFF', boxShadow: '0 8px 40px rgba(216,180,180,0.18), 0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(212,175,55,0.2)' }}>
                 <h2 className="font-serif font-bold text-lg tracking-wide mb-6 pb-3 hd-shimmer-text" style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0, #B8860B, #D4AF37)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', borderBottom: `1px solid rgba(212,175,55,0.12)` }}>
                   {isHe ? 'הסכמה וחתימה' : 'Consent & Signature'}
                 </h2>
