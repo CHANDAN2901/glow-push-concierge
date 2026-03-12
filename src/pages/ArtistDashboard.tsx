@@ -2516,6 +2516,7 @@ const ArtistDashboard = () => {
               toast({ title: lang === 'en' ? 'WhatsApp opened!' : 'וואטסאפ נפתח!' });
             }}
           />
+          </FeatureGate>
         )}
         {/* ── Healing: Treatment Type Selection ── */}
         {activeTab === 'healing' && !subScreen && healingJourneyClient && healingJourneyClient.day === 0 && (() => {
