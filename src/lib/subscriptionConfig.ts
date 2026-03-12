@@ -59,6 +59,12 @@ export const FEATURES: FeatureFlag[] = [
     minTier: 'lite',
     availableInTrial: true,
   },
+  {
+    id: 'digital_card',
+    name: { en: 'Digital Business Card', he: 'כרטיס ביקור דיגיטלי' },
+    desc: { en: 'Luxury shareable digital card', he: 'כרטיס דיגיטלי יוקרתי לשיתוף' },
+    minTier: 'professional',
+  },
 
   // Professional features
   {
