@@ -409,28 +409,72 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
             />
           </div>
 
-          {/* Logo — centered below image with gold glow */}
-          <div className="flex justify-center -mt-6 mb-4 px-6 relative z-10">
-            <div
-              className="relative flex items-center justify-center"
-              style={{
-                background: 'radial-gradient(ellipse 120% 100% at 50% 50%, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 50%, transparent 80%)',
-                padding: '12px 16px',
-                borderRadius: '24px',
-              }}
-            >
+          {/* ═══ Luxury Brand Section ═══ */}
+          <div
+            className="w-full relative z-10 -mt-4 pb-8"
+            style={{
+              background: 'linear-gradient(180deg, hsl(350 50% 95%) 0%, hsl(350 48% 94%) 50%, hsl(350 45% 93%) 100%)',
+              boxShadow: '0 12px 40px rgba(216,180,180,0.15)',
+            }}
+          >
+            {/* Thin gold separator */}
+            <div className="flex justify-center pt-5 mb-6">
+              <div style={{ width: '60px', height: '1px', background: T.gradient }} />
+            </div>
+
+            {/* Logo */}
+            <div className="flex justify-center mb-5 px-6">
               <img
                 src={introLogoSrc}
                 alt="Studio Logo"
-                className="max-w-[220px] w-full h-auto object-contain"
+                className="max-w-[250px] w-full h-auto object-contain"
                 style={{ filter: 'drop-shadow(0 4px 20px rgba(212,175,55,0.3))' }}
                 onError={(e) => { (e.target as HTMLImageElement).src = glowpushLogoImg; }}
               />
             </div>
+
+            {/* Brand text with sparkle accents */}
+            <div className="text-center px-6">
+              <div className="flex items-center justify-center gap-3 mb-1">
+                <span className="text-xs" style={{ color: 'rgba(212,175,55,0.5)' }}>✦</span>
+                <p
+                  className="text-sm tracking-widest uppercase"
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    color: '#4A2C2C',
+                    fontWeight: 600,
+                    letterSpacing: '0.18em',
+                  }}
+                >
+                  Orit Aharoni
+                </p>
+                <span className="text-xs" style={{ color: 'rgba(212,175,55,0.5)' }}>✦</span>
+              </div>
+              <p
+                className="text-[11px] tracking-wider uppercase mb-2.5"
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  color: T.gold,
+                  fontWeight: 500,
+                  letterSpacing: '0.15em',
+                }}
+              >
+                Permanent Makeup Studio
+              </p>
+              <p
+                className="text-xs"
+                style={{
+                  fontFamily: "'FB Ahava', serif",
+                  color: '#6b4a4a',
+                }}
+              >
+                קליניקה מקצועית לאיפור קבוע
+              </p>
+            </div>
           </div>
 
           {/* Progress indicator */}
-          <div className="mb-6">
+          <div className="my-5">
             <span
               className="text-xs font-medium tracking-wider px-4 py-1.5 rounded-full"
               style={{
