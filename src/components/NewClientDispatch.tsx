@@ -315,7 +315,7 @@ const NewClientDispatch = ({
                 treatment: treatLabel ? (lang === 'en' ? treatLabel.en : treatLabel.he) : treatment,
                 link: '',
               });
-              toast({ title: 'הלקוחה נשמרה בהצלחה ✨' });
+              toast({ title: lang === 'en' ? 'Client saved successfully ✨' : 'הלקוחה נשמרה בהצלחה ✨' });
               handleClose();
             }} disabled={!isValid}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"

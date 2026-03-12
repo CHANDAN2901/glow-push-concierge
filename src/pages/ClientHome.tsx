@@ -255,7 +255,7 @@ const ClientHome = () => {
 
   const urlClientId = pathClientId || searchParams.get('client_id') || searchParams.get('clientId') || '';
   const urlClientName = searchParams.get('name') || searchParams.get('clientName') || '';
-  const fallbackName = 'לקוחה';
+  const fallbackName = lang === 'en' ? 'Client' : 'לקוחה';
 
   // Auto-redirect: if on /client with no identity in URL but localStorage has one, redirect to /c/:id
   useEffect(() => {

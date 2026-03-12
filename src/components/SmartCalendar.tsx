@@ -484,7 +484,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
             artist_id: artistProfileId,
             full_name: newName.trim(),
             phone: newPhone.trim() || null,
-            treatment_type: newType === 'eyebrows' ? 'גבות' : newType === 'lips' ? 'שפתיים' : 'אייליינר',
+            treatment_type: newType === 'eyebrows' ? (isHe ? 'גבות' : 'Brows') : newType === 'lips' ? (isHe ? 'שפתיים' : 'Lips') : (isHe ? 'אייליינר' : 'Eyeliner'),
             treatment_date: newDate,
           }).select('id').single();
           if (!clientError && newClient) {
