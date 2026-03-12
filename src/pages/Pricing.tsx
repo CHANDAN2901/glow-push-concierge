@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Crown, Sparkles, Star, Flame, Receipt } from 'lucide-react';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
-import { usePricingPlans, useVipTakenCount, type PricingPlan } from '@/hooks/usePricingPlans';
+import { usePricingPlans, useVipTakenCount } from '@/hooks/usePricingPlans';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BackButton from '@/components/BackButton';
+import { TIERS, FEATURES, type TierDefinition } from '@/lib/subscriptionConfig';
 
 const ROSE_GOLD = '#d8b4b4';
 const ROSE_GOLD_DARK = 'hsl(14 29% 30%)';
@@ -28,8 +29,11 @@ const GLASS_SHADOW = '0 8px 32px rgba(216, 180, 180, 0.2), 0 2px 8px rgba(0,0,0,
 const GLASS_SHADOW_HIGHLIGHT = '0 12px 40px rgba(216, 180, 180, 0.3), 0 4px 16px rgba(201, 149, 108, 0.1)';
 
 const iconMap: Record<string, React.ElementType> = {
+  lite: Sparkles,
   pro: Sparkles,
+  professional: Star,
   elite: Star,
+  master: Crown,
   'vip-3year': Crown,
 };
 
@@ -99,9 +103,35 @@ const Pricing = () => {
   const { lang, t } = useI18n();
   const isHe = lang === 'he';
   const { toast } = useToast();
-  const { data: plans = [], isLoading } = usePricingPlans();
+  const { data: dbPlans = [] } = usePricingPlans();
   const { data: vipTaken = 0 } = useVipTakenCount();
   const { user } = useAuth();
+
+  // Derive plan cards from central config, merge DB overrides (stripe_price_id, promo spots, CTA)
+  const plans = useMemo(() => {
+    const dbBySlug = Object.fromEntries(dbPlans.map(p => [p.slug, p]));
+
+    return TIERS.map((tier) => {
+      const db = dbBySlug[tier.slug];
+      // Get features belonging to this tier but NOT to any cheaper tier
+      const tierFeatures = FEATURES.filter(f => tier.featureKeys.includes(f.id));
+
+      return {
+        slug: tier.slug,
+        name: tier.name,
+        price: tier.price,
+        isHighlighted: tier.isHighlighted ?? false,
+        badge: tier.badge ?? null,
+        features: tierFeatures.map(f => ({ name: f.name, desc: f.desc })),
+        // DB overrides for payment / promo
+        stripe_price_id: db?.stripe_price_id ?? null,
+        total_promo_spots: db?.total_promo_spots ?? 0,
+        cta: db ? { en: db.cta_en, he: db.cta_he } : { en: 'Get Started', he: 'בואי נתחיל' },
+        // Keep DB display features if available (richer marketing copy)
+        displayFeatures: db ? { en: db.features_en, he: db.features_he } : null,
+      };
+    });
+  }, [dbPlans]);
 
   const [artistName, setArtistName] = useState('');
   const [currentTier, setCurrentTier] = useState('lite');
@@ -123,14 +153,6 @@ const Pricing = () => {
 
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier]?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse font-serif" style={{ color: ROSE_GOLD_METALLIC }}>טוען...</div>
-      </div>
-    );
-  }
 
   const BOKEH_CIRCLES = [
     { size: 200, top: '5%', left: '8%', color: 'rgba(216,180,180,0.3)', blur: 70, delay: 0 },
@@ -277,20 +299,18 @@ const Pricing = () => {
         </div>
       </div>
 
-      {/* Gold glint divider */}
-      <div className="flex justify-center py-6">
-        <div style={{width:'55%',height:'2px',borderRadius:'1px',background:'linear-gradient(90deg, transparent 0%, #B8860B 20%, #D4AF37 35%, #F9F295 50%, #D4AF37 65%, #B8860B 80%, transparent 100%)',backgroundSize:'200% 100%',animation:'gold-glint 4s ease-in-out infinite',boxShadow:'0 0 8px rgba(212,175,55,0.4), 0 0 16px rgba(212,175,55,0.15)'}} />
-      </div>
-
       {/* Plan Cards */}
       <div className="mx-auto px-4 pb-20 flex flex-col items-center max-w-lg">
         {plans.map((plan, idx) => {
           const Icon = iconMap[plan.slug] || Sparkles;
-          const features = isHe ? plan.features_he : plan.features_en;
-          const name = isHe ? plan.name_he : plan.name_en;
-          const cta = isHe ? plan.cta_he : plan.cta_en;
-          const badge = isHe ? plan.badge_he : plan.badge_en;
-          const isElite = plan.is_highlighted;
+          // Prefer DB display features (richer marketing copy), fallback to config descriptions
+          const features = plan.displayFeatures
+            ? (isHe ? plan.displayFeatures.he : plan.displayFeatures.en)
+            : plan.features.map(f => isHe ? f.desc.he : f.desc.en);
+          const name = isHe ? plan.name.he : plan.name.en;
+          const cta = isHe ? plan.cta.he : plan.cta.en;
+          const badge = plan.badge ? (isHe ? plan.badge.he : plan.badge.en) : null;
+          const isElite = plan.isHighlighted;
 
           return (
             <>
@@ -300,7 +320,7 @@ const Pricing = () => {
                 </div>
               )}
               <div
-                key={plan.id}
+                key={plan.slug}
                 className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
                 style={{
                 border: 'none',
@@ -360,10 +380,10 @@ const Pricing = () => {
                       filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
                     }}
                   >
-                    {isHe ? `₪${plan.price_monthly.toLocaleString()}` : `$${plan.price_usd.toLocaleString()}`}
+                    {isHe ? `₪${plan.price.ils.toLocaleString()}` : `$${plan.price.usd.toLocaleString()}`}
                   </span>
                   <span className="text-sm" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
-                    {plan.slug === 'vip-3year' ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time') : (isHe ? '/ חודש' : '/ month')}
+                    {isHe ? '/ חודש' : '/ month'}
                   </span>
                 </div>
               </div>
@@ -381,11 +401,11 @@ const Pricing = () => {
                 ))}
               </ul>
 
-              {plan.slug === 'vip-3year' && plan.total_promo_spots > 0 && (
+              {plan.slug === 'master' && plan.total_promo_spots > 0 && (
                 <FomoBadge totalSpots={plan.total_promo_spots} takenSpots={vipTaken} isHe={isHe} />
               )}
 
-              {/* Pill CTA button with deep pink + floating shadow + blurred halo */}
+              {/* Pill CTA button */}
               <Link
                 to="/auth"
                 className="w-full inline-flex items-center justify-center py-4 text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:translate-y-[-2px]"
