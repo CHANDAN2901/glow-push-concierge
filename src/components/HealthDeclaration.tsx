@@ -452,20 +452,32 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               )}
             </div>
 
-            {/* Welcome text — solid dark rosewood, FB Ahava, static */}
+            {/* Welcome text — metallic rose gold, FB Ahava, static */}
             <h1
-              className="text-center text-lg sm:text-xl leading-relaxed mb-2"
+              className="text-center text-xl sm:text-2xl leading-relaxed mb-2"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 fontWeight: 700,
-                color: '#4a3636',
+                background: T.roseGoldText,
+                backgroundSize: '100% 100%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                filter: 'drop-shadow(0 1px 2px rgba(160,112,112,0.15))',
               }}
             >
               {step === 1 && fullName.trim()
                 ? (isHe ? `שלום ${fullName}, איזה כיף שאת מגיעה אלינו ✨` : `Hello ${fullName}, so glad you're coming ✨`)
                 : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
             </h1>
-            <p className="text-center text-xs font-medium tracking-wide" style={{ color: '#6b4a4a' }}>
+            <p
+              className="text-center text-sm font-bold tracking-wide"
+              style={{
+                fontFamily: "'FB Ahava', 'Playfair Display', serif",
+                background: T.roseGoldText,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
               {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
             </p>
 
