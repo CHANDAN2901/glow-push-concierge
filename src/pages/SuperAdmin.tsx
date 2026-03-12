@@ -258,24 +258,6 @@ const SuperAdmin = () => {
                   </TableCell>
                   <TableCell className="text-right">{planBadge(u.plan, dbPlans)}</TableCell>
                   <TableCell className="text-right">{statusBadge(u.status)}</TableCell>
-                  <TableCell className="text-center">
-                    {u.waAutomation ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: 'hsl(38 55% 62% / 0.15)', color: 'hsl(38 40% 45%)' }}>⚡ פעיל</span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {u.waAutomation ? (
-                      <span className={`text-xs font-semibold ${u.waUsage > 180 ? 'text-destructive' : 'text-foreground'}`}>
-                        {u.waUsage}/200
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center font-medium text-sm">{u.referrals}</TableCell>
-                  <TableCell className="text-right font-medium text-sm">₪{u.revenue.toLocaleString()}</TableCell>
                   <TableCell className="text-right text-sm text-muted-foreground">{u.joinDate}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center gap-1 justify-end">
