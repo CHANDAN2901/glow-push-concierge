@@ -1500,7 +1500,7 @@ const ArtistDashboard = () => {
             </div>
 
             {/* ═══ 4. DAILY GROWTH ENGINE ═══ */}
-            <FeatureGate featureKey="daily_growth_engine" mode="badge">
+            <FeatureGate featureKey={FK.DAILY_GROWTH_ENGINE} mode="badge">
               <div>
                 <div className="flex justify-end">
                   <button
