@@ -548,7 +548,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           {/* STEP 2: Dynamic Medical Questionnaire */}
           {step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }} className="space-y-4">
-              <div className="rounded-3xl p-7 sm:p-8" style={{ backgroundColor: T.card, boxShadow: T.cardShadow }}>
+              <div className="rounded-3xl p-7 sm:p-8" style={{ background: T.card, backgroundColor: T.cardBg, backdropFilter: 'blur(16px)', boxShadow: T.cardShadow, border: `1.5px solid ${T.cardBorder}` }}>
                 <h2 className="font-serif font-bold text-lg tracking-wide mb-2 pb-3 hd-shimmer-text" style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0, #B8860B, #D4AF37)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', borderBottom: `1px solid rgba(212,175,55,0.12)` }}>
                   {isHe ? 'שאלון רפואי' : 'Medical Questionnaire'}
                 </h2>
