@@ -568,9 +568,9 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           </div>
 
           {/* Welcome text — compact */}
-          <div className="flex flex-col items-center px-5 pt-2 pb-2 text-center">
+          <div className="flex flex-col items-center px-5 pt-4 pb-2 text-center">
             <h1
-              className="text-[11px] font-medium tracking-widest uppercase leading-snug mb-1"
+              className="text-sm font-medium tracking-widest uppercase leading-snug mb-1"
               style={{
                 color: '#B8860B',
               }}
@@ -580,10 +580,9 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 : (isHe ? 'הצהרת בריאות' : 'Health Declaration')}
             </h1>
             <p
-              className="text-xs font-bold tracking-wide"
+              className="text-[11px] font-medium tracking-widest uppercase"
               style={{
-                fontFamily: "'FB Ahava', 'Playfair Display', serif",
-                color: '#4A2C2C',
+                color: '#B8860B',
               }}
             >
               {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
