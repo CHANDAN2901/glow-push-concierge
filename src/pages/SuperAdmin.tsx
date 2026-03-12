@@ -578,6 +578,7 @@ const SuperAdmin = () => {
           {view === 'timeline' && <AdminHealingEditor />}
           {view === 'aftercare' && <AdminAftercareEditor />}
           {view === 'health-questions' && <HealthQuestionsEditor />}
+          {view === 'clinic-policy' && <AdminPolicyEditor />}
           {view === 'settings' && renderSettings()}
         </div>
       </main>
