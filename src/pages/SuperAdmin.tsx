@@ -33,16 +33,15 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTo
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
-
-/* ── dummy data ── */
-const artists = [
-  { id: '1', name: 'Dana Cohen', studio: 'DC Brows', plan: 'master', status: 'active', referrals: 28, revenue: 8400, joinDate: '12/03/2024', waAutomation: true, waUsage: 147 },
-  { id: '2', name: 'Maya Levi', studio: 'Glow Beauty', plan: 'professional', status: 'active', referrals: 12, revenue: 3200, joinDate: '05/07/2024', waAutomation: true, waUsage: 82 },
-  { id: '3', name: 'Shira Avital', studio: 'Shira PMU', plan: 'professional', status: 'active', referrals: 6, revenue: 1800, joinDate: '19/09/2024', waAutomation: false, waUsage: 0 },
-  { id: '4', name: 'Noa Ben David', studio: 'NB Studio', plan: 'lite', status: 'suspended', referrals: 0, revenue: 0, joinDate: '02/01/2025', waAutomation: false, waUsage: 0 },
-  { id: '5', name: 'Orit Hadad', studio: 'Beauty Lab TLV', plan: 'professional', status: 'active', referrals: 3, revenue: 960, joinDate: '28/11/2024', waAutomation: false, waUsage: 0 },
-];
+interface ArtistRow {
+  id: string;
+  name: string;
+  studio: string;
+  plan: string;
+  status: string;
+  joinDate: string;
+  profileId: string;
+}
 
 const revenueChart = [
   { month: 'Sep', revenue: 6200 },
