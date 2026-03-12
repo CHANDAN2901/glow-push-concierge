@@ -290,9 +290,9 @@ const SuperAdmin = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {TIERS.map(t => (
-                      <SelectItem key={t.slug} value={t.slug}>
-                        {t.name.en} — {t.price.ils === 0 ? 'Free' : `₪${t.price.ils}/mo`}
+                    {dbPlans.map(p => (
+                      <SelectItem key={p.slug} value={p.slug}>
+                        {p.name_en} — {p.price_monthly === 0 ? 'Free' : `₪${p.price_monthly}/mo`}
                       </SelectItem>
                     ))}
                   </SelectContent>
