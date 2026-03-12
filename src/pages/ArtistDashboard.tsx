@@ -22,7 +22,7 @@ import ReferralTab from '@/components/ReferralTab';
 import HealthDeclarationPreview from '@/components/HealthDeclarationPreview';
 import AiMagicSection from '@/components/AiMagicSection';
 import HelpCenter from '@/components/HelpCenter';
-import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
+import HealthDeclarationEditor from '@/components/HealthDeclarationEditor';
 import SmartCalendar from '@/components/SmartCalendar';
 import SimpleGallery from '@/components/SimpleGallery';
 import { DualPhotoGallery } from '@/components/DualPhotoGallery';
