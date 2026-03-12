@@ -3597,7 +3597,7 @@ const ArtistDashboard = () => {
                     await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
                     toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
                   } catch {
-                    window.prompt('העתיקי את הקישור:', shareUrl);
+                    window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', shareUrl);
                   }
                 }
               }
