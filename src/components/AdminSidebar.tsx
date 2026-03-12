@@ -1,8 +1,8 @@
-import { LayoutDashboard, Users, Megaphone, Settings, MessageSquareText, Heart, Stethoscope, CreditCard, ClipboardList, Sparkles, Pencil, HelpCircle, Crown, ListChecks } from 'lucide-react';
+import { LayoutDashboard, Users, Megaphone, Settings, MessageSquareText, Heart, Stethoscope, CreditCard, ClipboardList, Sparkles, Pencil, HelpCircle, Crown, ListChecks, ScrollText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
-type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'faq' | 'faq-manager' | 'settings';
+type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'clinic-policy' | 'faq' | 'faq-manager' | 'settings';
 
 interface AdminSidebarProps {
   active: AdminView;
