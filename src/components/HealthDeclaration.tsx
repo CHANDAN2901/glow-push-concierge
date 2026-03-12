@@ -572,9 +572,9 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
             <h1
               className="text-base sm:text-lg leading-snug mb-1"
               style={{
-                fontFamily: "'FB Ahava', 'Playfair Display', serif",
+                fontFamily: "'FB Ahava', sans-serif",
                 fontWeight: 700,
-                background: 'linear-gradient(135deg, #D4AF37, #F5D76E, #B8860B)',
+                background: 'linear-gradient(135deg, #A67C00, #C5991A, #8B6914)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
