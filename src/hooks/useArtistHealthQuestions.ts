@@ -150,8 +150,6 @@ export function useClientHealthQuestions(artistId: string | null) {
               detail_placeholder_en: q.detail_placeholder_en,
               sort_order: q.sort_order,
               is_active: true,
-              created_at: q.created_at,
-              updated_at: q.created_at,
             } as HealthQuestion)),
           ];
           setQuestions(allQs);
