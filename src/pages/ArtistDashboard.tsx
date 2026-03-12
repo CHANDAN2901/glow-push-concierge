@@ -1718,15 +1718,6 @@ const ArtistDashboard = () => {
                 </div>
               </FeatureGate>
 
-              <div className="relative">
-                <button onClick={() => setShowPolicyEditor(true)} className="pill-action-btn animate-fade-up">
-                  <span className="pill-icon-circle"><ScrollText className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
-                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Clinic Policy' : 'עריכת מדיניות ותנאי שירות'}</span>
-                </button>
-                <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                  <HelpTooltip id="clinic-policy" text={lang === 'en' ? 'Edit your clinic policy and terms of service that clients can view.' : 'ערכי את מדיניות הקליניקה ותנאי השירות שלך — הלקוחות יוכלו לצפות בהם מהכרטיס הדיגיטלי.'} />
-                </span>
-              </div>
 
               <button
                   type="button"
@@ -3287,6 +3278,15 @@ const ArtistDashboard = () => {
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
 
+                {/* Clinic Policy */}
+                <button
+                  onClick={() => setShowPolicyEditor(true)}
+                  className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
+                >
+                  <ScrollText className="w-4 h-4 text-accent" />
+                  <p className="text-sm font-medium flex-1">{lang === 'en' ? 'Clinic Policy' : 'מדיניות הקליניקה'}</p>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+                </button>
 
                 {/* Delete Account */}
                 <button
