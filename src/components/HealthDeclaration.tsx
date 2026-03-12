@@ -82,7 +82,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
 
   const { questions: dbQuestions, loading: questionsLoading } = useHealthQuestions();
 
-  const [showIntro, setShowIntro] = useState(!readOnly && !existingData);
+  const [showIntro, setShowIntro] = useState(false);
   const [step, setStep] = useState(1);
 
   const [fullName, setFullName] = useState(existingData?.fullName || clientName);
