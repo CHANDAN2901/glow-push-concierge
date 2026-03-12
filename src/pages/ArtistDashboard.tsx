@@ -1499,31 +1499,35 @@ const ArtistDashboard = () => {
             </div>
 
             {/* ═══ 4. DAILY GROWTH ENGINE ═══ */}
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowTemplateEditor(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-[1.02] active:scale-[0.98] border"
-                style={{
-                  background: 'hsl(0 0% 100%)',
-                  borderColor: 'hsl(38 55% 58%)',
-                  color: 'hsl(36 50% 42%)',
-                  boxShadow: '0 10px 28px rgba(160,100,80,0.16), 0 4px 12px rgba(180,120,90,0.1), 0 2px 6px rgba(212,175,55,0.08)',
-                }}
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                {lang === 'en' ? 'Edit Growth Engine' : 'עריכת מנוע צמיחה יומי'}
-              </button>
-            </div>
+            <FeatureGate featureKey="daily_growth_engine" mode="badge">
+              <div>
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setShowTemplateEditor(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-[1.02] active:scale-[0.98] border"
+                    style={{
+                      background: 'hsl(0 0% 100%)',
+                      borderColor: 'hsl(38 55% 58%)',
+                      color: 'hsl(36 50% 42%)',
+                      boxShadow: '0 10px 28px rgba(160,100,80,0.16), 0 4px 12px rgba(180,120,90,0.1), 0 2px 6px rgba(212,175,55,0.08)',
+                    }}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    {lang === 'en' ? 'Edit Growth Engine' : 'עריכת מנוע צמיחה יומי'}
+                  </button>
+                </div>
 
-            <DailyGrowthEngine
-              clients={clients}
-              artistName={artistName}
-              lang={lang as 'en' | 'he'}
-              onBirthdayClick={(client) => setBirthdayWishClient(client)}
-              onRenewalClick={(client) => setRenewalClient(client)}
-              reviewTemplate={customTemplates.review}
-              reviewTemplateEn={customTemplates.review_en}
-            />
+                <DailyGrowthEngine
+                  clients={clients}
+                  artistName={artistName}
+                  lang={lang as 'en' | 'he'}
+                  onBirthdayClick={(client) => setBirthdayWishClient(client)}
+                  onRenewalClick={(client) => setRenewalClient(client)}
+                  reviewTemplate={customTemplates.review}
+                  reviewTemplateEn={customTemplates.review_en}
+                />
+              </div>
+            </FeatureGate>
 
             {/* ── Today's Appointments ── */}
             {(() => {
