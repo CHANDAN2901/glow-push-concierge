@@ -585,7 +585,7 @@ const ClientHome = () => {
               {lang === 'en' ? 'Follow your progress daily' : 'עקבי אחר ההתקדמות שלך בכל יום'}
             </p>
             <p className="text-xs mt-2 opacity-80" style={{ color: SUBTEXT_COLOR, fontFamily: FBAHAVA }}>
-              {getTimeGreeting(clientName)}
+              {getTimeGreeting(clientName, lang)}
             </p>
             <span className="sr-only" data-client-identity-source={identity.source}>
               {`client-identity-source:${identity.source}|client-id:${clientId || 'none'}|client-name:${clientName || 'none'}`}
