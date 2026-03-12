@@ -399,7 +399,7 @@ export function DualPhotoGallery({ clientId, artistId, logoUrl }: DualPhotoGalle
               style={{ border: `1px solid ${ROSE}`, color: ROSE_DARK }}
             >
               <Upload className="w-3 h-3" />
-              העלי לוגו לסימון מים
+              {isHe ? 'העלי לוגו לסימון מים' : 'Upload Watermark Logo'}
             </button>
           </div>
         )}
