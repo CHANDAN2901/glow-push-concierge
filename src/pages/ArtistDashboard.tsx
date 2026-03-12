@@ -1704,7 +1704,7 @@ const ArtistDashboard = () => {
               </div>
               </FeatureGate>
 
-              <FeatureGate featureKey="health_declaration" mode="badge">
+              <FeatureGate featureKey={FK.HEALTH_DECLARATION} mode="badge">
                 <div className="relative">
                   <button onClick={() => setShowHealthEditor(true)} className="pill-action-btn animate-fade-up">
                     <span className="pill-icon-circle"><ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
