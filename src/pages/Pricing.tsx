@@ -299,20 +299,18 @@ const Pricing = () => {
         </div>
       </div>
 
-      {/* Gold glint divider */}
-      <div className="flex justify-center py-6">
-        <div style={{width:'55%',height:'2px',borderRadius:'1px',background:'linear-gradient(90deg, transparent 0%, #B8860B 20%, #D4AF37 35%, #F9F295 50%, #D4AF37 65%, #B8860B 80%, transparent 100%)',backgroundSize:'200% 100%',animation:'gold-glint 4s ease-in-out infinite',boxShadow:'0 0 8px rgba(212,175,55,0.4), 0 0 16px rgba(212,175,55,0.15)'}} />
-      </div>
-
       {/* Plan Cards */}
       <div className="mx-auto px-4 pb-20 flex flex-col items-center max-w-lg">
         {plans.map((plan, idx) => {
           const Icon = iconMap[plan.slug] || Sparkles;
-          const features = isHe ? plan.features_he : plan.features_en;
-          const name = isHe ? plan.name_he : plan.name_en;
-          const cta = isHe ? plan.cta_he : plan.cta_en;
-          const badge = isHe ? plan.badge_he : plan.badge_en;
-          const isElite = plan.is_highlighted;
+          // Prefer DB display features (richer marketing copy), fallback to config descriptions
+          const features = plan.displayFeatures
+            ? (isHe ? plan.displayFeatures.he : plan.displayFeatures.en)
+            : plan.features.map(f => isHe ? f.desc.he : f.desc.en);
+          const name = isHe ? plan.name.he : plan.name.en;
+          const cta = isHe ? plan.cta.he : plan.cta.en;
+          const badge = plan.badge ? (isHe ? plan.badge.he : plan.badge.en) : null;
+          const isElite = plan.isHighlighted;
 
           return (
             <>
@@ -322,7 +320,7 @@ const Pricing = () => {
                 </div>
               )}
               <div
-                key={plan.id}
+                key={plan.slug}
                 className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
                 style={{
                 border: 'none',
@@ -382,10 +380,10 @@ const Pricing = () => {
                       filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
                     }}
                   >
-                    {isHe ? `₪${plan.price_monthly.toLocaleString()}` : `$${plan.price_usd.toLocaleString()}`}
+                    {isHe ? `₪${plan.price.ils.toLocaleString()}` : `$${plan.price.usd.toLocaleString()}`}
                   </span>
                   <span className="text-sm" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
-                    {plan.slug === 'vip-3year' ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time') : (isHe ? '/ חודש' : '/ month')}
+                    {isHe ? '/ חודש' : '/ month'}
                   </span>
                 </div>
               </div>
@@ -403,11 +401,11 @@ const Pricing = () => {
                 ))}
               </ul>
 
-              {plan.slug === 'vip-3year' && plan.total_promo_spots > 0 && (
+              {plan.slug === 'master' && plan.total_promo_spots > 0 && (
                 <FomoBadge totalSpots={plan.total_promo_spots} takenSpots={vipTaken} isHe={isHe} />
               )}
 
-              {/* Pill CTA button with deep pink + floating shadow + blurred halo */}
+              {/* Pill CTA button */}
               <Link
                 to="/auth"
                 className="w-full inline-flex items-center justify-center py-4 text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:translate-y-[-2px]"
