@@ -3581,8 +3581,8 @@ const ArtistDashboard = () => {
               if (wazeAddress) params.set('waze', wazeAddress);
               const qs = params.toString();
               const shareUrl = `${BASE}${qs ? `?${qs}` : ''}`;
-              const shareTitle = 'כרטיס ביקור דיגיטלי';
-              const shareText = 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
+              const shareTitle = lang === 'en' ? 'Digital Business Card' : 'כרטיס ביקור דיגיטלי';
+              const shareText = lang === 'en' ? 'Hey! ✨ Check out my new digital studio card. All the ways to reach me and see my work — just one click away:' : 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
               try {
                 if (navigator.share) {
                   await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
