@@ -5,7 +5,7 @@ import heroBg from '@/assets/card-hero-bg.jpg';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import defaultLogo from '@/assets/glowpush-logo.png';
 import { useI18n } from '@/lib/i18n';
-import ClinicPolicyViewer from '@/components/ClinicPolicyViewer';
+import { useI18n } from '@/lib/i18n';
 
 const WHATSAPP_NUMBER = '972508855329';
 const WHATSAPP_MESSAGE = 'היי! הגעתי דרך הכרטיס הדיגיטלי, אשמח לקבל פרטים ולתאם תור ✨';
