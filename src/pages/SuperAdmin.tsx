@@ -242,13 +242,9 @@ const SuperAdmin = () => {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="text-right">אמנית וסטודיו</TableHead>
+                 <TableHead className="text-right">אמנית וסטודיו</TableHead>
                 <TableHead className="text-right">חבילה</TableHead>
                 <TableHead className="text-right">סטטוס</TableHead>
-                <TableHead className="text-center">WA אוטומציה</TableHead>
-                <TableHead className="text-center">שימוש WA</TableHead>
-                <TableHead className="text-center">הפניות</TableHead>
-                <TableHead className="text-right">הכנסות</TableHead>
                 <TableHead className="text-right">תאריך הצטרפות</TableHead>
                 <TableHead className="text-right">פעולות</TableHead>
               </TableRow>
