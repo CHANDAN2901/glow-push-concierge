@@ -153,28 +153,11 @@ const SuperAdmin = () => {
     },
   });
 
-  // Mutation to seed test users
+  // Mutation to seed test users via SECURITY DEFINER RPC (bypasses RLS)
   const seedUsersMutation = useMutation({
     mutationFn: async () => {
-      const testUsers = [
-        { full_name: 'נועה בן דוד', studio_name: 'סטודיו נועה ביוטי', subscription_tier: 'lite', subscription_status: 'active', email: 'noa.test@glowpush.dev' },
-        { full_name: 'אורית חדד', studio_name: 'Orit PMU Studio', subscription_tier: 'professional', subscription_status: 'active', email: 'orit.test@glowpush.dev' },
-        { full_name: 'שירה אביטל', studio_name: 'שירה מייקאפ קבוע', subscription_tier: 'master', subscription_status: 'active', email: 'shira.test@glowpush.dev' },
-        { full_name: 'מאיה לוי', studio_name: 'Maya Brows & Lips', subscription_tier: 'lite', subscription_status: 'trial', email: 'maya.test@glowpush.dev' },
-      ];
-      for (const u of testUsers) {
-        // Create auth user via admin or insert directly into profiles with a generated user_id
-        const fakeUserId = crypto.randomUUID();
-        const { error } = await supabase.from('profiles').insert({
-          user_id: fakeUserId,
-          full_name: u.full_name,
-          studio_name: u.studio_name,
-          subscription_tier: u.subscription_tier as any,
-          subscription_status: u.subscription_status as any,
-          email: u.email,
-        } as any);
-        if (error) throw error;
-      }
+      const { error } = await supabase.rpc('seed_mock_users' as any);
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['superAdminUsers'] });
