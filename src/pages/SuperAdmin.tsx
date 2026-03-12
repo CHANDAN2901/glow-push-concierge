@@ -243,7 +243,11 @@ const SuperAdmin = () => {
                     <div className="flex items-center gap-1">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => toast({ title: `Simulating login as ${u.name}...` })}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => {
+                            startImpersonation({ userName: u.name, studioName: u.studio, tier: u.plan as TierSlug });
+                            window.dispatchEvent(new Event('impersonation-changed'));
+                            navigate('/artist');
+                          }}>
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
                         </TooltipTrigger>
