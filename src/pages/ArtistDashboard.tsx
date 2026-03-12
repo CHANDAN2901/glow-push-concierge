@@ -2918,7 +2918,7 @@ const ArtistDashboard = () => {
               </div>
             </div>
 
-            <FeatureGate featureKey="digital_card" mode="badge">
+            <FeatureGate featureKey={FK.DIGITAL_CARD} mode="badge">
               <button
                 onClick={() => setShowDigitalCardPreview(true)}
                 className="preview-card-btn w-full flex items-center justify-center rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
