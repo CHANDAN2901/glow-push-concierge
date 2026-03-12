@@ -3278,6 +3278,15 @@ const ArtistDashboard = () => {
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
 
+                {/* Clinic Policy */}
+                <button
+                  onClick={() => setShowPolicyEditor(true)}
+                  className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
+                >
+                  <ScrollText className="w-4 h-4 text-accent" />
+                  <p className="text-sm font-medium flex-1">{lang === 'en' ? 'Clinic Policy' : 'מדיניות הקליניקה'}</p>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+                </button>
 
                 {/* Delete Account */}
                 <button
