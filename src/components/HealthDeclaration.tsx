@@ -393,22 +393,9 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       <div className="flex flex-col items-center px-4 sm:px-5 pt-6 sm:pt-10 pb-8">
         <div className="w-full max-w-lg">
 
-          {/* ═══ Seamless Luxury Header — eyebrow closeup ═══ */}
-          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '260px' }}>
-            <img
-              src={eyebrowHeroImg}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover object-center"
-              style={{ filter: 'brightness(0.85) saturate(1.15) contrast(1.05)' }}
-            />
-            {/* Soft fade into page pink */}
-            <div
-              className="absolute bottom-0 left-0 right-0"
-              style={{
-                height: '140px',
-                background: 'linear-gradient(180deg, transparent 0%, hsla(350,50%,94%,0.15) 30%, hsla(350,50%,94%,0.5) 55%, hsla(350,50%,94%,0.85) 80%, hsl(350,50%,94%) 100%)',
-              }}
-            />
+          {/* ═══ Seamless Luxury Header — Metallic Rose Gold Gradient ═══ */}
+          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '260px', background: 'linear-gradient(180deg, hsl(350 35% 65%) 0%, hsl(350 40% 72%) 20%, hsl(350 45% 80%) 45%, hsl(350 50% 88%) 70%, hsl(350 50% 93%) 90%, hsl(350 50% 94%) 100%)' }}>
+
             {/* Back button + step row */}
             <div className="relative z-10 flex items-center justify-between w-full px-6 pt-6">
               <button
@@ -454,17 +441,13 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               )}
             </div>
 
-            {/* Welcome text — metallic rose gold, FB Ahava, static */}
+            {/* Welcome text — solid Deep Burgundy, FB Ahava, static, no effects */}
             <h1
               className="text-center text-xl sm:text-2xl leading-relaxed mb-2"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
                 fontWeight: 700,
-                background: T.roseGoldText,
-                backgroundSize: '100% 100%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 1px 2px rgba(160,112,112,0.15))',
+                color: '#4A2C2C',
               }}
             >
               {step === 1 && fullName.trim()
@@ -475,9 +458,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               className="text-center text-sm font-bold tracking-wide"
               style={{
                 fontFamily: "'FB Ahava', 'Playfair Display', serif",
-                background: T.roseGoldText,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                color: '#4A2C2C',
               }}
             >
               {isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment'}
