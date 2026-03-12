@@ -63,7 +63,7 @@ const App = () => (
               <Route path="/admin/aftercare" element={<AftercareEditorPage />} />
               <Route path="/admin/timeline" element={<TimelineEditorPage />} />
               <Route path="/admin/timeline-content" element={<TimelineContentEditorPage />} />
-              <Route path="/admin/timeline-settings" element={<TimelineSettings />} />
+              <Route path="/admin/timeline-settings" element={<ProtectedRoute featureId="ai_magic"><TimelineSettings /></ProtectedRoute>} />
               <Route path="/admin/faq" element={<FaqPage />} />
               <Route path="/admin/faq-manager" element={<FaqManager />} />
               <Route path="/super-admin" element={<SuperAdmin />} />
