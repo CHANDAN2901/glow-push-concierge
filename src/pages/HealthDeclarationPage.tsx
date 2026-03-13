@@ -36,33 +36,43 @@ const HealthDeclarationPage = () => {
     });
   }, []);
 
-  // Validate form_token if present
+  // Validate burn token (single-use)
   useEffect(() => {
-    if (!formToken || isPreview) {
+    if (isPreview) {
       setTokenChecked(true);
       setTokenValid(true);
+      return;
+    }
+
+    if (!token) {
+      setTokenChecked(true);
+      setTokenValid(false);
       return;
     }
 
     const validate = async () => {
       const { data, error } = await supabase
         .from('form_links')
-        .select('is_completed')
-        .eq('code', formToken)
+        .select('client_id, is_token_used, is_completed')
+        .or(`form_token.eq.${token},code.eq.${token}`)
         .maybeSingle();
 
       if (error || !data) {
         setTokenValid(false);
-      } else if ((data as any).is_completed) {
-        setTokenValid(false);
-      } else {
-        setTokenValid(true);
+        setTokenChecked(true);
+        return;
       }
+
+      const used = Boolean((data as any).is_token_used || (data as any).is_completed);
+      const tokenClientId = (data as any).client_id as string | null;
+      const clientMismatch = Boolean(urlClientId && tokenClientId && urlClientId !== tokenClientId);
+
+      setTokenValid(!used && !clientMismatch);
       setTokenChecked(true);
     };
 
     validate();
-  }, [formToken, isPreview]);
+  }, [token, urlClientId, isPreview]);
 
   const requestPushSubscription = async (clientId: string) => {
     try {
