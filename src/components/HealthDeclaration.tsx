@@ -380,6 +380,16 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                     {isHe ? 'ניווט ב-Waze' : 'Navigate in Waze'}
                   </button>
                 )}
+                {resultClientId && (
+                  <a
+                    href={`/c/${resultClientId}?start=${encodeURIComponent(appointmentDate || new Date().toISOString().split('T')[0])}&artist_id=${encodeURIComponent(artistId || '')}`}
+                    className="w-full py-3 rounded-full text-sm font-bold transition-all min-h-[48px] active:scale-[0.97] flex items-center justify-center gap-2 text-white hd-shimmer-border"
+                    style={{ background: T.gradient, boxShadow: '0 6px 24px rgba(212,175,55,0.3)' }}
+                  >
+                    <Heart className="w-4 h-4" />
+                    {isHe ? 'למסע ההחלמה שלי ✨' : 'My Recovery Journey ✨'}
+                  </a>
+                )}
                 <button
                   onClick={() => window.close()}
                   className="w-full py-3 rounded-full text-sm font-medium transition-all min-h-[48px] active:scale-[0.97]"
