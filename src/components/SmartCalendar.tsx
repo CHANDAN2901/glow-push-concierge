@@ -11,11 +11,12 @@ import { useToast } from '@/hooks/use-toast';
 import {
   ChevronLeft, ChevronRight, Plus, Check, Clock, Phone,
   ClipboardCheck, AlertTriangle, Sparkles, X, CalendarDays,
-  MessageSquare, Eye, MessageCircle,
+  MessageSquare, Eye, MessageCircle, ScrollText,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -179,6 +180,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [newTime, setNewTime] = useState('10:00');
   const [newAutoHealth, setNewAutoHealth] = useState(false);
+  const [newIncludePolicy, setNewIncludePolicy] = useState(true);
   const [newVisitType, setNewVisitType] = useState<'new' | 'touchup' | 'consultation'>('new');
   const [selectedExistingClient, setSelectedExistingClient] = useState<{ id: string; name: string; phone: string | null } | null>(null);
   const [clientSearch, setClientSearch] = useState('');
@@ -310,25 +312,32 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     return digits.startsWith('0') ? '972' + digits.slice(1) : digits;
   };
 
-  const getHealthFormLink = (clientName?: string, clientPhone?: string) => {
+  const getHealthFormLink = (clientName?: string, clientPhone?: string, includePolicy = true) => {
     const base = window.location.origin;
     const params = new URLSearchParams();
     if (artistProfileId) params.set('artist_id', artistProfileId);
     if (clientName) params.set('name', clientName);
     if (clientPhone) params.set('client_phone', clientPhone);
     if (logoUrl) params.set('logo', logoUrl);
+    if (includePolicy) params.set('include_policy', 'true');
     return `${base}/health-declaration?${params.toString()}`;
   };
 
-  const openWhatsAppHealthForm = (name: string, phone: string, date: string, time: string) => {
+  const openWhatsAppHealthForm = (name: string, phone: string, date: string, time: string, includePolicy = true) => {
     if (!phone) {
       toast({ title: isHe ? 'לא ניתן לשלוח — חסר מספר טלפון' : 'Cannot send — phone number missing', variant: 'destructive' });
       return;
     }
     const formattedDate = new Date(date).toLocaleDateString('he-IL');
-    const link = getHealthFormLink(name, phone);
+    const link = getHealthFormLink(name, phone, includePolicy);
     const artistDisplayName = isHe ? 'האמנית שלך' : 'your artist';
-    const text = isHe ? `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨` : `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nBefore the treatment, please fill out a brief health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`;
+    const text = isHe
+      ? (includePolicy
+        ? `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨`
+        : `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨`)
+      : (includePolicy
+        ? `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nPlease review our clinic policy and fill out the health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`
+        : `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nBefore the treatment, please fill out a brief health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`);
     const waUrl = `https://wa.me/${formatPhoneForWA(phone)}?text=${encodeURIComponent(text)}`;
     window.open(waUrl, '_blank');
     toast({ title: isHe ? 'הודעה נשלחה בהצלחה ✉️' : 'Message sent successfully ✉️' });
@@ -513,10 +522,10 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
         if (onNewAppointment) {
           onNewAppointment({ name: newName, phone: newPhone, treatment: newType, date: newDate, time: newTime });
         }
-        openWhatsAppHealthForm(newName, newPhone, newDate, newTime);
+        openWhatsAppHealthForm(newName, newPhone, newDate, newTime, newIncludePolicy);
       }
 
-      setNewName(''); setNewPhone(''); setNewType('eyebrows'); setNewTime('10:00'); setNewAutoHealth(false); setNewVisitType('new'); setSelectedExistingClient(null); setClientSearch('');
+      setNewName(''); setNewPhone(''); setNewType('eyebrows'); setNewTime('10:00'); setNewAutoHealth(false); setNewIncludePolicy(true); setNewVisitType('new'); setSelectedExistingClient(null); setClientSearch('');
       toast({
         title: isHe ? 'התור נשמר בהצלחה! ✨' : 'Appointment saved successfully! ✨',
       });
@@ -1134,6 +1143,27 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                         : 'Client receives a digital health form to fill before the appointment'}
                     </p>
                   </label>
+                </div>
+              )}
+
+              {/* Include clinic policy toggle — shown when auto-health is checked */}
+              {newAutoHealth && newVisitType !== 'touchup' && (
+                <div
+                  className="flex items-center justify-between gap-3 p-3 rounded-xl"
+                  style={{ background: 'hsl(38 30% 96%)', border: '1px solid hsl(38 50% 80% / 0.4)' }}
+                >
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <ScrollText className="w-4 h-4 flex-shrink-0" style={{ color: '#B8860B' }} />
+                    <label htmlFor="include-policy-cal" className="text-xs font-bold leading-snug cursor-pointer" style={{ color: '#B8860B' }}>
+                      {isHe ? 'צרפי גם את מדיניות הקליניקה והסכם הטיפול' : 'Include Clinic Policy & Treatment Agreement'}
+                    </label>
+                  </div>
+                  <Switch
+                    id="include-policy-cal"
+                    checked={newIncludePolicy}
+                    onCheckedChange={setNewIncludePolicy}
+                    className="data-[state=checked]:bg-[#B8860B] data-[state=unchecked]:bg-[#d8b4b4]/40"
+                  />
                 </div>
               )}
             </div>
