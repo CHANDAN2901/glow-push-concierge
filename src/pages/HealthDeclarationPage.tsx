@@ -17,8 +17,11 @@ const HealthDeclarationPage = () => {
   const appointmentDate = searchParams.get('start') || '';
   const appointmentTime = searchParams.get('time') || '';
   const isPreview = searchParams.get('preview') === 'true';
+  const includePolicy = searchParams.get('include_policy') === 'true';
+  const { lang } = useI18n();
 
   const [isArtist, setIsArtist] = useState(false);
+  const [policyAcknowledged, setPolicyAcknowledged] = useState(!includePolicy);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
