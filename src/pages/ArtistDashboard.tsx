@@ -2488,7 +2488,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         {/* ===== BONUSES TAB (hidden from nav, still accessible) ===== */}
         {activeTab === 'messages' && (
           <div>
-            <ReferralTab artistName={artistName} />
+            <ReferralTab artistName={artistName} artistProfileId={userProfileId || undefined} />
           </div>
         )}
 
