@@ -18,6 +18,7 @@ import CircularProgress from '@/components/CircularProgress';
 import confetti from 'canvas-confetti';
 import { useToast } from '@/hooks/use-toast';
 import InstallBanner from '@/components/InstallBanner';
+import { VOUCHER_DEFAULTS } from '@/components/ReferralVoucherEditor';
 
 import ClientNotificationCenter from '@/components/ClientNotificationCenter';
 import ClientSharedGallery from '@/components/ClientSharedGallery';
