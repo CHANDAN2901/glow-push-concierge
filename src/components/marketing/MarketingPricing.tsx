@@ -57,15 +57,16 @@ const MarketingPricing = ({ isHe, user }: Props) => {
           >
             {/* Badge */}
             <span
-              className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
+              className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-1.5 rounded-full text-sm font-black whitespace-nowrap tracking-wide"
               style={{
-                background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                color: '#4a3636',
-                boxShadow: '0 2px 12px rgba(212, 175, 55, 0.4)',
+                background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
+                color: '#78350F',
+                boxShadow: '0 4px 16px rgba(250, 204, 21, 0.5), 0 1px 4px rgba(0,0,0,0.1)',
+                textShadow: '0 1px 0 rgba(255,255,255,0.4)',
               }}
             >
               <Star className="w-3.5 h-3.5" />
-              {isHe ? 'הכי פופולרי' : 'Most Popular'}
+              {isHe ? '🔥 מחיר השקה מיוחד!' : '🔥 Special Launch Price!'}
             </span>
 
             <h3 className="font-serif text-3xl font-medium tracking-wide mt-4 mb-2" style={{ color: '#333333' }}>
