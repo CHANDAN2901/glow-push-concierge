@@ -513,6 +513,7 @@ const ClientHome = () => {
   /* ─── Notification Center ─── */
   const [notifOpen, setNotifOpen] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [showHealthDeclModal, setShowHealthDeclModal] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const treatmentStartDate = useMemo(() => {
     if (!startDateParam) return new Date();
