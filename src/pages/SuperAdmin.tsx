@@ -90,6 +90,7 @@ const SuperAdmin = () => {
   const { toast } = useToast();
   const { isAdmin, loading, roleLoading } = useAuth();
   const navigate = useNavigate();
+  const invalidateTier = useInvalidateTier();
   const [view, setView] = useState<AdminView>('dashboard');
   const [termsText, setTermsText] = useState('הריני מאשרת כי כל הפרטים שמסרתי בטופס זה הם נכונים ומדויקים. אני מבינה כי הטיפול מבוצע בהסכמתי המלאה, וכי הוסברו לי הסיכונים האפשריים, תהליך ההחלמה והוראות הטיפול בבית. ידוע לי שתוצאות הטיפול משתנות מאחת לאחת ותלויות גם בסוג העור ובשמירה על ההוראות.');
   const [newQuestion, setNewQuestion] = useState('');
