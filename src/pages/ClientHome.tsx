@@ -1166,7 +1166,7 @@ const ClientHome = () => {
 
             {/* Messages */}
             <a
-              href={`https://wa.me/${artistBusinessPhone || artistPhone || ''}?text=${encodeURIComponent(
+              href={`https://wa.me/${waPhone}?text=${encodeURIComponent(
                 lang === 'en' ? `Hi! I have a question about my treatment (Day ${actualDay}) ✨` : `היי! יש לי שאלה לגבי הטיפול (יום ${actualDay}) ✨`
               )}`}
               target="_blank"
