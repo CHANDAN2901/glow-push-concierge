@@ -96,7 +96,14 @@ const MarketingPricing = ({ isHe, user }: Props) => {
 
             <Link
               to={user ? '/artist' : '/auth'}
-              className="btn-metallic-gold w-full inline-flex items-center justify-center gap-2 px-8 py-4 text-base"
+              className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold rounded-2xl transition-all hover:shadow-xl active:scale-[0.97]"
+              style={{
+                background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
+                color: '#78350F',
+                border: '2px solid #EAB308',
+                boxShadow: '0 6px 24px -4px rgba(250, 204, 21, 0.5), 0 2px 8px rgba(0,0,0,0.08)',
+                textShadow: '0 1px 0 rgba(255,255,255,0.3)',
+              }}
             >
               {isHe ? 'התחילי ניסיון חינם' : 'Start Free Trial'}
             </Link>
