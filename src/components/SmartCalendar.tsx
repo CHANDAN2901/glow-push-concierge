@@ -525,7 +525,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
         openWhatsAppHealthForm(newName, newPhone, newDate, newTime, newIncludePolicy);
       }
 
-      setNewName(''); setNewPhone(''); setNewType('eyebrows'); setNewTime('10:00'); setNewAutoHealth(false); setNewVisitType('new'); setSelectedExistingClient(null); setClientSearch('');
+      setNewName(''); setNewPhone(''); setNewType('eyebrows'); setNewTime('10:00'); setNewAutoHealth(false); setNewIncludePolicy(true); setNewVisitType('new'); setSelectedExistingClient(null); setClientSearch('');
       toast({
         title: isHe ? 'התור נשמר בהצלחה! ✨' : 'Appointment saved successfully! ✨',
       });
