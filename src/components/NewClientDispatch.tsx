@@ -203,7 +203,7 @@ const NewClientDispatch = ({
     let link = generatedLink;
     if (!link) {
       const clientId = await ensureClientInDb();
-      link = buildLink(clientId);
+      link = await buildShortLink(clientId);
       markDispatched(link);
     }
     await navigator.clipboard.writeText(link);
