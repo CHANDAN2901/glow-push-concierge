@@ -14,8 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const DEFAULT_TEXT_HE = 'שלחי לחברה את הקוד שלך! היא תקבל 100 ש"ח הנחה לטיפול ראשון, ואת תקבלי 50 ש"ח קרדיט לטיפול החיזוק הבא שלך.';
 const DEFAULT_TEXT_EN = 'Send your code to a friend! She gets ₪100 off her first treatment, and you get ₪50 credit for your next touch-up.';
-const DEFAULT_WA_HE = 'היי! 🎁 הנה קוד ההנחה שלי: [CODE] — תקבלי 100 ש"ח הנחה על הטיפול הראשון! ✨';
-const DEFAULT_WA_EN = 'Hey! 🎁 Use my code [CODE] and get ₪100 off your first PMU treatment! ✨';
+const DEFAULT_WA_HE = 'היי אהובה! ✨\nרציתי לפרגן לך במתנה קטנה... קיבלתי קוד הטבה אישי אצל {{artist_name}}, המאפרת המהממת שלי!\nאם בא לך להתפנק בטיפול, תשתמשי בקוד שלי: [CODE] ותקבלי הנחה שווה על הטיפול הראשון שלך אצלה. מומלץ בחום! 🤍';
+const DEFAULT_WA_EN = 'Hey babe! ✨\nI wanted to treat you... I got a personal discount code for my amazing permanent makeup artist, {{artist_name}}!\nUse my code: [CODE] to get a discount on your first treatment with her. Highly recommended! 🤍';
 
 export const VOUCHER_DEFAULTS = {
   voucher_text_he: DEFAULT_TEXT_HE,
@@ -117,7 +117,7 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
               <div className="flex flex-wrap gap-1.5 mb-2">
                 <button
                   type="button"
-                  onClick={() => setWaHe('היי {{client_name}} אהובה! 💕 מקווה שאת נהנית מהתוצאה! בגלל שלקוחות מדהימות תמיד מביאות חברות מדהימות, יצרתי לך קוד קופון VIP משלך: [CODE]. אם מישהי שואלת מי עשתה לך את העבודה, תעבירי לה את הקוד – היא תקבל מתנה לטיפול הראשון, ואת תקבלי קרדיט לטיפול החידוש הבא שלך! 🎁 נשיקות! 😘')}
+                  onClick={() => setWaHe('היי אהובה! ✨\nרציתי לפרגן לך במתנה קטנה... קיבלתי קוד הטבה אישי אצל {{artist_name}}, המאפרת המהממת שלי!\nאם בא לך להתפנק בטיפול, תשתמשי בקוד שלי: [CODE] ותקבלי הנחה שווה על הטיפול הראשון שלך אצלה. מומלץ בחום! 🤍')}
                   className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all hover:scale-[1.03] active:scale-[0.97] border"
                   style={{
                     background: 'linear-gradient(135deg, hsl(38 50% 96%), hsl(38 45% 92%))',
@@ -129,7 +129,7 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
                 </button>
                 <button
                   type="button"
-                  onClick={() => setWaHe('היי {{client_name}} מהממת! 🥰 תודה שבחרת בי. פינקתי אותך בקוד הטבה אישי לחברות: [CODE]. כל חברה שתגיע דרכך ותציג את הקוד תקבל הנחה מיוחדת, ואני אפנק אותך בקרדיט לטיפול הבא! תרגישי חופשי להעביר למי שרק בא לך. מחכה לראות אותך בטאצ\'-אפ! ✨')}
+                  onClick={() => setWaHe('היי! 🌸 סידרתי לך פינוק...\nקוד הנחה אישי לטיפול אצל {{artist_name}} האלופה.\nפשוט תמסרי לה את הקוד שלי: [CODE] ותקבלי הנחה לטיפול הראשון שלך. תהני מלא! ✨')}
                   className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all hover:scale-[1.03] active:scale-[0.97] border"
                   style={{
                     background: 'linear-gradient(135deg, hsl(38 50% 96%), hsl(38 45% 92%))',
