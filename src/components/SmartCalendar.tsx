@@ -180,6 +180,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [newTime, setNewTime] = useState('10:00');
   const [newAutoHealth, setNewAutoHealth] = useState(false);
+  const [newIncludePolicy, setNewIncludePolicy] = useState(true);
   const [newVisitType, setNewVisitType] = useState<'new' | 'touchup' | 'consultation'>('new');
   const [selectedExistingClient, setSelectedExistingClient] = useState<{ id: string; name: string; phone: string | null } | null>(null);
   const [clientSearch, setClientSearch] = useState('');
