@@ -117,12 +117,12 @@ const NewClientDispatch = ({
     const senderName = artistName || (lang === 'en' ? 'Your artist' : 'המטפלת שלך');
     if (lang === 'en') {
       return includePolicy
-        ? `Hey ${firstName}! So excited you're coming in! ✨\n\nPlease take a moment to review our clinic policy and fill out the health declaration form:\n\n${link}\n\nLooking forward to seeing you!\n\n${senderName} 💖`
-        : `Hey ${firstName}! So excited you're coming in! ✨\n\nTo ensure we provide you with the most precise and professional treatment, please take a moment to fill out the health declaration form:\n\n${link}\n\nLooking forward to seeing you!\n\n${senderName} 💖`;
+        ? `Hello ${firstName}! Can't wait to see you! ✨\n\nHere's your personal link that includes our clinic policy and health declaration form:\n\n${link}\n\nSee you soon!\n\n${senderName} 💖`
+        : `Hello ${firstName}! Can't wait to see you! ✨\n\nFor your treatment, please fill out the health declaration form at the link below:\n\n${link}\n\nSee you soon!\n\n${senderName} 💖`;
     }
     return includePolicy
-      ? `היי ${firstName} אהובה, איזה כיף שאת מגיעה אלינו! ✨\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות לפני הטיפול:\n\n${link}\n\nמחכה לראות אותך ולעשות לך הכי יפה שיש,\n\n${senderName} 💖`
-      : `היי ${firstName} אהובה, איזה כיף שאת מגיעה אלינו! ✨\n\nכדי שנוכל להעניק לך את הטיפול המדויק והמקצועי ביותר עבורך, אשמח שתקדישי דקה למילוי הצהרת הבריאות בקישור המצורף:\n\n${link}\n\nמחכה לראות אותך ולעשות לך הכי יפה שיש,\n\n${senderName} 💖`;
+      ? `שלום ${firstName} יקירה, מחכה לראותך! ✨\n\nמצורף קישור אישי הכולל את מדיניות הקליניקה וטופס הצהרת בריאות:\n\n${link}\n\nנתראה בקרוב!\n\n${senderName} 💖`
+      : `שלום ${firstName} יקירה, מחכה לראותך! ✨\n\nלצורך הטיפול, אנא מילאי הצהרת בריאות בקישור:\n\n${link}\n\nנתראה בקרוב!\n\n${senderName} 💖`;
   };
 
   const markDispatched = (link: string) => {
