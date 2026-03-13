@@ -359,7 +359,7 @@ const NewClientDispatch = ({
           {/* Action Buttons */}
           <div className="space-y-3">
             {/* Primary: WhatsApp */}
-            <button onClick={handleSendWhatsApp} disabled={!isValid || (isDuplicate && !duplicateAck)}
+            <button onClick={handleSendWhatsApp} disabled={!isValid || isSubmitting || (isDuplicate && !duplicateAck)}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
               style={{ background: GOLD_GRADIENT, color: GOLD_TEXT, boxShadow: '0 4px 18px rgba(212, 175, 55, 0.35)', border: 'none' }}>
               <Share2 className="w-5 h-5" />
