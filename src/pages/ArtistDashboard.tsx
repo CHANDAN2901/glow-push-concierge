@@ -781,19 +781,42 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     return getClientRiskLevel(name) === 'green';
   };
 
-  // Build unique health form link for a client
-  const buildHealthFormLink = (clientName: string, clientPhone?: string, includePolicy = true): string => {
+  // Build clean client zone link — just /c/{clientId}
+  const buildClientZoneLink = (clientId: string): string => {
+    return `${window.location.origin}/c/${clientId}`;
+  };
+
+  // Build short health declaration link via form_links table
+  const buildHealthShortLink = async (clientId: string, clientName: string, clientPhone?: string, includePolicy = true): Promise<string> => {
+    if (!userProfileId) {
+      return `${window.location.origin}/health-declaration?client_id=${clientId}`;
+    }
+    try {
+      const { data, error } = await supabase.from('form_links').insert({
+        artist_id: userProfileId,
+        client_name: clientName,
+        client_phone: clientPhone || null,
+        logo_url: logoUrl || null,
+        artist_phone: artistPhone ? formatPhone(artistPhone) : null,
+        treatment_type: '',
+        include_policy: includePolicy,
+        client_id: clientId,
+        artist_name: artistName || '',
+      } as any).select('code').single();
+      if (error) throw error;
+      return `${window.location.origin}/f/${data.code}`;
+    } catch (err) {
+      console.error('Failed to create short link:', err);
+      return `${window.location.origin}/health-declaration?client_id=${clientId}`;
+    }
+  };
+
+  // Legacy wrapper for preview button (no client id)
+  const buildHealthFormLink = (_clientName: string, _clientPhone?: string, includePolicy = true): string => {
     const baseUrl = window.location.origin;
     const params = new URLSearchParams();
     if (userProfileId) params.set('artist_id', userProfileId);
-    if (clientName) params.set('name', clientName);
-    if (clientPhone) params.set('client_phone', clientPhone);
-    if (logoUrl) params.set('logo', logoUrl);
-    if (instagramUrl) {
-      const igHandle = instagramUrl.replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/$/, '');
-      if (igHandle) params.set('ig', igHandle);
-    }
-    if (artistPhone) params.set('phone', formatPhone(artistPhone));
+    params.set('name', _clientName);
     if (includePolicy) params.set('include_policy', 'true');
     return `${baseUrl}/health-declaration?${params.toString()}`;
   };
