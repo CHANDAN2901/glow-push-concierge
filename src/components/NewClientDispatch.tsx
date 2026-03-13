@@ -375,7 +375,7 @@ const NewClientDispatch = ({
             </button>
 
             {/* Tertiary: Copy Link */}
-            <button onClick={handleCopyLink} disabled={!isValid || (isDuplicate && !duplicateAck)}
+            <button onClick={handleCopyLink} disabled={!isValid || isSubmitting || (isDuplicate && !duplicateAck)}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
               style={{ border: GOLD_BORDER, color: GOLD_TEXT, background: 'transparent', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.15)' }}>
               {copied ? <CheckCircle className="w-5 h-5" style={{ color: '#22c55e' }} /> : <Copy className="w-5 h-5" />}
