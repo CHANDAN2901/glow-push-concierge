@@ -323,15 +323,21 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     return `${base}/health-declaration?${params.toString()}`;
   };
 
-  const openWhatsAppHealthForm = (name: string, phone: string, date: string, time: string) => {
+  const openWhatsAppHealthForm = (name: string, phone: string, date: string, time: string, includePolicy = true) => {
     if (!phone) {
       toast({ title: isHe ? 'לא ניתן לשלוח — חסר מספר טלפון' : 'Cannot send — phone number missing', variant: 'destructive' });
       return;
     }
     const formattedDate = new Date(date).toLocaleDateString('he-IL');
-    const link = getHealthFormLink(name, phone);
+    const link = getHealthFormLink(name, phone, includePolicy);
     const artistDisplayName = isHe ? 'האמנית שלך' : 'your artist';
-    const text = isHe ? `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨` : `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nBefore the treatment, please fill out a brief health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`;
+    const text = isHe
+      ? (includePolicy
+        ? `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨`
+        : `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨`)
+      : (includePolicy
+        ? `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nPlease review our clinic policy and fill out the health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`
+        : `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nBefore the treatment, please fill out a brief health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`);
     const waUrl = `https://wa.me/${formatPhoneForWA(phone)}?text=${encodeURIComponent(text)}`;
     window.open(waUrl, '_blank');
     toast({ title: isHe ? 'הודעה נשלחה בהצלחה ✉️' : 'Message sent successfully ✉️' });
