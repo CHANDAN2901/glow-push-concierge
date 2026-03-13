@@ -448,36 +448,48 @@ export type Database = {
       form_links: {
         Row: {
           artist_id: string
+          artist_name: string | null
           artist_phone: string | null
+          client_id: string | null
           client_name: string
           client_phone: string | null
           code: string
           created_at: string
           id: string
+          include_policy: boolean | null
           instagram_handle: string | null
           logo_url: string | null
+          treatment_type: string | null
         }
         Insert: {
           artist_id: string
+          artist_name?: string | null
           artist_phone?: string | null
+          client_id?: string | null
           client_name?: string
           client_phone?: string | null
           code?: string
           created_at?: string
           id?: string
+          include_policy?: boolean | null
           instagram_handle?: string | null
           logo_url?: string | null
+          treatment_type?: string | null
         }
         Update: {
           artist_id?: string
+          artist_name?: string | null
           artist_phone?: string | null
+          client_id?: string | null
           client_name?: string
           client_phone?: string | null
           code?: string
           created_at?: string
           id?: string
+          include_policy?: boolean | null
           instagram_handle?: string | null
           logo_url?: string | null
+          treatment_type?: string | null
         }
         Relationships: []
       }

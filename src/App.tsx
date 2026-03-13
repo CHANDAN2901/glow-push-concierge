@@ -18,6 +18,7 @@ import SuperAdmin from "./pages/SuperAdmin";
 
 import DigitalCard from "./pages/DigitalCard";
 import HealthDeclarationPage from "./pages/HealthDeclarationPage";
+import FormLinkResolver from "./pages/FormLinkResolver";
 import AftercareEditorPage from "./components/admin/AftercareEditor";
 import TimelineEditorPage from "./components/admin/TimelineEditor";
 import TimelineContentEditorPage from "./components/admin/TimelineContentEditor";
@@ -61,6 +62,7 @@ const App = () => (
               
               <Route path="/digital-card" element={<DigitalCard />} />
               <Route path="/health-declaration" element={<HealthDeclarationPage />} />
+              <Route path="/f/:code" element={<FormLinkResolver />} />
               <Route path="/admin/aftercare" element={<AftercareEditorPage />} />
               <Route path="/admin/timeline" element={<TimelineEditorPage />} />
               <Route path="/admin/timeline-content" element={<TimelineContentEditorPage />} />
