@@ -312,13 +312,14 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     return digits.startsWith('0') ? '972' + digits.slice(1) : digits;
   };
 
-  const getHealthFormLink = (clientName?: string, clientPhone?: string) => {
+  const getHealthFormLink = (clientName?: string, clientPhone?: string, includePolicy = true) => {
     const base = window.location.origin;
     const params = new URLSearchParams();
     if (artistProfileId) params.set('artist_id', artistProfileId);
     if (clientName) params.set('name', clientName);
     if (clientPhone) params.set('client_phone', clientPhone);
     if (logoUrl) params.set('logo', logoUrl);
+    if (includePolicy) params.set('include_policy', 'true');
     return `${base}/health-declaration?${params.toString()}`;
   };
 
