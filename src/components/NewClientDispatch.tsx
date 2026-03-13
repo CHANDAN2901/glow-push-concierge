@@ -73,23 +73,6 @@ const NewClientDispatch = ({
     return norm.length >= 7 && sentNorm.length >= 7 && (sentNorm.endsWith(norm) || norm.endsWith(sentNorm));
   });
 
-  const buildLink = (clientId?: string) => {
-    if (!name || !treatment) return '';
-    const params = new URLSearchParams({
-      name,
-      treatment,
-      start: new Date().toISOString().split('T')[0],
-    });
-    if (clientId) params.set('client_id', clientId);
-    if (artistProfileId) params.set('artist_id', artistProfileId);
-    if (logoUrl && !logoUrl.includes('svg+xml') && logoUrl.length < 2000) params.set('logo', logoUrl);
-    if (artistName) params.set('artist', artistName);
-    if (includePolicy) params.set('include_policy', 'true');
-    if (artistPhone) params.set('phone', formatPhone(artistPhone));
-    if (phone.trim()) params.set('client_phone', phone.trim());
-    return `${origin}/health-declaration?${params.toString()}`;
-  };
-
   /** Insert client to DB and return the new ID */
   const ensureClientInDb = async (): Promise<string | undefined> => {
     if (!artistProfileId) return undefined;
@@ -107,6 +90,37 @@ const NewClientDispatch = ({
     } catch (err) {
       console.error('Failed to save client to DB:', err);
       return undefined;
+    }
+  };
+
+  /** Create a short form_link and return the short URL */
+  const buildShortLink = async (clientId?: string): Promise<string> => {
+    if (!artistProfileId) {
+      // Fallback: no artist profile, use inline params
+      const params = new URLSearchParams({ name, treatment });
+      return `${origin}/health-declaration?${params.toString()}`;
+    }
+    try {
+      const { data, error } = await supabase.from('form_links').insert({
+        artist_id: artistProfileId,
+        client_name: name,
+        client_phone: phone || null,
+        logo_url: logoUrl || null,
+        artist_phone: artistPhone ? formatPhone(artistPhone) : null,
+        treatment_type: treatment,
+        include_policy: includePolicy,
+        client_id: clientId || null,
+        artist_name: artistName || '',
+      } as any).select('code').single();
+      if (error) throw error;
+      return `${origin}/f/${data.code}`;
+    } catch (err) {
+      console.error('Failed to create short link:', err);
+      // Fallback to long URL
+      const params = new URLSearchParams({ name, treatment });
+      if (artistProfileId) params.set('artist_id', artistProfileId);
+      if (includePolicy) params.set('include_policy', 'true');
+      return `${origin}/health-declaration?${params.toString()}`;
     }
   };
 
