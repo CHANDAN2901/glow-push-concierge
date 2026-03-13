@@ -1924,18 +1924,15 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 })()}
                 </FeatureGate>
 
-                {/* === Share Client Portal Link === */}
+                {/* === Share Client Portal Link (toggle-independent) === */}
                 {(() => {
-                  const healthLink = buildHealthFormLink(selectedClient.name, selectedClient.phone, includePolicyShare);
+                  const clientZoneLink = buildHealthFormLink(selectedClient.name, selectedClient.phone, false);
                   const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
                   const hasPhone = cleanPhone.length > 0;
+                  const artist = artistName || 'האמנית שלך';
                   const waMsg = lang === 'en'
-                    ? (includePolicyShare
-                      ? `Hi ${selectedClient.name} 💛\nPlease review the clinic policy and fill out your health declaration before the appointment:\n👇\n${healthLink}`
-                      : `Hi ${selectedClient.name} 💛\nPlease fill out your health declaration before the appointment:\n👇\n${healthLink}`)
-                    : (includePolicyShare
-                      ? `היי ${selectedClient.name} 💛\nמצורף קישור לצפייה במדיניות הקליניקה והסכם הטיפול ולמילוי הצהרת הבריאות:\n👇\n${healthLink}`
-                      : `היי ${selectedClient.name} 💛\nמצורף קישור למילוי הצהרת בריאות:\n👇\n${healthLink}`);
+                    ? `Hi ${selectedClient.name} 💛\nHere's your personal client portal link:\n👇\n${clientZoneLink}\n\n${artist}`
+                    : `היי ${selectedClient.name} 💛\nמצורף קישור אישי לאזור הלקוחה שלך:\n👇\n${clientZoneLink}\n\n${artist}`;
                   const waUrl = hasPhone
                     ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMsg)}`
                     : `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
@@ -1951,25 +1948,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         boxShadow: '0 4px 20px rgba(216, 180, 180, 0.15)',
                       }}
                     >
-                      <div className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-secondary/60 px-3 py-2.5">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <ScrollText className="w-4 h-4 shrink-0 text-primary" />
-                          <label htmlFor="include-policy-dashboard" className="text-xs font-bold leading-snug cursor-pointer text-foreground">
-                            {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
-                          </label>
-                        </div>
-                        <PremiumPolicySwitch
-                          id="include-policy-dashboard"
-                          checked={includePolicyShare}
-                          onCheckedChange={setIncludePolicyShare}
-                        />
-                      </div>
-
                       <p className="text-xs font-semibold tracking-wide text-center" style={{ color: '#9a8585' }}>
                         {lang === 'en' ? '🔗 Client Portal Link' : '🔗 קישור לאזור הלקוחה'}
                       </p>
                       <div className="flex gap-2">
-                        {/* WhatsApp button — pill with glow */}
+                        {/* WhatsApp button — always standard client zone link */}
                         <a
                           href={waUrl}
                           target="_blank"
@@ -1986,14 +1969,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           <MessageCircle className="w-4 h-4" strokeWidth={2} />
                           {lang === 'en' ? 'WhatsApp' : 'וואטסאפ'}
                         </a>
-                        {/* Copy Link button — glass with rose-gold border */}
+                        {/* Copy Link button — always standard client zone link */}
                         <button
                           onClick={async () => {
                             try {
-                              await navigator.clipboard.writeText(healthLink);
+                              await navigator.clipboard.writeText(clientZoneLink);
                               toast({ title: lang === 'en' ? 'Link copied! ✨' : 'הקישור הועתק בהצלחה! ✨' });
                             } catch {
-                              window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', healthLink);
+                              window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', clientZoneLink);
                             }
                           }}
                           className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
