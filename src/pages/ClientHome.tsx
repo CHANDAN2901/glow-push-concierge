@@ -352,6 +352,8 @@ const ClientHome = () => {
   const artistPhone = searchParams.get('phone') || '';
   const artistProfileId = searchParams.get('artist_id') || localStorage.getItem(LS_ARTIST_ID) || '';
 
+
+
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useHealingPhases(treatment);
   const { promo } = usePromoSettings(artistProfileId || undefined);
   const [showPromoModal, setShowPromoModal] = useState(false);
@@ -368,6 +370,14 @@ const ClientHome = () => {
   const [artistWaze, setArtistWaze] = useState('');
   const [artistBusinessPhone, setArtistBusinessPhone] = useState('');
   const [artistFullName, setArtistFullName] = useState('');
+
+  /** Format any phone for wa.me: strip non-digits, replace leading 0 with 972 */
+  const waPhone = useMemo(() => {
+    const raw = artistBusinessPhone || artistPhone || '';
+    let digits = raw.replace(/[^0-9]/g, '');
+    if (digits.startsWith('0')) digits = '972' + digits.slice(1);
+    return digits;
+  }, [artistBusinessPhone, artistPhone]);
 
   useEffect(() => {
     if (!artistProfileId) return;
@@ -915,7 +925,7 @@ const ClientHome = () => {
             </a>
             {/* WhatsApp */}
             <a
-              href={`https://wa.me/${artistBusinessPhone || artistPhone || ''}`}
+              href={`https://wa.me/${waPhone}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all hover:scale-[1.03] active:scale-[0.97] client-glass-card"
@@ -1158,7 +1168,7 @@ const ClientHome = () => {
 
             {/* Messages */}
             <a
-              href={`https://wa.me/${artistBusinessPhone || artistPhone || ''}?text=${encodeURIComponent(
+              href={`https://wa.me/${waPhone}?text=${encodeURIComponent(
                 lang === 'en' ? `Hi! I have a question about my treatment (Day ${actualDay}) ✨` : `היי! יש לי שאלה לגבי הטיפול (יום ${actualDay}) ✨`
               )}`}
               target="_blank"
@@ -1221,16 +1231,11 @@ const ClientHome = () => {
 
               <a
                 href={(() => {
-                  const rawPhone = artistBusinessPhone || artistPhone || '';
-                  let digits = rawPhone.replace(/[^0-9]/g, '');
-                  if (digits.startsWith('0')) digits = '972' + digits.slice(1);
                   const aName = artistFullName || artistName || '';
                   const msg = lang === 'en'
                     ? `Hi ${aName}! ✨\nI saw the special offer in my personal area (Complete the Look), and I'm really interested!\nI'd love to hear more details and book an appointment. 🤍`
                     : `היי ${aName} מהממת! ✨\nראיתי באזור האישי שלי את ההטבה לטיפול נוסף (להשלמת המראה), וממש עשה לי חשק!\nאשמח לשמוע פרטים ולקבוע תור. 🤍`;
-                  return digits
-                    ? `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`
-                    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+                  return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
                 })()}
                 target="_blank"
                 rel="noopener noreferrer"
