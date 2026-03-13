@@ -57,11 +57,24 @@ export default function BonusCenter({ userProfileId, onNavigateToReferrals }: Bo
         .eq('id', userProfileId)
         .single();
       if (profile?.referral_credit) setConfirmedBalance(Number(profile.referral_credit));
+      if (profile?.full_name) setArtistFullName(profile.full_name);
       if (profile?.referral_code) {
         setReferralCode(profile.referral_code);
       } else {
         const code = (profile?.full_name || 'artist').toLowerCase().replace(/\s+/g, '') + Math.floor(100 + Math.random() * 900);
         setReferralCode(code);
+      }
+
+      // Fetch saved voucher WhatsApp templates
+      const { data: msgSettings } = await supabase
+        .from('artist_message_settings')
+        .select('settings')
+        .eq('artist_profile_id', userProfileId)
+        .maybeSingle();
+      if (msgSettings?.settings && typeof msgSettings.settings === 'object') {
+        const s = msgSettings.settings as Record<string, unknown>;
+        if (s.voucher_wa_he) setVoucherWaHe(s.voucher_wa_he as string);
+        if (s.voucher_wa_en) setVoucherWaEn(s.voucher_wa_en as string);
       }
 
       // Converted referrals
