@@ -2384,7 +2384,6 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                       </span>
                                     )}
                                   </div>
-                                  </p>
                                   <p className="text-[10px] leading-tight" style={{ color: '#8c6a6a' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
                                 </div>
                                 {isSafe && <ShieldCheck className="w-3 h-3 shrink-0" style={{ color: '#d8b4b4' }} />}
