@@ -304,23 +304,27 @@ const ClientHome = () => {
   const [dbClientName, setDbClientName] = useState<string | null>(null);
   const [dbClientPhone, setDbClientPhone] = useState<string | null>(null);
   const [dbReferralCode, setDbReferralCode] = useState<string | null>(null);
+  const [dbTreatmentDate, setDbTreatmentDate] = useState<string | null>(null);
+  const [dbTreatmentType, setDbTreatmentType] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    if (!isUUID(clientId)) { setDbClientName(null); setDbClientPhone(null); setDbReferralCode(null); return; }
+    if (!isUUID(clientId)) { setDbClientName(null); setDbClientPhone(null); setDbReferralCode(null); setDbTreatmentDate(null); setDbTreatmentType(null); return; }
     (async () => {
       try {
-        const { data, error } = await supabase.from('clients').select('full_name, phone, referral_code').eq('id', clientId).maybeSingle();
+        const { data, error } = await supabase.from('clients').select('full_name, phone, referral_code, treatment_date, treatment_type').eq('id', clientId).maybeSingle();
         if (cancelled || error) return;
         if (data?.full_name) setDbClientName(data.full_name.split(' ')[0]);
         if (data?.phone) setDbClientPhone(data.phone);
         if (data?.referral_code) setDbReferralCode(data.referral_code);
+        if (data?.treatment_date) setDbTreatmentDate(data.treatment_date);
+        if (data?.treatment_type) setDbTreatmentType(data.treatment_type);
       } catch (err) { if (!cancelled) console.error('[ClientHome] err:', err); }
     })();
     return () => { cancelled = true; };
   }, [clientId]);
 
-  const clientName = urlClientName || identity.clientName || dbClientName || fallbackName;
+  const clientName = dbClientName || urlClientName || identity.clientName || fallbackName;
 
   // Referral code
   const generatedReferralCode = useMemo(() => {
@@ -339,8 +343,8 @@ const ClientHome = () => {
     });
   }, [clientId, referralCode, dbReferralCode]);
 
-  const startDateParam = searchParams.get('start') || localStorage.getItem(LS_START) || '';
-  const treatmentParam = searchParams.get('treatment') || localStorage.getItem(LS_TREATMENT) || '';
+  const startDateParam = dbTreatmentDate || searchParams.get('start') || localStorage.getItem(LS_START) || '';
+  const treatmentParam = dbTreatmentType || searchParams.get('treatment') || localStorage.getItem(LS_TREATMENT) || '';
   const treatment: TreatmentType = treatmentParam === 'lips' ? 'lips' : 'eyebrows';
   const logoUrl = searchParams.get('logo') || STUDIO_LOGO_URL || '';
   const artistName = searchParams.get('artist') || '';
@@ -418,12 +422,14 @@ const ClientHome = () => {
   }, [gallery.uploadPhoto, toast]);
 
   const calculatedDay = useMemo(() => {
-    if (!startDateParam) return 3;
+    if (!startDateParam) return 0;
     const start = new Date(startDateParam);
-    if (Number.isNaN(start.getTime())) return 3;
+    if (Number.isNaN(start.getTime())) return 0;
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
     const diff = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    return Math.max(1, Math.min(30, diff + 1));
+    return Math.max(0, Math.min(30, diff));
   }, [startDateParam]);
 
   const actualDay = calculatedDay;

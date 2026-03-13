@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronRight, ChevronLeft, FileText, Check, ArrowLeft, Eraser, Loader2, MapPin, CalendarPlus, Bell } from 'lucide-react';
+import { ChevronRight, ChevronLeft, FileText, Check, ArrowLeft, Eraser, Loader2, MapPin, CalendarPlus, Bell, Heart } from 'lucide-react';
 import { useClientHealthQuestions } from '@/hooks/useArtistHealthQuestions';
 import type { HealthQuestion } from '@/hooks/useHealthQuestions';
 import eyebrowHeroImg from '@/assets/eyebrow-hero.png';
@@ -43,7 +43,7 @@ export interface HealthDeclarationData {
 interface Props {
   clientName?: string;
   clientPhone?: string;
-  onComplete: (data: HealthDeclarationData) => void;
+  onComplete: (data: HealthDeclarationData) => Promise<any> | void;
   onClose: () => void;
   readOnly?: boolean;
   existingData?: HealthDeclarationData | null;
@@ -105,6 +105,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
+  const [resultClientId, setResultClientId] = useState<string | null>(null);
   const sigContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -240,7 +241,8 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         submittedAt: new Date().toISOString(),
         pushOptIn,
       };
-      await onComplete(data);
+      const result = await onComplete(data);
+      if (result?.clientId) setResultClientId(result.clientId);
       setShowThankYou(true);
     } catch (error: any) {
       console.error('Submit error:', error);
@@ -377,6 +379,16 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                     <MapPin className="w-4 h-4" />
                     {isHe ? 'ניווט ב-Waze' : 'Navigate in Waze'}
                   </button>
+                )}
+                {resultClientId && (
+                  <a
+                    href={`/c/${resultClientId}?start=${encodeURIComponent(appointmentDate || new Date().toISOString().split('T')[0])}&artist_id=${encodeURIComponent(artistId || '')}`}
+                    className="w-full py-3 rounded-full text-sm font-bold transition-all min-h-[48px] active:scale-[0.97] flex items-center justify-center gap-2 text-white hd-shimmer-border"
+                    style={{ background: T.gradient, boxShadow: '0 6px 24px rgba(212,175,55,0.3)' }}
+                  >
+                    <Heart className="w-4 h-4" />
+                    {isHe ? 'למסע ההחלמה שלי ✨' : 'My Recovery Journey ✨'}
+                  </a>
                 )}
                 <button
                   onClick={() => window.close()}
