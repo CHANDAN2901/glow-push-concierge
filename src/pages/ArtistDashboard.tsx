@@ -1902,7 +1902,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
                       return;
                     }
-                    const formLink = await buildHealthShortLink(selectedClient.id, selectedClient.name, selectedClient.phone, includePolicyShare);
+                    const formLink = await buildHealthShortLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone, includePolicyShare);
                     const msg = includePolicyShare
                       ? `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`
                       : `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`;
