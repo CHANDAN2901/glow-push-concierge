@@ -1946,7 +1946,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
                 {/* === Share Client Portal Link (toggle-independent) === */}
                 {(() => {
-                  const clientZoneLink = buildClientZoneLink(selectedClient.id);
+                  const clientZoneLink = buildClientZoneLink(selectedClient.dbId || '');
                   const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
                   const hasPhone = cleanPhone.length > 0;
                   const artist = artistName || 'האמנית שלך';
