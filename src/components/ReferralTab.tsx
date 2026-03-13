@@ -1,21 +1,53 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, CheckCircle, MessageCircle, Gift, Users, TrendingUp, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/lib/i18n';
+import { supabase } from '@/integrations/supabase/client';
+import { VOUCHER_DEFAULTS } from '@/components/ReferralVoucherEditor';
 
 interface ReferralTabProps {
   artistName?: string;
+  artistProfileId?: string;
 }
 
-const ReferralTab = ({ artistName = '' }: ReferralTabProps) => {
+const ReferralTab = ({ artistName = '', artistProfileId }: ReferralTabProps) => {
   const { lang } = useI18n();
   const { toast } = useToast();
   const isHe = lang === 'he';
   const [copied, setCopied] = useState(false);
+  const [voucherWaHe, setVoucherWaHe] = useState(VOUCHER_DEFAULTS.voucher_wa_he);
+  const [voucherWaEn, setVoucherWaEn] = useState(VOUCHER_DEFAULTS.voucher_wa_en);
 
   const referralCode = (artistName || 'artist').toLowerCase().replace(/\s+/g, '') + Math.floor(100 + Math.random() * 900);
   const referralLink = `${window.location.origin}/auth?ref=${referralCode}`;
+
+  // Fetch saved voucher templates from DB
+  useEffect(() => {
+    if (!artistProfileId) return;
+    (async () => {
+      const { data } = await supabase
+        .from('artist_message_settings')
+        .select('settings')
+        .eq('artist_profile_id', artistProfileId)
+        .maybeSingle();
+      if (data?.settings && typeof data.settings === 'object') {
+        const s = data.settings as Record<string, unknown>;
+        if (s.voucher_wa_he) setVoucherWaHe(s.voucher_wa_he as string);
+        if (s.voucher_wa_en) setVoucherWaEn(s.voucher_wa_en as string);
+      }
+    })();
+  }, [artistProfileId]);
+
+  const buildVoucherMessage = () => {
+    const template = isHe ? voucherWaHe : voucherWaEn;
+    return template
+      .replace(/\[CODE\]/gi, referralCode)
+      .replace(/\{\{artist_name\}\}/gi, artistName || '')
+      .replace(/\{\{client_name\}\}/gi, '')
+      .replace(/\{\{link\}\}/gi, referralLink)
+      + (template.includes(referralLink) ? '' : `\n${referralLink}`);
+  };
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(referralLink);
@@ -25,9 +57,7 @@ const ReferralTab = ({ artistName = '' }: ReferralTabProps) => {
   };
 
   const shareWhatsApp = () => {
-    const message = isHe
-      ? `היי! התחלתי להשתמש ב-GlowPush לניהול הקליניקה שלי וזה משנה חיים. הנה קישור להרשמה עם חודש מתנה עבורך: ${referralLink}`
-      : `Hey! I started using GlowPush to manage my clinic and it's a game changer. Here's a signup link with a free month for you: ${referralLink}`;
+    const message = buildVoucherMessage();
     window.location.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
   };
 
@@ -37,24 +67,22 @@ const ReferralTab = ({ artistName = '' }: ReferralTabProps) => {
     { icon: Gift, label: isHe ? 'קרדיט שנצבר' : 'Credits Earned', value: '₪316' },
   ];
 
-    const appLink = window.location.origin;
+  const appLink = window.location.origin;
 
-    const handleShare = async () => {
-      const shareText = isHe
-        ? `היי! התחלתי להשתמש ב-GlowPush לניהול העסק שלי וזה פשוט מושלם. ממליצה לך בחום לנסות: ${appLink}`
-        : `Hey! I started using GlowPush to manage my business and it's simply perfect. I highly recommend you try it: ${appLink}`;
+  const handleShare = async () => {
+    const shareText = buildVoucherMessage();
 
-      if (navigator.share) {
-        try {
-          await navigator.share({ title: 'GlowPush', text: shareText });
-        } catch {}
-      } else {
-        await navigator.clipboard.writeText(shareText);
-        toast({ title: isHe ? 'הטקסט הועתק!' : 'Text copied!' });
-      }
-    };
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'GlowPush', text: shareText });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      toast({ title: isHe ? 'הטקסט הועתק!' : 'Text copied!' });
+    }
+  };
 
-    return (
+  return (
     <div className="space-y-6 animate-fade-up opacity-0">
       {/* Hero CTA card — gold fill */}
       <button
