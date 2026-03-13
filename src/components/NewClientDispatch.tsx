@@ -209,6 +209,7 @@ const NewClientDispatch = ({
     setCopied(false);
     setDuplicateAck(false);
     setIncludePolicy(true);
+    setIsSubmitting(false);
     onClose();
   };
 
