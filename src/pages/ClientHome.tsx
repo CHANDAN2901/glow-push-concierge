@@ -324,7 +324,7 @@ const ClientHome = () => {
     return () => { cancelled = true; };
   }, [clientId]);
 
-  const clientName = urlClientName || identity.clientName || dbClientName || fallbackName;
+  const clientName = dbClientName || urlClientName || identity.clientName || fallbackName;
 
   // Referral code
   const generatedReferralCode = useMemo(() => {
