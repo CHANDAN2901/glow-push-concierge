@@ -522,7 +522,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
         if (onNewAppointment) {
           onNewAppointment({ name: newName, phone: newPhone, treatment: newType, date: newDate, time: newTime });
         }
-        openWhatsAppHealthForm(newName, newPhone, newDate, newTime);
+        openWhatsAppHealthForm(newName, newPhone, newDate, newTime, newIncludePolicy);
       }
 
       setNewName(''); setNewPhone(''); setNewType('eyebrows'); setNewTime('10:00'); setNewAutoHealth(false); setNewVisitType('new'); setSelectedExistingClient(null); setClientSearch('');
