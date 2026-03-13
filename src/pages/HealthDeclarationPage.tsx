@@ -19,10 +19,15 @@ const HealthDeclarationPage = () => {
   const appointmentTime = searchParams.get('time') || '';
   const isPreview = searchParams.get('preview') === 'true';
   const includePolicy = searchParams.get('include_policy') === 'true';
+  const formToken = searchParams.get('form_token') || '';
   const { lang } = useI18n();
 
   const [isArtist, setIsArtist] = useState(false);
   const [policyAcknowledged, setPolicyAcknowledged] = useState(!includePolicy);
+
+  // Token validation state
+  const [tokenChecked, setTokenChecked] = useState(false);
+  const [tokenValid, setTokenValid] = useState(true);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -30,33 +35,47 @@ const HealthDeclarationPage = () => {
     });
   }, []);
 
+  // Validate form_token if present
+  useEffect(() => {
+    if (!formToken || isPreview) {
+      setTokenChecked(true);
+      setTokenValid(true);
+      return;
+    }
+
+    const validate = async () => {
+      const { data, error } = await supabase
+        .from('form_links')
+        .select('is_completed')
+        .eq('code', formToken)
+        .maybeSingle();
+
+      if (error || !data) {
+        setTokenValid(false);
+      } else if ((data as any).is_completed) {
+        setTokenValid(false);
+      } else {
+        setTokenValid(true);
+      }
+      setTokenChecked(true);
+    };
+
+    validate();
+  }, [formToken, isPreview]);
+
   const requestPushSubscription = async (clientId: string) => {
     try {
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        console.warn('Push not supported on this device');
-        return;
-      }
-
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
       const permission = await Notification.requestPermission();
-      if (permission !== 'granted') {
-        console.log('Push permission denied');
-        return;
-      }
-
+      if (permission !== 'granted') return;
       const registration = await navigator.serviceWorker.ready;
       const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-      if (!vapidKey) {
-        console.warn('VAPID public key not configured');
-        return;
-      }
-
+      if (!vapidKey) return;
       const sub = await (registration as any).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: vapidKey,
       });
-
       const subJson = sub.toJSON();
-
       await supabase.from('push_subscriptions').insert({
         client_name: clientName || 'Unknown',
         endpoint: subJson.endpoint!,
@@ -65,11 +84,7 @@ const HealthDeclarationPage = () => {
         artist_profile_id: artistId || null,
         client_id: clientId,
       });
-
-      // Mark client as push opted in
       await supabase.from('clients').update({ push_opted_in: true }).eq('id', clientId);
-
-      console.log('Push subscription stored for client:', clientId);
     } catch (err) {
       console.error('Push subscription failed:', err);
     }
@@ -93,6 +108,7 @@ const HealthDeclarationPage = () => {
           medicalConsentAt: data.medicalConsentAt,
         },
         signatureDataUrl: data.signatureDataUrl,
+        formToken: formToken || null,
       },
     });
     if (error) {
@@ -106,15 +122,12 @@ const HealthDeclarationPage = () => {
       throw new Error(msg);
     }
 
-    // If client opted in for push notifications, use the new utility
     if (data.pushOptIn && result?.clientId) {
-      console.log('[HealthDecl] Client opted in for push, subscribing...');
       const pushResult = await subscribeToPush({
         clientId: result.clientId,
         clientName: data.fullName || clientName,
         artistProfileId: artistId || undefined,
       });
-      console.log('[HealthDecl] Push subscription result:', pushResult);
     }
 
     if (!isPreview && result?.clientId) {
@@ -135,14 +148,41 @@ const HealthDeclarationPage = () => {
       navigate('/artist', { replace: true });
       return;
     }
-
     if (window.history.length > 1) {
       navigate(-1);
       return;
     }
-
     navigate('/artist', { replace: true });
   };
+
+  // Show loading while token is being validated
+  if (!tokenChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse text-muted-foreground text-sm">טוען...</div>
+      </div>
+    );
+  }
+
+  // Token already used — show "already completed" message
+  if (!tokenValid) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-6 text-center" dir="rtl">
+        <div className="max-w-sm mx-auto space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)' }}>
+            <span className="text-2xl">✅</span>
+          </div>
+          <h2 className="text-lg font-bold text-foreground">הצהרת הבריאות מולאה בהצלחה</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            הצהרת הבריאות מולאה ונשמרה בהצלחה. לכל שינוי או עדכון, אנא פני למאפרת שלך.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Health declaration was already submitted. For any changes, please contact your artist.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Show policy acknowledgment first if included
   if (!policyAcknowledged && includePolicy && artistId) {

@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { artistProfileId, fullName, phone, birthDate, formData, signatureDataUrl } = await req.json();
+    const { artistProfileId, fullName, phone, birthDate, formData, signatureDataUrl, formToken } = await req.json();
 
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -26,6 +26,29 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    // Validate form token if provided (single-use link check)
+    if (formToken) {
+      const { data: linkData, error: linkErr } = await supabase
+        .from("form_links")
+        .select("id, is_completed")
+        .eq("code", formToken)
+        .maybeSingle();
+
+      if (linkErr || !linkData) {
+        return new Response(
+          JSON.stringify({ error: "קישור לא תקין או שפג תוקפו. פני למטפלת לקבלת קישור חדש." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (linkData.is_completed) {
+        return new Response(
+          JSON.stringify({ error: "הצהרת הבריאות כבר מולאה דרך קישור זה. פני למטפלת לקבלת קישור חדש." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     // Find or create client
     const { data: existingClients } = await supabase
@@ -75,6 +98,14 @@ Deno.serve(async (req) => {
       });
 
     if (declErr) throw declErr;
+
+    // Burn the token — mark form_link as completed
+    if (formToken) {
+      await supabase
+        .from("form_links")
+        .update({ is_completed: true })
+        .eq("code", formToken);
+    }
 
     return new Response(
       JSON.stringify({ success: true, clientId }),
