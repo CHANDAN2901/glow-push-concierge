@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { type TierSlug } from '@/lib/subscriptionConfig';
 import { usePricingPlans } from '@/hooks/usePricingPlans';
 import { startImpersonation } from '@/lib/impersonation';
+import { useInvalidateTier } from '@/hooks/useFeatureAccess';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Table, TableBody, TableCell, TableHead,
