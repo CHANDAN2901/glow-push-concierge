@@ -155,7 +155,7 @@ const NewClientDispatch = ({
     if (!isValid) return;
     if (isDuplicate && !duplicateAck) return;
     const clientId = await ensureClientInDb();
-    const link = buildLink(clientId);
+    const link = await buildShortLink(clientId);
     const msg = buildMessage(link);
 
     // Try native Web Share API first
