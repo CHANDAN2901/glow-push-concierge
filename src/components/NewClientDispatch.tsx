@@ -151,6 +151,15 @@ const NewClientDispatch = ({
     });
   };
 
+  /** Format phone for wa.me: strip non-digits, replace leading 0 with 972 */
+  const formatPhoneForWhatsApp = (raw: string): string => {
+    let digits = raw.replace(/[^0-9]/g, '');
+    if (digits.startsWith('0')) {
+      digits = '972' + digits.slice(1);
+    }
+    return digits;
+  };
+
   const handleSendWhatsApp = async () => {
     if (!isValid) return;
     if (isDuplicate && !duplicateAck) return;
@@ -158,26 +167,11 @@ const NewClientDispatch = ({
     const link = await buildShortLink(clientId);
     const msg = buildMessage(link);
 
-    // Try native Web Share API first
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: lang === 'en' ? 'Health Declaration Form' : 'הצהרת בריאות לטיפול',
-          text: msg,
-        });
-        markDispatched(link);
-        return;
-      } catch (err: any) {
-        // User cancelled share — that's fine, don't fallback
-        if (err?.name === 'AbortError') return;
-      }
-    }
-
-    // Fallback: open WhatsApp directly
+    // Always open WhatsApp directly — no navigator.share interception
     const encoded = encodeURIComponent(msg);
-    const cleanPhone = phone.trim() ? formatPhone(phone) : '';
-    const url = cleanPhone
-      ? `https://wa.me/${cleanPhone}?text=${encoded}`
+    const waPhone = phone.trim() ? formatPhoneForWhatsApp(phone) : '';
+    const url = waPhone
+      ? `https://wa.me/${waPhone}?text=${encoded}`
       : `https://wa.me/?text=${encoded}`;
     window.open(url, '_blank');
     markDispatched(link);
