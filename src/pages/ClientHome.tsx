@@ -55,7 +55,7 @@ const getStoredClientIdentity = () => {
 try {
   const url = new URL(window.location.href);
   const pathMatch = url.pathname.match(/^\/c\/([0-9a-f-]{36})$/i);
-  const cid = pathMatch?.[1] || url.searchParams.get('client_id') || url.searchParams.get('clientId');
+  const cid = pathMatch?.[1] || url.searchParams.get('client_id') || url.searchParams.get('clientId') || url.searchParams.get('id');
   const cname = url.searchParams.get('name') || url.searchParams.get('clientName');
   const cstart = url.searchParams.get('start');
   const ctreat = url.searchParams.get('treatment');

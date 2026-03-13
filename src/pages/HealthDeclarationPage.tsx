@@ -14,6 +14,7 @@ const HealthDeclarationPage = () => {
   const clientPhone = searchParams.get('client_phone') || '';
   const logo = searchParams.get('logo') || '';
   const artistId = searchParams.get('artist_id') || '';
+  const treatmentType = searchParams.get('treatment') || '';
   const appointmentDate = searchParams.get('start') || '';
   const appointmentTime = searchParams.get('time') || '';
   const isPreview = searchParams.get('preview') === 'true';
