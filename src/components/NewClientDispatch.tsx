@@ -55,6 +55,7 @@ const NewClientDispatch = ({
   const [dispatched, setDispatched] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [duplicateAck, setDuplicateAck] = useState(false);
   const [includePolicy, setIncludePolicy] = useState(true);
 
