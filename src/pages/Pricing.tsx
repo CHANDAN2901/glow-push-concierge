@@ -346,21 +346,18 @@ const Pricing = () => {
                 style={{ color: ROSE_GOLD_METALLIC }}
               />
 
-              {isElite && badge && (
-                <span
-                  className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full text-sm font-bold whitespace-nowrap"
-                  style={{
-                    backgroundImage: `url(${roseGoldTexture})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    color: '#FFFFFF',
-                    boxShadow: '0 4px 18px rgba(216, 180, 180, 0.55), 0 0 10px rgba(201, 160, 160, 0.3)',
-                    textShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                  }}
-                >
-                  {badge}
-                </span>
-              )}
+              {/* Launch Price Badge */}
+              <div
+                className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-1.5 rounded-full text-sm font-black whitespace-nowrap tracking-wide"
+                style={{
+                  background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
+                  color: '#78350F',
+                  boxShadow: '0 4px 16px rgba(250, 204, 21, 0.5), 0 1px 4px rgba(0,0,0,0.1)',
+                  textShadow: '0 1px 0 rgba(255,255,255,0.4)',
+                }}
+              >
+                🔥 {isHe ? 'מחיר השקה מיוחד!' : 'Special Launch Price!'}
+              </div>
 
               <div className={`flex items-center justify-center gap-2 ${isElite ? 'mt-4' : ''} mb-6`}>
                 <PlanTitle slug={plan.slug} name={name} />
