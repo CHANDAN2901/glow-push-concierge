@@ -1195,11 +1195,10 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                       {isHe ? 'צרפי גם את מדיניות הקליניקה והסכם הטיפול' : 'Include Clinic Policy & Treatment Agreement'}
                     </label>
                   </div>
-                  <Switch
+                  <PremiumPolicySwitch
                     id="include-policy-cal"
                     checked={newIncludePolicy}
                     onCheckedChange={setNewIncludePolicy}
-                    className="data-[state=checked]:bg-[#B8860B] data-[state=unchecked]:bg-[#d8b4b4]/40"
                   />
                 </div>
               )}

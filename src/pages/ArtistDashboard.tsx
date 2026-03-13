@@ -1939,11 +1939,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                             {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
                           </label>
                         </div>
-                        <Switch
+                        <PremiumPolicySwitch
                           id="include-policy-dashboard"
                           checked={includePolicyShare}
                           onCheckedChange={setIncludePolicyShare}
-                          className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
                         />
                       </div>
 

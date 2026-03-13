@@ -294,11 +294,10 @@ const NewClientDispatch = ({
                 {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
               </label>
             </div>
-            <Switch
+            <PremiumPolicySwitch
               id="include-policy"
               checked={includePolicy}
               onCheckedChange={setIncludePolicy}
-              className="data-[state=checked]:bg-[#B8860B] data-[state=unchecked]:bg-[#d8b4b4]/40"
             />
           </div>
 
