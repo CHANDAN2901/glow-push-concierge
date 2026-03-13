@@ -133,6 +133,36 @@ const HealthDeclarationPage = () => {
     navigate('/artist', { replace: true });
   };
 
+  // Show policy acknowledgment first if included
+  if (!policyAcknowledged && includePolicy && artistId) {
+    return (
+      <div className="relative">
+        <ClinicPolicyAcknowledgment
+          artistProfileId={artistId}
+          lang={lang}
+          onAcknowledge={() => setPolicyAcknowledged(true)}
+        />
+        {(isArtist || isPreview) && (
+          <div className="fixed top-0 left-0 right-0 z-[120] flex items-center justify-between px-4 py-3 pointer-events-auto" style={{ background: 'linear-gradient(135deg, rgba(216,180,180,0.95), rgba(201,160,160,0.95))', boxShadow: '0 2px 12px rgba(216,180,180,0.4)', backdropFilter: 'blur(12px)' }}>
+            <button
+              onClick={handlePreviewExit}
+              className="relative z-[121] flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-medium tracking-widest uppercase transition-all active:scale-95 cursor-pointer pointer-events-auto"
+              style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
+            >
+              <span aria-hidden="true">✕</span>
+              <span>{isPreview ? 'סגור תצוגה מקדימה' : 'חזרה לדשבורד'}</span>
+            </button>
+            {isPreview && (
+              <span className="text-[11px] font-medium tracking-widest uppercase" style={{ color: '#B8860B' }}>
+                👁️ תצוגה מקדימה
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <HealthDeclaration
