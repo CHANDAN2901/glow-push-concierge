@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import HealthDeclaration from '@/components/HealthDeclaration';
 import type { HealthDeclarationData } from '@/components/HealthDeclaration';
 import { subscribeToPush } from '@/lib/push-utils';
-
+import ClinicPolicyAcknowledgment from '@/components/ClinicPolicyAcknowledgment';
+import { useI18n } from '@/lib/i18n';
 
 const HealthDeclarationPage = () => {
   const [searchParams] = useSearchParams();
@@ -16,8 +17,11 @@ const HealthDeclarationPage = () => {
   const appointmentDate = searchParams.get('start') || '';
   const appointmentTime = searchParams.get('time') || '';
   const isPreview = searchParams.get('preview') === 'true';
+  const includePolicy = searchParams.get('include_policy') === 'true';
+  const { lang } = useI18n();
 
   const [isArtist, setIsArtist] = useState(false);
+  const [policyAcknowledged, setPolicyAcknowledged] = useState(!includePolicy);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -128,6 +132,36 @@ const HealthDeclarationPage = () => {
 
     navigate('/artist', { replace: true });
   };
+
+  // Show policy acknowledgment first if included
+  if (!policyAcknowledged && includePolicy && artistId) {
+    return (
+      <div className="relative">
+        <ClinicPolicyAcknowledgment
+          artistProfileId={artistId}
+          lang={lang}
+          onAcknowledge={() => setPolicyAcknowledged(true)}
+        />
+        {(isArtist || isPreview) && (
+          <div className="fixed top-0 left-0 right-0 z-[120] flex items-center justify-between px-4 py-3 pointer-events-auto" style={{ background: 'linear-gradient(135deg, rgba(216,180,180,0.95), rgba(201,160,160,0.95))', boxShadow: '0 2px 12px rgba(216,180,180,0.4)', backdropFilter: 'blur(12px)' }}>
+            <button
+              onClick={handlePreviewExit}
+              className="relative z-[121] flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-medium tracking-widest uppercase transition-all active:scale-95 cursor-pointer pointer-events-auto"
+              style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
+            >
+              <span aria-hidden="true">✕</span>
+              <span>{isPreview ? 'סגור תצוגה מקדימה' : 'חזרה לדשבורד'}</span>
+            </button>
+            {isPreview && (
+              <span className="text-[11px] font-medium tracking-widest uppercase" style={{ color: '#B8860B' }}>
+                👁️ תצוגה מקדימה
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

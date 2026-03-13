@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { TREATMENT_OPTIONS } from '@/lib/treatment-options';
-import { Share2, Smartphone, Copy, Clock, CheckCircle, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Share2, Smartphone, Copy, Clock, CheckCircle, ArrowLeft, AlertTriangle, ScrollText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -53,6 +54,7 @@ const NewClientDispatch = ({
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [duplicateAck, setDuplicateAck] = useState(false);
+  const [includePolicy, setIncludePolicy] = useState(true);
 
   useEffect(() => {
     if (open && prefill) {
@@ -81,6 +83,7 @@ const NewClientDispatch = ({
     if (artistProfileId) params.set('artist_id', artistProfileId);
     if (logoUrl && !logoUrl.includes('svg+xml') && logoUrl.length < 2000) params.set('logo', logoUrl);
     if (artistName) params.set('artist', artistName);
+    if (includePolicy) params.set('include_policy', 'true');
     if (artistPhone) params.set('phone', formatPhone(artistPhone));
     if (phone.trim()) params.set('client_phone', phone.trim());
     return `${origin}/health-declaration?${params.toString()}`;
@@ -111,8 +114,13 @@ const NewClientDispatch = ({
   const buildMessage = (link: string) => {
     const firstName = name.trim().split(/\s+/)[0];
     const senderName = artistName || (lang === 'en' ? 'Your artist' : 'המטפלת שלך');
-    return lang === 'en'
-      ? `Hey ${firstName}! So excited you're coming in! ✨\n\nTo ensure we provide you with the most precise and professional treatment, please take a moment to fill out the health declaration form:\n\n${link}\n\nLooking forward to seeing you!\n\n${senderName} 💖`
+    if (lang === 'en') {
+      return includePolicy
+        ? `Hey ${firstName}! So excited you're coming in! ✨\n\nPlease take a moment to review our clinic policy and fill out the health declaration form:\n\n${link}\n\nLooking forward to seeing you!\n\n${senderName} 💖`
+        : `Hey ${firstName}! So excited you're coming in! ✨\n\nTo ensure we provide you with the most precise and professional treatment, please take a moment to fill out the health declaration form:\n\n${link}\n\nLooking forward to seeing you!\n\n${senderName} 💖`;
+    }
+    return includePolicy
+      ? `היי ${firstName} אהובה, איזה כיף שאת מגיעה אלינו! ✨\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות לפני הטיפול:\n\n${link}\n\nמחכה לראות אותך ולעשות לך הכי יפה שיש,\n\n${senderName} 💖`
       : `היי ${firstName} אהובה, איזה כיף שאת מגיעה אלינו! ✨\n\nכדי שנוכל להעניק לך את הטיפול המדויק והמקצועי ביותר עבורך, אשמח שתקדישי דקה למילוי הצהרת הבריאות בקישור המצורף:\n\n${link}\n\nמחכה לראות אותך ולעשות לך הכי יפה שיש,\n\n${senderName} 💖`;
   };
 
@@ -197,6 +205,7 @@ const NewClientDispatch = ({
     setGeneratedLink('');
     setCopied(false);
     setDuplicateAck(false);
+    setIncludePolicy(true);
     onClose();
   };
 
@@ -272,6 +281,25 @@ const NewClientDispatch = ({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Policy Toggle */}
+          <div
+            className="flex items-center justify-between gap-3 p-4 rounded-2xl"
+            style={{ background: `${GOLD}08`, border: `1px solid ${GOLD}25` }}
+          >
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+              <ScrollText className="w-4.5 h-4.5 flex-shrink-0" style={{ color: GOLD_DARK }} />
+              <label htmlFor="include-policy" className="text-xs font-bold leading-snug cursor-pointer" style={{ color: GOLD_DARK }}>
+                {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
+              </label>
+            </div>
+            <Switch
+              id="include-policy"
+              checked={includePolicy}
+              onCheckedChange={setIncludePolicy}
+              className="data-[state=checked]:bg-[#B8860B] data-[state=unchecked]:bg-[#d8b4b4]/40"
+            />
           </div>
 
           {/* Duplicate Warning */}
