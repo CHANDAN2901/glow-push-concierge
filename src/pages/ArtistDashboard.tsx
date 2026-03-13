@@ -1872,52 +1872,67 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
                   const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
                   const hasPhone = cleanPhone.length > 0;
-                  const formLink = buildHealthFormLink(selectedClient.name, selectedClient.phone);
+                  const formLink = buildHealthFormLink(selectedClient.name, selectedClient.phone, includePolicyShare);
                   const artist = artistName || 'האמנית שלך';
-                  const msg = `היי ${selectedClient.name}, אני ${artist} מחכה לראותך בסטודיו! ✨ כדי שנוכל להתחיל בטיפול בזמן, אשמח אם תחתמי על הצהרת הבריאות בקישור הבא:\n\n${formLink}`;
+                  const msg = includePolicyShare
+                    ? `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`
+                    : `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`;
                   const href = hasPhone
                     ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
                     : `https://wa.me/?text=${encodeURIComponent(msg)}`;
 
                   return (
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!hasPhone) {
-                          e.preventDefault();
-                          toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
-                        }
-                      }}
-                      className="w-[85%] mx-auto flex items-center justify-center gap-2 py-3 rounded-full text-sm font-serif font-bold tracking-wide transition-all duration-300 active:scale-[0.96]"
-                      style={{
-                        background: 'linear-gradient(135deg, #c98a8a 0%, #b06e6e 40%, #a05e5e 100%)',
-                        color: '#ffffff',
-                        boxShadow: '0 8px 32px rgba(176, 110, 110, 0.45), 0 0 20px rgba(200, 140, 140, 0.25)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                      }}
-                    >
-                      <MessageCircle className="w-4 h-4" strokeWidth={2} />
-                      {lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ'}
-                    </a>
+                    <div className="space-y-3">
+                      {/* Policy Toggle — controls ONLY this Brown button */}
+                      <div className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-secondary/60 px-3 py-2.5">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <ScrollText className="w-4 h-4 shrink-0 text-primary" />
+                          <label htmlFor="include-policy-health" className="text-xs font-bold leading-snug cursor-pointer text-foreground">
+                            {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
+                          </label>
+                        </div>
+                        <PremiumPolicySwitch
+                          id="include-policy-health"
+                          checked={includePolicyShare}
+                          onCheckedChange={setIncludePolicyShare}
+                        />
+                      </div>
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!hasPhone) {
+                            e.preventDefault();
+                            toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
+                          }
+                        }}
+                        className="w-[85%] mx-auto flex items-center justify-center gap-2 py-3 rounded-full text-sm font-serif font-bold tracking-wide transition-all duration-300 active:scale-[0.96]"
+                        style={{
+                          background: 'linear-gradient(135deg, #c98a8a 0%, #b06e6e 40%, #a05e5e 100%)',
+                          color: '#ffffff',
+                          boxShadow: '0 8px 32px rgba(176, 110, 110, 0.45), 0 0 20px rgba(200, 140, 140, 0.25)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                        }}
+                      >
+                        <MessageCircle className="w-4 h-4" strokeWidth={2} />
+                        {lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ'}
+                      </a>
+                    </div>
                   );
                 })()}
                 </FeatureGate>
 
-                {/* === Share Client Portal Link === */}
+                {/* === Share Client Portal Link (toggle-independent) === */}
                 {(() => {
-                  const healthLink = buildHealthFormLink(selectedClient.name, selectedClient.phone, includePolicyShare);
+                  const clientZoneLink = buildHealthFormLink(selectedClient.name, selectedClient.phone, false);
                   const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
                   const hasPhone = cleanPhone.length > 0;
+                  const artist = artistName || 'האמנית שלך';
                   const waMsg = lang === 'en'
-                    ? (includePolicyShare
-                      ? `Hi ${selectedClient.name} 💛\nPlease review the clinic policy and fill out your health declaration before the appointment:\n👇\n${healthLink}`
-                      : `Hi ${selectedClient.name} 💛\nPlease fill out your health declaration before the appointment:\n👇\n${healthLink}`)
-                    : (includePolicyShare
-                      ? `היי ${selectedClient.name} 💛\nמצורף קישור לצפייה במדיניות הקליניקה והסכם הטיפול ולמילוי הצהרת הבריאות:\n👇\n${healthLink}`
-                      : `היי ${selectedClient.name} 💛\nמצורף קישור למילוי הצהרת בריאות:\n👇\n${healthLink}`);
+                    ? `Hi ${selectedClient.name} 💛\nHere's your personal client portal link:\n👇\n${clientZoneLink}\n\n${artist}`
+                    : `היי ${selectedClient.name} 💛\nמצורף קישור אישי לאזור הלקוחה שלך:\n👇\n${clientZoneLink}\n\n${artist}`;
                   const waUrl = hasPhone
                     ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMsg)}`
                     : `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
@@ -1933,25 +1948,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         boxShadow: '0 4px 20px rgba(216, 180, 180, 0.15)',
                       }}
                     >
-                      <div className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-secondary/60 px-3 py-2.5">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <ScrollText className="w-4 h-4 shrink-0 text-primary" />
-                          <label htmlFor="include-policy-dashboard" className="text-xs font-bold leading-snug cursor-pointer text-foreground">
-                            {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
-                          </label>
-                        </div>
-                        <PremiumPolicySwitch
-                          id="include-policy-dashboard"
-                          checked={includePolicyShare}
-                          onCheckedChange={setIncludePolicyShare}
-                        />
-                      </div>
-
                       <p className="text-xs font-semibold tracking-wide text-center" style={{ color: '#9a8585' }}>
                         {lang === 'en' ? '🔗 Client Portal Link' : '🔗 קישור לאזור הלקוחה'}
                       </p>
                       <div className="flex gap-2">
-                        {/* WhatsApp button — pill with glow */}
+                        {/* WhatsApp button — always standard client zone link */}
                         <a
                           href={waUrl}
                           target="_blank"
@@ -1968,14 +1969,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           <MessageCircle className="w-4 h-4" strokeWidth={2} />
                           {lang === 'en' ? 'WhatsApp' : 'וואטסאפ'}
                         </a>
-                        {/* Copy Link button — glass with rose-gold border */}
+                        {/* Copy Link button — always standard client zone link */}
                         <button
                           onClick={async () => {
                             try {
-                              await navigator.clipboard.writeText(healthLink);
+                              await navigator.clipboard.writeText(clientZoneLink);
                               toast({ title: lang === 'en' ? 'Link copied! ✨' : 'הקישור הועתק בהצלחה! ✨' });
                             } catch {
-                              window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', healthLink);
+                              window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', clientZoneLink);
                             }
                           }}
                           className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
