@@ -1903,10 +1903,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       return;
                     }
                     const formLink = await buildHealthShortLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone, includePolicyShare);
-                    const msg = includePolicyShare
-                      ? `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`
-                      : `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`;
-                    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+                    const msg = generateWhatsAppMessage(selectedClient.name, formLink, includePolicyShare, artist);
+                    window.open(buildWhatsAppUrl(cleanPhone, msg), '_blank');
                   };
 
                   return (
