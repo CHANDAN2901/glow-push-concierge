@@ -55,6 +55,7 @@ const NewClientDispatch = ({
   const [dispatched, setDispatched] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [duplicateAck, setDuplicateAck] = useState(false);
   const [includePolicy, setIncludePolicy] = useState(true);
 
@@ -145,43 +146,58 @@ const NewClientDispatch = ({
   };
 
   const handleSendWhatsApp = async () => {
-    if (!isValid) return;
+    if (!isValid || isSubmitting) return;
     if (isDuplicate && !duplicateAck) return;
-    const clientId = await ensureClientInDb();
-    const link = await buildShortLink(clientId);
-    const msg = buildMessage(link);
-    const url = buildWhatsAppUrl(phone, msg);
-    window.open(url, '_blank');
-    markDispatched(link);
+    setIsSubmitting(true);
+    try {
+      const clientId = await ensureClientInDb();
+      const link = await buildShortLink(clientId);
+      const msg = buildMessage(link);
+      const url = buildWhatsAppUrl(phone, msg);
+      window.open(url, '_blank');
+      markDispatched(link);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFillHere = async () => {
-    if (!isValid) return;
-    await ensureClientInDb();
-    const treatLabel = treatmentOptions.find(o => o.value === treatment);
-    onClientCreated({
-      name,
-      phone,
-      treatment: treatLabel ? (lang === 'en' ? treatLabel.en : treatLabel.he) : treatment,
-      link: '',
-    });
-    onFillHere(name, treatment);
-    handleClose();
+    if (!isValid || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await ensureClientInDb();
+      const treatLabel = treatmentOptions.find(o => o.value === treatment);
+      onClientCreated({
+        name,
+        phone,
+        treatment: treatLabel ? (lang === 'en' ? treatLabel.en : treatLabel.he) : treatment,
+        link: '',
+      });
+      onFillHere(name, treatment);
+      handleClose();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCopyLink = async () => {
-    if (!isValid) return;
+    if (!isValid || isSubmitting) return;
     if (isDuplicate && !duplicateAck) return;
-    let link = generatedLink;
-    if (!link) {
-      const clientId = await ensureClientInDb();
-      link = await buildShortLink(clientId);
-      markDispatched(link);
+    setIsSubmitting(true);
+    try {
+      let link = generatedLink;
+      if (!link) {
+        const clientId = await ensureClientInDb();
+        link = await buildShortLink(clientId);
+        markDispatched(link);
+      }
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      toast({ title: lang === 'en' ? 'Link copied!' : 'הקישור הועתק!' });
+      setTimeout(() => setCopied(false), 2000);
+    } finally {
+      setIsSubmitting(false);
     }
-    await navigator.clipboard.writeText(link);
-    setCopied(true);
-    toast({ title: lang === 'en' ? 'Link copied!' : 'הקישור הועתק!' });
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleClose = () => {
@@ -193,6 +209,7 @@ const NewClientDispatch = ({
     setCopied(false);
     setDuplicateAck(false);
     setIncludePolicy(true);
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -342,7 +359,7 @@ const NewClientDispatch = ({
           {/* Action Buttons */}
           <div className="space-y-3">
             {/* Primary: WhatsApp */}
-            <button onClick={handleSendWhatsApp} disabled={!isValid || (isDuplicate && !duplicateAck)}
+            <button onClick={handleSendWhatsApp} disabled={!isValid || isSubmitting || (isDuplicate && !duplicateAck)}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
               style={{ background: GOLD_GRADIENT, color: GOLD_TEXT, boxShadow: '0 4px 18px rgba(212, 175, 55, 0.35)', border: 'none' }}>
               <Share2 className="w-5 h-5" />
@@ -350,7 +367,7 @@ const NewClientDispatch = ({
             </button>
 
             {/* Secondary: Fill Here */}
-            <button onClick={handleFillHere} disabled={!isValid}
+            <button onClick={handleFillHere} disabled={!isValid || isSubmitting}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
               style={{ border: GOLD_BORDER, color: GOLD_TEXT, background: 'transparent', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.15)' }}>
               <Smartphone className="w-5 h-5" />
@@ -358,7 +375,7 @@ const NewClientDispatch = ({
             </button>
 
             {/* Tertiary: Copy Link */}
-            <button onClick={handleCopyLink} disabled={!isValid || (isDuplicate && !duplicateAck)}
+            <button onClick={handleCopyLink} disabled={!isValid || isSubmitting || (isDuplicate && !duplicateAck)}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
               style={{ border: GOLD_BORDER, color: GOLD_TEXT, background: 'transparent', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.15)' }}>
               {copied ? <CheckCircle className="w-5 h-5" style={{ color: '#22c55e' }} /> : <Copy className="w-5 h-5" />}
