@@ -4,8 +4,9 @@ import {
   Phone, MessageCircle, Instagram, Heart, Camera, FileText,
   PenLine, Calendar, ChevronRight, User, Sparkles, ArrowUp,
   LifeBuoy, HelpCircle, Eye, Send, Play, Mic, Bell,
-  ShieldCheck, AlertTriangle, AlertCircle,
+  ShieldCheck, AlertTriangle, AlertCircle, ScrollText,
 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import DeclarationViewer from '@/components/DeclarationViewer';
 import { useHealthQuestions } from '@/hooks/useHealthQuestions';
 import {
