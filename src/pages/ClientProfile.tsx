@@ -554,6 +554,24 @@ const ClientProfile = () => {
                   ⏳ {lang === 'en' ? 'Pending' : 'ממתין'}
                 </span>
               </div>
+              {/* Policy toggle */}
+              <div
+                className="flex items-center justify-between gap-3 p-3 rounded-xl mb-3"
+                style={{ background: 'rgba(212, 175, 55, 0.06)', border: '1px solid rgba(212, 175, 55, 0.2)' }}
+              >
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <ScrollText className="w-4 h-4 flex-shrink-0" style={{ color: GOLD_DARK }} />
+                  <label htmlFor="include-policy-cp" className="text-xs font-bold leading-snug cursor-pointer" style={{ color: GOLD_DARK }}>
+                    {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
+                  </label>
+                </div>
+                <Switch
+                  id="include-policy-cp"
+                  checked={includePolicyCP}
+                  onCheckedChange={setIncludePolicyCP}
+                  className="data-[state=checked]:bg-[#B8860B] data-[state=unchecked]:bg-[#d8b4b4]/40"
+                />
+              </div>
               <a
                 href={healthDeclWhatsAppUrl}
                 target="_blank"
