@@ -296,6 +296,7 @@ const SuperAdmin = () => {
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => {
                             startImpersonation({ userName: u.name, studioName: u.studio, tier: u.plan as TierSlug });
+                            invalidateTier();
                             window.dispatchEvent(new Event('impersonation-changed'));
                             navigate('/artist');
                           }}>
