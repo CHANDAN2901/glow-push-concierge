@@ -4,6 +4,7 @@ import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { VOUCHER_DEFAULTS } from '@/components/ReferralVoucherEditor';
 
 interface BonusCenterProps {
   userProfileId: string | null;
