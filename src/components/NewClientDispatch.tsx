@@ -83,6 +83,7 @@ const NewClientDispatch = ({
     if (artistProfileId) params.set('artist_id', artistProfileId);
     if (logoUrl && !logoUrl.includes('svg+xml') && logoUrl.length < 2000) params.set('logo', logoUrl);
     if (artistName) params.set('artist', artistName);
+    if (includePolicy) params.set('include_policy', 'true');
     if (artistPhone) params.set('phone', formatPhone(artistPhone));
     if (phone.trim()) params.set('client_phone', phone.trim());
     return `${origin}/health-declaration?${params.toString()}`;
