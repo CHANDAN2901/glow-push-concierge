@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -73,16 +73,39 @@ function useTierFeatureKeys(tierSlug: TierSlug) {
 }
 
 /**
+ * Reactively track the dev/impersonation tier override.
+ * Listens to the 'impersonation-changed' custom event and 'storage' event
+ * so the UI updates immediately when impersonation starts/stops.
+ */
+function useDevTierOverride(): TierSlug | null {
+  const [override, setOverride] = useState<TierSlug | null>(getDevTierOverride);
+
+  useEffect(() => {
+    const sync = () => setOverride(getDevTierOverride());
+    window.addEventListener('impersonation-changed', sync);
+    window.addEventListener('storage', sync);
+    return () => {
+      window.removeEventListener('impersonation-changed', sync);
+      window.removeEventListener('storage', sync);
+    };
+  }, []);
+
+  return override;
+}
+
+/**
  * Central hook for checking feature access.
  * Reads feature_keys from the LIVE pricing_plans table in the database.
- * Respects dev tier override / impersonation in development mode.
+ * Respects dev tier override / impersonation reactively.
  */
 export function useFeatureAccess() {
   const { data: dbTier = 'lite' as TierSlug, isLoading: tierLoading } = useUserTier();
   const { user, loading: authLoading } = useAuth();
+  const qc = useQueryClient();
 
-  // Dev override / impersonation takes precedence
-  const effectiveTier: TierSlug = getDevTierOverride() ?? dbTier;
+  // Reactive dev override / impersonation
+  const devOverride = useDevTierOverride();
+  const effectiveTier: TierSlug = devOverride ?? dbTier;
 
   // Fetch the LIVE feature_keys from the database for the effective tier
   const { data: liveFeatureKeys = [], isLoading: featuresLoading } = useTierFeatureKeys(effectiveTier);
@@ -91,13 +114,19 @@ export function useFeatureAccess() {
     return new Set<string>(liveFeatureKeys);
   }, [liveFeatureKeys]);
 
-  const hasFeature = (key: string) => allowedFeatures.has(key);
+  const hasFeature = useCallback(
+    (key: string) => allowedFeatures.has(key),
+    [allowedFeatures],
+  );
 
   /** Get the feature definition if it exists and is locked */
-  const getLockedFeature = (key: string): FeatureFlag | null => {
-    if (hasFeature(key)) return null;
-    return FEATURES.find(f => f.id === key) || null;
-  };
+  const getLockedFeature = useCallback(
+    (key: string): FeatureFlag | null => {
+      if (hasFeature(key)) return null;
+      return FEATURES.find(f => f.id === key) || null;
+    },
+    [hasFeature],
+  );
 
   return {
     allowedFeatures,
