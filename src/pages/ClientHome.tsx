@@ -18,6 +18,7 @@ import CircularProgress from '@/components/CircularProgress';
 import confetti from 'canvas-confetti';
 import { useToast } from '@/hooks/use-toast';
 import InstallBanner from '@/components/InstallBanner';
+import { VOUCHER_DEFAULTS } from '@/components/ReferralVoucherEditor';
 
 import ClientNotificationCenter from '@/components/ClientNotificationCenter';
 import ClientSharedGallery from '@/components/ClientSharedGallery';
@@ -361,11 +362,12 @@ const ClientHome = () => {
   // Voucher settings
   const [voucherTextHe, setVoucherTextHe] = useState('שלחי לחברה את הקוד שלך! היא תקבל 100 ש"ח הנחה לטיפול ראשון, ואת תקבלי 50 ש"ח קרדיט לטיפול החיזוק הבא שלך.');
   const [voucherTextEn, setVoucherTextEn] = useState('Send your code to a friend! She gets ₪100 off her first treatment, and you get ₪50 credit for your next touch-up.');
-  const [voucherWaHe, setVoucherWaHe] = useState('היי! 🎁 הנה קוד ההנחה שלי: [CODE] — תקבלי 100 ש"ח הנחה על הטיפול הראשון! ✨');
-  const [voucherWaEn, setVoucherWaEn] = useState('Hey! 🎁 Use my code [CODE] and get ₪100 off your first PMU treatment! ✨');
+  const [voucherWaHe, setVoucherWaHe] = useState(VOUCHER_DEFAULTS.voucher_wa_he);
+  const [voucherWaEn, setVoucherWaEn] = useState(VOUCHER_DEFAULTS.voucher_wa_en);
   const [artistInstagram, setArtistInstagram] = useState('');
   const [artistWaze, setArtistWaze] = useState('');
   const [artistBusinessPhone, setArtistBusinessPhone] = useState('');
+  const [artistFullName, setArtistFullName] = useState('');
 
   useEffect(() => {
     if (!artistProfileId) return;
@@ -385,13 +387,14 @@ const ClientHome = () => {
       // Get artist profile for contact info
       const { data: profile } = await supabase
         .from('profiles')
-        .select('instagram_url, waze_address, business_phone')
+        .select('instagram_url, waze_address, business_phone, full_name')
         .eq('id', artistProfileId)
         .maybeSingle();
       if (profile) {
         if (profile.instagram_url) setArtistInstagram(profile.instagram_url);
         if (profile.waze_address) setArtistWaze(profile.waze_address);
         if (profile.business_phone) setArtistBusinessPhone(profile.business_phone);
+        if (profile.full_name) setArtistFullName(profile.full_name);
       }
     })();
   }, [artistProfileId]);
@@ -870,7 +873,10 @@ const ClientHome = () => {
           </div>
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
-              (lang === 'en' ? voucherWaEn : voucherWaHe).replace(/\[CODE\]/g, referralCode)
+              (lang === 'en' ? voucherWaEn : voucherWaHe)
+                .replace(/\[CODE\]/gi, referralCode)
+                .replace(/\{\{artist_name\}\}/gi, artistFullName || artistName || '')
+                .replace(/\{\{client_name\}\}/gi, clientName || '')
             )}`}
             target="_blank"
             rel="noopener noreferrer"
