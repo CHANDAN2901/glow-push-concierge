@@ -418,12 +418,12 @@ const Pricing = () => {
                 to="/auth"
                 className="w-full inline-flex items-center justify-center py-4 text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:translate-y-[-2px]"
                 style={{
-                  background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)',
-                  color: '#FFFFFF',
+                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
+                  color: '#4a3636',
                   borderRadius: '50px',
-                  border: '2px solid #EAB308',
-                  boxShadow: '0 8px 24px rgba(212, 131, 143, 0.35), 0 0 16px rgba(250, 204, 21, 0.25)',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                  border: '2px solid #D4AF37',
+                  boxShadow: '0 8px 24px rgba(212, 175, 55, 0.4), 0 0 16px rgba(212, 175, 55, 0.2)',
+                  textShadow: '0 1px 0 rgba(255,255,255,0.3)',
                 }}
               >
                 {cta}
