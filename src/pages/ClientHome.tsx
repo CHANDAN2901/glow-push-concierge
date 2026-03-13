@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import ClinicPolicyViewer from '@/components/ClinicPolicyViewer';
+import HealthDeclarationReadOnly from '@/components/HealthDeclarationReadOnly';
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
@@ -512,6 +513,7 @@ const ClientHome = () => {
   /* ─── Notification Center ─── */
   const [notifOpen, setNotifOpen] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [showHealthDeclModal, setShowHealthDeclModal] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const treatmentStartDate = useMemo(() => {
     if (!startDateParam) return new Date();
@@ -614,20 +616,35 @@ const ClientHome = () => {
           </div>
         </div>
 
-        {/* ─── CLINIC POLICY BUTTON ─── */}
-        <button
-          onClick={() => setShowPolicyModal(true)}
-          className="w-full mb-5 py-3.5 text-sm font-semibold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
-          style={{
-            background: 'linear-gradient(135deg, rgba(216,180,180,0.3), rgba(201,160,160,0.15))',
-            border: GOLD_BORDER,
-            color: BODY_TEXT,
-            fontFamily: FBAHAVA,
-          }}
-        >
-          <FileText className="w-5 h-5" style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
-          {lang === 'en' ? 'Important Info & Clinic Policy' : 'מידע חשוב ומדיניות הקליניקה'}
-        </button>
+        {/* ─── CLINIC POLICY & HEALTH DECLARATION BUTTONS ─── */}
+        <div className="flex flex-col gap-3 mb-5">
+          <button
+            onClick={() => setShowPolicyModal(true)}
+            className="w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(135deg, rgba(216,180,180,0.3), rgba(201,160,160,0.15))',
+              border: GOLD_BORDER,
+              color: BODY_TEXT,
+              fontFamily: FBAHAVA,
+            }}
+          >
+            <FileText className="w-5 h-5" style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
+            {lang === 'en' ? 'Important Info & Clinic Policy' : 'מידע חשוב ומדיניות הקליניקה'}
+          </button>
+          <button
+            onClick={() => setShowHealthDeclModal(true)}
+            className="w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(135deg, rgba(216,180,180,0.3), rgba(201,160,160,0.15))',
+              border: GOLD_BORDER,
+              color: BODY_TEXT,
+              fontFamily: FBAHAVA,
+            }}
+          >
+            <FileText className="w-5 h-5" style={{ color: '#B8860B', filter: GOLD_ICON_GLOW }} />
+            {lang === 'en' ? '📄 My Health Declaration (View)' : '📄 הצהרת הבריאות שלי (לצפייה)'}
+          </button>
+        </div>
 
         {/* ─── CURRENT TREATMENT STATUS ─── */}
         <div
@@ -1258,6 +1275,7 @@ const ClientHome = () => {
 
       {/* Policy Modal */}
       <ClinicPolicyViewer open={showPolicyModal} onClose={() => setShowPolicyModal(false)} artistProfileId={artistProfileId || undefined} />
+      <HealthDeclarationReadOnly open={showHealthDeclModal} onOpenChange={setShowHealthDeclModal} clientId={clientId || ''} artistProfileId={artistProfileId || ''} />
     </div>
   );
 };
