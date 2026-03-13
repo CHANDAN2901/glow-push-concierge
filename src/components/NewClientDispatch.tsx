@@ -367,7 +367,7 @@ const NewClientDispatch = ({
             </button>
 
             {/* Secondary: Fill Here */}
-            <button onClick={handleFillHere} disabled={!isValid}
+            <button onClick={handleFillHere} disabled={!isValid || isSubmitting}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
               style={{ border: GOLD_BORDER, color: GOLD_TEXT, background: 'transparent', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.15)' }}>
               <Smartphone className="w-5 h-5" />
