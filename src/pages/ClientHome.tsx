@@ -870,7 +870,10 @@ const ClientHome = () => {
           </div>
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
-              (lang === 'en' ? voucherWaEn : voucherWaHe).replace(/\[CODE\]/g, referralCode)
+              (lang === 'en' ? voucherWaEn : voucherWaHe)
+                .replace(/\[CODE\]/gi, referralCode)
+                .replace(/\{\{artist_name\}\}/gi, artistName || '')
+                .replace(/\{\{client_name\}\}/gi, clientName || '')
             )}`}
             target="_blank"
             rel="noopener noreferrer"
