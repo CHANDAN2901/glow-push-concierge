@@ -117,7 +117,7 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
               <div className="flex flex-wrap gap-1.5 mb-2">
                 <button
                   type="button"
-                  onClick={() => setWaHe('היי {{client_name}} אהובה! 💕 מקווה שאת נהנית מהתוצאה! בגלל שלקוחות מדהימות תמיד מביאות חברות מדהימות, יצרתי לך קוד קופון VIP משלך: [CODE]. אם מישהי שואלת מי עשתה לך את העבודה, תעבירי לה את הקוד – היא תקבל מתנה לטיפול הראשון, ואת תקבלי קרדיט לטיפול החידוש הבא שלך! 🎁 נשיקות! 😘')}
+                  onClick={() => setWaHe('היי אהובה! ✨\nרציתי לפרגן לך במתנה קטנה... קיבלתי קוד הטבה אישי אצל {{artist_name}}, המאפרת המהממת שלי!\nאם בא לך להתפנק בטיפול, תשתמשי בקוד שלי: [CODE] ותקבלי הנחה שווה על הטיפול הראשון שלך אצלה. מומלץ בחום! 🤍')}
                   className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all hover:scale-[1.03] active:scale-[0.97] border"
                   style={{
                     background: 'linear-gradient(135deg, hsl(38 50% 96%), hsl(38 45% 92%))',
