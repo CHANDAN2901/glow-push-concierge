@@ -62,6 +62,7 @@ const App = () => (
               
               <Route path="/digital-card" element={<DigitalCard />} />
               <Route path="/health-declaration" element={<HealthDeclarationPage />} />
+              <Route path="/f/:code" element={<FormLinkResolver />} />
               <Route path="/admin/aftercare" element={<AftercareEditorPage />} />
               <Route path="/admin/timeline" element={<TimelineEditorPage />} />
               <Route path="/admin/timeline-content" element={<TimelineContentEditorPage />} />
