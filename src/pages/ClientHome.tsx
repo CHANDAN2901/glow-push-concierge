@@ -343,8 +343,8 @@ const ClientHome = () => {
     });
   }, [clientId, referralCode, dbReferralCode]);
 
-  const startDateParam = searchParams.get('start') || localStorage.getItem(LS_START) || '';
-  const treatmentParam = searchParams.get('treatment') || localStorage.getItem(LS_TREATMENT) || '';
+  const startDateParam = dbTreatmentDate || searchParams.get('start') || localStorage.getItem(LS_START) || '';
+  const treatmentParam = dbTreatmentType || searchParams.get('treatment') || localStorage.getItem(LS_TREATMENT) || '';
   const treatment: TreatmentType = treatmentParam === 'lips' ? 'lips' : 'eyebrows';
   const logoUrl = searchParams.get('logo') || STUDIO_LOGO_URL || '';
   const artistName = searchParams.get('artist') || '';
