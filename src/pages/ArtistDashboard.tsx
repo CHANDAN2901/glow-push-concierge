@@ -823,22 +823,20 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   };
 
   // Open WhatsApp with health form signing request
-  const sendHealthFormWhatsApp = (clientName: string, clientPhone?: string, includePolicy = true) => {
+  const sendHealthFormWhatsApp = async (clientName: string, clientPhone?: string, includePolicy = true, clientDbId?: string) => {
     if (!clientPhone || clientPhone.replace(/[^0-9]/g, '').length === 0) {
       toast({ title: lang === 'en' ? 'Cannot send — phone number missing for this client. Please update her details.' : 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
       return;
     }
-    const formLink = buildHealthFormLink(clientName, clientPhone, includePolicy);
     const artist = artistName || 'האמנית שלך';
-    const msg = includePolicy
-      ? `היי ${clientName} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`
-      : `היי ${clientName} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`;
-    let cleanPhone = clientPhone.replace(/[^0-9]/g, '');
-    if (cleanPhone.startsWith('0')) {
-      cleanPhone = '972' + cleanPhone.substring(1);
+    let link: string;
+    if (clientDbId && userProfileId) {
+      link = await buildHealthShortLink(clientDbId, clientName, clientPhone, includePolicy);
+    } else {
+      link = buildHealthFormLink(clientName, clientPhone, includePolicy);
     }
-    const encodedMsg = encodeURIComponent(msg);
-    const url = `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
+    const msg = generateWhatsAppMessage(clientName, link, includePolicy, artist);
+    const url = buildWhatsAppUrl(clientPhone, msg);
     window.open(url, '_blank');
     toast({ title: 'הודעה נשלחה בהצלחה ✉️' });
   };
