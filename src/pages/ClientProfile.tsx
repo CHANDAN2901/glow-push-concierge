@@ -608,16 +608,17 @@ const ClientProfile = () => {
                   onCheckedChange={setIncludePolicyCP}
                 />
               </div>
-              <a
-                href={healthDeclWhatsAppUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90"
+              <button
+                onClick={sendHealthDeclarationWhatsApp}
+                disabled={sendingHealthForm}
+                className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 disabled:opacity-60"
                 style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
               >
                 <Send className="w-4 h-4" />
-                {lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ'}
-              </a>
+                {sendingHealthForm
+                  ? (lang === 'en' ? 'Sending...' : 'שולחת...')
+                  : (lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ')}
+              </button>
             </>
           ) : (
             /* State B: Submitted */
