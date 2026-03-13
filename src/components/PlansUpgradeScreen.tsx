@@ -196,19 +196,20 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
         boxShadow: '0 6px 30px -6px rgba(212, 175, 55, 0.2)',
       }}
     >
-      {(plan.badge_he || plan.badge_en) && (
-        <div className="absolute top-0 left-0 right-0 flex justify-center">
-          <span
-            className="px-4 py-1 text-[11px] font-bold rounded-b-xl"
-            style={{
-              background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-              color: '#fff',
-            }}
-          >
-            {isHe ? plan.badge_he : plan.badge_en}
-          </span>
-        </div>
-      )}
+      {/* Launch Price Badge */}
+      <div className="absolute top-0 left-0 right-0 flex justify-center">
+        <span
+          className="px-5 py-1.5 text-[11px] font-black rounded-b-xl tracking-wide"
+          style={{
+            background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
+            color: '#78350F',
+            boxShadow: '0 4px 16px rgba(250, 204, 21, 0.5), 0 1px 4px rgba(0,0,0,0.1)',
+            textShadow: '0 1px 0 rgba(255,255,255,0.4)',
+          }}
+        >
+          {isHe ? '🔥 מחיר השקה מיוחד!' : '🔥 Special Launch Price!'}
+        </span>
+      </div>
 
       <div className="flex items-center gap-3 pt-4">
         <div
@@ -219,18 +220,23 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
         </div>
         <div>
           <h2 className="font-bold text-foreground text-base">{name}</h2>
-          <div className="flex items-baseline gap-1.5 mt-0.5">
-            <span
-              className="text-xl font-bold bg-clip-text text-transparent"
-              style={{ backgroundImage: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
-            >
-              {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
+          <div className="flex flex-col mt-0.5">
+            <span className="text-sm line-through" style={{ color: '#999' }}>
+              {isHe ? `₪${Math.round(plan.price_monthly * 2)} / חודש` : `$${Math.round(plan.price_usd * 2)} /mo`}
             </span>
-            <span className="text-xs text-foreground/50">
-              {plan.slug === 'vip-3year'
-                ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
-                : (isHe ? 'לחודש' : '/month')}
-            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span
+                className="text-2xl font-bold bg-clip-text text-transparent"
+                style={{ backgroundImage: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
+              >
+                {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
+              </span>
+              <span className="text-xs text-foreground/50">
+                {plan.slug === 'vip-3year'
+                  ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
+                  : (isHe ? 'לחודש' : '/month')}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -266,11 +272,13 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
 
       <button
         onClick={() => onUpgrade(plan)}
-        className="w-full py-4 rounded-2xl text-base font-bold border border-[#D4AF37]/30 transition-all active:scale-[0.97] hover:shadow-lg flex items-center justify-center gap-2"
+        className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-[0.97] hover:shadow-xl flex items-center justify-center gap-2"
         style={{
-          background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-          color: '#4a3636',
-          boxShadow: '0 4px 20px -4px rgba(212, 175, 55, 0.4)',
+          background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
+          color: '#78350F',
+          border: '2px solid #EAB308',
+          boxShadow: '0 6px 24px -4px rgba(250, 204, 21, 0.5), 0 2px 8px rgba(0,0,0,0.08)',
+          textShadow: '0 1px 0 rgba(255,255,255,0.3)',
         }}
       >
         <Crown className="w-5 h-5" />
