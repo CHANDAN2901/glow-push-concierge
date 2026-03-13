@@ -7,6 +7,7 @@ import {
   ShieldCheck, AlertTriangle, AlertCircle, ScrollText,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import PremiumPolicySwitch from '@/components/PremiumPolicySwitch';
 import DeclarationViewer from '@/components/DeclarationViewer';
 import { useHealthQuestions } from '@/hooks/useHealthQuestions';
 import {
