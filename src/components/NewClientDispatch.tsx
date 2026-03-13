@@ -283,6 +283,25 @@ const NewClientDispatch = ({
             </div>
           </div>
 
+          {/* Policy Toggle */}
+          <div
+            className="flex items-center justify-between gap-3 p-4 rounded-2xl"
+            style={{ background: `${GOLD}08`, border: `1px solid ${GOLD}25` }}
+          >
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+              <ScrollText className="w-4.5 h-4.5 flex-shrink-0" style={{ color: GOLD_DARK }} />
+              <label htmlFor="include-policy" className="text-xs font-bold leading-snug cursor-pointer" style={{ color: GOLD_DARK }}>
+                {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
+              </label>
+            </div>
+            <Switch
+              id="include-policy"
+              checked={includePolicy}
+              onCheckedChange={setIncludePolicy}
+              className="data-[state=checked]:bg-[#B8860B] data-[state=unchecked]:bg-[#d8b4b4]/40"
+            />
+          </div>
+
           {/* Duplicate Warning */}
           {isDuplicate && !duplicateAck && (
             <div className="p-4 rounded-2xl animate-fade-up" style={{ background: `${GOLD}12`, border: `1px solid ${GOLD}35` }}>
