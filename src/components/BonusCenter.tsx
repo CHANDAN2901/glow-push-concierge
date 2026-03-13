@@ -43,6 +43,9 @@ export default function BonusCenter({ userProfileId, onNavigateToReferrals }: Bo
   const [showPending, setShowPending] = useState(false);
   const [copied, setCopied] = useState(false);
   const [referralCode, setReferralCode] = useState('');
+  const [voucherWaHe, setVoucherWaHe] = useState(VOUCHER_DEFAULTS.voucher_wa_he);
+  const [voucherWaEn, setVoucherWaEn] = useState(VOUCHER_DEFAULTS.voucher_wa_en);
+  const [artistFullName, setArtistFullName] = useState('');
   const [showRedemptionInfo, setShowRedemptionInfo] = useState(false);
 
   const fetchReferralData = useCallback(async () => {
