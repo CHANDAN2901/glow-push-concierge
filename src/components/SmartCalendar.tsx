@@ -911,13 +911,12 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     <label htmlFor={`include-policy-apt-${apt.id}`} className="text-[11px] font-semibold leading-snug text-foreground cursor-pointer">
                       {isHe ? 'צרפי גם את מדיניות הקליניקה והסכם הטיפול' : 'Include Clinic Policy & Treatment Agreement'}
                     </label>
-                    <Switch
+                    <PremiumPolicySwitch
                       id={`include-policy-apt-${apt.id}`}
                       checked={appointmentIncludePolicy[apt.id] ?? true}
                       onCheckedChange={(checked) => {
                         setAppointmentIncludePolicy(prev => ({ ...prev, [apt.id]: checked }));
                       }}
-                      className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
                     />
                   </div>
                 )}
