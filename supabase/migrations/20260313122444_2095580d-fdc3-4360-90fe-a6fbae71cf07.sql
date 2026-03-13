@@ -1,0 +1,1 @@
+ALTER TABLE public.form_links ADD COLUMN is_completed boolean NOT NULL DEFAULT false;

@@ -458,6 +458,7 @@ export type Database = {
           id: string
           include_policy: boolean | null
           instagram_handle: string | null
+          is_completed: boolean
           logo_url: string | null
           treatment_type: string | null
         }
@@ -473,6 +474,7 @@ export type Database = {
           id?: string
           include_policy?: boolean | null
           instagram_handle?: string | null
+          is_completed?: boolean
           logo_url?: string | null
           treatment_type?: string | null
         }
@@ -488,6 +490,7 @@ export type Database = {
           id?: string
           include_policy?: boolean | null
           instagram_handle?: string | null
+          is_completed?: boolean
           logo_url?: string | null
           treatment_type?: string | null
         }
