@@ -371,6 +371,14 @@ const ClientHome = () => {
   const [artistBusinessPhone, setArtistBusinessPhone] = useState('');
   const [artistFullName, setArtistFullName] = useState('');
 
+  /** Format any phone for wa.me: strip non-digits, replace leading 0 with 972 */
+  const waPhone = useMemo(() => {
+    const raw = artistBusinessPhone || artistPhone || '';
+    let digits = raw.replace(/[^0-9]/g, '');
+    if (digits.startsWith('0')) digits = '972' + digits.slice(1);
+    return digits;
+  }, [artistBusinessPhone, artistPhone]);
+
   useEffect(() => {
     if (!artistProfileId) return;
     (async () => {
