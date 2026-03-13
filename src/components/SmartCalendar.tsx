@@ -420,6 +420,12 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     window.open(waUrl, '_blank');
   };
 
+  const isTomorrow = (dateStr: string) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return dateStr === tomorrow.toISOString().split('T')[0];
+  };
+
   const handleAppointmentCardClick = async (apt: Appointment) => {
     // Navigate to the artist's detailed client management card inside dashboard
     let clientParam = apt.clientName;
