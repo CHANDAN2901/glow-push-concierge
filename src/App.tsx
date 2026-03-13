@@ -18,6 +18,7 @@ import SuperAdmin from "./pages/SuperAdmin";
 
 import DigitalCard from "./pages/DigitalCard";
 import HealthDeclarationPage from "./pages/HealthDeclarationPage";
+import FormLinkResolver from "./pages/FormLinkResolver";
 import AftercareEditorPage from "./components/admin/AftercareEditor";
 import TimelineEditorPage from "./components/admin/TimelineEditor";
 import TimelineContentEditorPage from "./components/admin/TimelineContentEditor";
