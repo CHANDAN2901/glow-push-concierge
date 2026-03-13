@@ -364,8 +364,11 @@ const Pricing = () => {
                 <Icon className="w-5 h-5" style={{ color: '#d8b4b4' }} />
               </div>
 
-              <div className="mb-8">
-                <div className="flex items-baseline justify-center gap-1.5">
+              <div className="flex flex-col items-center justify-center mb-8">
+                <span className="line-through text-lg mb-1" style={{ color: '#999' }}>
+                  {isHe ? `₪${Math.round(plan.price.ils * 2)} / חודש` : `$${Math.round(plan.price.usd * 2)} / month`}
+                </span>
+                <div className="flex items-baseline gap-1.5">
                   <span
                     className="text-5xl font-serif font-bold"
                     style={{
