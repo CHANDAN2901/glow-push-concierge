@@ -1951,9 +1951,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   const waMsg = lang === 'en'
                     ? `Hi ${selectedClient.name} 💛\nHere's your personal client portal link:\n👇\n${clientZoneLink}\n\n${artist}`
                     : `היי ${selectedClient.name} 💛\nמצורף קישור אישי לאזור הלקוחה שלך:\n👇\n${clientZoneLink}\n\n${artist}`;
-                  const waUrl = hasPhone
-                    ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMsg)}`
-                    : `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
+                  const waUrl = buildWhatsAppUrl(cleanPhone, waMsg);
 
                   return (
                     <div

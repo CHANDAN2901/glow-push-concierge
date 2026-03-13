@@ -144,28 +144,13 @@ const NewClientDispatch = ({
     });
   };
 
-  /** Format phone for wa.me: strip non-digits, replace leading 0 with 972 */
-  const formatPhoneForWhatsApp = (raw: string): string => {
-    let digits = raw.replace(/[^0-9]/g, '');
-    if (digits.startsWith('0')) {
-      digits = '972' + digits.slice(1);
-    }
-    return digits;
-  };
-
   const handleSendWhatsApp = async () => {
     if (!isValid) return;
     if (isDuplicate && !duplicateAck) return;
     const clientId = await ensureClientInDb();
     const link = await buildShortLink(clientId);
     const msg = buildMessage(link);
-
-    // Always open WhatsApp directly — no navigator.share interception
-    const encoded = encodeURIComponent(msg);
-    const waPhone = phone.trim() ? formatPhoneForWhatsApp(phone) : '';
-    const url = waPhone
-      ? `https://wa.me/${waPhone}?text=${encoded}`
-      : `https://wa.me/?text=${encoded}`;
+    const url = buildWhatsAppUrl(phone, msg);
     window.open(url, '_blank');
     markDispatched(link);
   };
