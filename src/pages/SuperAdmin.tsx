@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { type TierSlug } from '@/lib/subscriptionConfig';
 import { usePricingPlans } from '@/hooks/usePricingPlans';
 import { startImpersonation } from '@/lib/impersonation';
+import { useInvalidateTier } from '@/hooks/useFeatureAccess';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Table, TableBody, TableCell, TableHead,
@@ -89,6 +90,7 @@ const SuperAdmin = () => {
   const { toast } = useToast();
   const { isAdmin, loading, roleLoading } = useAuth();
   const navigate = useNavigate();
+  const invalidateTier = useInvalidateTier();
   const [view, setView] = useState<AdminView>('dashboard');
   const [termsText, setTermsText] = useState('הריני מאשרת כי כל הפרטים שמסרתי בטופס זה הם נכונים ומדויקים. אני מבינה כי הטיפול מבוצע בהסכמתי המלאה, וכי הוסברו לי הסיכונים האפשריים, תהליך ההחלמה והוראות הטיפול בבית. ידוע לי שתוצאות הטיפול משתנות מאחת לאחת ותלויות גם בסוג העור ובשמירה על ההוראות.');
   const [newQuestion, setNewQuestion] = useState('');
@@ -294,6 +296,7 @@ const SuperAdmin = () => {
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => {
                             startImpersonation({ userName: u.name, studioName: u.studio, tier: u.plan as TierSlug });
+                            invalidateTier();
                             window.dispatchEvent(new Event('impersonation-changed'));
                             navigate('/artist');
                           }}>
