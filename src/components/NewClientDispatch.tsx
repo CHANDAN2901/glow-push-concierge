@@ -128,16 +128,8 @@ const NewClientDispatch = ({
   const isValid = name.trim().length >= 2 && !!treatment;
 
   const buildMessage = (link: string) => {
-    const firstName = name.trim().split(/\s+/)[0];
-    const senderName = artistName || (lang === 'en' ? 'Your artist' : 'המטפלת שלך');
-    if (lang === 'en') {
-      return includePolicy
-        ? `Hello ${firstName}! Can't wait to see you! ✨\n\nHere's your personal link that includes our clinic policy and health declaration form:\n\n${link}\n\nSee you soon!\n\n${senderName} 💖`
-        : `Hello ${firstName}! Can't wait to see you! ✨\n\nFor your treatment, please fill out the health declaration form at the link below:\n\n${link}\n\nSee you soon!\n\n${senderName} 💖`;
-    }
-    return includePolicy
-      ? `שלום ${firstName} יקירה, מחכה לראותך! ✨\n\nמצורף קישור אישי הכולל את מדיניות הקליניקה וטופס הצהרת בריאות:\n\n${link}\n\nנתראה בקרוב!\n\n${senderName} 💖`
-      : `שלום ${firstName} יקירה, מחכה לראותך! ✨\n\nלצורך הטיפול, אנא מילאי הצהרת בריאות בקישור:\n\n${link}\n\nנתראה בקרוב!\n\n${senderName} 💖`;
+    const senderName = artistName || 'המטפלת שלך';
+    return generateWhatsAppMessage(name.trim(), link, includePolicy, senderName);
   };
 
   const markDispatched = (link: string) => {
