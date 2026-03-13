@@ -76,6 +76,7 @@ import { Switch } from '@/components/ui/switch';
 import PremiumPolicySwitch from '@/components/PremiumPolicySwitch';
 import { useAuth } from '@/hooks/useAuth';
 import { getImpersonation } from '@/lib/impersonation';
+import { generateWhatsAppMessage, buildWhatsAppUrl } from '@/lib/whatsapp-messages';
 
 interface ClientEntry {
   dbId?: string;
