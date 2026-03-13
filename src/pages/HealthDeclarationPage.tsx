@@ -19,7 +19,8 @@ const HealthDeclarationPage = () => {
   const appointmentTime = searchParams.get('time') || '';
   const isPreview = searchParams.get('preview') === 'true';
   const includePolicy = searchParams.get('include_policy') === 'true';
-  const formToken = searchParams.get('form_token') || '';
+  const token = searchParams.get('token') || searchParams.get('form_token') || '';
+  const urlClientId = searchParams.get('client_id') || '';
   const { lang } = useI18n();
 
   const [isArtist, setIsArtist] = useState(false);
