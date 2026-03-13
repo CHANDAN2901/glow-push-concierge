@@ -135,7 +135,7 @@ export default function ClinicPolicyAcknowledgment({ artistProfileId, lang, onAc
           }}
         >
           <CheckCircle className="w-5 h-5" />
-          {isHe ? 'קראתי ואני מאשרת – המשך להצהרת בריאות' : 'I've Read & Acknowledge – Continue to Health Form'}
+          {isHe ? 'קראתי ואני מאשרת – המשך להצהרת בריאות' : "I've Read & Acknowledge – Continue to Health Form"}
         </button>
       </div>
     </div>
