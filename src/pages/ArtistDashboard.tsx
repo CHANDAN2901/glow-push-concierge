@@ -823,22 +823,20 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   };
 
   // Open WhatsApp with health form signing request
-  const sendHealthFormWhatsApp = (clientName: string, clientPhone?: string, includePolicy = true) => {
+  const sendHealthFormWhatsApp = async (clientName: string, clientPhone?: string, includePolicy = true, clientDbId?: string) => {
     if (!clientPhone || clientPhone.replace(/[^0-9]/g, '').length === 0) {
       toast({ title: lang === 'en' ? 'Cannot send — phone number missing for this client. Please update her details.' : 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
       return;
     }
-    const formLink = buildHealthFormLink(clientName, clientPhone, includePolicy);
     const artist = artistName || 'האמנית שלך';
-    const msg = includePolicy
-      ? `היי ${clientName} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`
-      : `היי ${clientName} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`;
-    let cleanPhone = clientPhone.replace(/[^0-9]/g, '');
-    if (cleanPhone.startsWith('0')) {
-      cleanPhone = '972' + cleanPhone.substring(1);
+    let link: string;
+    if (clientDbId && userProfileId) {
+      link = await buildHealthShortLink(clientDbId, clientName, clientPhone, includePolicy);
+    } else {
+      link = buildHealthFormLink(clientName, clientPhone, includePolicy);
     }
-    const encodedMsg = encodeURIComponent(msg);
-    const url = `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
+    const msg = generateWhatsAppMessage(clientName, link, includePolicy, artist);
+    const url = buildWhatsAppUrl(clientPhone, msg);
     window.open(url, '_blank');
     toast({ title: 'הודעה נשלחה בהצלחה ✉️' });
   };
@@ -2363,12 +2361,29 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                     {birthdayWeek && <span className="ml-1">🎂</span>}
                                     {needsRenewal && <span className="ml-1">🔄</span>}
                                     {client.name}
-                                    {hasSignedDeclaration(client.name) ? (
-                                      <CheckCircle className="w-3 h-3 inline-block mr-1 text-green-500" />
-                                    ) : (
-                                      <AlertTriangle className="w-2.5 h-2.5 inline-block mr-1 text-muted-foreground/40" />
-                                    )}
                                   </p>
+                                  <div className="flex items-center gap-1 mt-0.5">
+                                    {hasSignedDeclaration(client.name) ? (() => {
+                                      const risk = getClientRiskLevel(client.name);
+                                      const color = risk === 'red' ? '#ef4444' : risk === 'yellow' ? '#eab308' : '#22c55e';
+                                      const label = risk === 'red'
+                                        ? (lang === 'en' ? 'Warning' : 'התוויית נגד')
+                                        : risk === 'yellow'
+                                          ? (lang === 'en' ? 'Attention' : 'דורש תשומת לב')
+                                          : (lang === 'en' ? 'Clear' : 'תקין');
+                                      return (
+                                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-bold" style={{ background: `${color}18`, color, border: `1px solid ${color}40` }}>
+                                          {risk === 'green' ? <ShieldCheck className="w-2.5 h-2.5" /> : <AlertTriangle className="w-2.5 h-2.5" />}
+                                          {label}
+                                        </span>
+                                      );
+                                    })() : (
+                                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-medium" style={{ background: 'rgba(156,163,175,0.1)', color: '#9ca3af', border: '1px solid rgba(156,163,175,0.25)' }}>
+                                        <Clock className="w-2.5 h-2.5" />
+                                        {lang === 'en' ? 'Pending' : 'ממתין'}
+                                      </span>
+                                    )}
+                                  </div>
                                   <p className="text-[10px] leading-tight" style={{ color: '#8c6a6a' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
                                 </div>
                                 {isSafe && <ShieldCheck className="w-3 h-3 shrink-0" style={{ color: '#d8b4b4' }} />}
@@ -2418,19 +2433,17 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           ) : (() => {
                               const cleanPhone = client.phone ? formatPhone(client.phone) : '';
                               const hasPhone = cleanPhone.length > 0;
-                              const formLink = buildHealthFormLink(client.name, client.phone);
-                              const artist = artistName || 'האמנית שלך';
-                              const msg = `היי ${client.name}, אני ${artist} מחכה לראותך בסטודיו! ✨ כדי שנוכל להתחיל בטיפול בזמן, אשמח אם תחתמי על הצהרת הבריאות בקישור הבא:\n\n${formLink}`;
-                              const href = hasPhone
-                                ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
-                                : `https://wa.me/?text=${encodeURIComponent(msg)}`;
                               return (
-                                <a href={href} target="_blank" rel="noopener noreferrer"
-                                  onClick={(e) => { e.stopPropagation(); if (!hasPhone) { e.preventDefault(); toast({ title: 'חסר מספר טלפון ללקוחה זו', variant: 'destructive' }); } }}
+                                <button type="button"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (!hasPhone) { toast({ title: 'חסר מספר טלפון ללקוחה זו', variant: 'destructive' }); return; }
+                                    await sendHealthFormWhatsApp(client.name, client.phone, true, client.dbId);
+                                  }}
                                   className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
                                   style={{ background: 'linear-gradient(145deg, #E8A0B0, #D4838F)', color: '#fff', boxShadow: '0 4px 14px rgba(212, 131, 143, 0.3), 0 0 10px rgba(232, 160, 176, 0.15)' }}>
                                   <MessageCircle className="w-3 h-3" /> {lang === 'en' ? 'Health Declaration' : 'הצהרת בריאות'}
-                                </a>
+                                </button>
                               );
                             })()}
                           </FeatureGate>
