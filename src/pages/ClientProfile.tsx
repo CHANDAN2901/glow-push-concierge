@@ -359,12 +359,13 @@ const ClientProfile = () => {
         .select('code, form_token')
         .single();
 
-      if (error || !data?.code || !data?.form_token) {
+      const token = (data as any)?.form_token as string | undefined;
+      if (error || !data?.code || !token) {
         throw error || new Error('Failed to generate secure token');
       }
 
       const baseUrl = window.location.origin;
-      const secureParams = new URLSearchParams({ client_id: resolvedClientDbId, token: data.form_token as string });
+      const secureParams = new URLSearchParams({ client_id: resolvedClientDbId, token });
       const declLink = `${baseUrl}/f/${data.code}?${secureParams.toString()}`;
 
       const message = lang === 'en'

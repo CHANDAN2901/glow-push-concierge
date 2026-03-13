@@ -806,11 +806,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       is_token_used: false,
     } as any).select('code, form_token').single();
 
-    if (error || !data?.code || !data?.form_token) {
+    const token = (data as any)?.form_token as string | undefined;
+    if (error || !data?.code || !token) {
       throw error || new Error('Failed to create secure form token');
     }
 
-    const qp = new URLSearchParams({ client_id: clientId, token: data.form_token as string });
+    const qp = new URLSearchParams({ client_id: clientId, token });
     return `${window.location.origin}/f/${data.code}?${qp.toString()}`;
   };
 

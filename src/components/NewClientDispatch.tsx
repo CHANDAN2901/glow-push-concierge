@@ -114,11 +114,12 @@ const NewClientDispatch = ({
       is_token_used: false,
     } as any).select('code, form_token').single();
 
-    if (error || !data?.code || !data?.form_token) {
+    const token = (data as any)?.form_token as string | undefined;
+    if (error || !data?.code || !token) {
       throw error || new Error('Failed to create secure link token');
     }
 
-    const params = new URLSearchParams({ client_id: clientId, token: data.form_token as string });
+    const params = new URLSearchParams({ client_id: clientId, token });
     return `${origin}/f/${data.code}?${params.toString()}`;
   };
 

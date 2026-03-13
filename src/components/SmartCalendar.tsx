@@ -359,12 +359,13 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       .select('code, form_token')
       .single();
 
-    if (error || !data?.code || !data?.form_token) {
+    const token = (data as any)?.form_token as string | undefined;
+    if (error || !data?.code || !token) {
       throw error || new Error('Failed to generate secure token link');
     }
 
     const base = window.location.origin;
-    const params = new URLSearchParams({ client_id: resolvedClientId, token: data.form_token as string });
+    const params = new URLSearchParams({ client_id: resolvedClientId, token });
     return `${base}/f/${data.code}?${params.toString()}`;
   };
 
