@@ -422,12 +422,14 @@ const ClientHome = () => {
   }, [gallery.uploadPhoto, toast]);
 
   const calculatedDay = useMemo(() => {
-    if (!startDateParam) return 3;
+    if (!startDateParam) return 0;
     const start = new Date(startDateParam);
-    if (Number.isNaN(start.getTime())) return 3;
+    if (Number.isNaN(start.getTime())) return 0;
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
     const diff = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    return Math.max(1, Math.min(30, diff + 1));
+    return Math.max(0, Math.min(30, diff));
   }, [startDateParam]);
 
   const actualDay = calculatedDay;
