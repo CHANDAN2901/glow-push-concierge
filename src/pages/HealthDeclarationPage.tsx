@@ -117,6 +117,16 @@ const HealthDeclarationPage = () => {
       console.log('[HealthDecl] Push subscription result:', pushResult);
     }
 
+    if (!isPreview && result?.clientId) {
+      const redirectParams = new URLSearchParams();
+      redirectParams.set('client_id', result.clientId);
+      redirectParams.set('name', data.fullName || clientName || 'לקוחה');
+      redirectParams.set('start', appointmentDate || new Date().toISOString().split('T')[0]);
+      if (treatmentType) redirectParams.set('treatment', treatmentType);
+      if (artistId) redirectParams.set('artist_id', artistId);
+      navigate(`/c/${result.clientId}?${redirectParams.toString()}`, { replace: true });
+    }
+
     return result;
   };
 
