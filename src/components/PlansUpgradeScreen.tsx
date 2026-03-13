@@ -270,7 +270,11 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
         <Zap className="w-4 h-4 text-accent shrink-0" />
       </div>
 
-      <button
+      <p className="text-center text-xs font-medium" style={{ color: '#8B6508' }}>
+        {isHe ? '🔒 המחיר ננעל לך לכל החיים! (כל עוד המנוי נשאר פעיל)' : '🔒 Price locked forever! (as long as your subscription stays active)'}
+      </p>
+
+
         onClick={() => onUpgrade(plan)}
         className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-[0.97] hover:shadow-xl flex items-center justify-center gap-2"
         style={{
