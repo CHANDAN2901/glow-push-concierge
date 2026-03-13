@@ -220,18 +220,23 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
         </div>
         <div>
           <h2 className="font-bold text-foreground text-base">{name}</h2>
-          <div className="flex items-baseline gap-1.5 mt-0.5">
-            <span
-              className="text-xl font-bold bg-clip-text text-transparent"
-              style={{ backgroundImage: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
-            >
-              {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
+          <div className="flex flex-col mt-0.5">
+            <span className="text-sm line-through" style={{ color: '#999' }}>
+              {isHe ? `₪${Math.round(plan.price_monthly * 2)} / חודש` : `$${Math.round(plan.price_usd * 2)} /mo`}
             </span>
-            <span className="text-xs text-foreground/50">
-              {plan.slug === 'vip-3year'
-                ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
-                : (isHe ? 'לחודש' : '/month')}
-            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span
+                className="text-2xl font-bold bg-clip-text text-transparent"
+                style={{ backgroundImage: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
+              >
+                {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
+              </span>
+              <span className="text-xs text-foreground/50">
+                {plan.slug === 'vip-3year'
+                  ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
+                  : (isHe ? 'לחודש' : '/month')}
+              </span>
+            </div>
           </div>
         </div>
       </div>
