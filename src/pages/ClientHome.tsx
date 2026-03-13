@@ -1229,16 +1229,11 @@ const ClientHome = () => {
 
               <a
                 href={(() => {
-                  const rawPhone = artistBusinessPhone || artistPhone || '';
-                  let digits = rawPhone.replace(/[^0-9]/g, '');
-                  if (digits.startsWith('0')) digits = '972' + digits.slice(1);
                   const aName = artistFullName || artistName || '';
                   const msg = lang === 'en'
                     ? `Hi ${aName}! ✨\nI saw the special offer in my personal area (Complete the Look), and I'm really interested!\nI'd love to hear more details and book an appointment. 🤍`
                     : `היי ${aName} מהממת! ✨\nראיתי באזור האישי שלי את ההטבה לטיפול נוסף (להשלמת המראה), וממש עשה לי חשק!\nאשמח לשמוע פרטים ולקבוע תור. 🤍`;
-                  return digits
-                    ? `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`
-                    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+                  return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
                 })()}
                 target="_blank"
                 rel="noopener noreferrer"
