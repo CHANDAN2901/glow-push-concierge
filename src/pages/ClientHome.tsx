@@ -875,7 +875,7 @@ const ClientHome = () => {
             href={`https://wa.me/?text=${encodeURIComponent(
               (lang === 'en' ? voucherWaEn : voucherWaHe)
                 .replace(/\[CODE\]/gi, referralCode)
-                .replace(/\{\{artist_name\}\}/gi, artistName || '')
+                .replace(/\{\{artist_name\}\}/gi, artistFullName || artistName || '')
                 .replace(/\{\{client_name\}\}/gi, clientName || '')
             )}`}
             target="_blank"
