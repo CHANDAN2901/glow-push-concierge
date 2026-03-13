@@ -299,25 +299,30 @@ const ArtistDashboard = () => {
     }
   }, [setSearchParams]);
 
-  const [selectedClient, setSelectedClientInternal] = useState<ClientEntry | null>(null);
+const [selectedClient, setSelectedClientInternal] = useState<ClientEntry | null>(null);
+const [includePolicyShare, setIncludePolicyShare] = useState(true);
 
-  // Wrap setSelectedClient to sync URL
-  const setSelectedClient = useCallback((clientOrUpdater: ClientEntry | null | ((prev: ClientEntry | null) => ClientEntry | null)) => {
-    setSelectedClientInternal(prev => {
-      const newVal = typeof clientOrUpdater === 'function' ? clientOrUpdater(prev) : clientOrUpdater;
-      const params = new URLSearchParams(searchParamsRef.current);
-      if (newVal) {
-        params.set('tab', 'clients');
-        params.set('client', newVal.dbId || newVal.name);
-      } else {
-        params.delete('client');
-      }
-      setSearchParams(params, { replace: true });
-      return newVal;
-    });
-  }, [setSearchParams]);
+// Wrap setSelectedClient to sync URL
+const setSelectedClient = useCallback((clientOrUpdater: ClientEntry | null | ((prev: ClientEntry | null) => ClientEntry | null)) => {
+  setSelectedClientInternal(prev => {
+    const newVal = typeof clientOrUpdater === 'function' ? clientOrUpdater(prev) : clientOrUpdater;
+    const params = new URLSearchParams(searchParamsRef.current);
+    if (newVal) {
+      params.set('tab', 'clients');
+      params.set('client', newVal.dbId || newVal.name);
+    } else {
+      params.delete('client');
+    }
+    setSearchParams(params, { replace: true });
+    return newVal;
+  });
+}, [setSearchParams]);
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+useEffect(() => {
+  setIncludePolicyShare(true);
+}, [selectedClient?.dbId, selectedClient?.name]);
+
+const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasUnsavedLogoChangeRef = useRef(false);
 
   const uploadProfileLogo = useCallback(async (currentLogoUrl: string) => {
