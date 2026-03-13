@@ -1145,6 +1145,27 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                   </label>
                 </div>
               )}
+
+              {/* Include clinic policy toggle — shown when auto-health is checked */}
+              {newAutoHealth && newVisitType !== 'touchup' && (
+                <div
+                  className="flex items-center justify-between gap-3 p-3 rounded-xl"
+                  style={{ background: 'hsl(38 30% 96%)', border: '1px solid hsl(38 50% 80% / 0.4)' }}
+                >
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <ScrollText className="w-4 h-4 flex-shrink-0" style={{ color: '#B8860B' }} />
+                    <label htmlFor="include-policy-cal" className="text-xs font-bold leading-snug cursor-pointer" style={{ color: '#B8860B' }}>
+                      {isHe ? 'צרפי גם את מדיניות הקליניקה והסכם הטיפול' : 'Include Clinic Policy & Treatment Agreement'}
+                    </label>
+                  </div>
+                  <Switch
+                    id="include-policy-cal"
+                    checked={newIncludePolicy}
+                    onCheckedChange={setNewIncludePolicy}
+                    className="data-[state=checked]:bg-[#B8860B] data-[state=unchecked]:bg-[#d8b4b4]/40"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Footer - Fixed at bottom */}
