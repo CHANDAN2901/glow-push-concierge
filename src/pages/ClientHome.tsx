@@ -387,13 +387,14 @@ const ClientHome = () => {
       // Get artist profile for contact info
       const { data: profile } = await supabase
         .from('profiles')
-        .select('instagram_url, waze_address, business_phone')
+        .select('instagram_url, waze_address, business_phone, full_name')
         .eq('id', artistProfileId)
         .maybeSingle();
       if (profile) {
         if (profile.instagram_url) setArtistInstagram(profile.instagram_url);
         if (profile.waze_address) setArtistWaze(profile.waze_address);
         if (profile.business_phone) setArtistBusinessPhone(profile.business_phone);
+        if (profile.full_name) setArtistFullName(profile.full_name);
       }
     })();
   }, [artistProfileId]);
