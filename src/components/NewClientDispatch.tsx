@@ -205,6 +205,7 @@ const NewClientDispatch = ({
     setGeneratedLink('');
     setCopied(false);
     setDuplicateAck(false);
+    setIncludePolicy(true);
     onClose();
   };
 
