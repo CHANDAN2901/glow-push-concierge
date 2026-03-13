@@ -241,7 +241,8 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         submittedAt: new Date().toISOString(),
         pushOptIn,
       };
-      await onComplete(data);
+      const result = await onComplete(data);
+      if (result?.clientId) setResultClientId(result.clientId);
       setShowThankYou(true);
     } catch (error: any) {
       console.error('Submit error:', error);
