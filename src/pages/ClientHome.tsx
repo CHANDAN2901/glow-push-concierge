@@ -367,6 +367,7 @@ const ClientHome = () => {
   const [artistInstagram, setArtistInstagram] = useState('');
   const [artistWaze, setArtistWaze] = useState('');
   const [artistBusinessPhone, setArtistBusinessPhone] = useState('');
+  const [artistFullName, setArtistFullName] = useState('');
 
   useEffect(() => {
     if (!artistProfileId) return;
