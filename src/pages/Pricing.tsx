@@ -405,6 +405,14 @@ const Pricing = () => {
                 <FomoBadge totalSpots={plan.total_promo_spots} takenSpots={vipTaken} isHe={isHe} />
               )}
 
+              {/* Price Lock Guarantee */}
+              <p className="text-center text-sm font-medium mb-4 px-2" style={{ color: '#8B6508' }}>
+                🔒 {isHe ? 'המחיר ננעל לך לכל החיים!' : 'Price locked forever!'}<br />
+                <span className="text-xs" style={{ color: '#999' }}>
+                  {isHe ? '(כל עוד המנוי נשאר פעיל)' : '(as long as your subscription stays active)'}
+                </span>
+              </p>
+
               {/* Pill CTA button */}
               <Link
                 to="/auth"
@@ -413,7 +421,8 @@ const Pricing = () => {
                   background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)',
                   color: '#FFFFFF',
                   borderRadius: '50px',
-                  boxShadow: '0 8px 24px rgba(212, 131, 143, 0.35), 0 0 16px rgba(216, 180, 180, 0.25)',
+                  border: '2px solid #EAB308',
+                  boxShadow: '0 8px 24px rgba(212, 131, 143, 0.35), 0 0 16px rgba(250, 204, 21, 0.25)',
                   textShadow: '0 1px 2px rgba(0,0,0,0.1)',
                 }}
               >
