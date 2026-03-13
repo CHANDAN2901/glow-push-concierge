@@ -146,28 +146,38 @@ const NewClientDispatch = ({
   };
 
   const handleSendWhatsApp = async () => {
-    if (!isValid) return;
+    if (!isValid || isSubmitting) return;
     if (isDuplicate && !duplicateAck) return;
-    const clientId = await ensureClientInDb();
-    const link = await buildShortLink(clientId);
-    const msg = buildMessage(link);
-    const url = buildWhatsAppUrl(phone, msg);
-    window.open(url, '_blank');
-    markDispatched(link);
+    setIsSubmitting(true);
+    try {
+      const clientId = await ensureClientInDb();
+      const link = await buildShortLink(clientId);
+      const msg = buildMessage(link);
+      const url = buildWhatsAppUrl(phone, msg);
+      window.open(url, '_blank');
+      markDispatched(link);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFillHere = async () => {
-    if (!isValid) return;
-    await ensureClientInDb();
-    const treatLabel = treatmentOptions.find(o => o.value === treatment);
-    onClientCreated({
-      name,
-      phone,
-      treatment: treatLabel ? (lang === 'en' ? treatLabel.en : treatLabel.he) : treatment,
-      link: '',
-    });
-    onFillHere(name, treatment);
-    handleClose();
+    if (!isValid || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await ensureClientInDb();
+      const treatLabel = treatmentOptions.find(o => o.value === treatment);
+      onClientCreated({
+        name,
+        phone,
+        treatment: treatLabel ? (lang === 'en' ? treatLabel.en : treatLabel.he) : treatment,
+        link: '',
+      });
+      onFillHere(name, treatment);
+      handleClose();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCopyLink = async () => {
