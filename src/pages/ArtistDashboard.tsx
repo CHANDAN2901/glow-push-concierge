@@ -76,6 +76,7 @@ import { Switch } from '@/components/ui/switch';
 import PremiumPolicySwitch from '@/components/PremiumPolicySwitch';
 import { useAuth } from '@/hooks/useAuth';
 import { getImpersonation } from '@/lib/impersonation';
+import { generateWhatsAppMessage, buildWhatsAppUrl } from '@/lib/whatsapp-messages';
 
 interface ClientEntry {
   dbId?: string;
@@ -1903,10 +1904,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       return;
                     }
                     const formLink = await buildHealthShortLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone, includePolicyShare);
-                    const msg = includePolicyShare
-                      ? `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`
-                      : `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`;
-                    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+                    const msg = generateWhatsAppMessage(selectedClient.name, formLink, includePolicyShare, artist);
+                    window.open(buildWhatsAppUrl(cleanPhone, msg), '_blank');
                   };
 
                   return (
@@ -1953,9 +1952,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   const waMsg = lang === 'en'
                     ? `Hi ${selectedClient.name} 💛\nHere's your personal client portal link:\n👇\n${clientZoneLink}\n\n${artist}`
                     : `היי ${selectedClient.name} 💛\nמצורף קישור אישי לאזור הלקוחה שלך:\n👇\n${clientZoneLink}\n\n${artist}`;
-                  const waUrl = hasPhone
-                    ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMsg)}`
-                    : `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
+                  const waUrl = buildWhatsAppUrl(cleanPhone, waMsg);
 
                   return (
                     <div

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { TREATMENT_OPTIONS } from '@/lib/treatment-options';
+import { generateWhatsAppMessage, buildWhatsAppUrl } from '@/lib/whatsapp-messages';
 import { Share2, Smartphone, Copy, Clock, CheckCircle, ArrowLeft, AlertTriangle, ScrollText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -127,16 +128,8 @@ const NewClientDispatch = ({
   const isValid = name.trim().length >= 2 && !!treatment;
 
   const buildMessage = (link: string) => {
-    const firstName = name.trim().split(/\s+/)[0];
-    const senderName = artistName || (lang === 'en' ? 'Your artist' : 'המטפלת שלך');
-    if (lang === 'en') {
-      return includePolicy
-        ? `Hello ${firstName}! Can't wait to see you! ✨\n\nHere's your personal link that includes our clinic policy and health declaration form:\n\n${link}\n\nSee you soon!\n\n${senderName} 💖`
-        : `Hello ${firstName}! Can't wait to see you! ✨\n\nFor your treatment, please fill out the health declaration form at the link below:\n\n${link}\n\nSee you soon!\n\n${senderName} 💖`;
-    }
-    return includePolicy
-      ? `שלום ${firstName} יקירה, מחכה לראותך! ✨\n\nמצורף קישור אישי הכולל את מדיניות הקליניקה וטופס הצהרת בריאות:\n\n${link}\n\nנתראה בקרוב!\n\n${senderName} 💖`
-      : `שלום ${firstName} יקירה, מחכה לראותך! ✨\n\nלצורך הטיפול, אנא מילאי הצהרת בריאות בקישור:\n\n${link}\n\nנתראה בקרוב!\n\n${senderName} 💖`;
+    const senderName = artistName || 'המטפלת שלך';
+    return generateWhatsAppMessage(name.trim(), link, includePolicy, senderName);
   };
 
   const markDispatched = (link: string) => {
@@ -151,28 +144,13 @@ const NewClientDispatch = ({
     });
   };
 
-  /** Format phone for wa.me: strip non-digits, replace leading 0 with 972 */
-  const formatPhoneForWhatsApp = (raw: string): string => {
-    let digits = raw.replace(/[^0-9]/g, '');
-    if (digits.startsWith('0')) {
-      digits = '972' + digits.slice(1);
-    }
-    return digits;
-  };
-
   const handleSendWhatsApp = async () => {
     if (!isValid) return;
     if (isDuplicate && !duplicateAck) return;
     const clientId = await ensureClientInDb();
     const link = await buildShortLink(clientId);
     const msg = buildMessage(link);
-
-    // Always open WhatsApp directly — no navigator.share interception
-    const encoded = encodeURIComponent(msg);
-    const waPhone = phone.trim() ? formatPhoneForWhatsApp(phone) : '';
-    const url = waPhone
-      ? `https://wa.me/${waPhone}?text=${encoded}`
-      : `https://wa.me/?text=${encoded}`;
+    const url = buildWhatsAppUrl(phone, msg);
     window.open(url, '_blank');
     markDispatched(link);
   };
