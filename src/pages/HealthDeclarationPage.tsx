@@ -175,7 +175,7 @@ const HealthDeclarationPage = () => {
     );
   }
 
-  // Token already used — show "already completed" message
+  // Token invalid or already used
   if (!tokenValid) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-6 text-center" dir="rtl">
@@ -183,13 +183,7 @@ const HealthDeclarationPage = () => {
           <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)' }}>
             <span className="text-2xl">✅</span>
           </div>
-          <h2 className="text-lg font-bold text-foreground">הצהרת הבריאות מולאה בהצלחה</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            הצהרת הבריאות מולאה ונשמרה בהצלחה. לכל שינוי או עדכון, אנא פני למאפרת שלך.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Health declaration was already submitted. For any changes, please contact your artist.
-          </p>
+          <h2 className="text-lg font-bold text-foreground">הטופס כבר מולא. לא ניתן למלא שוב.</h2>
         </div>
       </div>
     );
