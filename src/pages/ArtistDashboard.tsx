@@ -2434,19 +2434,17 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           ) : (() => {
                               const cleanPhone = client.phone ? formatPhone(client.phone) : '';
                               const hasPhone = cleanPhone.length > 0;
-                              const formLink = buildHealthFormLink(client.name, client.phone);
-                              const artist = artistName || 'האמנית שלך';
-                              const msg = `היי ${client.name}, אני ${artist} מחכה לראותך בסטודיו! ✨ כדי שנוכל להתחיל בטיפול בזמן, אשמח אם תחתמי על הצהרת הבריאות בקישור הבא:\n\n${formLink}`;
-                              const href = hasPhone
-                                ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
-                                : `https://wa.me/?text=${encodeURIComponent(msg)}`;
                               return (
-                                <a href={href} target="_blank" rel="noopener noreferrer"
-                                  onClick={(e) => { e.stopPropagation(); if (!hasPhone) { e.preventDefault(); toast({ title: 'חסר מספר טלפון ללקוחה זו', variant: 'destructive' }); } }}
+                                <button type="button"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (!hasPhone) { toast({ title: 'חסר מספר טלפון ללקוחה זו', variant: 'destructive' }); return; }
+                                    await sendHealthFormWhatsApp(client.name, client.phone, true, client.dbId);
+                                  }}
                                   className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
                                   style={{ background: 'linear-gradient(145deg, #E8A0B0, #D4838F)', color: '#fff', boxShadow: '0 4px 14px rgba(212, 131, 143, 0.3), 0 0 10px rgba(232, 160, 176, 0.15)' }}>
                                   <MessageCircle className="w-3 h-3" /> {lang === 'en' ? 'Health Declaration' : 'הצהרת בריאות'}
-                                </a>
+                                </button>
                               );
                             })()}
                           </FeatureGate>
