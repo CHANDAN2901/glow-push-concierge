@@ -361,8 +361,8 @@ const ClientHome = () => {
   // Voucher settings
   const [voucherTextHe, setVoucherTextHe] = useState('שלחי לחברה את הקוד שלך! היא תקבל 100 ש"ח הנחה לטיפול ראשון, ואת תקבלי 50 ש"ח קרדיט לטיפול החיזוק הבא שלך.');
   const [voucherTextEn, setVoucherTextEn] = useState('Send your code to a friend! She gets ₪100 off her first treatment, and you get ₪50 credit for your next touch-up.');
-  const [voucherWaHe, setVoucherWaHe] = useState('היי! 🎁 הנה קוד ההנחה שלי: [CODE] — תקבלי 100 ש"ח הנחה על הטיפול הראשון! ✨');
-  const [voucherWaEn, setVoucherWaEn] = useState('Hey! 🎁 Use my code [CODE] and get ₪100 off your first PMU treatment! ✨');
+  const [voucherWaHe, setVoucherWaHe] = useState(VOUCHER_DEFAULTS.voucher_wa_he);
+  const [voucherWaEn, setVoucherWaEn] = useState(VOUCHER_DEFAULTS.voucher_wa_en);
   const [artistInstagram, setArtistInstagram] = useState('');
   const [artistWaze, setArtistWaze] = useState('');
   const [artistBusinessPhone, setArtistBusinessPhone] = useState('');
