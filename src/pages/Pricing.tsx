@@ -350,10 +350,10 @@ const Pricing = () => {
               <div
                 className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-1.5 rounded-full text-sm font-black whitespace-nowrap tracking-wide"
                 style={{
-                  background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
-                  color: '#78350F',
-                  boxShadow: '0 4px 16px rgba(250, 204, 21, 0.5), 0 1px 4px rgba(0,0,0,0.1)',
-                  textShadow: '0 1px 0 rgba(255,255,255,0.4)',
+                  background: '#FFFFFF',
+                  color: ROSE_GOLD_METALLIC,
+                  border: `2px solid ${ROSE_GOLD_METALLIC}`,
+                  boxShadow: '0 4px 16px rgba(201, 149, 108, 0.35), 0 1px 4px rgba(0,0,0,0.06)',
                 }}
               >
                 🔥 {isHe ? 'מחיר השקה מיוחד!' : 'Special Launch Price!'}
