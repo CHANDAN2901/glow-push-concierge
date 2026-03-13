@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import HealthDeclaration from '@/components/HealthDeclaration';
 import type { HealthDeclarationData } from '@/components/HealthDeclaration';
 import { subscribeToPush } from '@/lib/push-utils';
-
+import ClinicPolicyAcknowledgment from '@/components/ClinicPolicyAcknowledgment';
+import { useI18n } from '@/lib/i18n';
 
 const HealthDeclarationPage = () => {
   const [searchParams] = useSearchParams();
