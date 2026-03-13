@@ -868,9 +868,18 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                         </button>
                       ) : apt.clientPhone ? (
                         <button
-                           onClick={(e) => { e.stopPropagation(); openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time); }}
-                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all active:scale-95"
-                          style={{ borderColor: '#D4AF37', color: '#4a3636', background: 'transparent' }}
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             openWhatsAppHealthForm(
+                               apt.clientName,
+                               apt.clientPhone,
+                               apt.date,
+                               apt.time,
+                               appointmentIncludePolicy[apt.id] ?? true,
+                             );
+                           }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all active:scale-95"
+                           style={{ borderColor: '#D4AF37', color: '#4a3636', background: 'transparent' }}
                         >
                           <ClipboardCheck className="w-3 h-3" />
                           {isHe ? 'שלח קישור' : 'Send Link'}
@@ -894,6 +903,25 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                   </div>
                 </div>
 
+                {apt.clientPhone && apt.healthFormStatus === 'pending' && (
+                  <div
+                    className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-secondary/60 px-3 py-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <label htmlFor={`include-policy-apt-${apt.id}`} className="text-[11px] font-semibold leading-snug text-foreground cursor-pointer">
+                      {isHe ? 'צרפי גם את מדיניות הקליניקה והסכם הטיפול' : 'Include Clinic Policy & Treatment Agreement'}
+                    </label>
+                    <Switch
+                      id={`include-policy-apt-${apt.id}`}
+                      checked={appointmentIncludePolicy[apt.id] ?? true}
+                      onCheckedChange={(checked) => {
+                        setAppointmentIncludePolicy(prev => ({ ...prev, [apt.id]: checked }));
+                      }}
+                      className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
+                    />
+                  </div>
+                )}
+
                 {/* Action buttons */}
                 {!isCompleted && (
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
@@ -908,7 +936,16 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     {/* WhatsApp health form send */}
                     {apt.clientPhone && apt.healthFormStatus === 'pending' && (
                       <button
-                        onClick={(e) => { e.stopPropagation(); openWhatsAppHealthForm(apt.clientName, apt.clientPhone, apt.date, apt.time); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openWhatsAppHealthForm(
+                            apt.clientName,
+                            apt.clientPhone,
+                            apt.date,
+                            apt.time,
+                            appointmentIncludePolicy[apt.id] ?? true,
+                          );
+                        }}
                         className="w-10 h-10 rounded-full flex items-center justify-center border border-[#D4AF37]/30 shadow-md transition-all active:scale-95 shrink-0"
                         style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295 80%)' }}
                         title={isHe ? 'שלח הצהרת בריאות בוואטסאפ' : 'Send health form via WhatsApp'}
