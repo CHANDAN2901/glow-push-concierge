@@ -55,7 +55,7 @@ const getStoredClientIdentity = () => {
 try {
   const url = new URL(window.location.href);
   const pathMatch = url.pathname.match(/^\/c\/([0-9a-f-]{36})$/i);
-  const cid = pathMatch?.[1] || url.searchParams.get('client_id') || url.searchParams.get('clientId');
+  const cid = pathMatch?.[1] || url.searchParams.get('client_id') || url.searchParams.get('clientId') || url.searchParams.get('id');
   const cname = url.searchParams.get('name') || url.searchParams.get('clientName');
   const cstart = url.searchParams.get('start');
   const ctreat = url.searchParams.get('treatment');
@@ -254,13 +254,13 @@ const ClientHome = () => {
   const navigate = useNavigate();
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  const urlClientId = pathClientId || searchParams.get('client_id') || searchParams.get('clientId') || '';
+  const urlClientId = pathClientId || searchParams.get('client_id') || searchParams.get('clientId') || searchParams.get('id') || '';
   const urlClientName = searchParams.get('name') || searchParams.get('clientName') || '';
   const fallbackName = lang === 'en' ? 'Client' : 'לקוחה';
 
   // Auto-redirect: if on /client with no identity in URL but localStorage has one, redirect to /c/:id
   useEffect(() => {
-    if (!pathClientId && !searchParams.get('client_id') && !searchParams.get('clientId')) {
+    if (!pathClientId && !searchParams.get('client_id') && !searchParams.get('clientId') && !searchParams.get('id')) {
       const { storedId } = getStoredClientIdentity();
       if (storedId && isUUID(storedId)) {
         const storedName = localStorage.getItem(LS_CLIENT_NAME) || '';
