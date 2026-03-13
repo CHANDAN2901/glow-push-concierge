@@ -147,10 +147,18 @@ export default function BonusCenter({ userProfileId, onNavigateToReferrals }: Bo
   const referralLink = `${window.location.origin}/auth?ref=${referralCode}`;
   const pendingTotal = pendingReferrals.length * BONUS_AMOUNT;
 
+  const buildVoucherMessage = () => {
+    const template = isHe ? voucherWaHe : voucherWaEn;
+    return template
+      .replace(/\[CODE\]/gi, referralCode)
+      .replace(/\{\{artist_name\}\}/gi, artistFullName || '')
+      .replace(/\{\{client_name\}\}/gi, '')
+      .replace(/\{\{link\}\}/gi, referralLink)
+      + (template.includes(referralLink) ? '' : `\n${referralLink}`);
+  };
+
   const copyAndShare = async () => {
-    const shareText = isHe
-      ? `היי! אני משתמשת ב-GlowPush לניהול הקליניקה שלי וזה פשוט מושלם. תירשמי דרך הקישור שלי ונוכל שתינו להנות מהטבות: את תקבלי גישה למערכת יוקרתית, ועל הדרך תעזרי לי להשיג מנוי בחינם! 😉 הנה הקישור: ${referralLink}`
-      : `Hey! I'm using GlowPush to manage my clinic and it's simply perfect. Sign up through my link and we can both enjoy benefits: you'll get access to a premium system, and help me get a free subscription! 😉 Here's the link: ${referralLink}`;
+    const shareText = buildVoucherMessage();
     await navigator.clipboard.writeText(shareText);
     setCopied(true);
     toast({ title: isHe ? 'הטקסט הועתק!' : 'Text copied!' });
@@ -158,9 +166,7 @@ export default function BonusCenter({ userProfileId, onNavigateToReferrals }: Bo
   };
 
   const shareWhatsApp = () => {
-    const message = isHe
-      ? `היי! אני משתמשת ב-GlowPush לניהול הקליניקה שלי וזה פשוט מושלם. תירשמי דרך הקישור שלי ונוכל שתינו להנות מהטבות: את תקבלי גישה למערכת יוקרתית, ועל הדרך תעזרי לי להשיג מנוי בחינם! 😉 הנה הקישור: ${referralLink}`
-      : `Hey! I'm using GlowPush to manage my clinic and it's simply perfect. Sign up through my link and we can both enjoy benefits: you'll get access to a premium system, and help me get a free subscription! 😉 Here's the link: ${referralLink}`;
+    const message = buildVoucherMessage();
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
