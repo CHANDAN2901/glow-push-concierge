@@ -256,9 +256,9 @@ function ClientProfileGallerySection({ resolvedClientId, resolvedArtistId }: { r
 
 const ClientProfile = () => {
   const { t, lang } = useI18n();
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const [notes, setNotes] = useState('');
-  const [isListening, setIsListening] = useState(false);
   const micRecognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isListeningRef = useRef(false);
