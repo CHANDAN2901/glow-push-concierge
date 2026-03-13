@@ -327,16 +327,24 @@ const ClientProfile = () => {
       });
   }, [client?.id, clientDbId]);
 
+  // Include policy toggle state
+  const [includePolicyCP, setIncludePolicyCP] = useState(true);
+
   // Health declaration WhatsApp link
   const healthDeclWhatsAppUrl = useMemo(() => {
     if (!intlPhone) return '#';
     const baseUrl = window.location.origin;
-    const declLink = `${baseUrl}/health-declaration?name=${encodeURIComponent(name)}&client_phone=${encodeURIComponent(phone)}&artist_id=${encodeURIComponent(resolvedArtistId)}`;
+    const policyParam = includePolicyCP ? '&include_policy=true' : '';
+    const declLink = `${baseUrl}/health-declaration?name=${encodeURIComponent(name)}&client_phone=${encodeURIComponent(phone)}&artist_id=${encodeURIComponent(resolvedArtistId)}${policyParam}`;
     const message = lang === 'en'
-      ? `Hi ${name} 💛\nPlease fill out the health declaration before your appointment 🩺✨\n${declLink}`
-      : `היי ${name} 💛\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺✨\n${declLink}`;
+      ? (includePolicyCP
+        ? `Hi ${name} 💛\nPlease review our clinic policy and fill out the health declaration before your appointment 🩺✨\n${declLink}`
+        : `Hi ${name} 💛\nPlease fill out the health declaration before your appointment 🩺✨\n${declLink}`)
+      : (includePolicyCP
+        ? `היי ${name} 💛\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות לפני התור 🩺✨\n${declLink}`
+        : `היי ${name} 💛\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺✨\n${declLink}`);
     return `https://wa.me/${intlPhone}?text=${encodeURIComponent(message)}`;
-  }, [intlPhone, name, phone, resolvedArtistId, lang]);
+  }, [intlPhone, name, phone, resolvedArtistId, lang, includePolicyCP]);
 
   // Journey timeline calculation
   const journeyTimeline = useMemo(() => {
