@@ -95,35 +95,31 @@ const NewClientDispatch = ({
     }
   };
 
-  /** Create a short form_link and return the short URL */
-  const buildShortLink = async (clientId?: string): Promise<string> => {
-    if (!artistProfileId) {
-      // Fallback: no artist profile, use inline params
-      const params = new URLSearchParams({ name, treatment });
-      return `${origin}/health-declaration?${params.toString()}`;
+  /** Create a short form_link with burn token and return the short URL */
+  const buildShortLink = async (clientId: string): Promise<string> => {
+    if (!artistProfileId || !clientId) {
+      throw new Error('Missing artist/client id for secure link');
     }
-    try {
-      const { data, error } = await supabase.from('form_links').insert({
-        artist_id: artistProfileId,
-        client_name: name,
-        client_phone: phone || null,
-        logo_url: logoUrl || null,
-        artist_phone: artistPhone ? formatPhone(artistPhone) : null,
-        treatment_type: treatment,
-        include_policy: includePolicy,
-        client_id: clientId || null,
-        artist_name: artistName || '',
-      } as any).select('code').single();
-      if (error) throw error;
-      return `${origin}/f/${data.code}`;
-    } catch (err) {
-      console.error('Failed to create short link:', err);
-      // Fallback to long URL
-      const params = new URLSearchParams({ name, treatment });
-      if (artistProfileId) params.set('artist_id', artistProfileId);
-      if (includePolicy) params.set('include_policy', 'true');
-      return `${origin}/health-declaration?${params.toString()}`;
+
+    const { data, error } = await supabase.from('form_links').insert({
+      artist_id: artistProfileId,
+      client_name: name,
+      client_phone: phone || null,
+      logo_url: logoUrl || null,
+      artist_phone: artistPhone ? formatPhone(artistPhone) : null,
+      treatment_type: treatment,
+      include_policy: includePolicy,
+      client_id: clientId,
+      artist_name: artistName || '',
+      is_token_used: false,
+    } as any).select('code, form_token').single();
+
+    if (error || !data?.code || !data?.form_token) {
+      throw error || new Error('Failed to create secure link token');
     }
+
+    const params = new URLSearchParams({ client_id: clientId, token: data.form_token as string });
+    return `${origin}/f/${data.code}?${params.toString()}`;
   };
 
   const isValid = name.trim().length >= 2 && !!treatment;
