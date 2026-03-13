@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronRight, ChevronLeft, FileText, Check, ArrowLeft, Eraser, Loader2, MapPin, CalendarPlus, Bell } from 'lucide-react';
+import { ChevronRight, ChevronLeft, FileText, Check, ArrowLeft, Eraser, Loader2, MapPin, CalendarPlus, Bell, Heart } from 'lucide-react';
 import { useClientHealthQuestions } from '@/hooks/useArtistHealthQuestions';
 import type { HealthQuestion } from '@/hooks/useHealthQuestions';
 import eyebrowHeroImg from '@/assets/eyebrow-hero.png';
