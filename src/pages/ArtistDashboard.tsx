@@ -781,19 +781,42 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     return getClientRiskLevel(name) === 'green';
   };
 
-  // Build unique health form link for a client
-  const buildHealthFormLink = (clientName: string, clientPhone?: string, includePolicy = true): string => {
+  // Build clean client zone link — just /c/{clientId}
+  const buildClientZoneLink = (clientId: string): string => {
+    return `${window.location.origin}/c/${clientId}`;
+  };
+
+  // Build short health declaration link via form_links table
+  const buildHealthShortLink = async (clientId: string, clientName: string, clientPhone?: string, includePolicy = true): Promise<string> => {
+    if (!userProfileId) {
+      return `${window.location.origin}/health-declaration?client_id=${clientId}`;
+    }
+    try {
+      const { data, error } = await supabase.from('form_links').insert({
+        artist_id: userProfileId,
+        client_name: clientName,
+        client_phone: clientPhone || null,
+        logo_url: logoUrl || null,
+        artist_phone: artistPhone ? formatPhone(artistPhone) : null,
+        treatment_type: '',
+        include_policy: includePolicy,
+        client_id: clientId,
+        artist_name: artistName || '',
+      } as any).select('code').single();
+      if (error) throw error;
+      return `${window.location.origin}/f/${data.code}`;
+    } catch (err) {
+      console.error('Failed to create short link:', err);
+      return `${window.location.origin}/health-declaration?client_id=${clientId}`;
+    }
+  };
+
+  // Legacy wrapper for preview button (no client id)
+  const buildHealthFormLink = (_clientName: string, _clientPhone?: string, includePolicy = true): string => {
     const baseUrl = window.location.origin;
     const params = new URLSearchParams();
     if (userProfileId) params.set('artist_id', userProfileId);
-    if (clientName) params.set('name', clientName);
-    if (clientPhone) params.set('client_phone', clientPhone);
-    if (logoUrl) params.set('logo', logoUrl);
-    if (instagramUrl) {
-      const igHandle = instagramUrl.replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/$/, '');
-      if (igHandle) params.set('ig', igHandle);
-    }
-    if (artistPhone) params.set('phone', formatPhone(artistPhone));
+    params.set('name', _clientName);
     if (includePolicy) params.set('include_policy', 'true');
     return `${baseUrl}/health-declaration?${params.toString()}`;
   };
@@ -1872,14 +1895,19 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
                   const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
                   const hasPhone = cleanPhone.length > 0;
-                  const formLink = buildHealthFormLink(selectedClient.name, selectedClient.phone, includePolicyShare);
                   const artist = artistName || 'האמנית שלך';
-                  const msg = includePolicyShare
-                    ? `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`
-                    : `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`;
-                  const href = hasPhone
-                    ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`
-                    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+                  const handleSendHealthWhatsApp = async () => {
+                    if (!hasPhone) {
+                      toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
+                      return;
+                    }
+                    const formLink = await buildHealthShortLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone, includePolicyShare);
+                    const msg = includePolicyShare
+                      ? `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`
+                      : `היי ${selectedClient.name} 💛\nאני ${artist}, ממש שמחה שקבענו תור!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${formLink}\n\nתודה מראש ונתראה בקרוב! ✨`;
+                    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+                  };
 
                   return (
                     <div className="space-y-3">
@@ -1897,17 +1925,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           onCheckedChange={setIncludePolicyShare}
                         />
                       </div>
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!hasPhone) {
-                            e.preventDefault();
-                            toast({ title: 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
-                          }
-                        }}
+                      <button
+                        type="button"
+                        onClick={handleSendHealthWhatsApp}
                         className="w-[85%] mx-auto flex items-center justify-center gap-2 py-3 rounded-full text-sm font-serif font-bold tracking-wide transition-all duration-300 active:scale-[0.96]"
                         style={{
                           background: 'linear-gradient(135deg, #c98a8a 0%, #b06e6e 40%, #a05e5e 100%)',
@@ -1918,7 +1938,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       >
                         <MessageCircle className="w-4 h-4" strokeWidth={2} />
                         {lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ'}
-                      </a>
+                      </button>
                     </div>
                   );
                 })()}
@@ -1926,7 +1946,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
                 {/* === Share Client Portal Link (toggle-independent) === */}
                 {(() => {
-                  const clientZoneLink = buildHealthFormLink(selectedClient.name, selectedClient.phone, false);
+                  const clientZoneLink = buildClientZoneLink(selectedClient.dbId || '');
                   const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
                   const hasPhone = cleanPhone.length > 0;
                   const artist = artistName || 'האמנית שלך';
