@@ -196,19 +196,20 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
         boxShadow: '0 6px 30px -6px rgba(212, 175, 55, 0.2)',
       }}
     >
-      {(plan.badge_he || plan.badge_en) && (
-        <div className="absolute top-0 left-0 right-0 flex justify-center">
-          <span
-            className="px-4 py-1 text-[11px] font-bold rounded-b-xl"
-            style={{
-              background: 'linear-gradient(135deg, #B8860B, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B)',
-              color: '#fff',
-            }}
-          >
-            {isHe ? plan.badge_he : plan.badge_en}
-          </span>
-        </div>
-      )}
+      {/* Launch Price Badge */}
+      <div className="absolute top-0 left-0 right-0 flex justify-center">
+        <span
+          className="px-5 py-1.5 text-[11px] font-black rounded-b-xl tracking-wide"
+          style={{
+            background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
+            color: '#78350F',
+            boxShadow: '0 4px 16px rgba(250, 204, 21, 0.5), 0 1px 4px rgba(0,0,0,0.1)',
+            textShadow: '0 1px 0 rgba(255,255,255,0.4)',
+          }}
+        >
+          {isHe ? '🔥 מחיר השקה מיוחד!' : '🔥 Special Launch Price!'}
+        </span>
+      </div>
 
       <div className="flex items-center gap-3 pt-4">
         <div
