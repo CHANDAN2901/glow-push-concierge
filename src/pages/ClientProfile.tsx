@@ -259,7 +259,7 @@ const ClientProfile = () => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const [notes, setNotes] = useState('');
-  const micRecognitionRef = useRef<any>(null);
+  const [isListening, setIsListening] = useState(false);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isListeningRef = useRef(false);
 
