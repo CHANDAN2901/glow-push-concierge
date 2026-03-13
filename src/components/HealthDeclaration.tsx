@@ -43,7 +43,7 @@ export interface HealthDeclarationData {
 interface Props {
   clientName?: string;
   clientPhone?: string;
-  onComplete: (data: HealthDeclarationData) => void;
+  onComplete: (data: HealthDeclarationData) => Promise<any> | void;
   onClose: () => void;
   readOnly?: boolean;
   existingData?: HealthDeclarationData | null;
