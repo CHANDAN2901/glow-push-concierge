@@ -94,6 +94,10 @@ const MarketingPricing = ({ isHe, user }: Props) => {
               ))}
             </ul>
 
+            <p className="text-center text-xs font-medium mb-4" style={{ color: '#8B6508' }}>
+              {isHe ? '🔒 המחיר ננעל לך לכל החיים! (כל עוד המנוי נשאר פעיל)' : '🔒 Price locked forever! (as long as your subscription stays active)'}
+            </p>
+
             <Link
               to={user ? '/artist' : '/auth'}
               className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold rounded-2xl transition-all hover:shadow-xl active:scale-[0.97]"
