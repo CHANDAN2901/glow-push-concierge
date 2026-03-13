@@ -119,7 +119,7 @@ const HealthDeclarationPage = () => {
           medicalConsentAt: data.medicalConsentAt,
         },
         signatureDataUrl: data.signatureDataUrl,
-        formToken: formToken || null,
+        formToken: token || null,
       },
     });
     if (error) {
