@@ -2361,11 +2361,29 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                     {birthdayWeek && <span className="ml-1">🎂</span>}
                                     {needsRenewal && <span className="ml-1">🔄</span>}
                                     {client.name}
-                                    {hasSignedDeclaration(client.name) ? (
-                                      <CheckCircle className="w-3 h-3 inline-block mr-1 text-green-500" />
-                                    ) : (
-                                      <AlertTriangle className="w-2.5 h-2.5 inline-block mr-1 text-muted-foreground/40" />
+                                  </p>
+                                  <div className="flex items-center gap-1 mt-0.5">
+                                    {hasSignedDeclaration(client.name) ? (() => {
+                                      const risk = getClientRiskLevel(client.name);
+                                      const color = risk === 'red' ? '#ef4444' : risk === 'yellow' ? '#eab308' : '#22c55e';
+                                      const label = risk === 'red'
+                                        ? (lang === 'en' ? 'Warning' : 'התוויית נגד')
+                                        : risk === 'yellow'
+                                          ? (lang === 'en' ? 'Attention' : 'דורש תשומת לב')
+                                          : (lang === 'en' ? 'Clear' : 'תקין');
+                                      return (
+                                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-bold" style={{ background: `${color}18`, color, border: `1px solid ${color}40` }}>
+                                          {risk === 'green' ? <ShieldCheck className="w-2.5 h-2.5" /> : <AlertTriangle className="w-2.5 h-2.5" />}
+                                          {label}
+                                        </span>
+                                      );
+                                    })() : (
+                                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-medium" style={{ background: 'rgba(156,163,175,0.1)', color: '#9ca3af', border: '1px solid rgba(156,163,175,0.25)' }}>
+                                        <Clock className="w-2.5 h-2.5" />
+                                        {lang === 'en' ? 'Pending' : 'ממתין'}
+                                      </span>
                                     )}
+                                  </div>
                                   </p>
                                   <p className="text-[10px] leading-tight" style={{ color: '#8c6a6a' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
                                 </div>
