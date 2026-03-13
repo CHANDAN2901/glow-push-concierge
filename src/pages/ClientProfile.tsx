@@ -329,6 +329,7 @@ const ClientProfile = () => {
       });
   }, [client?.id, clientDbId]);
 
+  const [includePolicyCP, setIncludePolicyCP] = useState(true);
   const [sendingHealthForm, setSendingHealthForm] = useState(false);
 
   const sendHealthDeclarationWhatsApp = async () => {
