@@ -181,18 +181,23 @@ const NewClientDispatch = ({
   };
 
   const handleCopyLink = async () => {
-    if (!isValid) return;
+    if (!isValid || isSubmitting) return;
     if (isDuplicate && !duplicateAck) return;
-    let link = generatedLink;
-    if (!link) {
-      const clientId = await ensureClientInDb();
-      link = await buildShortLink(clientId);
-      markDispatched(link);
+    setIsSubmitting(true);
+    try {
+      let link = generatedLink;
+      if (!link) {
+        const clientId = await ensureClientInDb();
+        link = await buildShortLink(clientId);
+        markDispatched(link);
+      }
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      toast({ title: lang === 'en' ? 'Link copied!' : 'הקישור הועתק!' });
+      setTimeout(() => setCopied(false), 2000);
+    } finally {
+      setIsSubmitting(false);
     }
-    await navigator.clipboard.writeText(link);
-    setCopied(true);
-    toast({ title: lang === 'en' ? 'Link copied!' : 'הקישור הועתק!' });
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleClose = () => {
