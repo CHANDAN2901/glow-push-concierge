@@ -147,6 +147,11 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
     if (step === 3 && canvasRef.current) {
       setTimeout(initCanvas, 50);
     }
+    // Scroll to top on step change
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Also reset any scrollable container
+    const container = document.getElementById('main-scroll-container');
+    if (container) container.scrollTop = 0;
   }, [step, initCanvas]);
 
   const getPos = (e: React.TouchEvent | React.MouseEvent) => {
