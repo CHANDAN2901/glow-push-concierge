@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import PremiumPolicySwitch from '@/components/PremiumPolicySwitch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -294,11 +295,10 @@ const NewClientDispatch = ({
                 {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
               </label>
             </div>
-            <Switch
+            <PremiumPolicySwitch
               id="include-policy"
               checked={includePolicy}
               onCheckedChange={setIncludePolicy}
-              className="data-[state=checked]:bg-[#B8860B] data-[state=unchecked]:bg-[#d8b4b4]/40"
             />
           </div>
 

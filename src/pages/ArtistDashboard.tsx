@@ -73,6 +73,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { extractEdgeFunctionError, isPushSubscriptionExpired } from '@/lib/edge-function-errors';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
+import PremiumPolicySwitch from '@/components/PremiumPolicySwitch';
 import { useAuth } from '@/hooks/useAuth';
 import { getImpersonation } from '@/lib/impersonation';
 
@@ -1939,11 +1940,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                             {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
                           </label>
                         </div>
-                        <Switch
+                        <PremiumPolicySwitch
                           id="include-policy-dashboard"
                           checked={includePolicyShare}
                           onCheckedChange={setIncludePolicyShare}
-                          className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
                         />
                       </div>
 

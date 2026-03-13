@@ -7,6 +7,7 @@ import {
   ShieldCheck, AlertTriangle, AlertCircle, ScrollText,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import PremiumPolicySwitch from '@/components/PremiumPolicySwitch';
 import DeclarationViewer from '@/components/DeclarationViewer';
 import { useHealthQuestions } from '@/hooks/useHealthQuestions';
 import {
@@ -565,11 +566,10 @@ const ClientProfile = () => {
                     {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
                   </label>
                 </div>
-                <Switch
+                <PremiumPolicySwitch
                   id="include-policy-cp"
                   checked={includePolicyCP}
                   onCheckedChange={setIncludePolicyCP}
-                  className="data-[state=checked]:bg-[#B8860B] data-[state=unchecked]:bg-[#d8b4b4]/40"
                 />
               </div>
               <a
