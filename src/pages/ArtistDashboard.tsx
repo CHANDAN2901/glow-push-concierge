@@ -1907,10 +1907,16 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
                 {/* === Share Client Portal Link === */}
                 {(() => {
-                  const clientLink = selectedClient.link || `${origin}/c/${encodeURIComponent(selectedClient.dbId || '')}?name=${encodeURIComponent(selectedClient.name)}&treatment=${encodeURIComponent(selectedClient.treatment || '')}&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`;
+                  const healthLink = buildHealthFormLink(selectedClient.name, selectedClient.phone, includePolicyShare);
                   const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
                   const hasPhone = cleanPhone.length > 0;
-                  const waMsg = `היי ${selectedClient.name} 💛\nמצורף הקישור האישי שלך לאזור הלקוחות שלנו.\nתוכלי לראות שם את מסע ההחלמה שלך ולמלא את הצהרת הבריאות:\n👇\n${clientLink}`;
+                  const waMsg = lang === 'en'
+                    ? (includePolicyShare
+                      ? `Hi ${selectedClient.name} 💛\nPlease review the clinic policy and fill out your health declaration before the appointment:\n👇\n${healthLink}`
+                      : `Hi ${selectedClient.name} 💛\nPlease fill out your health declaration before the appointment:\n👇\n${healthLink}`)
+                    : (includePolicyShare
+                      ? `היי ${selectedClient.name} 💛\nמצורף קישור לצפייה במדיניות הקליניקה והסכם הטיפול ולמילוי הצהרת הבריאות:\n👇\n${healthLink}`
+                      : `היי ${selectedClient.name} 💛\nמצורף קישור למילוי הצהרת בריאות:\n👇\n${healthLink}`);
                   const waUrl = hasPhone
                     ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMsg)}`
                     : `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
@@ -1926,6 +1932,21 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         boxShadow: '0 4px 20px rgba(216, 180, 180, 0.15)',
                       }}
                     >
+                      <div className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-secondary/60 px-3 py-2.5">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <ScrollText className="w-4 h-4 shrink-0 text-primary" />
+                          <label htmlFor="include-policy-dashboard" className="text-xs font-bold leading-snug cursor-pointer text-foreground">
+                            {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
+                          </label>
+                        </div>
+                        <Switch
+                          id="include-policy-dashboard"
+                          checked={includePolicyShare}
+                          onCheckedChange={setIncludePolicyShare}
+                          className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
+                        />
+                      </div>
+
                       <p className="text-xs font-semibold tracking-wide text-center" style={{ color: '#9a8585' }}>
                         {lang === 'en' ? '🔗 Client Portal Link' : '🔗 קישור לאזור הלקוחה'}
                       </p>
@@ -1951,10 +1972,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         <button
                           onClick={async () => {
                             try {
-                              await navigator.clipboard.writeText(clientLink);
+                              await navigator.clipboard.writeText(healthLink);
                               toast({ title: lang === 'en' ? 'Link copied! ✨' : 'הקישור הועתק בהצלחה! ✨' });
                             } catch {
-                              window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', clientLink);
+                              window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', healthLink);
                             }
                           }}
                           className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
