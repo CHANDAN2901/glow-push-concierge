@@ -352,13 +352,7 @@ const ClientHome = () => {
   const artistPhone = searchParams.get('phone') || '';
   const artistProfileId = searchParams.get('artist_id') || localStorage.getItem(LS_ARTIST_ID) || '';
 
-  /** Format any phone for wa.me: strip non-digits, replace leading 0 with 972 */
-  const waPhone = useMemo(() => {
-    const raw = artistBusinessPhone || artistPhone || '';
-    let digits = raw.replace(/[^0-9]/g, '');
-    if (digits.startsWith('0')) digits = '972' + digits.slice(1);
-    return digits;
-  }, [artistBusinessPhone, artistPhone]);
+
 
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useHealingPhases(treatment);
   const { promo } = usePromoSettings(artistProfileId || undefined);
