@@ -923,7 +923,7 @@ const ClientHome = () => {
             </a>
             {/* WhatsApp */}
             <a
-              href={`https://wa.me/${artistBusinessPhone || artistPhone || ''}`}
+              href={`https://wa.me/${waPhone}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all hover:scale-[1.03] active:scale-[0.97] client-glass-card"
