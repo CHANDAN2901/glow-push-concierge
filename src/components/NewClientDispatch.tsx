@@ -188,6 +188,7 @@ const NewClientDispatch = ({
       let link = generatedLink;
       if (!link) {
         const clientId = await ensureClientInDb();
+        if (!clientId) throw new Error('Failed to create client record');
         link = await buildShortLink(clientId);
         markDispatched(link);
       }
@@ -195,6 +196,9 @@ const NewClientDispatch = ({
       setCopied(true);
       toast({ title: lang === 'en' ? 'Link copied!' : 'הקישור הועתק!' });
       setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy secure form link:', err);
+      toast({ title: lang === 'en' ? 'Failed to create secure link' : 'שגיאה ביצירת קישור מאובטח', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }

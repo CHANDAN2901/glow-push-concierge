@@ -787,29 +787,31 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     return `${window.location.origin}/c/${clientId}`;
   };
 
-  // Build short health declaration link via form_links table
+  // Build short health declaration link via tokenized form_links table
   const buildHealthShortLink = async (clientId: string, clientName: string, clientPhone?: string, includePolicy = true): Promise<string> => {
-    if (!userProfileId) {
-      return `${window.location.origin}/health-declaration?client_id=${clientId}`;
+    if (!userProfileId || !clientId) {
+      throw new Error('Missing profile/client id for secure link generation');
     }
-    try {
-      const { data, error } = await supabase.from('form_links').insert({
-        artist_id: userProfileId,
-        client_name: clientName,
-        client_phone: clientPhone || null,
-        logo_url: logoUrl || null,
-        artist_phone: artistPhone ? formatPhone(artistPhone) : null,
-        treatment_type: '',
-        include_policy: includePolicy,
-        client_id: clientId,
-        artist_name: artistName || '',
-      } as any).select('code').single();
-      if (error) throw error;
-      return `${window.location.origin}/f/${data.code}`;
-    } catch (err) {
-      console.error('Failed to create short link:', err);
-      return `${window.location.origin}/health-declaration?client_id=${clientId}`;
+
+    const { data, error } = await supabase.from('form_links').insert({
+      artist_id: userProfileId,
+      client_name: clientName,
+      client_phone: clientPhone || null,
+      logo_url: logoUrl || null,
+      artist_phone: artistPhone ? formatPhone(artistPhone) : null,
+      treatment_type: '',
+      include_policy: includePolicy,
+      client_id: clientId,
+      artist_name: artistName || '',
+      is_token_used: false,
+    } as any).select('code, form_token').single();
+
+    if (error || !data?.code || !data?.form_token) {
+      throw error || new Error('Failed to create secure form token');
     }
+
+    const qp = new URLSearchParams({ client_id: clientId, token: data.form_token as string });
+    return `${window.location.origin}/f/${data.code}?${qp.toString()}`;
   };
 
   // Legacy wrapper for preview button (no client id)
@@ -828,17 +830,23 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       toast({ title: lang === 'en' ? 'Cannot send — phone number missing for this client. Please update her details.' : 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
       return;
     }
-    const artist = artistName || 'האמנית שלך';
-    let link: string;
-    if (clientDbId && userProfileId) {
-      link = await buildHealthShortLink(clientDbId, clientName, clientPhone, includePolicy);
-    } else {
-      link = buildHealthFormLink(clientName, clientPhone, includePolicy);
+
+    if (!clientDbId || !userProfileId) {
+      toast({ title: lang === 'en' ? 'Cannot send secure link yet. Please save client first.' : 'לא ניתן לשלוח קישור מאובטח עדיין. שמרי קודם את פרטי הלקוחה.', variant: 'destructive' });
+      return;
     }
-    const msg = generateWhatsAppMessage(clientName, link, includePolicy, artist);
-    const url = buildWhatsAppUrl(clientPhone, msg);
-    window.open(url, '_blank');
-    toast({ title: 'הודעה נשלחה בהצלחה ✉️' });
+
+    try {
+      const artist = artistName || 'האמנית שלך';
+      const link = await buildHealthShortLink(clientDbId, clientName, clientPhone, includePolicy);
+      const msg = generateWhatsAppMessage(clientName, link, includePolicy, artist);
+      const url = buildWhatsAppUrl(clientPhone, msg);
+      window.open(url, '_blank');
+      toast({ title: 'הודעה נשלחה בהצלחה ✉️' });
+    } catch (err) {
+      console.error('Failed to generate secure health form link:', err);
+      toast({ title: lang === 'en' ? 'Failed to create secure link' : 'שגיאה ביצירת קישור מאובטח', variant: 'destructive' });
+    }
   };
 
   // Approve medical exception — persist to DB
