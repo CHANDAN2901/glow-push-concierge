@@ -1275,6 +1275,7 @@ const ClientHome = () => {
 
       {/* Policy Modal */}
       <ClinicPolicyViewer open={showPolicyModal} onClose={() => setShowPolicyModal(false)} artistProfileId={artistProfileId || undefined} />
+      <HealthDeclarationReadOnly open={showHealthDeclModal} onOpenChange={setShowHealthDeclModal} clientId={clientId || ''} artistProfileId={artistProfileId || ''} />
     </div>
   );
 };
