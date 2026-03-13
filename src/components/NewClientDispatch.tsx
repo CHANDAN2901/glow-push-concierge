@@ -147,11 +147,15 @@ const NewClientDispatch = ({
     setIsSubmitting(true);
     try {
       const clientId = await ensureClientInDb();
+      if (!clientId) throw new Error('Failed to create client record');
       const link = await buildShortLink(clientId);
       const msg = buildMessage(link);
       const url = buildWhatsAppUrl(phone, msg);
       window.open(url, '_blank');
       markDispatched(link);
+    } catch (err) {
+      console.error('Failed to send secure WhatsApp form link:', err);
+      toast({ title: lang === 'en' ? 'Failed to create secure link' : 'שגיאה ביצירת קישור מאובטח', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
