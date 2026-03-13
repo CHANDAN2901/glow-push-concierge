@@ -73,9 +73,16 @@ const MarketingPricing = ({ isHe, user }: Props) => {
               GlowPush Premium
             </h3>
 
-            <div className="flex items-baseline justify-center gap-1 mb-8">
-              <span className="text-5xl font-serif font-bold" style={{ color: '#333333' }}>$29</span>
-              <span style={{ color: '#999999' }}>{isHe ? '/חודש' : '/mo'}</span>
+            <div className="flex flex-col items-center mb-8">
+              <span className="text-lg line-through" style={{ color: '#aaa' }}>
+                {isHe ? '₪199 / חודש' : '$59 /mo'}
+              </span>
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-5xl font-serif font-bold" style={{ color: '#333333' }}>
+                  {isHe ? '₪99' : '$29'}
+                </span>
+                <span style={{ color: '#999999' }}>{isHe ? '/חודש' : '/mo'}</span>
+              </div>
             </div>
 
             <ul className="space-y-3.5 mb-10 text-start">
