@@ -260,6 +260,7 @@ const ClientProfile = () => {
   const [searchParams] = useSearchParams();
   const [notes, setNotes] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const micRecognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isListeningRef = useRef(false);
 
