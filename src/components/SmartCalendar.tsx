@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import {
   ChevronLeft, ChevronRight, Plus, Check, Clock, Phone,
   ClipboardCheck, AlertTriangle, Sparkles, X, CalendarDays,
-  MessageSquare, Eye, MessageCircle,
+  MessageSquare, Eye, MessageCircle, ScrollText,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
