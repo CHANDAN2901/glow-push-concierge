@@ -19,7 +19,8 @@ const HealthDeclarationPage = () => {
   const appointmentTime = searchParams.get('time') || '';
   const isPreview = searchParams.get('preview') === 'true';
   const includePolicy = searchParams.get('include_policy') === 'true';
-  const formToken = searchParams.get('form_token') || '';
+  const token = searchParams.get('token') || searchParams.get('form_token') || '';
+  const urlClientId = searchParams.get('client_id') || '';
   const { lang } = useI18n();
 
   const [isArtist, setIsArtist] = useState(false);
@@ -35,33 +36,43 @@ const HealthDeclarationPage = () => {
     });
   }, []);
 
-  // Validate form_token if present
+  // Validate burn token (single-use)
   useEffect(() => {
-    if (!formToken || isPreview) {
+    if (isPreview) {
       setTokenChecked(true);
       setTokenValid(true);
+      return;
+    }
+
+    if (!token) {
+      setTokenChecked(true);
+      setTokenValid(false);
       return;
     }
 
     const validate = async () => {
       const { data, error } = await supabase
         .from('form_links')
-        .select('is_completed')
-        .eq('code', formToken)
+        .select('client_id, is_token_used, is_completed')
+        .or(`form_token.eq.${token},code.eq.${token}`)
         .maybeSingle();
 
       if (error || !data) {
         setTokenValid(false);
-      } else if ((data as any).is_completed) {
-        setTokenValid(false);
-      } else {
-        setTokenValid(true);
+        setTokenChecked(true);
+        return;
       }
+
+      const used = Boolean((data as any).is_token_used || (data as any).is_completed);
+      const tokenClientId = (data as any).client_id as string | null;
+      const clientMismatch = Boolean(urlClientId && tokenClientId && urlClientId !== tokenClientId);
+
+      setTokenValid(!used && !clientMismatch);
       setTokenChecked(true);
     };
 
     validate();
-  }, [formToken, isPreview]);
+  }, [token, urlClientId, isPreview]);
 
   const requestPushSubscription = async (clientId: string) => {
     try {
@@ -108,7 +119,7 @@ const HealthDeclarationPage = () => {
           medicalConsentAt: data.medicalConsentAt,
         },
         signatureDataUrl: data.signatureDataUrl,
-        formToken: formToken || null,
+        formToken: token || null,
       },
     });
     if (error) {
@@ -164,7 +175,7 @@ const HealthDeclarationPage = () => {
     );
   }
 
-  // Token already used — show "already completed" message
+  // Token invalid or already used
   if (!tokenValid) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-6 text-center" dir="rtl">
@@ -172,13 +183,7 @@ const HealthDeclarationPage = () => {
           <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)' }}>
             <span className="text-2xl">✅</span>
           </div>
-          <h2 className="text-lg font-bold text-foreground">הצהרת הבריאות מולאה בהצלחה</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            הצהרת הבריאות מולאה ונשמרה בהצלחה. לכל שינוי או עדכון, אנא פני למאפרת שלך.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Health declaration was already submitted. For any changes, please contact your artist.
-          </p>
+          <h2 className="text-lg font-bold text-foreground">הטופס כבר מולא. לא ניתן למלא שוב.</h2>
         </div>
       </div>
     );

@@ -314,44 +314,88 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     return digits.startsWith('0') ? '972' + digits.slice(1) : digits;
   };
 
-  const getHealthFormLink = (clientName?: string, clientPhone?: string, includePolicy = true) => {
+  const getSecureHealthFormLink = async (clientName?: string, clientPhone?: string, includePolicy = true): Promise<string> => {
+    if (!artistProfileId) throw new Error('Missing artist profile id');
+
+    let resolvedClientId: string | null = null;
+
+    if (clientPhone) {
+      const { data: byPhone } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('artist_id', artistProfileId)
+        .eq('phone', clientPhone)
+        .limit(1)
+        .maybeSingle();
+      if (byPhone?.id) resolvedClientId = byPhone.id;
+    }
+
+    if (!resolvedClientId && clientName) {
+      const { data: byName } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('artist_id', artistProfileId)
+        .eq('full_name', clientName)
+        .limit(1)
+        .maybeSingle();
+      if (byName?.id) resolvedClientId = byName.id;
+    }
+
+    if (!resolvedClientId) {
+      throw new Error('Client must be saved before sending secure form link');
+    }
+
+    const { data, error } = await supabase
+      .from('form_links')
+      .insert({
+        artist_id: artistProfileId,
+        client_name: clientName || '',
+        client_phone: clientPhone || null,
+        logo_url: logoUrl || null,
+        include_policy: includePolicy,
+        client_id: resolvedClientId,
+        is_token_used: false,
+      } as any)
+      .select('code, form_token')
+      .single();
+
+    const token = (data as any)?.form_token as string | undefined;
+    if (error || !data?.code || !token) {
+      throw error || new Error('Failed to generate secure token link');
+    }
+
     const base = window.location.origin;
-    const params = new URLSearchParams();
-    if (artistProfileId) params.set('artist_id', artistProfileId);
-    if (clientName) params.set('name', clientName);
-    if (clientPhone) params.set('client_phone', clientPhone);
-    if (logoUrl) params.set('logo', logoUrl);
-    if (includePolicy) params.set('include_policy', 'true');
-    return `${base}/health-declaration?${params.toString()}`;
+    const params = new URLSearchParams({ client_id: resolvedClientId, token });
+    return `${base}/f/${data.code}?${params.toString()}`;
   };
 
-  const openWhatsAppHealthForm = (name: string, phone: string, date: string, time: string, includePolicy = true) => {
+  const openWhatsAppHealthForm = async (name: string, phone: string, date: string, time: string, includePolicy = true) => {
     if (!phone) {
       toast({ title: isHe ? 'לא ניתן לשלוח — חסר מספר טלפון' : 'Cannot send — phone number missing', variant: 'destructive' });
       return;
     }
-    const formattedDate = new Date(date).toLocaleDateString('he-IL');
-    const link = getHealthFormLink(name, phone, includePolicy);
-    const artistDisplayName = isHe ? 'האמנית שלך' : 'your artist';
-    const text = isHe
-      ? (includePolicy
-        ? `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨`
-        : `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨`)
-      : (includePolicy
-        ? `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nPlease review our clinic policy and fill out the health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`
-        : `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nBefore the treatment, please fill out a brief health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`);
-    const waUrl = `https://wa.me/${formatPhoneForWA(phone)}?text=${encodeURIComponent(text)}`;
-    window.open(waUrl, '_blank');
-    toast({ title: isHe ? 'הודעה נשלחה בהצלחה ✉️' : 'Message sent successfully ✉️' });
+
+    try {
+      const formattedDate = new Date(date).toLocaleDateString('he-IL');
+      const link = await getSecureHealthFormLink(name, phone, includePolicy);
+      const artistDisplayName = isHe ? 'האמנית שלך' : 'your artist';
+      const text = isHe
+        ? (includePolicy
+          ? `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨`
+          : `היי ${name} 💛\nאני ${artistDisplayName}, ממש שמחה שקבענו תור ב-${formattedDate} בשעה ${time}!\n\nלפני הטיפול, חשוב למלא הצהרת בריאות קצרה 🩺\nזה לוקח פחות מדקה:\n👇\n${link}\n\nתודה מראש ונתראה בקרוב! ✨`)
+        : (includePolicy
+          ? `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nPlease review our clinic policy and fill out the health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`
+          : `Hi ${name} 💛\nI'm ${artistDisplayName}, so excited about your appointment on ${formattedDate} at ${time}!\n\nBefore the treatment, please fill out a brief health declaration 🩺\nIt takes less than a minute:\n👇\n${link}\n\nThank you and see you soon! ✨`);
+      const waUrl = `https://wa.me/${formatPhoneForWA(phone)}?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank');
+      toast({ title: isHe ? 'הודעה נשלחה בהצלחה ✉️' : 'Message sent successfully ✉️' });
+    } catch (err) {
+      console.error('Failed to send secure health declaration link:', err);
+      toast({ title: isHe ? 'שגיאה ביצירת קישור מאובטח' : 'Failed to create secure link', variant: 'destructive' });
+    }
   };
 
-  const isTomorrow = (dateStr: string) => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return dateStr === tomorrow.toISOString().split('T')[0];
-  };
-
-  const sendReminder = (apt: Appointment) => {
+  const sendReminder = async (apt: Appointment) => {
     if (!apt.clientPhone) {
       toast({ title: isHe ? 'לא ניתן לשלוח — חסר מספר טלפון' : 'Cannot send — phone number missing', variant: 'destructive' });
       return;
@@ -359,14 +403,28 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     let text = isHe
       ? `היי ${apt.clientName}, מזכירה לך את התור שלנו מחר ב-${apt.time}. מחכה לראותך! ✨`
       : `Hey ${apt.clientName}, just a reminder about your appointment tomorrow at ${apt.time}. Can't wait to see you! ✨`;
+
     if (apt.healthFormStatus === 'pending') {
-      const link = getHealthFormLink(apt.clientName, apt.clientPhone);
-      text += isHe
-        ? `\n\nשימי לב שטרם מילאת את הצהרת הבריאות, אנא עשי זאת כעת בקישור:\n${link}`
-        : `\n\nPlease note you haven't filled out the health declaration yet. Please do so now:\n${link}`;
+      try {
+        const link = await getSecureHealthFormLink(apt.clientName, apt.clientPhone);
+        text += isHe
+          ? `\n\nשימי לב שטרם מילאת את הצהרת הבריאות, אנא עשי זאת כעת בקישור:\n${link}`
+          : `\n\nPlease note you haven't filled out the health declaration yet. Please do so now:\n${link}`;
+      } catch (err) {
+        console.error('Failed to generate secure reminder link:', err);
+        toast({ title: isHe ? 'שגיאה ביצירת קישור מאובטח' : 'Failed to create secure link', variant: 'destructive' });
+        return;
+      }
     }
+
     const waUrl = `https://wa.me/${formatPhoneForWA(apt.clientPhone)}?text=${encodeURIComponent(text)}`;
     window.open(waUrl, '_blank');
+  };
+
+  const isTomorrow = (dateStr: string) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return dateStr === tomorrow.toISOString().split('T')[0];
   };
 
   const handleAppointmentCardClick = async (apt: Appointment) => {

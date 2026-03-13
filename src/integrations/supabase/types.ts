@@ -455,10 +455,12 @@ export type Database = {
           client_phone: string | null
           code: string
           created_at: string
+          form_token: string
           id: string
           include_policy: boolean | null
           instagram_handle: string | null
           is_completed: boolean
+          is_token_used: boolean
           logo_url: string | null
           treatment_type: string | null
         }
@@ -471,10 +473,12 @@ export type Database = {
           client_phone?: string | null
           code?: string
           created_at?: string
+          form_token?: string
           id?: string
           include_policy?: boolean | null
           instagram_handle?: string | null
           is_completed?: boolean
+          is_token_used?: boolean
           logo_url?: string | null
           treatment_type?: string | null
         }
@@ -487,10 +491,12 @@ export type Database = {
           client_phone?: string | null
           code?: string
           created_at?: string
+          form_token?: string
           id?: string
           include_policy?: boolean | null
           instagram_handle?: string | null
           is_completed?: boolean
+          is_token_used?: boolean
           logo_url?: string | null
           treatment_type?: string | null
         }

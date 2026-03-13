@@ -256,6 +256,7 @@ function ClientProfileGallerySection({ resolvedClientId, resolvedArtistId }: { r
 
 const ClientProfile = () => {
   const { t, lang } = useI18n();
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const [notes, setNotes] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -328,24 +329,62 @@ const ClientProfile = () => {
       });
   }, [client?.id, clientDbId]);
 
-  // Include policy toggle state
   const [includePolicyCP, setIncludePolicyCP] = useState(true);
+  const [sendingHealthForm, setSendingHealthForm] = useState(false);
 
-  // Health declaration WhatsApp link
-  const healthDeclWhatsAppUrl = useMemo(() => {
-    if (!intlPhone) return '#';
-    const baseUrl = window.location.origin;
-    const policyParam = includePolicyCP ? '&include_policy=true' : '';
-    const declLink = `${baseUrl}/health-declaration?name=${encodeURIComponent(name)}&client_phone=${encodeURIComponent(phone)}&artist_id=${encodeURIComponent(resolvedArtistId)}${policyParam}`;
-    const message = lang === 'en'
-      ? (includePolicyCP
-        ? `Hi ${name} 💛\nPlease review our clinic policy and fill out the health declaration before your appointment 🩺✨\n${declLink}`
-        : `Hi ${name} 💛\nPlease fill out the health declaration before your appointment 🩺✨\n${declLink}`)
-      : (includePolicyCP
-        ? `היי ${name} 💛\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות לפני התור 🩺✨\n${declLink}`
-        : `היי ${name} 💛\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺✨\n${declLink}`);
-    return `https://wa.me/${intlPhone}?text=${encodeURIComponent(message)}`;
-  }, [intlPhone, name, phone, resolvedArtistId, lang, includePolicyCP]);
+  const sendHealthDeclarationWhatsApp = async () => {
+    if (!intlPhone || !resolvedArtistId) {
+      toast({ title: lang === 'en' ? 'Cannot send secure link yet' : 'לא ניתן לשלוח קישור מאובטח כרגע', variant: 'destructive' });
+      return;
+    }
+
+    const resolvedClientDbId = client?.id || clientDbId;
+    if (!resolvedClientDbId) {
+      toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה לפני השליחה', variant: 'destructive' });
+      return;
+    }
+
+    setSendingHealthForm(true);
+    try {
+      const { data, error } = await supabase
+        .from('form_links')
+        .insert({
+          artist_id: resolvedArtistId,
+          client_name: name,
+          client_phone: phone || null,
+          include_policy: includePolicyCP,
+          client_id: resolvedClientDbId,
+          is_token_used: false,
+        } as any)
+        .select('code, form_token')
+        .single();
+
+      const token = (data as any)?.form_token as string | undefined;
+      if (error || !data?.code || !token) {
+        throw error || new Error('Failed to generate secure token');
+      }
+
+      const baseUrl = window.location.origin;
+      const secureParams = new URLSearchParams({ client_id: resolvedClientDbId, token });
+      const declLink = `${baseUrl}/f/${data.code}?${secureParams.toString()}`;
+
+      const message = lang === 'en'
+        ? (includePolicyCP
+          ? `Hi ${name} 💛\nPlease review our clinic policy and fill out the health declaration before your appointment 🩺✨\n${declLink}`
+          : `Hi ${name} 💛\nPlease fill out the health declaration before your appointment 🩺✨\n${declLink}`)
+        : (includePolicyCP
+          ? `היי ${name} 💛\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות לפני התור 🩺✨\n${declLink}`
+          : `היי ${name} 💛\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺✨\n${declLink}`);
+
+      window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(message)}`, '_blank');
+      toast({ title: lang === 'en' ? 'Message sent successfully ✉️' : 'הודעה נשלחה בהצלחה ✉️' });
+    } catch (err) {
+      console.error('Failed to send secure health declaration link:', err);
+      toast({ title: lang === 'en' ? 'Failed to create secure link' : 'שגיאה ביצירת קישור מאובטח', variant: 'destructive' });
+    } finally {
+      setSendingHealthForm(false);
+    }
+  };
 
   // Journey timeline calculation
   const journeyTimeline = useMemo(() => {
@@ -572,16 +611,17 @@ const ClientProfile = () => {
                   onCheckedChange={setIncludePolicyCP}
                 />
               </div>
-              <a
-                href={healthDeclWhatsAppUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90"
+              <button
+                onClick={sendHealthDeclarationWhatsApp}
+                disabled={sendingHealthForm}
+                className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 disabled:opacity-60"
                 style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
               >
                 <Send className="w-4 h-4" />
-                {lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ'}
-              </a>
+                {sendingHealthForm
+                  ? (lang === 'en' ? 'Sending...' : 'שולחת...')
+                  : (lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ')}
+              </button>
             </>
           ) : (
             /* State B: Submitted */

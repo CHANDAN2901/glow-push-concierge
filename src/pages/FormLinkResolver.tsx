@@ -1,27 +1,45 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 const FormLinkResolver = () => {
   const { code } = useParams<{ code: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [error, setError] = useState(false);
   const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
-    if (!code) { setError(true); return; }
+    if (!code) {
+      setError(true);
+      return;
+    }
+
+    const providedToken = searchParams.get('token') || '';
+    const providedClientId = searchParams.get('client_id') || '';
 
     const resolve = async () => {
       const { data, error: err } = await supabase
         .from('form_links')
-        .select('*')
+        .select('code, form_token, client_id, artist_id, client_name, client_phone, treatment_type, artist_phone, logo_url, artist_name, include_policy, is_token_used, is_completed')
         .eq('code', code)
         .maybeSingle();
 
-      if (err || !data) { setError(true); return; }
+      if (err || !data) {
+        setError(true);
+        return;
+      }
 
-      // Check if already completed (single-use link)
-      if ((data as any).is_completed) {
+      const dbToken = (data as any).form_token as string | null;
+      const tokenUsed = Boolean((data as any).is_token_used || (data as any).is_completed);
+
+      // If caller provides token, it must match the generated DB token
+      if (providedToken && dbToken && providedToken !== dbToken) {
+        setError(true);
+        return;
+      }
+
+      if (tokenUsed) {
         setCompleted(true);
         return;
       }
@@ -36,16 +54,19 @@ const FormLinkResolver = () => {
       if (data.logo_url) params.set('logo', data.logo_url || '');
       if ((data as any).artist_name) params.set('artist', (data as any).artist_name);
       if ((data as any).include_policy) params.set('include_policy', 'true');
-      if ((data as any).client_id) params.set('client_id', (data as any).client_id);
-      params.set('start', new Date().toISOString().split('T')[0]);
-      // Pass the form_link code as token for single-use validation
-      params.set('form_token', code);
 
+      const resolvedClientId = ((data as any).client_id as string | null) || providedClientId;
+      if (resolvedClientId) params.set('client_id', resolvedClientId);
+
+      const resolvedToken = dbToken || providedToken;
+      if (resolvedToken) params.set('token', resolvedToken);
+
+      params.set('start', new Date().toISOString().split('T')[0]);
       navigate(`/health-declaration?${params.toString()}`, { replace: true });
     };
 
     resolve();
-  }, [code, navigate]);
+  }, [code, navigate, searchParams]);
 
   if (completed) {
     return (
@@ -54,13 +75,7 @@ const FormLinkResolver = () => {
           <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)' }}>
             <span className="text-2xl">✅</span>
           </div>
-          <h2 className="text-lg font-bold text-foreground">הצהרת הבריאות מולאה בהצלחה</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            הצהרת הבריאות מולאה ונשמרה בהצלחה. לכל שינוי או עדכון, אנא פני למאפרת שלך.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Health declaration was already submitted. For any changes, please contact your artist.
-          </p>
+          <h2 className="text-lg font-bold text-foreground">הטופס כבר מולא. לא ניתן למלא שוב.</h2>
         </div>
       </div>
     );

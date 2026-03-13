@@ -11,7 +11,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { artistProfileId, fullName, phone, birthDate, formData, signatureDataUrl, formToken } = await req.json();
+    const { artistProfileId, fullName, phone, birthDate, formData, signatureDataUrl, formToken, token } = await req.json();
+    const submittedToken = token || formToken;
 
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -22,67 +23,91 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (!submittedToken) {
+      return new Response(
+        JSON.stringify({ error: "הקישור לא תקין — חסר טוקן אבטחה. פני למטפלת לקבלת קישור חדש." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Validate form token if provided (single-use link check)
-    if (formToken) {
-      const { data: linkData, error: linkErr } = await supabase
-        .from("form_links")
-        .select("id, is_completed")
-        .eq("code", formToken)
-        .maybeSingle();
+    // Validate single-use token
+    const { data: linkData, error: linkErr } = await supabase
+      .from("form_links")
+      .select("id, artist_id, client_id, form_token, code, is_token_used, is_completed")
+      .or(`form_token.eq.${submittedToken},code.eq.${submittedToken}`)
+      .maybeSingle();
 
-      if (linkErr || !linkData) {
-        return new Response(
-          JSON.stringify({ error: "קישור לא תקין או שפג תוקפו. פני למטפלת לקבלת קישור חדש." }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+    if (linkErr || !linkData) {
+      return new Response(
+        JSON.stringify({ error: "קישור לא תקין או שפג תוקפו. פני למטפלת לקבלת קישור חדש." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-      if (linkData.is_completed) {
-        return new Response(
-          JSON.stringify({ error: "הצהרת הבריאות כבר מולאה דרך קישור זה. פני למטפלת לקבלת קישור חדש." }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+    if (linkData.artist_id !== artistProfileId) {
+      return new Response(
+        JSON.stringify({ error: "הקישור לא שייך למטפלת זו." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (linkData.is_token_used || linkData.is_completed) {
+      return new Response(
+        JSON.stringify({ error: "הטופס כבר מולא. לא ניתן למלא שוב." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Find or create client
-    const { data: existingClients } = await supabase
-      .from("clients")
-      .select("id")
-      .eq("artist_id", artistProfileId)
-      .eq("full_name", fullName)
-      .limit(1);
-
     let clientId: string;
 
-    if (existingClients && existingClients.length > 0) {
-      clientId = existingClients[0].id;
-      const updates: Record<string, string> = {};
+    if (linkData.client_id) {
+      clientId = linkData.client_id;
+
+      const updates: Record<string, string | null> = {
+        full_name: fullName,
+      };
       if (phone) updates.phone = phone;
       if (birthDate) updates.birth_date = birthDate;
-      if (Object.keys(updates).length > 0) {
-        await supabase.from("clients").update(updates).eq("id", clientId);
-      }
-    } else {
-      const { data: newClient, error: clientErr } = await supabase
-        .from("clients")
-        .insert({
-          artist_id: artistProfileId,
-          full_name: fullName,
-          phone: phone || null,
-          birth_date: birthDate || null,
-          treatment_date: new Date().toISOString().split("T")[0],
-        })
-        .select("id")
-        .single();
 
-      if (clientErr) throw clientErr;
-      clientId = newClient.id;
+      await supabase.from("clients").update(updates).eq("id", clientId);
+    } else {
+      const { data: existingClients } = await supabase
+        .from("clients")
+        .select("id")
+        .eq("artist_id", artistProfileId)
+        .eq("full_name", fullName)
+        .limit(1);
+
+      if (existingClients && existingClients.length > 0) {
+        clientId = existingClients[0].id;
+        const updates: Record<string, string> = {};
+        if (phone) updates.phone = phone;
+        if (birthDate) updates.birth_date = birthDate;
+        if (Object.keys(updates).length > 0) {
+          await supabase.from("clients").update(updates).eq("id", clientId);
+        }
+      } else {
+        const { data: newClient, error: clientErr } = await supabase
+          .from("clients")
+          .insert({
+            artist_id: artistProfileId,
+            full_name: fullName,
+            phone: phone || null,
+            birth_date: birthDate || null,
+            treatment_date: new Date().toISOString().split("T")[0],
+          })
+          .select("id")
+          .single();
+
+        if (clientErr) throw clientErr;
+        clientId = newClient.id;
+      }
     }
 
     // Save health declaration
@@ -99,12 +124,20 @@ Deno.serve(async (req) => {
 
     if (declErr) throw declErr;
 
-    // Burn the token — mark form_link as completed
-    if (formToken) {
-      await supabase
-        .from("form_links")
-        .update({ is_completed: true })
-        .eq("code", formToken);
+    // VERY LAST step: burn token after successful save
+    const { data: burned, error: burnErr } = await supabase
+      .from("form_links")
+      .update({ is_token_used: true, is_completed: true })
+      .eq("id", linkData.id)
+      .eq("is_token_used", false)
+      .select("id")
+      .maybeSingle();
+
+    if (burnErr || !burned) {
+      return new Response(
+        JSON.stringify({ error: "הטופס כבר מולא. לא ניתן למלא שוב." }),
+        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     return new Response(
