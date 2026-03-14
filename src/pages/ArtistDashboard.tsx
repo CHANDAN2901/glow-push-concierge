@@ -2694,6 +2694,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             artistName={artistName || 'האמנית שלך'}
             onBack={() => setHealingJourneyClient(null)}
             waSentLog={waSentLog}
+            clientId={(healingJourneyClient as any)?.dbId || null}
             onSendWhatsApp={(day, msg) => {
               const cleanPhone = healingJourneyClient.phone ? formatPhone(healingJourneyClient.phone) : '';
               const encoded = encodeURIComponent(msg);
