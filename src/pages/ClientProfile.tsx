@@ -252,7 +252,12 @@ function FinishTreatmentCTA({ client, clientDbId, lang, onTreatmentStarted }: {
   const [done, setDone] = useState(false);
 
   const resolvedId = client?.id || clientDbId;
-  const alreadyHasDate = !!client?.treatment_date;
+  const alreadyHasDate = !!(
+    client?.treatment_date &&
+    client.treatment_date !== '' &&
+    client.treatment_date !== 'null' &&
+    !Number.isNaN(new Date(client.treatment_date).getTime())
+  );
 
   const handleFinishTreatment = async () => {
     if (!resolvedId) {
