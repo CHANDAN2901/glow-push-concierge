@@ -15,6 +15,7 @@ interface TimelineStep {
   instructionEn: string;
   col: number;
   row: number;
+  imageUrl?: string | null;
 }
 
 function phasesToSteps(phases: HealingPhase[]): TimelineStep[] {
@@ -31,6 +32,7 @@ function phasesToSteps(phases: HealingPhase[]): TimelineStep[] {
       instructionEn: p.steps_en.join(' ') || p.title_en,
       col,
       row,
+      imageUrl: p.image_url,
     };
   });
 }
@@ -266,6 +268,13 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                       : 'none',
                   }}
                 >
+                {step.imageUrl ? (
+                  <img
+                    src={step.imageUrl}
+                    alt={isHe ? step.dayLabel : step.dayLabelEn}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
                   <div
                     className="w-full h-full"
                     style={{
@@ -274,6 +283,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                       backgroundPosition: `${step.col * 50}% ${step.row * 100}%`,
                     }}
                   />
+                )}
                 </div>
 
                 {/* Status indicator */}

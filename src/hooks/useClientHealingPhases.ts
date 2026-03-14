@@ -33,12 +33,33 @@ export function useClientHealingPhases(
   const [isClientSpecific, setIsClientSpecific] = useState(false);
 
   useEffect(() => {
-    if (!clientId) {
-      setPhases([]);
+    // If no clientId, fall back directly to global healing_phases
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!clientId || !UUID_RE.test(clientId)) {
+      let cancelled = false;
+      setLoading(true);
       setError(null);
       setIsClientSpecific(false);
-      setLoading(false);
-      return;
+
+      restSelect<HealingPhase>(
+        'healing_phases',
+        `treatment_type=eq.${treatment}&order=sort_order.asc`
+      )
+        .then((globalPhases) => {
+          if (!cancelled) {
+            setPhases(globalPhases);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            console.error('Failed to fetch global healing phases:', err);
+            setError(err?.message || 'Failed to load');
+            setLoading(false);
+          }
+        });
+
+      return () => { cancelled = true; };
     }
 
     let cancelled = false;
@@ -66,6 +87,7 @@ export function useClientHealingPhases(
               steps_he: cp.steps_he,
               steps_en: cp.steps_en,
               sort_order: cp.sort_order,
+              image_url: cp.image_url,
             }))
           );
           setIsClientSpecific(true);
