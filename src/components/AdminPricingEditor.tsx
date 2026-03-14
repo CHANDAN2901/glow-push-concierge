@@ -267,6 +267,24 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
+                <label className="text-sm font-medium mb-1 block">💰 מחיר מקורי / מחוק (₪)</label>
+                <Input
+                  type="number"
+                  value={plan.original_price_monthly}
+                  onChange={(e) => updatePlan(plan.id, 'original_price_monthly', Number(e.target.value))}
+                  placeholder="199"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">💰 Original Price USD ($)</label>
+                <Input
+                  type="number"
+                  value={plan.original_price_usd}
+                  onChange={(e) => updatePlan(plan.id, 'original_price_usd', Number(e.target.value))}
+                  placeholder="59"
+                />
+              </div>
+              <div>
                 <label className="text-sm font-medium mb-1 block">סדר תצוגה</label>
                 <Input
                   type="number"
