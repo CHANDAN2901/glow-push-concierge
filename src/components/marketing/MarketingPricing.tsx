@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Check, Star } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
+import { usePricingPlans } from '@/hooks/usePricingPlans';
 
 interface Props {
   isHe: boolean;
@@ -8,27 +9,13 @@ interface Props {
 }
 
 const MarketingPricing = ({ isHe, user }: Props) => {
-  const features = isHe
-    ? [
-        'ניהול לקוחות ללא הגבלה',
-        'הצהרות בריאות דיגיטליות',
-        'גלריה אישית לכל לקוחה',
-        'קולאז׳ לפני/אחרי עם AI',
-        'מסע החלמה מותאם אישית',
-        'תזכורות וואטסאפ אוטומטיות',
-        'כרטיס דיגיטלי מקצועי',
-        'תמיכה ועדכונים שוטפים',
-      ]
-    : [
-        'Unlimited client management',
-        'Digital health declarations',
-        'Personal gallery per client',
-        'AI-powered Before & After collage',
-        'Custom healing journey tracker',
-        'Automated WhatsApp reminders',
-        'Professional digital card',
-        'Ongoing support & updates',
-      ];
+  const { data: plans = [] } = usePricingPlans();
+
+  // Use the highlighted plan's features, or fall back to first plan
+  const mainPlan = plans.find(p => p.is_highlighted) || plans[0];
+  const features = mainPlan
+    ? (isHe ? mainPlan.features_he : mainPlan.features_en)
+    : [];
 
   return (
     <section id="pricing" className="py-28 bg-white">
