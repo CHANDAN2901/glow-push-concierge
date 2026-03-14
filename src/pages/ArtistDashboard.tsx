@@ -1090,8 +1090,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       return;
     }
     try {
-      const msgName = name || (lang === 'en' ? 'there' : 'מותק');
-      const message = `היי ${msgName}! ✨ האפליקציה האישית שלך להחלמה מושלמת מוכנה. הנה הקישור שלך:\n\n${link} ✍️`;
+      const firstName = (name || '').split(' ')[0] || (lang === 'en' ? 'there' : 'מותק');
+      const message = `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול! כדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות: ${link}\n\nמחכה לראות את התוצאה הסופית! באהבה, ${artistName || 'אורית אהרוני'} - Glow Push 🤍`;
       const encoded = encodeURIComponent(message);
       if (phone && phone.trim()) {
         const cleanPhone = formatPhone(phone);
