@@ -1974,73 +1974,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 })()}
                 </FeatureGate>
 
-                {/* === Share Client Portal Link (toggle-independent) === */}
-                {(() => {
-                  const clientZoneLink = buildClientZoneLink(selectedClient.dbId || '');
-                  const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
-                  const hasPhone = cleanPhone.length > 0;
-                  const artist = artistName || 'האמנית שלך';
-                  const waMsg = lang === 'en'
-                    ? `Hi ${selectedClient.name} 💛\nHere's your personal client portal link:\n👇\n${clientZoneLink}\n\n${artist}`
-                    : `היי ${selectedClient.name} 💛\nמצורף קישור אישי לאזור הלקוחה שלך:\n👇\n${clientZoneLink}\n\n${artist}`;
-                  const waUrl = buildWhatsAppUrl(cleanPhone, waMsg);
-
-                  return (
-                    <div
-                      className="rounded-2xl overflow-hidden p-4 space-y-3 transition-all hover:shadow-lg"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.55)',
-                        backdropFilter: 'blur(16px)',
-                        WebkitBackdropFilter: 'blur(16px)',
-                        border: '1.5px solid rgba(216, 180, 180, 0.4)',
-                        boxShadow: '0 4px 20px rgba(216, 180, 180, 0.15)',
-                      }}
-                    >
-                      <p className="text-xs font-semibold tracking-wide text-center" style={{ color: '#9a8585' }}>
-                        {lang === 'en' ? '🔗 Client Portal Link' : '🔗 קישור לאזור הלקוחה'}
-                      </p>
-                      <div className="flex gap-2">
-                        {/* WhatsApp button — always standard client zone link */}
-                        <a
-                          href={waUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => {
-                            if (!hasPhone) {
-                              e.preventDefault();
-                              toast({ title: lang === 'en' ? 'No phone number set for this client' : 'לא הוגדר מספר טלפון ללקוחה זו', variant: 'destructive' });
-                            }
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
-                          style={{ background: '#25D366', color: '#ffffff', boxShadow: '0 4px 18px rgba(37, 211, 102, 0.35)' }}
-                        >
-                          <MessageCircle className="w-4 h-4" strokeWidth={2} />
-                          {lang === 'en' ? 'WhatsApp' : 'וואטסאפ'}
-                        </a>
-                        {/* Copy Link button — always standard client zone link */}
-                        <button
-                          onClick={async () => {
-                            try {
-                              await navigator.clipboard.writeText(clientZoneLink);
-                              toast({ title: lang === 'en' ? 'Link copied! ✨' : 'הקישור הועתק בהצלחה! ✨' });
-                            } catch {
-                              window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', clientZoneLink);
-                            }
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
-                          style={{
-                            background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                            color: '#4a3636',
-                            boxShadow: '0 4px 18px rgba(212,175,55,0.35)',
-                          }}
-                        >
-                          <Copy className="w-4 h-4" strokeWidth={2} style={{ color: '#4a3636' }} />
-                          {lang === 'en' ? 'Copy Link' : 'העתקת קישור'}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })()}
+                {/* Share card moved below Finish Treatment CTA */}
 
                 {/* === Manual Treatment Date (with clear failsafe) === */}
                 <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
