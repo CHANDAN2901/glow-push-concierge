@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
             full_name: fullName,
             phone: phone || null,
             birth_date: birthDate || null,
-            treatment_date: new Date().toISOString().split("T")[0],
+            treatment_date: null,
           })
           .select("id")
           .single();
