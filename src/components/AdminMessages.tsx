@@ -237,24 +237,23 @@ export default function AdminMessages() {
       if (activeTab === 'healing') {
         for (const phase of phases) {
           const draft = phaseDrafts[phase.id];
-          const newSteps: string[] = [];
-          for (let d = phase.day_start; d <= phase.day_end; d++) {
-            if (dayDrafts[d]?.trim()) {
-              newSteps.push(...dayDrafts[d].split('\n').filter(Boolean));
-            }
-          }
+          if (!draft) continue;
 
-          let imageUrl = draft?.image_url || phase.image_url || null;
-          if (draft?.imageFile) {
+          const stepsHe = draft.steps_he.split('\n').filter(l => l.trim());
+          const stepsEn = draft.steps_en.split('\n').filter(l => l.trim());
+
+          let imageUrl = draft.image_url || phase.image_url || null;
+          if (draft.imageFile) {
             imageUrl = await uploadPhaseImage(phase.id, draft.imageFile);
           }
 
           await supabase
             .from('healing_phases')
             .update({
-              steps_he: newSteps,
-              title_he: draft?.title_he ?? phase.title_he,
-              title_en: draft?.title_en ?? phase.title_en,
+              steps_he: stepsHe,
+              steps_en: stepsEn,
+              title_he: draft.title_he,
+              title_en: draft.title_en,
               image_url: imageUrl,
             })
             .eq('id', phase.id);
