@@ -8,6 +8,8 @@ export interface PricingPlan {
   name_he: string;
   price_monthly: number;
   price_usd: number;
+  original_price_monthly: number;
+  original_price_usd: number;
   currency: string;
   is_highlighted: boolean;
   badge_en: string | null;

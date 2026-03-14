@@ -171,6 +171,8 @@ export default function AdminPricingEditor() {
               cta_he: plan.cta_he,
               sort_order: plan.sort_order,
               total_promo_spots: plan.total_promo_spots,
+              original_price_monthly: plan.original_price_monthly,
+              original_price_usd: plan.original_price_usd,
             } as any)
             .eq('id', plan.id);
 
@@ -264,6 +266,24 @@ export default function AdminPricingEditor() {
                   type="number"
                   value={plan.price_usd}
                   onChange={(e) => updatePlan(plan.id, 'price_usd', Number(e.target.value))}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">💰 מחיר מקורי / מחוק (₪)</label>
+                <Input
+                  type="number"
+                  value={plan.original_price_monthly}
+                  onChange={(e) => updatePlan(plan.id, 'original_price_monthly', Number(e.target.value))}
+                  placeholder="199"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">💰 Original Price USD ($)</label>
+                <Input
+                  type="number"
+                  value={plan.original_price_usd}
+                  onChange={(e) => updatePlan(plan.id, 'original_price_usd', Number(e.target.value))}
+                  placeholder="59"
                 />
               </div>
               <div>

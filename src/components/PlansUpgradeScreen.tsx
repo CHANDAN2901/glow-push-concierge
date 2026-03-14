@@ -221,9 +221,11 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
         <div>
           <h2 className="font-bold text-foreground text-base">{name}</h2>
           <div className="flex flex-col mt-0.5">
-            <span className="text-sm line-through" style={{ color: '#999' }}>
-              {isHe ? `₪${Math.round(plan.price_monthly * 2)} / חודש` : `$${Math.round(plan.price_usd * 2)} /mo`}
-            </span>
+            {plan.original_price_monthly > 0 && (
+              <span className="text-sm line-through" style={{ color: '#999' }}>
+                {isHe ? `₪${Math.round(plan.original_price_monthly)} / חודש` : `$${Math.round(plan.original_price_usd)} /mo`}
+              </span>
+            )}
             <div className="flex items-baseline gap-1.5">
               <span
                 className="text-2xl font-bold bg-clip-text text-transparent"

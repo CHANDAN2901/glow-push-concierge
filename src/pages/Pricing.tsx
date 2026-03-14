@@ -120,6 +120,7 @@ const Pricing = () => {
         slug: db.slug,
         name: { en: db.name_en, he: db.name_he },
         price: { ils: db.price_monthly, usd: db.price_usd },
+        originalPrice: { ils: db.original_price_monthly, usd: db.original_price_usd },
         isHighlighted: db.is_highlighted,
         badge: db.badge_en || db.badge_he ? { en: db.badge_en || '', he: db.badge_he || '' } : null,
         stripe_price_id: db.stripe_price_id,
@@ -365,9 +366,11 @@ const Pricing = () => {
               </div>
 
               <div className="flex flex-col items-center justify-center mb-8">
-                <span className="line-through text-lg mb-1" style={{ color: '#999' }}>
-                  {isHe ? `₪${Math.round(plan.price.ils * 2)} / חודש` : `$${Math.round(plan.price.usd * 2)} / month`}
-                </span>
+                {plan.originalPrice.ils > 0 && (
+                  <span className="line-through text-lg mb-1" style={{ color: '#999' }}>
+                    {isHe ? `₪${Math.round(plan.originalPrice.ils)} / חודש` : `$${Math.round(plan.originalPrice.usd)} / month`}
+                  </span>
+                )}
                 <div className="flex items-baseline gap-1.5">
                   <span
                     className="text-5xl font-serif font-bold"
