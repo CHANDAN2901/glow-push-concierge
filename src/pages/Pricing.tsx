@@ -347,11 +347,11 @@ const Pricing = () => {
                 <div
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-1.5 rounded-full text-sm font-black whitespace-nowrap tracking-wide"
                   style={{
-                    background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
-                    color: '#78350F',
-                    border: '1px solid #EAB308',
-                    boxShadow: '0 4px 16px rgba(250, 204, 21, 0.5), 0 1px 4px rgba(0,0,0,0.1)',
-                    textShadow: '0 1px 0 rgba(255,255,255,0.4)',
+                    background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%)',
+                    color: '#FFFFFF',
+                    border: '1.5px solid rgba(216, 180, 180, 0.6)',
+                    boxShadow: '0 4px 18px rgba(216, 180, 180, 0.45), 0 2px 8px rgba(201, 160, 160, 0.3)',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.15)',
                   }}
                 >
                   👑 {isHe ? 'המשתלם ביותר' : 'Best Value'}
