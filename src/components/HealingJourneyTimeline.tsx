@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
 import { useToast } from '@/hooks/use-toast';
-import { useHealingPhases, HealingPhase } from '@/hooks/useHealingPhases';
+import { useClientHealingPhases } from '@/hooks/useClientHealingPhases';
+import type { HealingPhase } from '@/hooks/useHealingPhases';
 
 interface TimelineStep {
   day: number;
