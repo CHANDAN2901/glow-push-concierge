@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Save, Loader2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { restSelect } from '@/lib/supabase-rest';
+import { isLegacyTimelineOverride } from '@/lib/timeline-overrides';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';

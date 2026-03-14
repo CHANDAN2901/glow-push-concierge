@@ -3,6 +3,7 @@ import { Save, Loader2, Sparkles, Plus, Trash2, GripVertical } from 'lucide-reac
 import healingCharsImg from '@/assets/healing-characters.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import { restSelect } from '@/lib/supabase-rest';
+import { isLegacyTimelineOverride } from '@/lib/timeline-overrides';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';

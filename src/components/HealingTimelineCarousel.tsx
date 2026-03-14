@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
+import { isLegacyTimelineOverride } from '@/lib/timeline-overrides';
 import { useClientHealingPhases } from '@/hooks/useClientHealingPhases';
 import type { HealingPhase } from '@/hooks/useHealingPhases';
 import healingCharsImg from '@/assets/healing-characters.jpg';
