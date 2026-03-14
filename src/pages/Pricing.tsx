@@ -314,7 +314,8 @@ const Pricing = () => {
           const isElite = plan.isHighlighted;
 
           const isVip = plan.slug === 'vip-3year';
-          const monthlyEquivalent = isVip ? Math.round(plan.price.ils / 12) : 0;
+          const monthlyEquivalentIls = isVip ? Math.round(plan.price.ils / 12) : 0;
+          const monthlyEquivalentUsd = isVip ? Math.round(plan.price.usd / 12) : 0;
 
           return (
             <>
@@ -408,7 +409,7 @@ const Pricing = () => {
                         filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
                       }}
                     >
-                      ₪{monthlyEquivalent}
+                      {isHe ? `₪${monthlyEquivalentIls}` : `$${monthlyEquivalentUsd}`}
                     </span>
                     <span className="text-lg" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
                       {isHe ? '/ לחודש' : '/ month'}
