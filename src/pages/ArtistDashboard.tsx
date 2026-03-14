@@ -340,8 +340,54 @@ const setSelectedClient = useCallback((clientOrUpdater: ClientEntry | null | ((p
 
 useEffect(() => {
   setIncludePolicyShare(true);
-  setFinishTreatmentDone(!!selectedClient?.treatmentDate);
-}, [selectedClient?.dbId, selectedClient?.name]);
+  const strictDone = hasRealTreatmentDate(selectedClient?.treatmentDate);
+  setFinishTreatmentDone(strictDone);
+  setManualTreatmentDate(strictDone ? (selectedClient?.treatmentDate as string) : '');
+}, [selectedClient?.dbId, selectedClient?.treatmentDate]);
+
+const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) => {
+  const clientId = selectedClient?.dbId;
+  if (!clientId) {
+    toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה קודם', variant: 'destructive' });
+    return;
+  }
+
+  const normalizedDate = nextDate && nextDate.trim() ? nextDate : null;
+  setUpdatingTreatmentDate(true);
+  try {
+    const { error } = await supabase
+      .from('clients')
+      .update({ treatment_date: normalizedDate })
+      .eq('id', clientId);
+
+    if (error) throw error;
+
+    const strictDone = hasRealTreatmentDate(normalizedDate);
+    const day = strictDone ? calcRecoveryDay(normalizedDate as string) : 0;
+
+    setSelectedClient(prev => prev && prev.dbId === clientId
+      ? { ...prev, treatmentDate: normalizedDate, day }
+      : prev
+    );
+    setClients(prev => prev.map(c => c.dbId === clientId
+      ? { ...c, treatmentDate: normalizedDate, day }
+      : c
+    ));
+    setManualTreatmentDate(normalizedDate || '');
+    setFinishTreatmentDone(strictDone);
+
+    toast({
+      title: strictDone
+        ? (lang === 'en' ? 'Treatment date updated' : 'תאריך הטיפול עודכן')
+        : (lang === 'en' ? 'Treatment date cleared' : 'תאריך הטיפול נוקה'),
+    });
+  } catch (err) {
+    console.error('Failed to update treatment date:', err);
+    toast({ title: lang === 'en' ? 'Failed to update treatment date' : 'שגיאה בעדכון תאריך הטיפול', variant: 'destructive' });
+  } finally {
+    setUpdatingTreatmentDate(false);
+  }
+}, [selectedClient?.dbId, lang, toast, setSelectedClient]);
 
 const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasUnsavedLogoChangeRef = useRef(false);
