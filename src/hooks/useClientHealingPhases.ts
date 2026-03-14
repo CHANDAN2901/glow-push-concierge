@@ -86,6 +86,7 @@ export function useClientHealingPhases(
               steps_he: cp.steps_he,
               steps_en: cp.steps_en,
               sort_order: cp.sort_order,
+              image_url: cp.image_url,
             }))
           );
           setIsClientSpecific(true);

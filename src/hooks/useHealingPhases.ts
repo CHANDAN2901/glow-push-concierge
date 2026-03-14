@@ -13,6 +13,7 @@ export interface HealingPhase {
   steps_he: string[];
   steps_en: string[];
   sort_order: number;
+  image_url?: string | null;
 }
 
 export function useHealingPhases(treatment: 'eyebrows' | 'lips') {
