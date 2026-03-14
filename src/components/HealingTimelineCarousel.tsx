@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
-import { useHealingPhases, HealingPhase } from '@/hooks/useHealingPhases';
+import { useClientHealingPhases } from '@/hooks/useClientHealingPhases';
+import type { HealingPhase } from '@/hooks/useHealingPhases';
 import healingCharsImg from '@/assets/healing-characters.jpg';
 
 interface TimelineStep {
@@ -44,14 +45,15 @@ interface Props {
   currentDay: number;
   artistProfileId?: string | null;
   treatment?: 'eyebrows' | 'lips';
+  clientId?: string | null;
 }
 
-export default function HealingTimelineCarousel({ currentDay, artistProfileId, treatment = 'eyebrows' }: Props) {
+export default function HealingTimelineCarousel({ currentDay, artistProfileId, treatment = 'eyebrows', clientId }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const { phases } = useHealingPhases(treatment);
+  const { phases } = useClientHealingPhases(clientId, treatment);
   const [artistOverrides, setArtistOverrides] = useState<any[]>([]);
 
   // Build steps entirely from DB phases

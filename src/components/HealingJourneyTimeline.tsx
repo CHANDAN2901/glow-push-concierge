@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
 import { useToast } from '@/hooks/use-toast';
-import { useHealingPhases, HealingPhase } from '@/hooks/useHealingPhases';
+import { useClientHealingPhases } from '@/hooks/useClientHealingPhases';
+import type { HealingPhase } from '@/hooks/useHealingPhases';
 
 interface TimelineStep {
   day: number;
@@ -35,6 +36,7 @@ interface HealingJourneyTimelineProps {
   onCancel?: () => void;
   waSentLog: Record<string, string>;
   onSendWhatsApp: (day: number, message: string) => void;
+  clientId?: string | null;
 }
 
 /* ── Current-phase label from DB ── */
@@ -139,13 +141,14 @@ export default function HealingJourneyTimeline({
   onCancel,
   waSentLog,
   onSendWhatsApp,
+  clientId,
 }: HealingJourneyTimelineProps) {
   const { lang } = useI18n();
   const { toast } = useToast();
   const isHe = lang === 'he';
   const { buildWhatsAppText } = useAftercareTemplates();
   const treatment: 'eyebrows' | 'lips' = isLipsTreatment(treatmentType) ? 'lips' : 'eyebrows';
-  const { phases } = useHealingPhases(treatment);
+  const { phases } = useClientHealingPhases(clientId, treatment);
 
   const startDate = treatmentStartDate || (() => {
     const d = new Date();

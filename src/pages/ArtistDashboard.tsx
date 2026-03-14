@@ -2111,6 +2111,17 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         .eq('id', clientId);
                       if (error) throw error;
 
+                      // Clone global master template into client-specific record
+                      const tt = selectedClient.treatment?.includes('שפתיים') || selectedClient.treatment?.toLowerCase().includes('lip') ? 'lips' : 'eyebrows';
+                      try {
+                        await supabase.rpc('clone_healing_phases_for_client', {
+                          p_client_id: clientId,
+                          p_treatment_type: tt,
+                        });
+                      } catch (cloneErr) {
+                        console.error('Failed to clone healing phases:', cloneErr);
+                      }
+
                       const nextDay = calcRecoveryDay(today);
                       setManualTreatmentDate(today);
                       setSelectedClient(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
@@ -2683,6 +2694,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             artistName={artistName || 'האמנית שלך'}
             onBack={() => setHealingJourneyClient(null)}
             waSentLog={waSentLog}
+            clientId={(healingJourneyClient as any)?.dbId || null}
             onSendWhatsApp={(day, msg) => {
               const cleanPhone = healingJourneyClient.phone ? formatPhone(healingJourneyClient.phone) : '';
               const encoded = encodeURIComponent(msg);

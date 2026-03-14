@@ -297,6 +297,78 @@ export type Database = {
           },
         ]
       }
+      client_healing_phases: {
+        Row: {
+          client_id: string
+          created_at: string
+          day_end: number
+          day_start: number
+          icon: string
+          id: string
+          image_url: string | null
+          severity: string
+          sort_order: number
+          source_phase_id: string | null
+          steps_en: string[]
+          steps_he: string[]
+          title_en: string
+          title_he: string
+          treatment_type: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          day_end: number
+          day_start: number
+          icon?: string
+          id?: string
+          image_url?: string | null
+          severity?: string
+          sort_order?: number
+          source_phase_id?: string | null
+          steps_en?: string[]
+          steps_he?: string[]
+          title_en: string
+          title_he: string
+          treatment_type: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          day_end?: number
+          day_start?: number
+          icon?: string
+          id?: string
+          image_url?: string | null
+          severity?: string
+          sort_order?: number
+          source_phase_id?: string | null
+          steps_en?: string[]
+          steps_he?: string[]
+          title_en?: string
+          title_he?: string
+          treatment_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_healing_phases_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_healing_phases_source_phase_id_fkey"
+            columns: ["source_phase_id"]
+            isOneToOne: false
+            referencedRelation: "healing_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           artist_id: string
@@ -1317,6 +1389,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      clone_healing_phases_for_client: {
+        Args: { p_client_id: string; p_treatment_type: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
