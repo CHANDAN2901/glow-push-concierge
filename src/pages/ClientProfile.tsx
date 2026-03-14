@@ -240,6 +240,107 @@ function SubscribePushButton({ clientId, clientName, artistProfileId, lang }: { 
     </button>
   );
 }
+/* ── Finish Treatment CTA ── */
+function FinishTreatmentCTA({ client, clientDbId, lang, onTreatmentStarted }: {
+  client: ClientRow | null;
+  clientDbId: string;
+  lang: string;
+  onTreatmentStarted: (c: ClientRow) => void;
+}) {
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const resolvedId = client?.id || clientDbId;
+  const alreadyHasDate = !!client?.treatment_date;
+
+  const handleFinishTreatment = async () => {
+    if (!resolvedId) {
+      toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה קודם', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    const now = new Date().toISOString().split('T')[0];
+    const { error } = await supabase
+      .from('clients')
+      .update({ treatment_date: now })
+      .eq('id', resolvedId);
+
+    if (error) {
+      toast({ title: lang === 'en' ? 'Failed to save' : 'שגיאה בשמירה', variant: 'destructive' });
+      setSaving(false);
+      return;
+    }
+
+    setDone(true);
+    setSaving(false);
+    if (client) {
+      onTreatmentStarted({ ...client, treatment_date: now });
+    }
+    toast({ title: lang === 'en' ? 'Recovery journey started! ✨' : 'מסע ההחלמה התחיל! ✨' });
+  };
+
+  if (alreadyHasDate && !done) {
+    // Show existing date info with option to re-stamp
+    return (
+      <div
+        className="rounded-3xl p-6 mb-6 animate-fade-up opacity-0 border border-border/20 bg-white"
+        style={{ boxShadow: '0 2px 16px hsl(0 0% 0% / 0.04)', animationDelay: '50ms' }}
+      >
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(142 60% 93%)' }}>
+            <Sparkles className="w-5 h-5 text-green-600" />
+          </div>
+          <div>
+            <p className="text-sm font-bold" style={{ color: HEADING_COLOR }}>
+              {lang === 'en' ? 'Recovery active since' : 'החלמה פעילה מתאריך'}
+            </p>
+            <p className="text-xs" style={{ color: BODY_COLOR }}>
+              {new Date(client!.treatment_date!).toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-US')}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={handleFinishTreatment}
+          disabled={saving}
+          className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 disabled:opacity-50"
+          style={{ border: `2px solid ${GOLD}`, color: GOLD_DARK, backgroundColor: GOLD_BG_LIGHT }}
+        >
+          <Calendar className="w-4 h-4" />
+          {saving
+            ? (lang === 'en' ? 'Updating...' : 'מעדכנת...')
+            : (lang === 'en' ? 'Re-stamp to today' : 'עדכני תאריך להיום')}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="rounded-3xl p-6 mb-6 animate-fade-up opacity-0 border border-border/20 bg-white"
+      style={{ boxShadow: '0 2px 16px hsl(0 0% 0% / 0.04)', animationDelay: '50ms' }}
+    >
+      <button
+        onClick={handleFinishTreatment}
+        disabled={saving || done}
+        className="w-full py-4 text-base font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-70"
+        style={{
+          background: done ? 'hsl(142 76% 36%)' : 'linear-gradient(135deg, #D4AF37 0%, #F5C6D0 50%, #D4AF37 100%)',
+          color: done ? '#fff' : '#4a3636',
+        }}
+      >
+        {saving ? (
+          <span className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
+        ) : done ? (
+          <>✅ {lang === 'en' ? 'Recovery journey sent to client!' : 'מסע ההחלמה נשלח ללקוחה!'}</>
+        ) : (
+          <>✨ {lang === 'en' ? 'Finish Treatment — Start Recovery Journey' : 'סיימתי טיפול - התחלי מסע החלמה'}</>
+        )}
+      </button>
+    </div>
+  );
+}
+
 // Wrapper to isolate gallery hook
 function ClientProfileGallerySection({ resolvedClientId, resolvedArtistId }: { resolvedClientId: string; resolvedArtistId: string }) {
   const gallery = useClientGallery(resolvedClientId, resolvedArtistId);
