@@ -36,6 +36,7 @@ interface HealingJourneyTimelineProps {
   onCancel?: () => void;
   waSentLog: Record<string, string>;
   onSendWhatsApp: (day: number, message: string) => void;
+  clientId?: string | null;
 }
 
 /* ── Current-phase label from DB ── */
