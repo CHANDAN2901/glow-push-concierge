@@ -34,6 +34,8 @@ interface PhaseDraft {
   steps_he: string;
   steps_en: string;
   image_url: string;
+  day_start: number;
+  day_end: number;
   imageFile?: File;
   imagePreview?: string;
 }
@@ -47,6 +49,8 @@ function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
       steps_he: p.steps_he.join('\n'),
       steps_en: p.steps_en.join('\n'),
       image_url: p.image_url || '',
+      day_start: p.day_start,
+      day_end: p.day_end,
     };
   });
   return drafts;
