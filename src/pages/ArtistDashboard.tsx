@@ -254,7 +254,9 @@ const ArtistDashboard = () => {
   };
   const [sendingTestPush, setSendingTestPush] = useState(false);
   const [finishingTreatment, setFinishingTreatment] = useState(false);
+  const [updatingTreatmentDate, setUpdatingTreatmentDate] = useState(false);
   const [finishTreatmentDone, setFinishTreatmentDone] = useState(false);
+  const [manualTreatmentDate, setManualTreatmentDate] = useState('');
   const [dismissedTouchup, setDismissedTouchup] = useState(() => !!localStorage.getItem('gp-dismiss-touchup'));
   const [medicalForm, setMedicalForm] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
