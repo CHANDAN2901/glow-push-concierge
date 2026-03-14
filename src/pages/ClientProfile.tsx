@@ -255,7 +255,7 @@ function FinishTreatmentCTA({ client, clientDbId, lang, onTreatmentStarted }: {
   const alreadyHasDate = !!(
     client?.treatment_date &&
     client.treatment_date !== '' &&
-    client.treatment_date !== 'null' &&
+    client.treatment_date.toLowerCase() !== 'null' &&
     !Number.isNaN(new Date(client.treatment_date).getTime())
   );
 
