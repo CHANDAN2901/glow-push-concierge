@@ -62,9 +62,9 @@ export default function TimelineSettings() {
     if (!user) { setLoading(false); return; }
     let cancelled = false;
     const load = async () => {
+      if (cancelled) return;
       setLoading(true);
 
-      // 1. Fetch Super Admin global defaults from healing_phases
       let globalPhases: HealingPhaseRow[] = [];
       try {
         globalPhases = await restSelect<HealingPhaseRow>(
