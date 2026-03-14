@@ -1162,8 +1162,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       if (error) throw error;
       if (data) {
         const dbClients: ClientEntry[] = data.map(c => {
-          const treatmentDate = c.treatment_date ? new Date(c.treatment_date) : new Date(c.created_at);
-          const daysSince = Math.max(0, Math.floor((Date.now() - treatmentDate.getTime()) / (1000 * 60 * 60 * 24)));
+          const treatmentDateValue = hasRealTreatmentDate(c.treatment_date) ? c.treatment_date : null;
+          const daysSince = treatmentDateValue ? calcRecoveryDay(treatmentDateValue) : 0;
           return {
             dbId: c.id,
             name: c.full_name,
@@ -1171,8 +1171,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             email: c.email || '',
             day: daysSince,
             treatment: c.treatment_type || '',
-            treatmentDate: c.treatment_date || null,
-            link: `${origin}/c/${encodeURIComponent(c.id)}?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}&start=${c.treatment_date || new Date(c.created_at).toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId)}`,
+            treatmentDate: treatmentDateValue,
+            link: `${origin}/c/${encodeURIComponent(c.id)}?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}&start=${treatmentDateValue || ''}&artist_id=${encodeURIComponent(userProfileId)}`,
             beforeImg: '',
             afterImg: '',
             pushOptedIn: c.push_opted_in || false,
