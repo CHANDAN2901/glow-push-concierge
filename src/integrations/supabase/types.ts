@@ -820,6 +820,8 @@ export type Database = {
           is_highlighted: boolean
           name_en: string
           name_he: string
+          original_price_monthly: number
+          original_price_usd: number
           price_monthly: number
           price_usd: number
           slug: string
@@ -842,6 +844,8 @@ export type Database = {
           is_highlighted?: boolean
           name_en: string
           name_he: string
+          original_price_monthly?: number
+          original_price_usd?: number
           price_monthly?: number
           price_usd?: number
           slug: string
@@ -864,6 +868,8 @@ export type Database = {
           is_highlighted?: boolean
           name_en?: string
           name_he?: string
+          original_price_monthly?: number
+          original_price_usd?: number
           price_monthly?: number
           price_usd?: number
           slug?: string
