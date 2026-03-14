@@ -288,8 +288,10 @@ const ArtistDashboard = () => {
 
   // URL-synced state for selected client & active tab
   const selectedClientParam = searchParams.get('client');
-  const [selectedClient, setSelectedClient] = useState<ClientEntry | null>(null);
-  const setSelectedClientInternal = setSelectedClient;
+  const [selectedClientState, setSelectedClientState] = useState<ClientEntry | null>(null);
+  const selectedClient = selectedClientState;
+  const setSelectedClient = setSelectedClientState;
+  const setSelectedClientInternal = setSelectedClientState;
   type TabId = 'home' | 'clients' | 'calendar' | 'healing' | 'bonuses' | 'messages' | 'digital-card' | 'push' | 'profile';
   const [activeTab, setActiveTab] = useState<TabId>('home');
   const setActiveTabInternal = setActiveTab;
