@@ -2212,21 +2212,25 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     }
                     setFinishingTreatment(true);
                     const today = new Date().toISOString().split('T')[0];
-                    const { error } = await supabase
-                      .from('clients')
-                      .update({ treatment_date: today })
-                      .eq('id', clientId);
-                    if (error) {
+                    try {
+                      const { error } = await supabase
+                        .from('clients')
+                        .update({ treatment_date: today })
+                        .eq('id', clientId);
+                      if (error) throw error;
+
+                      const nextDay = calcRecoveryDay(today);
+                      setFinishTreatmentDone(true);
+                      setManualTreatmentDate(today);
+                      setSelectedClient(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
+                      setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today, day: nextDay } : c));
+                      toast({ title: lang === 'en' ? 'Recovery journey started! ✨' : 'מסע ההחלמה התחיל! ✨' });
+                    } catch (error) {
+                      console.error('Failed to set treatment date:', error);
                       toast({ title: lang === 'en' ? 'Failed to save' : 'שגיאה בשמירה', variant: 'destructive' });
+                    } finally {
                       setFinishingTreatment(false);
-                      return;
                     }
-                    setFinishTreatmentDone(true);
-                    setFinishingTreatment(false);
-                    // Update local client state
-                    setSelectedClient(prev => prev ? { ...prev, treatmentDate: today } : null);
-                    setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today } : c));
-                    toast({ title: lang === 'en' ? 'Recovery journey started! ✨' : 'מסע ההחלמה התחיל! ✨' });
                   }}
                   disabled={finishingTreatment || finishTreatmentDone}
                   className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide transition-all active:scale-[0.98] disabled:opacity-70"
