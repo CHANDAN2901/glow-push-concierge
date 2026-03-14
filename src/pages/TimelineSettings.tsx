@@ -19,7 +19,6 @@ export default function TimelineSettings() {
 
     return {
       key: phase.id,
-      index,
       dayLabel,
       title: isHe ? phase.title_he : phase.title_en,
       instruction: (isHe ? phase.steps_he : phase.steps_en).join(' ') || (isHe ? phase.title_he : phase.title_en),
