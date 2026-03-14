@@ -327,14 +327,14 @@ const Pricing = () => {
                 key={plan.slug}
                 className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
                 style={{
-                border: isVip ? '2px solid #FACC15' : 'none',
+                border: isVip ? '2px solid #D4AF37' : 'none',
                 outline: 'none',
                 background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(255,240,243,0.25) 40%, rgba(232,160,176,0.08) 70%, transparent 100%)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
                 borderRadius: '48px',
                 boxShadow: isVip
-                  ? '0 0 15px rgba(250, 204, 21, 0.5), 0 0 60px rgba(232, 160, 176, 0.22), 0 0 120px rgba(216, 180, 180, 0.12)'
+                  ? '0 0 15px rgba(212, 175, 55, 0.45), 0 0 40px rgba(212, 175, 55, 0.2), 0 0 80px rgba(216, 180, 180, 0.12)'
                   : isElite
                     ? '0 0 60px rgba(232, 160, 176, 0.22), 0 0 120px rgba(216, 180, 180, 0.12)'
                     : '0 0 50px rgba(232, 160, 176, 0.16), 0 0 100px rgba(216, 180, 180, 0.08)',
