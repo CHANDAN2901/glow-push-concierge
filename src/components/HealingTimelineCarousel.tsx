@@ -45,46 +45,15 @@ interface Props {
   treatment?: 'eyebrows' | 'lips';
 }
 
-export default function HealingTimelineCarousel({ currentDay, artistProfileId, treatment = 'eyebrows' }: Props) {
+export default function HealingTimelineCarousel({ currentDay, treatment = 'eyebrows' }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const { phases } = useHealingPhases(treatment);
-  const [artistOverrides, setArtistOverrides] = useState<any[]>([]);
 
-  // Build steps entirely from DB phases
-  const steps = phases.length > 0 ? phasesToSteps(phases) : [];
-
-  // Load artist-specific overrides from DB
-  useEffect(() => {
-    if (!artistProfileId) return;
-    const load = async () => {
-      try {
-        const { data } = await supabase
-          .from('timeline_content' as any)
-          .select('*')
-          .eq('artist_profile_id', artistProfileId);
-        if (data && data.length > 0) {
-          setArtistOverrides(data as any[]);
-        }
-      } catch (e) {
-        console.error('Failed to load timeline content:', e);
-      }
-    };
-    load();
-  }, [artistProfileId]);
-
-  // Apply artist overrides on top of DB steps
-  const finalSteps = steps.map((s, i) => {
-    const row = artistOverrides.find((r: any) => r.step_index === i);
-    if (!row) return s;
-    return {
-      ...s,
-      instruction: row.quote_he || s.instruction,
-      instructionEn: row.quote_en || s.instructionEn,
-    };
-  });
+  // Build steps entirely from global DB phases
+  const finalSteps = phases.length > 0 ? phasesToSteps(phases) : [];
 
   const activeIdx = getActiveStepIndex(finalSteps, currentDay);
 
