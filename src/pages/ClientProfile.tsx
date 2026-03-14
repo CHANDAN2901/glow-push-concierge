@@ -277,6 +277,17 @@ function FinishTreatmentCTA({ client, clientDbId, lang, onTreatmentStarted }: {
       return;
     }
 
+    // Clone global master template into client-specific record
+    const treatmentType = client?.treatment_type?.includes('שפתיים') || client?.treatment_type?.toLowerCase().includes('lip') ? 'lips' : 'eyebrows';
+    try {
+      await supabase.rpc('clone_healing_phases_for_client', {
+        p_client_id: resolvedId,
+        p_treatment_type: treatmentType,
+      });
+    } catch (cloneErr) {
+      console.error('Failed to clone healing phases:', cloneErr);
+    }
+
     setDone(true);
     setSaving(false);
     if (client) {
