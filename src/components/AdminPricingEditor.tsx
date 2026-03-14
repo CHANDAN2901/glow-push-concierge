@@ -171,6 +171,8 @@ export default function AdminPricingEditor() {
               cta_he: plan.cta_he,
               sort_order: plan.sort_order,
               total_promo_spots: plan.total_promo_spots,
+              original_price_monthly: plan.original_price_monthly,
+              original_price_usd: plan.original_price_usd,
             } as any)
             .eq('id', plan.id);
 

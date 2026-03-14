@@ -61,12 +61,14 @@ const MarketingPricing = ({ isHe, user }: Props) => {
             </h3>
 
             <div className="flex flex-col items-center mb-8">
-              <span className="text-lg line-through" style={{ color: '#aaa' }}>
-                {isHe ? '₪199 / חודש' : '$59 /mo'}
-              </span>
+              {mainPlan && mainPlan.original_price_monthly > 0 && (
+                <span className="text-lg line-through" style={{ color: '#aaa' }}>
+                  {isHe ? `₪${Math.round(mainPlan.original_price_monthly)} / חודש` : `$${Math.round(mainPlan.original_price_usd)} /mo`}
+                </span>
+              )}
               <div className="flex items-baseline justify-center gap-1">
                 <span className="text-5xl font-serif font-bold" style={{ color: '#333333' }}>
-                  {isHe ? '₪99' : '$29'}
+                  {mainPlan ? (isHe ? `₪${Math.round(mainPlan.price_monthly)}` : `$${Math.round(mainPlan.price_usd)}`) : ''}
                 </span>
                 <span style={{ color: '#999999' }}>{isHe ? '/חודש' : '/mo'}</span>
               </div>
