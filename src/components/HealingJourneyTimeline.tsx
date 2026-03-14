@@ -205,7 +205,7 @@ export default function HealingJourneyTimeline({
     setShowAddCustom(false);
   };
 
-  const lips = isLipsTreatment(treatmentType);
+  const lips = treatment === 'lips';
 
   return (
     <div className="space-y-5 animate-fade-up" dir={isHe ? 'rtl' : 'ltr'}>
