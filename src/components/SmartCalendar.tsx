@@ -554,7 +554,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
             full_name: newName.trim(),
             phone: newPhone.trim() || null,
             treatment_type: newType === 'eyebrows' ? (isHe ? 'גבות' : 'Brows') : newType === 'lips' ? (isHe ? 'שפתיים' : 'Lips') : (isHe ? 'אייליינר' : 'Eyeliner'),
-            treatment_date: newDate,
+            treatment_date: null,
           }).select('id').single();
           if (!clientError && newClient) {
             clientId = newClient.id;

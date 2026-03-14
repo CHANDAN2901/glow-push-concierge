@@ -2201,6 +2201,21 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     : (lang === 'en' ? 'Send Test Notification 🔔' : 'שלחי התראת בדיקה 🔔')}
                 </button>
 
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-red-500 text-xs">Debug Date: {JSON.stringify(selectedClient?.treatmentDate ?? null)}</div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await updateSelectedTreatmentDate(null);
+                      await fetchClients();
+                    }}
+                    disabled={updatingTreatmentDate || finishingTreatment}
+                    className="text-red-600 text-xs underline disabled:opacity-50"
+                  >
+                    איפוס מסע החלמה (טסט)
+                  </button>
+                </div>
+
                 {/* ── Finish Treatment CTA ── */}
                 <button
                   type="button"
@@ -2220,7 +2235,6 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       if (error) throw error;
 
                       const nextDay = calcRecoveryDay(today);
-                      setFinishTreatmentDone(true);
                       setManualTreatmentDate(today);
                       setSelectedClient(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
                       setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today, day: nextDay } : c));
@@ -2232,14 +2246,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       setFinishingTreatment(false);
                     }
                   }}
-                  disabled={finishingTreatment || updatingTreatmentDate || finishTreatmentDone}
+                  disabled={finishingTreatment || updatingTreatmentDate || isTreatmentDone}
                   className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide transition-all active:scale-[0.98] disabled:opacity-70"
                   style={{
-                    background: finishTreatmentDone
+                    background: isTreatmentDone
                       ? 'hsl(142 76% 36%)'
                       : 'linear-gradient(135deg, #D4AF37 0%, #F5C6D0 50%, #D4AF37 100%)',
-                    color: finishTreatmentDone ? '#fff' : '#4a3636',
-                    boxShadow: finishTreatmentDone
+                    color: isTreatmentDone ? '#fff' : '#4a3636',
+                    boxShadow: isTreatmentDone
                       ? '0 4px 18px rgba(34,197,94,0.3)'
                       : '0 8px 32px rgba(212,175,55,0.35), 0 0 20px rgba(245,198,208,0.25)',
                     border: '1px solid rgba(255,255,255,0.15)',
@@ -2247,7 +2261,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 >
                   {finishingTreatment ? (
                     <span className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
-                  ) : finishTreatmentDone ? (
+                  ) : isTreatmentDone ? (
                     <>{lang === 'en' ? '✅ Recovery journey sent to client!' : '✅ מסע ההחלמה נשלח ללקוחה!'}</>
                   ) : (
                     <>{lang === 'en' ? '✨ Finish Treatment — Start Recovery Journey' : '✨ סיימתי טיפול - התחלי מסע החלמה'}</>
