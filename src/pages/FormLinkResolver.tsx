@@ -61,7 +61,6 @@ const FormLinkResolver = () => {
       const resolvedToken = dbToken || providedToken;
       if (resolvedToken) params.set('token', resolvedToken);
 
-      params.set('start', new Date().toISOString().split('T')[0]);
       navigate(`/health-declaration?${params.toString()}`, { replace: true });
     };
 

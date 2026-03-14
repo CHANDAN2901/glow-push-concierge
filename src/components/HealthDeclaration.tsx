@@ -389,7 +389,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                 )}
                 {resultClientId && (
                   <a
-                    href={`/c/${resultClientId}?start=${encodeURIComponent(appointmentDate || new Date().toISOString().split('T')[0])}&artist_id=${encodeURIComponent(artistId || '')}`}
+                    href={recoveryLink}
                     className="w-full py-3 rounded-full text-sm font-bold transition-all min-h-[48px] active:scale-[0.97] flex items-center justify-center gap-2 text-white hd-shimmer-border"
                     style={{ background: T.gradient, boxShadow: '0 6px 24px rgba(212,175,55,0.3)' }}
                   >
