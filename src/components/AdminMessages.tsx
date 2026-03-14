@@ -259,6 +259,8 @@ export default function AdminMessages() {
               title_he: draft.title_he,
               title_en: draft.title_en,
               image_url: imageUrl,
+              day_start: draft.day_start,
+              day_end: draft.day_end,
             })
             .eq('id', phase.id);
         }
