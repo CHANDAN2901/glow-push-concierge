@@ -48,7 +48,7 @@ interface StepContent {
 
 export default function TimelineSettings() {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { lang } = useI18n();
   const isHe = lang === 'he';
@@ -58,7 +58,9 @@ export default function TimelineSettings() {
   const [profileId, setProfileId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) { setLoading(false); return; }
+    let cancelled = false;
     const load = async () => {
       setLoading(true);
 
