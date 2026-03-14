@@ -355,7 +355,7 @@ const ClientHome = () => {
 
 
 
-  const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useHealingPhases(treatment);
+  const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useClientHealingPhases(validClientId ?? null, treatment);
   const { promo } = usePromoSettings(artistProfileId || undefined);
   const [showPromoModal, setShowPromoModal] = useState(false);
 
