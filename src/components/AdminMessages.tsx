@@ -161,8 +161,6 @@ export default function AdminMessages() {
   const [activeTreatment, setActiveTreatment] = useState<'eyebrows' | 'lips'>('eyebrows');
 
   const [phases, setPhases] = useState<HealingPhase[]>([]);
-  const [totalDays, setTotalDays] = useState(14);
-  const [dayDrafts, setDayDrafts] = useState<Record<number, string>>({});
   const [phaseDrafts, setPhaseDrafts] = useState<Record<string, PhaseDraft>>({});
   const [loadingPhases, setLoadingPhases] = useState(true);
 
@@ -183,10 +181,6 @@ export default function AdminMessages() {
       .then(({ data, error }) => {
         const items = (!error && data ? data : []) as HealingPhase[];
         setPhases(items);
-        const maxDbDay = items.reduce((m, p) => Math.max(m, p.day_end), 0);
-        const days = Math.max(14, maxDbDay);
-        setTotalDays(days);
-        setDayDrafts(buildDayDrafts(items, days));
         setPhaseDrafts(buildPhaseDrafts(items));
         setLoadingPhases(false);
       });
