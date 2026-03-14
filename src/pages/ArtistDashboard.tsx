@@ -1974,7 +1974,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 })()}
                 </FeatureGate>
 
-                {/* Share card moved below Finish Treatment CTA */}
+                
 
                 {/* === Manual Treatment Date (with clear failsafe) === */}
                 <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
