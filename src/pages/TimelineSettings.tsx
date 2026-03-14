@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Save, Loader2, Sparkles, Plus, Trash2, GripVertical } from 'lucide-react';
 import healingCharsImg from '@/assets/healing-characters.jpg';
 import { supabase } from '@/integrations/supabase/client';
