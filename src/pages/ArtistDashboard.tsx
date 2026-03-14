@@ -206,7 +206,7 @@ const generateSlug = (name: string) =>
 const hasRealTreatmentDate = (treatment_date?: string | null) => {
   if (!treatment_date) return false;
   const normalized = treatment_date.trim();
-  if (!normalized || normalized === 'null') return false;
+  if (!normalized || normalized.toLowerCase() === 'null') return false;
   return !Number.isNaN(new Date(normalized).getTime());
 };
 
