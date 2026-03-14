@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Save, Loader2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { restSelect } from '@/lib/supabase-rest';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -9,94 +10,183 @@ import AdminSidebar from '@/components/AdminSidebar';
 import { Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const DEFAULT_STEPS = [
-  { dayLabel: 'יום 1', instruction_he: 'שמרי על האזור נקי ויבש. מרחי משחה בעדינות. הצבע כהה היום — זה טבעי!', instruction_en: 'Keep the area clean and dry. Apply ointment gently. Color is dark today — totally normal!' },
-  { dayLabel: 'ימים 2-4', instruction_he: 'הפיגמנט מתחמצן ומכהה — ידהה בקרוב. המשיכי למרוח משחה.', instruction_en: 'The pigment oxidizes and darkens — it will fade soon. Keep applying ointment.' },
-  { dayLabel: 'ימים 5-7', instruction_he: 'לא לקלף! תני לגלד ליפול לבד כדי לשמור על הפיגמנט.', instruction_en: "Don't peel! Let scabs fall off naturally to preserve pigment." },
-  { dayLabel: 'ימים 8-10', instruction_he: 'שלב ה-Ghosting — הצבע ייראה בהיר מאוד. הוא יחזור!', instruction_en: 'Ghosting phase — color looks very light. It will come back!' },
-  { dayLabel: 'ימים 14-28', instruction_he: 'הצבע מתייצב. שמרי על הגנה מהשמש.', instruction_en: 'Color is stabilizing. Protect from sun exposure.' },
-  { dayLabel: 'יום 42', instruction_he: 'מושלם! הגיע הזמן לקבוע תור לטאצ׳ אפ.', instruction_en: "Perfect! Time to schedule your touch-up." },
-];
+interface HealingPhaseRow {
+  id: string;
+  day_start: number;
+  day_end: number;
+  title_he: string;
+  title_en: string;
+  steps_he: string[];
+  steps_en: string[];
+  sort_order: number;
+}
 
 interface StepContent {
   step_index: number;
+  dayLabel: string;
   instruction_he: string;
   instruction_en: string;
+  default_instruction_he: string;
+  default_instruction_en: string;
 }
 
 export default function TimelineContentEditorPage() {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [steps, setSteps] = useState<StepContent[]>(
-    DEFAULT_STEPS.map((d, i) => ({ step_index: i, instruction_he: d.instruction_he, instruction_en: d.instruction_en }))
-  );
+  const [steps, setSteps] = useState<StepContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profileId, setProfileId] = useState<string | null>(null);
+  const [baseStepCount, setBaseStepCount] = useState(0);
 
-  useEffect(() => {
-    if (!user) return;
-    const load = async () => {
-      setLoading(true);
-      const { data: profile } = await supabase
+  const loadData = useCallback(async () => {
+    if (authLoading) return;
+
+    if (!user) {
+      setSteps([]);
+      setProfileId(null);
+      setBaseStepCount(0);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const globalPhases = await restSelect<HealingPhaseRow>(
+        'healing_phases',
+        'treatment_type=eq.eyebrows&order=sort_order.asc'
+      );
+
+      const baseSteps: StepContent[] = globalPhases.map((phase, i) => {
+        const dayLabel = phase.day_start === phase.day_end
+          ? `יום ${phase.day_start}`
+          : `ימים ${phase.day_start}-${phase.day_end}`;
+
+        const defaultInstructionHe = phase.steps_he.join('\n') || phase.title_he;
+        const defaultInstructionEn = phase.steps_en.join('\n') || phase.title_en;
+
+        return {
+          step_index: i,
+          dayLabel,
+          instruction_he: defaultInstructionHe,
+          instruction_en: defaultInstructionEn,
+          default_instruction_he: defaultInstructionHe,
+          default_instruction_en: defaultInstructionEn,
+        };
+      });
+
+      setBaseStepCount(baseSteps.length);
+
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (profile) {
-        setProfileId(profile.id);
-        const { data: rows } = await supabase
-          .from('timeline_content' as any)
-          .select('*')
-          .eq('artist_profile_id', profile.id)
-          .order('step_index');
-
-        if (rows && rows.length > 0) {
-          setSteps(prev => prev.map((s, i) => {
-            const row = (rows as any[]).find((r: any) => r.step_index === i);
-            if (row) return {
-              step_index: i,
-              instruction_he: row.quote_he || DEFAULT_STEPS[i].instruction_he,
-              instruction_en: row.quote_en || DEFAULT_STEPS[i].instruction_en,
-            };
-            return s;
-          }));
-        }
+      if (profileError || !profile) {
+        setProfileId(null);
+        setSteps(baseSteps);
+        return;
       }
-      setLoading(false);
-    };
-    load();
-  }, [user]);
 
-  const updateStep = (idx: number, field: keyof StepContent, value: string) => {
-    setSteps(prev => prev.map((s, i) => i === idx ? { ...s, [field]: value } : s));
+      setProfileId(profile.id);
+
+      const { data: rows, error: rowsError } = await supabase
+        .from('timeline_content' as any)
+        .select('step_index, quote_he, quote_en')
+        .eq('artist_profile_id', profile.id)
+        .order('step_index');
+
+      if (rowsError) throw rowsError;
+
+      const overridesByIndex = new Map<number, { quote_he: string | null; quote_en: string | null }>(
+        ((rows as any[]) || []).map((row: any) => [row.step_index, { quote_he: row.quote_he, quote_en: row.quote_en }])
+      );
+
+      const merged = baseSteps.map((base) => {
+        const row = overridesByIndex.get(base.step_index);
+        if (!row) return base;
+
+        return {
+          ...base,
+          instruction_he: row.quote_he || base.instruction_he,
+          instruction_en: row.quote_en || base.instruction_en,
+        };
+      });
+
+      setSteps(merged);
+    } catch (error) {
+      console.error('Failed to load timeline content editor data:', error);
+      setSteps([]);
+      toast({ title: 'שגיאה בטעינת מסע ההחלמה', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  }, [authLoading, user, toast]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const updateStep = (idx: number, field: 'instruction_he' | 'instruction_en', value: string) => {
+    setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, [field]: value } : s)));
   };
 
   const handleSave = async () => {
     if (!profileId) return;
+
     setSaving(true);
     try {
-      for (const step of steps) {
-        const { error } = await (supabase as any)
+      await supabase
+        .from('timeline_content')
+        .delete()
+        .eq('artist_profile_id', profileId)
+        .gte('step_index', baseStepCount);
+
+      for (const step of steps.filter((s) => s.step_index < baseStepCount)) {
+        const currentHe = step.instruction_he.trim();
+        const currentEn = step.instruction_en.trim();
+        const defaultHe = step.default_instruction_he.trim();
+        const defaultEn = step.default_instruction_en.trim();
+        const isDefault = currentHe === defaultHe && currentEn === defaultEn;
+
+        if (isDefault) {
+          const { error: deleteError } = await supabase
+            .from('timeline_content')
+            .delete()
+            .eq('artist_profile_id', profileId)
+            .eq('step_index', step.step_index);
+          if (deleteError) throw deleteError;
+          continue;
+        }
+
+        const { error: upsertError } = await (supabase as any)
           .from('timeline_content')
-          .upsert({
-            artist_profile_id: profileId,
-            step_index: step.step_index,
-            quote_he: step.instruction_he,
-            quote_en: step.instruction_en,
-            tip_he: '',
-            tip_en: '',
-          }, { onConflict: 'artist_profile_id,step_index' });
-        if (error) throw error;
+          .upsert(
+            {
+              artist_profile_id: profileId,
+              step_index: step.step_index,
+              quote_he: step.instruction_he,
+              quote_en: step.instruction_en,
+              tip_he: '',
+              tip_en: '',
+            },
+            { onConflict: 'artist_profile_id,step_index' }
+          );
+
+        if (upsertError) throw upsertError;
       }
+
+      await loadData();
       toast({ title: 'התוכן עודכן בהצלחה ויוצג ללקוחותייך ✅', className: 'bg-green-600 text-white border-green-700' });
     } catch (err: any) {
       console.error('Save failed:', err);
       toast({ title: 'שגיאה בשמירה: ' + (err?.message || 'Unknown'), variant: 'destructive' });
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   return (
@@ -135,7 +225,7 @@ export default function TimelineContentEditorPage() {
 
                 <div className="space-y-5">
                   {steps.map((step, idx) => (
-                    <div key={idx} className="border border-border rounded-xl p-5 space-y-3">
+                    <div key={step.step_index} className="border border-border rounded-xl p-5 space-y-3">
                       <div
                         className="inline-block px-4 py-1 rounded-full text-xs font-bold tracking-wide"
                         style={{
@@ -143,7 +233,7 @@ export default function TimelineContentEditorPage() {
                           color: 'hsl(0 0% 100%)',
                         }}
                       >
-                        {DEFAULT_STEPS[idx].dayLabel}
+                        {step.dayLabel}
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -154,7 +244,7 @@ export default function TimelineContentEditorPage() {
                             onChange={(e) => updateStep(idx, 'instruction_he', e.target.value)}
                             dir="rtl"
                             className="text-sm min-h-[80px]"
-                            placeholder={DEFAULT_STEPS[idx].instruction_he}
+                            placeholder={step.default_instruction_he}
                           />
                         </div>
                         <div>
@@ -164,7 +254,7 @@ export default function TimelineContentEditorPage() {
                             onChange={(e) => updateStep(idx, 'instruction_en', e.target.value)}
                             dir="ltr"
                             className="text-sm min-h-[80px] text-muted-foreground"
-                            placeholder={DEFAULT_STEPS[idx].instruction_en}
+                            placeholder={step.default_instruction_en}
                           />
                         </div>
                       </div>
@@ -173,7 +263,6 @@ export default function TimelineContentEditorPage() {
                 </div>
               </div>
 
-              {/* Sticky Save */}
               <div className="sticky bottom-6 flex justify-start">
                 <Button
                   className="bg-accent text-accent-foreground hover:bg-accent/90 h-12 px-8 text-base shadow-lg"
