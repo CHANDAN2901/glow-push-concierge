@@ -207,11 +207,8 @@ export default function AdminMessages() {
       });
   }, []);
 
-  const handleAddDay = () => {
-    const newDay = totalDays + 1;
-    setTotalDays(newDay);
-    setDayDrafts(prev => ({ ...prev, [newDay]: '' }));
-  };
+
+
 
   const handleImageSelect = (phaseId: string, file: File) => {
     const previewUrl = URL.createObjectURL(file);
