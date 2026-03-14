@@ -15,6 +15,7 @@ interface TimelineStep {
   instructionEn: string;
   col: number;
   row: number;
+  imageUrl?: string | null;
 }
 
 function phasesToSteps(phases: HealingPhase[]): TimelineStep[] {
@@ -31,6 +32,7 @@ function phasesToSteps(phases: HealingPhase[]): TimelineStep[] {
       instructionEn: p.steps_en.join(' ') || p.title_en,
       col,
       row,
+      imageUrl: p.image_url,
     };
   });
 }
