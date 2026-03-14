@@ -629,16 +629,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             altText={lang === 'en' ? 'Undo' : 'ביטול'}
             onClick={async () => {
               try {
-                // Extract treatment_date from link params
-                const linkUrl = new URL(clientToDelete.link, window.location.origin);
-                const startParam = linkUrl.searchParams.get('start') || null;
                 const { error } = await supabase.from('clients').insert({
                   id: deleteId,
                   artist_id: userProfileId!,
                   full_name: clientToDelete.name,
                   phone: clientToDelete.phone || null,
                   email: clientToDelete.email || null,
-                  treatment_date: startParam,
+                  treatment_date: null,
                   treatment_type: clientToDelete.treatment || null,
                   birth_date: clientToDelete.birthDate || null,
                 });
