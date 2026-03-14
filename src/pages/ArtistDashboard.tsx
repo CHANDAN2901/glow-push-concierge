@@ -2150,10 +2150,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   const clientZoneLink = buildClientZoneLink(selectedClient.dbId || '');
                   const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
                   const hasPhone = cleanPhone.length > 0;
-                  const artist = artistName || 'האמנית שלך';
+                  const firstName = (selectedClient.name || '').split(' ')[0] || 'מותק';
+                  const artistSig = artistName || 'אורית אהרוני';
                   const waMsg = lang === 'en'
-                    ? `Hi ${selectedClient.name} 💛\nHere's your personal client portal link:\n👇\n${clientZoneLink}\n\n${artist}`
-                    : `היי ${selectedClient.name} 💛\nמצורף קישור אישי לאזור הלקוחה שלך:\n👇\n${clientZoneLink}\n\n${artist}`;
+                    ? `Hi ${firstName} ✨, so happy we finished the treatment!\n\nTo keep your results perfect, here's your personal recovery journey with all the instructions and reminders:\n\n${clientZoneLink}\n\nCan't wait to see the final result!\n\nWith love, ${artistSig} - Glow Push 🤍`
+                    : `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול!\n\nכדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות:\n\n${clientZoneLink}\n\nמחכה לראות את התוצאה הסופית!\n\nבאהבה, ${artistSig} - Glow Push 🤍`;
                   const waUrl = buildWhatsAppUrl(cleanPhone, waMsg);
 
                   return (
