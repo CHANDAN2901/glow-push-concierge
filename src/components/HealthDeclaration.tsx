@@ -291,6 +291,13 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       if (wazeAddress) window.open(`https://waze.com/ul?q=${encodeURIComponent(wazeAddress)}`, '_blank');
     };
 
+    const recoveryLinkParams = new URLSearchParams();
+    if (appointmentDate) recoveryLinkParams.set('start', appointmentDate);
+    if (artistId) recoveryLinkParams.set('artist_id', artistId);
+    const recoveryLink = resultClientId
+      ? `/c/${resultClientId}${recoveryLinkParams.toString() ? `?${recoveryLinkParams.toString()}` : ''}`
+      : '';
+
     const prepTips = isHe
       ? [
           { icon: '☕', text: 'הימנעי מקפאין 24 שעות לפני הטיפול' },
