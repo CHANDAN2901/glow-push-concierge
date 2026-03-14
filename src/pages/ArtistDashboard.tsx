@@ -255,7 +255,6 @@ const ArtistDashboard = () => {
   const [sendingTestPush, setSendingTestPush] = useState(false);
   const [finishingTreatment, setFinishingTreatment] = useState(false);
   const [updatingTreatmentDate, setUpdatingTreatmentDate] = useState(false);
-  const [finishTreatmentDone, setFinishTreatmentDone] = useState(false);
   const [manualTreatmentDate, setManualTreatmentDate] = useState('');
   const [dismissedTouchup, setDismissedTouchup] = useState(() => !!localStorage.getItem('gp-dismiss-touchup'));
   const [medicalForm, setMedicalForm] = useState(true);
@@ -287,61 +286,9 @@ const ArtistDashboard = () => {
   const [wazeAddress, setWazeAddress] = useState('');
   const [shopProducts, setShopProducts] = useState<ShopProduct[]>(() => loadShopProducts());
 
-  // URL-synced active tab
-  const activeTabParam = searchParams.get('tab') as 'home' | 'clients' | 'calendar' | 'upgrades' | 'messages' | 'digital-card' | 'profile' | 'healing' | 'bonuses' | 'push' | null;
-  const [activeTab, setActiveTabInternal] = useState<'home' | 'clients' | 'calendar' | 'upgrades' | 'messages' | 'digital-card' | 'profile' | 'healing' | 'bonuses' | 'push'>(activeTabParam || 'home');
-  const selectedClientParam = searchParams.get('client');
-
-  // Sync activeTab when URL tab param changes (e.g. from checklist navigation)
-  useEffect(() => {
-    if (activeTabParam && activeTabParam !== activeTab) {
-      setActiveTabInternal(activeTabParam);
-    }
-  }, [activeTabParam]);
-
-  // Use a ref to avoid searchParams in callback dependencies (prevents re-render loops)
-  const searchParamsRef = useRef(searchParams);
-  searchParamsRef.current = searchParams;
-
-  // Wrap setActiveTab to sync URL
-  const setActiveTab = useCallback((tab: 'home' | 'clients' | 'calendar' | 'upgrades' | 'messages' | 'digital-card' | 'profile' | 'healing' | 'bonuses' | 'push') => {
-    setActiveTabInternal(tab);
-    // Haptic feedback on tab switch
-    if (navigator.vibrate) navigator.vibrate(50);
-    const params = new URLSearchParams(searchParamsRef.current);
-    params.set('tab', tab);
-    params.delete('client');
-    setSearchParams(params, { replace: true });
-    // Scroll to top when switching tabs
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = 0;
-    }
-  }, [setSearchParams]);
-
-const [selectedClient, setSelectedClientInternal] = useState<ClientEntry | null>(null);
-const [includePolicyShare, setIncludePolicyShare] = useState(true);
-
-// Wrap setSelectedClient to sync URL
-const setSelectedClient = useCallback((clientOrUpdater: ClientEntry | null | ((prev: ClientEntry | null) => ClientEntry | null)) => {
-  setSelectedClientInternal(prev => {
-    const newVal = typeof clientOrUpdater === 'function' ? clientOrUpdater(prev) : clientOrUpdater;
-    const params = new URLSearchParams(searchParamsRef.current);
-    if (newVal) {
-      params.set('tab', 'clients');
-      params.set('client', newVal.dbId || newVal.name);
-    } else {
-      params.delete('client');
-    }
-    setSearchParams(params, { replace: true });
-    return newVal;
-  });
-}, [setSearchParams]);
-
 useEffect(() => {
   setIncludePolicyShare(true);
   const strictDone = hasRealTreatmentDate(selectedClient?.treatmentDate);
-  setFinishTreatmentDone(strictDone);
   setManualTreatmentDate(strictDone ? (selectedClient?.treatmentDate as string) : '');
 }, [selectedClient?.dbId, selectedClient?.treatmentDate]);
 
@@ -374,7 +321,6 @@ const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) 
       : c
     ));
     setManualTreatmentDate(normalizedDate || '');
-    setFinishTreatmentDone(strictDone);
 
     toast({
       title: strictDone
@@ -388,6 +334,9 @@ const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) 
     setUpdatingTreatmentDate(false);
   }
 }, [selectedClient?.dbId, lang, toast, setSelectedClient]);
+
+const treatment_date = selectedClient?.treatmentDate?.trim() || '';
+const isTreatmentDone = !!(treatment_date && treatment_date !== '' && treatment_date !== 'null');
 
 const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasUnsavedLogoChangeRef = useRef(false);
@@ -2201,6 +2150,21 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     : (lang === 'en' ? 'Send Test Notification 🔔' : 'שלחי התראת בדיקה 🔔')}
                 </button>
 
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-red-500 text-xs">Debug Date: {JSON.stringify(selectedClient?.treatmentDate ?? null)}</div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await updateSelectedTreatmentDate(null);
+                      await fetchClients();
+                    }}
+                    disabled={updatingTreatmentDate || finishingTreatment}
+                    className="text-red-600 text-xs underline disabled:opacity-50"
+                  >
+                    איפוס מסע החלמה (טסט)
+                  </button>
+                </div>
+
                 {/* ── Finish Treatment CTA ── */}
                 <button
                   type="button"
@@ -2220,7 +2184,6 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       if (error) throw error;
 
                       const nextDay = calcRecoveryDay(today);
-                      setFinishTreatmentDone(true);
                       setManualTreatmentDate(today);
                       setSelectedClient(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
                       setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today, day: nextDay } : c));
@@ -2232,14 +2195,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       setFinishingTreatment(false);
                     }
                   }}
-                  disabled={finishingTreatment || updatingTreatmentDate || finishTreatmentDone}
+                  disabled={finishingTreatment || updatingTreatmentDate || isTreatmentDone}
                   className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide transition-all active:scale-[0.98] disabled:opacity-70"
                   style={{
-                    background: finishTreatmentDone
+                    background: isTreatmentDone
                       ? 'hsl(142 76% 36%)'
                       : 'linear-gradient(135deg, #D4AF37 0%, #F5C6D0 50%, #D4AF37 100%)',
-                    color: finishTreatmentDone ? '#fff' : '#4a3636',
-                    boxShadow: finishTreatmentDone
+                    color: isTreatmentDone ? '#fff' : '#4a3636',
+                    boxShadow: isTreatmentDone
                       ? '0 4px 18px rgba(34,197,94,0.3)'
                       : '0 8px 32px rgba(212,175,55,0.35), 0 0 20px rgba(245,198,208,0.25)',
                     border: '1px solid rgba(255,255,255,0.15)',
@@ -2247,7 +2210,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 >
                   {finishingTreatment ? (
                     <span className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
-                  ) : finishTreatmentDone ? (
+                  ) : isTreatmentDone ? (
                     <>{lang === 'en' ? '✅ Recovery journey sent to client!' : '✅ מסע ההחלמה נשלח ללקוחה!'}</>
                   ) : (
                     <>{lang === 'en' ? '✨ Finish Treatment — Start Recovery Journey' : '✨ סיימתי טיפול - התחלי מסע החלמה'}</>
