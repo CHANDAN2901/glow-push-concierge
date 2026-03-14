@@ -104,7 +104,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showThankYou, setShowThankYou] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [resultClientId, setResultClientId] = useState<string | null>(null);
   const sigContainerRef = useRef<HTMLDivElement>(null);
 
