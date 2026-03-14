@@ -48,7 +48,7 @@ interface StepContent {
 
 export default function TimelineSettings() {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { lang } = useI18n();
   const isHe = lang === 'he';
@@ -58,11 +58,13 @@ export default function TimelineSettings() {
   const [profileId, setProfileId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) { setLoading(false); return; }
+    let cancelled = false;
     const load = async () => {
+      if (cancelled) return;
       setLoading(true);
 
-      // 1. Fetch Super Admin global defaults from healing_phases
       let globalPhases: HealingPhaseRow[] = [];
       try {
         globalPhases = await restSelect<HealingPhaseRow>(
@@ -134,18 +136,19 @@ export default function TimelineSettings() {
                 isCustom: true,
               });
             });
-          setSteps(merged);
+          if (!cancelled) setSteps(merged);
         } else {
           // No artist overrides — show global defaults as-is
-          setSteps(baseSteps);
+          if (!cancelled) setSteps(baseSteps);
         }
       } else {
-        setSteps(baseSteps);
+        if (!cancelled) setSteps(baseSteps);
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     };
     load();
-  }, [user]);
+    return () => { cancelled = true; };
+  }, [user, authLoading]);
 
   const updateStep = (idx: number, field: keyof StepContent, value: string) => {
     setSteps(prev => prev.map((s, i) => i === idx ? { ...s, [field]: value } : s));
