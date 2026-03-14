@@ -42,6 +42,8 @@ interface StepContent {
   title_en: string;
   instruction_he: string;
   instruction_en: string;
+  default_instruction_he: string;
+  default_instruction_en: string;
   dayLabel: string;
   isCustom?: boolean;
 }
