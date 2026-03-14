@@ -34,6 +34,8 @@ interface PhaseDraft {
   steps_he: string;
   steps_en: string;
   image_url: string;
+  day_start: number;
+  day_end: number;
   imageFile?: File;
   imagePreview?: string;
 }
@@ -47,6 +49,8 @@ function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
       steps_he: p.steps_he.join('\n'),
       steps_en: p.steps_en.join('\n'),
       image_url: p.image_url || '',
+      day_start: p.day_start,
+      day_end: p.day_end,
     };
   });
   return drafts;
@@ -255,6 +259,8 @@ export default function AdminMessages() {
               title_he: draft.title_he,
               title_en: draft.title_en,
               image_url: imageUrl,
+              day_start: draft.day_start,
+              day_end: draft.day_end,
             })
             .eq('id', phase.id);
         }
@@ -379,15 +385,35 @@ export default function AdminMessages() {
                           border: '1px solid rgba(212, 175, 55, 0.2)',
                         }}
                       >
-                        {/* Phase badge */}
-                        <div className="flex items-center gap-2 mb-1">
+                        {/* Phase badge + Day Range Inputs */}
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className="text-xl">{phase.icon}</span>
-                          <span className="text-xs font-bold px-3 py-1 rounded-full" style={{
-                            background: 'linear-gradient(135deg, #D4AF37, #F0D78C)',
-                            color: '#fff',
-                          }}>
-                            ימים {phase.day_start}–{phase.day_end}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <label className="text-[10px] font-bold" style={{ color: '#8c6a6a' }}>מיום</label>
+                            <Input
+                              type="number"
+                              min={1}
+                              value={draft.day_start}
+                              onChange={(e) => setPhaseDrafts(prev => ({
+                                ...prev,
+                                [phase.id]: { ...prev[phase.id], day_start: parseInt(e.target.value) || 1 },
+                              }))}
+                              className="w-16 h-7 text-xs text-center"
+                              style={{ background: '#FFFFFF', color: '#4a2020', border: '1.5px solid rgba(212, 175, 55, 0.4)', borderRadius: '8px' }}
+                            />
+                            <label className="text-[10px] font-bold" style={{ color: '#8c6a6a' }}>עד יום</label>
+                            <Input
+                              type="number"
+                              min={1}
+                              value={draft.day_end}
+                              onChange={(e) => setPhaseDrafts(prev => ({
+                                ...prev,
+                                [phase.id]: { ...prev[phase.id], day_end: parseInt(e.target.value) || 1 },
+                              }))}
+                              className="w-16 h-7 text-xs text-center"
+                              style={{ background: '#FFFFFF', color: '#4a2020', border: '1.5px solid rgba(212, 175, 55, 0.4)', borderRadius: '8px' }}
+                            />
+                          </div>
                           <span className="text-xs px-2 py-0.5 rounded-full" style={{
                             background: phase.severity === 'high' ? 'rgba(239,68,68,0.1)' : phase.severity === 'medium' ? 'rgba(234,179,8,0.1)' : 'rgba(34,197,94,0.1)',
                             color: phase.severity === 'high' ? '#dc2626' : phase.severity === 'medium' ? '#ca8a04' : '#16a34a',

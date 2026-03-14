@@ -15,14 +15,23 @@ interface TimelineStep {
   row: number;
 }
 
-const DEFAULT_STEPS: TimelineStep[] = [
-  { dayLabel: 'יום 1', dayLabelEn: 'Day 1', dayRange: [1, 1], instruction: 'שמרי על האזור נקי ויבש. מרחי משחה בעדינות. הצבע כהה היום — זה טבעי!', instructionEn: 'Keep the area clean and dry. Apply ointment gently. Color is dark today — totally normal!', col: 2, row: 0 },
-  { dayLabel: 'ימים 2-4', dayLabelEn: 'Days 2-4', dayRange: [2, 4], instruction: 'הפיגמנט מתחמצן ומכהה — ידהה בקרוב. המשיכי למרוח משחה.', instructionEn: 'The pigment oxidizes and darkens — it will fade soon. Keep applying ointment.', col: 1, row: 0 },
-  { dayLabel: 'ימים 5-7', dayLabelEn: 'Days 5-7', dayRange: [5, 7], instruction: 'לא לקלף! תני לגלד ליפול לבד כדי לשמור על הפיגמנט.', instructionEn: "Don't peel! Let scabs fall off naturally to preserve pigment.", col: 0, row: 0 },
-  { dayLabel: 'ימים 8-10', dayLabelEn: 'Days 8-10', dayRange: [8, 10], instruction: 'שלב ה-Ghosting — הצבע ייראה בהיר מאוד. הוא יחזור!', instructionEn: 'Ghosting phase — color looks very light. It will come back!', col: 2, row: 1 },
-  { dayLabel: 'ימים 14-28', dayLabelEn: 'Days 14-28', dayRange: [14, 28], instruction: 'הצבע מתייצב. שמרי על הגנה מהשמש.', instructionEn: 'Color is stabilizing. Protect from sun exposure.', col: 1, row: 1 },
-  { dayLabel: 'יום 42', dayLabelEn: 'Day 42', dayRange: [30, 60], instruction: 'מושלם! הגיע הזמן לקבוע תור לטאצ׳ אפ.', instructionEn: "Perfect! Time to schedule your touch-up.", col: 0, row: 1 },
-];
+function phasesToSteps(phases: HealingPhase[]): TimelineStep[] {
+  return phases.map((p, i) => {
+    const col = (phases.length - 1 - i) % 3;
+    const row = Math.floor(i / 3);
+    const dayLabel = p.day_start === p.day_end ? `יום ${p.day_start}` : `ימים ${p.day_start}-${p.day_end}`;
+    const dayLabelEn = p.day_start === p.day_end ? `Day ${p.day_start}` : `Days ${p.day_start}-${p.day_end}`;
+    return {
+      dayLabel,
+      dayLabelEn,
+      dayRange: [p.day_start, p.day_end] as [number, number],
+      instruction: p.steps_he.join(' ') || p.title_he,
+      instructionEn: p.steps_en.join(' ') || p.title_en,
+      col,
+      row,
+    };
+  });
+}
 
 function getActiveStepIndex(steps: TimelineStep[], currentDay: number): number {
   for (let i = steps.length - 1; i >= 0; i--) {
@@ -42,26 +51,11 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
   const isHe = lang === 'he';
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [steps, setSteps] = useState<TimelineStep[]>(DEFAULT_STEPS);
   const { phases } = useHealingPhases(treatment);
+  const [artistOverrides, setArtistOverrides] = useState<any[]>([]);
 
-  // Merge DB healing phases into steps as consolidated instructions
-  useEffect(() => {
-    if (phases.length > 0) {
-      setSteps(prev => prev.map(s => {
-        const midDay = Math.floor((s.dayRange[0] + s.dayRange[1]) / 2);
-        const phase = phases.find(p => midDay >= p.day_start && midDay <= p.day_end);
-        if (phase) {
-          return {
-            ...s,
-            instruction: phase.steps_he.join(' '),
-            instructionEn: phase.steps_en.join(' '),
-          };
-        }
-        return s;
-      }));
-    }
-  }, [phases]);
+  // Build steps entirely from DB phases
+  const steps = phases.length > 0 ? phasesToSteps(phases) : [];
 
   // Load artist-specific overrides from DB
   useEffect(() => {
@@ -73,15 +67,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
           .select('*')
           .eq('artist_profile_id', artistProfileId);
         if (data && data.length > 0) {
-          setSteps(prev => prev.map((s, i) => {
-            const row = (data as any[]).find((r: any) => r.step_index === i);
-            if (!row) return s;
-            return {
-              ...s,
-              instruction: row.quote_he || s.instruction,
-              instructionEn: row.quote_en || s.instructionEn,
-            };
-          }));
+          setArtistOverrides(data as any[]);
         }
       } catch (e) {
         console.error('Failed to load timeline content:', e);
@@ -90,7 +76,18 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
     load();
   }, [artistProfileId]);
 
-  const activeIdx = getActiveStepIndex(steps, currentDay);
+  // Apply artist overrides on top of DB steps
+  const finalSteps = steps.map((s, i) => {
+    const row = artistOverrides.find((r: any) => r.step_index === i);
+    if (!row) return s;
+    return {
+      ...s,
+      instruction: row.quote_he || s.instruction,
+      instructionEn: row.quote_en || s.instructionEn,
+    };
+  });
+
+  const activeIdx = getActiveStepIndex(finalSteps, currentDay);
 
   // Auto-select active step
   useEffect(() => {
@@ -100,13 +97,13 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
   // Scroll to active card on mount
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el) return;
+    if (!el || finalSteps.length === 0) return;
     const card = el.children[activeIdx] as HTMLElement | undefined;
     if (card) {
       const offset = card.offsetLeft - el.offsetWidth / 2 + card.offsetWidth / 2;
       el.scrollTo({ left: offset, behavior: 'smooth' });
     }
-  }, [activeIdx]);
+  }, [activeIdx, finalSteps.length]);
 
   // Sync selected index on scroll (swipe detection)
   useEffect(() => {
@@ -138,8 +135,16 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
     el.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
   };
 
-  const displayStep = selectedIdx !== null ? steps[selectedIdx] : steps[activeIdx];
+  if (finalSteps.length === 0) {
+    return (
+      <div className="rounded-3xl py-6 mb-6 text-center" style={{ backgroundColor: 'hsl(0 0% 100%)' }}>
+        <p style={{ color: 'hsl(0 0% 60%)' }}>{isHe ? 'טוען מסע החלמה...' : 'Loading healing journey...'}</p>
+      </div>
+    );
+  }
+
   const displayIdx = selectedIdx !== null ? selectedIdx : activeIdx;
+  const displayStep = finalSteps[displayIdx];
 
   return (
     <div
@@ -200,7 +205,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
           style={{ scrollbarWidth: 'none' }}
           dir="ltr"
         >
-          {steps.map((step, i) => {
+          {finalSteps.map((step, i) => {
             const isActive = i === activeIdx;
             const isPast = i < activeIdx;
             const isSelected = i === displayIdx;
@@ -230,7 +235,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                     : '0 1px 4px hsl(0 0% 0% / 0.04)',
                 }}
               >
-                {/* Day label */}
+                {/* Day label — dynamic from DB */}
                 <div
                   className="px-4 py-1 rounded-full text-xs font-bold mb-3 tracking-wide"
                   style={{
@@ -296,7 +301,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
 
       {/* Gold connector dots */}
       <div className="flex items-center justify-center gap-1.5 mt-3 px-6">
-        {steps.map((_, i) => (
+        {finalSteps.map((_, i) => (
           <div
             key={i}
             className="rounded-full transition-all duration-300 cursor-pointer"
