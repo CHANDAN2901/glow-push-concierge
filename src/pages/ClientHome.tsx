@@ -753,7 +753,7 @@ const ClientHome = () => {
 
         {/* ─── HEALING TIMELINE ─── */}
         <div id="care" className="scroll-mt-20" />
-        <HealingTimelineCarousel currentDay={viewingDay} treatment={treatment} />
+        <HealingTimelineCarousel currentDay={viewingDay} artistProfileId={artistProfileId} treatment={treatment} />
 
         {/* ─── DAILY TREATMENT BUTTON ─── */}
         <div className="mb-5">

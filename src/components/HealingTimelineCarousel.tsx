@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
+import { supabase } from '@/integrations/supabase/client';
 import { useHealingPhases, HealingPhase } from '@/hooks/useHealingPhases';
 import healingCharsImg from '@/assets/healing-characters.jpg';
 
@@ -41,18 +42,50 @@ function getActiveStepIndex(steps: TimelineStep[], currentDay: number): number {
 
 interface Props {
   currentDay: number;
+  artistProfileId?: string | null;
   treatment?: 'eyebrows' | 'lips';
 }
 
-export default function HealingTimelineCarousel({ currentDay, treatment = 'eyebrows' }: Props) {
+export default function HealingTimelineCarousel({ currentDay, artistProfileId, treatment = 'eyebrows' }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const { phases } = useHealingPhases(treatment);
+  const [artistOverrides, setArtistOverrides] = useState<any[]>([]);
 
-  // Build steps entirely from global DB phases
-  const finalSteps = phases.length > 0 ? phasesToSteps(phases) : [];
+  // Build steps entirely from DB phases
+  const steps = phases.length > 0 ? phasesToSteps(phases) : [];
+
+  // Load artist-specific overrides from DB
+  useEffect(() => {
+    if (!artistProfileId) return;
+    const load = async () => {
+      try {
+        const { data } = await supabase
+          .from('timeline_content' as any)
+          .select('*')
+          .eq('artist_profile_id', artistProfileId);
+        if (data && data.length > 0) {
+          setArtistOverrides(data as any[]);
+        }
+      } catch (e) {
+        console.error('Failed to load timeline content:', e);
+      }
+    };
+    load();
+  }, [artistProfileId]);
+
+  // Apply artist overrides on top of DB steps
+  const finalSteps = steps.map((s, i) => {
+    const row = artistOverrides.find((r: any) => r.step_index === i);
+    if (!row) return s;
+    return {
+      ...s,
+      instruction: row.quote_he || s.instruction,
+      instructionEn: row.quote_en || s.instructionEn,
+    };
+  });
 
   const activeIdx = getActiveStepIndex(finalSteps, currentDay);
 
