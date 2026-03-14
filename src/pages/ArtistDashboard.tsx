@@ -1087,7 +1087,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           full_name: clientName,
           phone: clientPhone || null,
           treatment_type: getTreatmentLabel(treatmentType),
-          treatment_date: treatmentDate,
+          treatment_date: null,
         }).then(({ error }) => {
           if (!error) fetchClients();
           else console.error('Failed to save client:', error);
