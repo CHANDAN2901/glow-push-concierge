@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
 import { useToast } from '@/hooks/use-toast';
+import { useHealingPhases, HealingPhase } from '@/hooks/useHealingPhases';
 
 interface TimelineStep {
   day: number;
@@ -36,33 +37,26 @@ interface HealingJourneyTimelineProps {
   onSendWhatsApp: (day: number, message: string) => void;
 }
 
-/* ── Current-phase label ── */
-function getCurrentPhaseLabel(day: number, isHe: boolean): { label: string; emoji: string } {
-  if (day <= 1) return { label: isHe ? 'יום הטיפול' : 'Treatment Day', emoji: '✨' };
-  if (day <= 3) return { label: isHe ? 'שלב ההגנה' : 'Protection Phase', emoji: '💧' };
-  if (day <= 7) return { label: isHe ? 'שלב הקילוף' : 'Peeling Phase', emoji: '🛡️' };
-  if (day <= 14) return { label: isHe ? 'שלב ה-Ghosting' : 'Ghosting Phase', emoji: '👻' };
-  if (day <= 30) return { label: isHe ? 'התייצבות הצבע' : 'Color Stabilization', emoji: '🎨' };
-  return { label: isHe ? 'הושלם' : 'Completed', emoji: '🎉' };
+/* ── Current-phase label from DB ── */
+function getCurrentPhaseFromDB(day: number, phases: HealingPhase[], isHe: boolean): { label: string; emoji: string } {
+  const phase = phases.find(p => day >= p.day_start && day <= p.day_end);
+  if (phase) return { label: isHe ? phase.title_he : phase.title_en, emoji: phase.icon };
+  if (phases.length > 0 && day > phases[phases.length - 1].day_end) return { label: isHe ? 'הושלם' : 'Completed', emoji: '🎉' };
+  return { label: isHe ? 'מסע החלמה' : 'Healing Journey', emoji: '✨' };
 }
 
 function isLipsTreatment(treatmentType: string): boolean {
   return treatmentType.includes('שפתיים') || treatmentType.toLowerCase().includes('lip');
 }
 
-function getDefaultSteps(
+function buildStepsFromPhases(
+  phases: HealingPhase[],
   currentDay: number,
   startDate: string,
   sentLog: Record<string, string>,
   clientName: string,
-  treatmentType: string,
 ): TimelineStep[] {
   const start = new Date(startDate);
-  const formatDate = (dayOffset: number) => {
-    const d = new Date(start);
-    d.setDate(d.getDate() + dayOffset);
-    return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
-  };
   const formatDateTime = (dayOffset: number) => {
     const d = new Date(start);
     d.setDate(d.getDate() + dayOffset);
@@ -77,8 +71,6 @@ function getDefaultSteps(
     return 'scheduled';
   };
 
-  const lips = isLipsTreatment(treatmentType);
-
   const dayZero: TimelineStep = {
     day: 0,
     icon: <CheckCircle className="w-5 h-5" />,
@@ -90,112 +82,20 @@ function getDefaultSteps(
     status: 'sent' as const,
   };
 
-  if (lips) {
-    return [
-      dayZero,
-      {
-        day: 1,
-        icon: <Droplets className="w-5 h-5" />,
-        emoji: '🧴',
-        titleHe: 'לחות ומניעת הרפס',
-        titleEn: 'Hydration & Cold Sore Prevention',
-        descHe: 'שתייה בקש, הימנעות מאוכל חריף/חם, מריחת משחה. זכרי לא לנשק!',
-        descEn: 'Drink with a straw, avoid spicy/hot food, apply ointment. No kissing!',
-        status: getStatus(1),
-        scheduledDate: formatDateTime(1),
-        messageKey: 'congrats',
-      },
-      {
-        day: 3,
-        icon: <Ban className="w-5 h-5" />,
-        emoji: '🚫',
-        titleHe: 'שלב הקילוף',
-        titleEn: 'Peeling Stage',
-        descHe: 'השפתיים עשויות להרגיש יבשות או להתקלף. הקפידי על לחות מקסימלית — לא לקלף!',
-        descEn: 'Lips may feel dry or start peeling. Maximum moisture — don\'t peel!',
-        status: getStatus(3),
-        scheduledDate: formatDateTime(3),
-        messageKey: 'peeling',
-      },
-      {
-        day: 10,
-        icon: <Camera className="w-5 h-5" />,
-        emoji: '📸',
-        titleHe: 'התייצבות הצבע',
-        titleEn: 'Color Stabilization',
-        descHe: 'הצבע עשוי להיראות בהיר — הוא יתייצב בשבועות הקרובים. שלחי תמונה!',
-        descEn: 'Color may look light — it will stabilize in coming weeks. Send a photo!',
-        status: getStatus(10),
-        scheduledDate: formatDateTime(10),
-        messageKey: 'ghosting',
-      },
-      {
-        day: 30,
-        icon: <Heart className="w-5 h-5" />,
-        emoji: '💋',
-        titleHe: 'תזכורת טאצ׳ אפ',
-        titleEn: 'Touch-up Reminder',
-        descHe: 'הזמנה לקביעת תור לטאצ׳ אפ במידת הצורך',
-        descEn: 'Invitation to schedule a touch-up if needed',
-        status: getStatus(30),
-        scheduledDate: formatDateTime(30),
-        messageKey: 'touchup',
-      },
-    ];
-  }
+  const phaseSteps: TimelineStep[] = phases.map(p => ({
+    day: p.day_start,
+    icon: <Heart className="w-5 h-5" />,
+    emoji: p.icon,
+    titleHe: p.title_he,
+    titleEn: p.title_en,
+    descHe: p.steps_he.join(' ') || p.title_he,
+    descEn: p.steps_en.join(' ') || p.title_en,
+    status: getStatus(p.day_start),
+    scheduledDate: formatDateTime(p.day_start),
+    messageKey: `phase_${p.sort_order}`,
+  }));
 
-  // Brows
-  return [
-    dayZero,
-    {
-      day: 1,
-      icon: <Droplets className="w-5 h-5" />,
-      emoji: '🧴',
-      titleHe: 'מריחת משחה',
-      titleEn: 'Ointment Application',
-      descHe: 'הסבר על מריחת משחה ושמירה על האזור. הצבע כהה היום — זה טבעי!',
-      descEn: 'Ointment application & area care. Color is dark today — totally normal!',
-      status: getStatus(1),
-      scheduledDate: formatDateTime(1),
-      messageKey: 'congrats',
-    },
-    {
-      day: 4,
-      icon: <Ban className="w-5 h-5" />,
-      emoji: '🚫',
-      titleHe: 'שלב הקילוף',
-      titleEn: 'Peeling Stage',
-      descHe: 'תזכורת לא לקלף באופן יזום — הגלד חייב ליפול לבד כדי לשמור על הפיגמנט',
-      descEn: "Don't peel — let scabs fall off naturally to preserve pigment",
-      status: getStatus(4),
-      scheduledDate: formatDateTime(4),
-      messageKey: 'peeling',
-    },
-    {
-      day: 10,
-      icon: <Camera className="w-5 h-5" />,
-      emoji: '📸',
-      titleHe: 'ביקורת סופית',
-      titleEn: 'Final Check-in',
-      descHe: 'בקשה לתמונה של התוצאה ובדיקת מצב ההחלמה',
-      descEn: 'Request a photo of the result & check healing status',
-      status: getStatus(10),
-      scheduledDate: formatDateTime(10),
-      messageKey: 'ghosting',
-    },
-    {
-      day: 30,
-      icon: <Heart className="w-5 h-5" />,
-      emoji: '✨',
-      titleHe: 'תזכורת טאצ׳ אפ',
-      titleEn: 'Touch-up Reminder',
-      descHe: 'הזמנה לקביעת תור לטאצ׳ אפ במידת הצורך',
-      descEn: 'Invitation to schedule a touch-up if needed',
-      status: getStatus(30),
-      scheduledDate: formatDateTime(30),
-      messageKey: 'touchup',
-    },
-  ];
+  return [dayZero, ...phaseSteps];
 }
 
 const STATUS_CONFIG = {
@@ -244,6 +144,8 @@ export default function HealingJourneyTimeline({
   const { toast } = useToast();
   const isHe = lang === 'he';
   const { buildWhatsAppText } = useAftercareTemplates();
+  const treatment: 'eyebrows' | 'lips' = isLipsTreatment(treatmentType) ? 'lips' : 'eyebrows';
+  const { phases } = useHealingPhases(treatment);
 
   const startDate = treatmentStartDate || (() => {
     const d = new Date();
@@ -257,9 +159,9 @@ export default function HealingJourneyTimeline({
   const [customTitle, setCustomTitle] = useState('');
   const [customDesc, setCustomDesc] = useState('');
 
-  const defaultSteps = getDefaultSteps(treatmentDay, startDate, waSentLog, clientName, treatmentType);
+  const defaultSteps = buildStepsFromPhases(phases, treatmentDay, startDate, waSentLog, clientName);
   const allSteps = [...defaultSteps, ...customAlerts].sort((a, b) => a.day - b.day);
-  const phase = getCurrentPhaseLabel(treatmentDay, isHe);
+  const phase = getCurrentPhaseFromDB(treatmentDay, phases, isHe);
 
   const handleSendManual = (step: TimelineStep) => {
     const msg = buildWhatsAppText(step.day || 1, clientName, artistName);
@@ -303,7 +205,7 @@ export default function HealingJourneyTimeline({
     setShowAddCustom(false);
   };
 
-  const lips = isLipsTreatment(treatmentType);
+  const lips = treatment === 'lips';
 
   return (
     <div className="space-y-5 animate-fade-up" dir={isHe ? 'rtl' : 'ltr'}>
