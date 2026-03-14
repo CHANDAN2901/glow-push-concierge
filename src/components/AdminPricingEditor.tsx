@@ -253,7 +253,7 @@ export default function AdminPricingEditor() {
                 <Input value={plan.name_en} onChange={(e) => updatePlan(plan.id, 'name_en', e.target.value)} />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">מחיר חודשי (₪)</label>
+                <label className="text-sm font-medium mb-1 block">מחיר כולל לתקופה (₪)</label>
                 <Input
                   type="number"
                   value={plan.price_monthly}
