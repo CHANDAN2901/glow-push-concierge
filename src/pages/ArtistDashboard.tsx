@@ -285,7 +285,7 @@ const ArtistDashboard = () => {
   const [facebookUrl, setFacebookUrl] = useState('');
   const [wazeAddress, setWazeAddress] = useState('');
   const [shopProducts, setShopProducts] = useState<ShopProduct[]>(() => loadShopProducts());
-...
+
 useEffect(() => {
   setIncludePolicyShare(true);
   const strictDone = hasRealTreatmentDate(selectedClient?.treatmentDate);
