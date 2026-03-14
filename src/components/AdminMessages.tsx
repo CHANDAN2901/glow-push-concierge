@@ -52,17 +52,6 @@ function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
   return drafts;
 }
 
-function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
-  const drafts: Record<string, PhaseDraft> = {};
-  phases.forEach(p => {
-    drafts[p.id] = {
-      title_he: p.title_he,
-      title_en: p.title_en,
-      image_url: p.image_url || '',
-    };
-  });
-  return drafts;
-}
 
 const PUSH_EVENTS = [
   { key: 'appointment_reminder', label: 'תזכורת תור', icon: '📅', defaultText: 'היי {{client_name}}, תזכורת מהקליניקה — קבענו לתאריך {{date}} בשעה {{time}}. מחכה לראותך! ✨' },
