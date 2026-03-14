@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageSquareText, Save, Send, Bell, Heart, Plus, Upload, Image, Globe } from 'lucide-react';
+import { MessageSquareText, Save, Send, Bell, Heart, Upload, Image, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { eyebrowPhases } from '@/lib/recovery-data';
 
 interface HealingPhase {
   id: string;
@@ -32,26 +31,24 @@ interface MessageTemplate {
 interface PhaseDraft {
   title_he: string;
   title_en: string;
+  steps_he: string;
+  steps_en: string;
   image_url: string;
   imageFile?: File;
   imagePreview?: string;
 }
 
-function buildDayDrafts(phases: HealingPhase[], maxDay: number): Record<number, string> {
-  const drafts: Record<number, string> = {};
-  for (let day = 1; day <= maxDay; day++) {
-    const phase = phases.find(p => day >= p.day_start && day <= p.day_end);
-    if (phase && phase.steps_he.length > 0) {
-      drafts[day] = phase.steps_he.join('\n');
-    } else {
-      const localPhase = eyebrowPhases.find(p => day >= p.day && day <= p.dayEnd);
-      if (localPhase) {
-        drafts[day] = localPhase.checklist.map(c => c.he).join('\n');
-      } else {
-        drafts[day] = '';
-      }
-    }
-  }
+function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
+  const drafts: Record<string, PhaseDraft> = {};
+  phases.forEach(p => {
+    drafts[p.id] = {
+      title_he: p.title_he,
+      title_en: p.title_en,
+      steps_he: p.steps_he.join('\n'),
+      steps_en: p.steps_en.join('\n'),
+      image_url: p.image_url || '',
+    };
+  });
   return drafts;
 }
 

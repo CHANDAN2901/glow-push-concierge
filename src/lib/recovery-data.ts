@@ -27,7 +27,7 @@ export const eyebrowPhases: DayInstruction[] = [
     icon: "💧", severity: 'high'
   },
   {
-    day: 4, dayEnd: 10,
+    day: 4, dayEnd: 7,
     titleEn: "Peeling Stage — Caution! 🛡️", titleHe: "שלב הקילופים — זהירות! 🛡️",
     checklist: [
       { en: "❌ Don't scratch or peel the scab (it pulls pigment!)", he: '❌ אסור לגרד או לקלף את הגלד (זה יתלוש פיגמנט!).' },
