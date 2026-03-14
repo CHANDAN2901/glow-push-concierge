@@ -221,6 +221,12 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   };
 
   const handleSubmit = async () => {
+    // In preview mode, skip real submission and show the thank-you screen directly
+    if (isPreview) {
+      setShowThankYou(true);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const data: HealthDeclarationData = {
