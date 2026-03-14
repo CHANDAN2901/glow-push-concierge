@@ -48,12 +48,12 @@ interface Props {
   clientId?: string | null;
 }
 
-export default function HealingTimelineCarousel({ currentDay, artistProfileId, treatment = 'eyebrows' }: Props) {
+export default function HealingTimelineCarousel({ currentDay, artistProfileId, treatment = 'eyebrows', clientId }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const { phases } = useHealingPhases(treatment);
+  const { phases } = useClientHealingPhases(clientId, treatment);
   const [artistOverrides, setArtistOverrides] = useState<any[]>([]);
 
   // Build steps entirely from DB phases
