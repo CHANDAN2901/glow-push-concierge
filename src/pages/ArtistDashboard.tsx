@@ -2232,7 +2232,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       setFinishingTreatment(false);
                     }
                   }}
-                  disabled={finishingTreatment || finishTreatmentDone}
+                  disabled={finishingTreatment || updatingTreatmentDate || finishTreatmentDone}
                   className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide transition-all active:scale-[0.98] disabled:opacity-70"
                   style={{
                     background: finishTreatmentDone
