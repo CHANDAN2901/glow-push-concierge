@@ -2084,6 +2084,34 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   );
                 })()}
 
+                {/* === Manual Treatment Date (with clear failsafe) === */}
+                <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-foreground">
+                      {lang === 'en' ? 'Treatment Date' : 'תאריך טיפול'}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => updateSelectedTreatmentDate(null)}
+                      disabled={updatingTreatmentDate || !manualTreatmentDate}
+                      className="text-xs underline text-muted-foreground hover:text-foreground disabled:opacity-50"
+                    >
+                      {lang === 'en' ? 'Clear Date' : 'נקה תאריך'}
+                    </button>
+                  </div>
+                  <Input
+                    type="date"
+                    dir="ltr"
+                    value={manualTreatmentDate}
+                    disabled={updatingTreatmentDate}
+                    onChange={(e) => {
+                      const nextValue = e.target.value;
+                      setManualTreatmentDate(nextValue);
+                      void updateSelectedTreatmentDate(nextValue || null);
+                    }}
+                  />
+                </div>
+
                 {/* === Send Test Push Notification === */}
                 <button
                   type="button"
