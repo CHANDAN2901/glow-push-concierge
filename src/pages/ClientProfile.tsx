@@ -331,7 +331,7 @@ function FinishTreatmentCTA({ client, clientDbId, lang, onTreatmentStarted }: {
         className="w-full py-4 text-base font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-70"
         style={{
           background: done ? 'hsl(142 76% 36%)' : 'linear-gradient(135deg, #D4AF37 0%, #F5C6D0 50%, #D4AF37 100%)',
-          color: done ? '#fff' : '#4a3636',
+          color: done ? '#9ca3af' : '#4a3636',
         }}
       >
         {saving ? (

@@ -2129,7 +2129,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     background: isTreatmentDone
                       ? 'hsl(142 76% 36%)'
                       : 'linear-gradient(135deg, #D4AF37 0%, #F5C6D0 50%, #D4AF37 100%)',
-                    color: isTreatmentDone ? '#fff' : '#4a3636',
+                    color: isTreatmentDone ? '#9ca3af' : '#4a3636',
                     boxShadow: isTreatmentDone
                       ? '0 4px 18px rgba(34,197,94,0.3)'
                       : '0 8px 32px rgba(212,175,55,0.35), 0 0 20px rgba(245,198,208,0.25)',
