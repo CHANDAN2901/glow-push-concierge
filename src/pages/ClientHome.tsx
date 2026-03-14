@@ -720,54 +720,6 @@ const ClientHome = () => {
         </div>
 
 
-        {/* ─── DAILY ACTIONS ─── */}
-        <div className="grid grid-cols-2 gap-3 mb-5 animate-fade-up delay-150" dir="rtl">
-          {/* Daily Check-in */}
-          <button
-            onClick={() => {
-              const galleryEl = document.getElementById('gallery');
-              if (galleryEl) galleryEl.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="rounded-2xl p-5 text-center transition-all hover:scale-[1.02] active:scale-[0.97] client-glass-card"
-          >
-            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: METALLIC_GOLD_GRADIENT, boxShadow: '0 4px 20px rgba(212,175,55,0.5), 0 0 16px rgba(212,175,55,0.3)' }}>
-              <Camera className="w-6 h-6 text-white" strokeWidth={1.8} />
-            </div>
-            <h3 className="text-sm font-bold mb-1" style={{ fontFamily: TITLE_FONT }}>
-              <GoldText>{lang === 'en' ? 'Daily Check-in' : 'תיעוד יומי'}</GoldText>
-            </h3>
-            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: BODY_TEXT }}>
-              {lang === 'en' ? 'Photograph and upload to the shared gallery' : 'צלמי את אזור הטיפול והעלי לגלריה המשותפת'}
-            </p>
-          </button>
-
-          {/* Moisture Tracker */}
-          <div
-            className="rounded-2xl p-5 text-center client-glass-card"
-          >
-            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(100,180,230,0.2), rgba(60,140,200,0.15))' }}>
-              <span className="text-2xl">💧</span>
-            </div>
-            <h3 className="text-sm font-bold mb-1" style={{ fontFamily: TITLE_FONT }}>
-              <GoldText>{lang === 'en' ? 'Moisture Tracker' : 'מעקב לחות'}</GoldText>
-            </h3>
-            <p className="text-[10px] leading-relaxed" style={{ fontFamily: FBAHAVA, color: BODY_TEXT }}>
-              {lang === 'en' ? 'Next: apply moisturizer / drink water' : 'הטיימר הבא: מריחת מלחח / שתיית מים'}
-            </p>
-            {/* Mini progress bar */}
-            <div className="mt-3 w-full rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(212,175,55,0.1)' }}>
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: '65%',
-                  background: 'linear-gradient(90deg, #64B4E6, #3C8CC8)',
-                  boxShadow: '0 0 6px rgba(100,180,230,0.4)',
-                  transition: 'width 0.5s ease',
-                }}
-              />
-            </div>
-          </div>
-        </div>
 
         {/* ─── DAY NAVIGATION (minimal) ─── */}
         <div className="flex items-center justify-center gap-4 mb-5 animate-fade-up delay-200">
