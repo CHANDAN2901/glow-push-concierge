@@ -159,7 +159,7 @@ export default function TimelineSettings() {
     });
   };
 
-  const removeCustomStep = () => {
+  const removeCustomStep = (_idx?: number) => {
     toast({
       title: 'לא ניתן למחוק שלב ברירת מחדל',
       description: 'מחיקת שלבים מתבצעת במסך הסופר אדמין בלבד.',
