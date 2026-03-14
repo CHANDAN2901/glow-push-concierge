@@ -268,6 +268,13 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                       : 'none',
                   }}
                 >
+                {step.imageUrl ? (
+                  <img
+                    src={step.imageUrl}
+                    alt={isHe ? step.dayLabel : step.dayLabelEn}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
                   <div
                     className="w-full h-full"
                     style={{
@@ -276,6 +283,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                       backgroundPosition: `${step.col * 50}% ${step.row * 100}%`,
                     }}
                   />
+                )}
                 </div>
 
                 {/* Status indicator */}
