@@ -108,7 +108,7 @@ export default function TimelineContentEditorPage() {
 
       const merged = baseSteps.map((base) => {
         const row = overridesByIndex.get(base.step_index);
-        if (!row) return base;
+        if (!row || isLegacyTimelineOverride(row.quote_he, row.quote_en)) return base;
 
         return {
           ...base,

@@ -127,7 +127,7 @@ export default function TimelineSettings() {
 
       const merged = baseSteps.map((base) => {
         const row = overridesByIndex.get(base.step_index);
-        if (!row) return base;
+        if (!row || isLegacyTimelineOverride(row.quote_he, row.quote_en)) return base;
         return {
           ...base,
           instruction_he: row.quote_he || base.instruction_he,

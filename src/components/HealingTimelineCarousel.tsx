@@ -82,7 +82,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
   // Apply artist overrides on top of DB steps
   const finalSteps = steps.map((s, i) => {
     const row = artistOverrides.find((r: any) => r.step_index === i);
-    if (!row) return s;
+    if (!row || isLegacyTimelineOverride(row.quote_he, row.quote_en)) return s;
     return {
       ...s,
       instruction: row.quote_he || s.instruction,
