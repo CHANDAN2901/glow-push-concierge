@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageSquareText, Save, Send, Bell, Heart, Plus, Upload, Image, Globe } from 'lucide-react';
+import { MessageSquareText, Save, Send, Bell, Heart, Upload, Image, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { eyebrowPhases } from '@/lib/recovery-data';
 
 interface HealingPhase {
   id: string;
@@ -32,27 +31,11 @@ interface MessageTemplate {
 interface PhaseDraft {
   title_he: string;
   title_en: string;
+  steps_he: string;
+  steps_en: string;
   image_url: string;
   imageFile?: File;
   imagePreview?: string;
-}
-
-function buildDayDrafts(phases: HealingPhase[], maxDay: number): Record<number, string> {
-  const drafts: Record<number, string> = {};
-  for (let day = 1; day <= maxDay; day++) {
-    const phase = phases.find(p => day >= p.day_start && day <= p.day_end);
-    if (phase && phase.steps_he.length > 0) {
-      drafts[day] = phase.steps_he.join('\n');
-    } else {
-      const localPhase = eyebrowPhases.find(p => day >= p.day && day <= p.dayEnd);
-      if (localPhase) {
-        drafts[day] = localPhase.checklist.map(c => c.he).join('\n');
-      } else {
-        drafts[day] = '';
-      }
-    }
-  }
-  return drafts;
 }
 
 function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
@@ -61,11 +44,14 @@ function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
     drafts[p.id] = {
       title_he: p.title_he,
       title_en: p.title_en,
+      steps_he: p.steps_he.join('\n'),
+      steps_en: p.steps_en.join('\n'),
       image_url: p.image_url || '',
     };
   });
   return drafts;
 }
+
 
 const PUSH_EVENTS = [
   { key: 'appointment_reminder', label: 'תזכורת תור', icon: '📅', defaultText: 'היי {{client_name}}, תזכורת מהקליניקה — קבענו לתאריך {{date}} בשעה {{time}}. מחכה לראותך! ✨' },
@@ -175,8 +161,6 @@ export default function AdminMessages() {
   const [activeTreatment, setActiveTreatment] = useState<'eyebrows' | 'lips'>('eyebrows');
 
   const [phases, setPhases] = useState<HealingPhase[]>([]);
-  const [totalDays, setTotalDays] = useState(14);
-  const [dayDrafts, setDayDrafts] = useState<Record<number, string>>({});
   const [phaseDrafts, setPhaseDrafts] = useState<Record<string, PhaseDraft>>({});
   const [loadingPhases, setLoadingPhases] = useState(true);
 
@@ -197,10 +181,6 @@ export default function AdminMessages() {
       .then(({ data, error }) => {
         const items = (!error && data ? data : []) as HealingPhase[];
         setPhases(items);
-        const maxDbDay = items.reduce((m, p) => Math.max(m, p.day_end), 0);
-        const days = Math.max(14, maxDbDay);
-        setTotalDays(days);
-        setDayDrafts(buildDayDrafts(items, days));
         setPhaseDrafts(buildPhaseDrafts(items));
         setLoadingPhases(false);
       });
@@ -227,11 +207,8 @@ export default function AdminMessages() {
       });
   }, []);
 
-  const handleAddDay = () => {
-    const newDay = totalDays + 1;
-    setTotalDays(newDay);
-    setDayDrafts(prev => ({ ...prev, [newDay]: '' }));
-  };
+
+
 
   const handleImageSelect = (phaseId: string, file: File) => {
     const previewUrl = URL.createObjectURL(file);
@@ -260,24 +237,23 @@ export default function AdminMessages() {
       if (activeTab === 'healing') {
         for (const phase of phases) {
           const draft = phaseDrafts[phase.id];
-          const newSteps: string[] = [];
-          for (let d = phase.day_start; d <= phase.day_end; d++) {
-            if (dayDrafts[d]?.trim()) {
-              newSteps.push(...dayDrafts[d].split('\n').filter(Boolean));
-            }
-          }
+          if (!draft) continue;
 
-          let imageUrl = draft?.image_url || phase.image_url || null;
-          if (draft?.imageFile) {
+          const stepsHe = draft.steps_he.split('\n').filter(l => l.trim());
+          const stepsEn = draft.steps_en.split('\n').filter(l => l.trim());
+
+          let imageUrl = draft.image_url || phase.image_url || null;
+          if (draft.imageFile) {
             imageUrl = await uploadPhaseImage(phase.id, draft.imageFile);
           }
 
           await supabase
             .from('healing_phases')
             .update({
-              steps_he: newSteps,
-              title_he: draft?.title_he ?? phase.title_he,
-              title_en: draft?.title_en ?? phase.title_en,
+              steps_he: stepsHe,
+              steps_en: stepsEn,
+              title_he: draft.title_he,
+              title_en: draft.title_en,
               image_url: imageUrl,
             })
             .eq('id', phase.id);
@@ -331,11 +307,8 @@ export default function AdminMessages() {
     borderBottom: isActive ? '3px solid #D4AF37' : '3px solid transparent',
   });
 
-  const getPhaseForDay = (day: number) => phases.find(p => day >= p.day_start && day <= p.day_end);
-  const isFirstDayOfPhase = (day: number) => {
-    const phase = getPhaseForDay(day);
-    return phase ? phase.day_start === day : false;
-  };
+
+
 
   return (
     <div className="space-y-4 max-w-3xl relative pb-28" dir="rtl">
@@ -392,132 +365,105 @@ export default function AdminMessages() {
               {loadingPhases ? (
                 <div className="text-center py-8" style={{ color: '#b8a090' }}>טוען...</div>
               ) : (
-                <>
-                  {Array.from({ length: totalDays }, (_, i) => i + 1).map(day => {
-                    const phase = getPhaseForDay(day);
-                    const showPhaseHeader = phase && isFirstDayOfPhase(day);
-                    const draft = phase ? phaseDrafts[phase.id] : null;
+                <div className="space-y-5">
+                  {phases.map((phase) => {
+                    const draft = phaseDrafts[phase.id];
+                    if (!draft) return null;
 
                     return (
-                      <div key={day} className="space-y-2">
-                        {/* Phase header block — show at start of each phase */}
-                        {showPhaseHeader && phase && draft && (
-                          <div
-                            className="rounded-xl p-4 space-y-3 mt-2"
-                            style={{
-                              background: 'rgba(212, 175, 55, 0.06)',
-                              border: '1px solid rgba(212, 175, 55, 0.2)',
-                            }}
-                          >
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-base">{phase.icon}</span>
-                              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{
-                                background: 'linear-gradient(135deg, #D4AF37, #F0D78C)',
-                                color: '#fff',
-                              }}>
-                                ימים {phase.day_start}–{phase.day_end}
-                              </span>
-                            </div>
+                      <div
+                        key={phase.id}
+                        className="rounded-xl p-4 space-y-4"
+                        style={{
+                          background: 'rgba(212, 175, 55, 0.04)',
+                          border: '1px solid rgba(212, 175, 55, 0.2)',
+                        }}
+                      >
+                        {/* Phase badge */}
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xl">{phase.icon}</span>
+                          <span className="text-xs font-bold px-3 py-1 rounded-full" style={{
+                            background: 'linear-gradient(135deg, #D4AF37, #F0D78C)',
+                            color: '#fff',
+                          }}>
+                            ימים {phase.day_start}–{phase.day_end}
+                          </span>
+                          <span className="text-xs px-2 py-0.5 rounded-full" style={{
+                            background: phase.severity === 'high' ? 'rgba(239,68,68,0.1)' : phase.severity === 'medium' ? 'rgba(234,179,8,0.1)' : 'rgba(34,197,94,0.1)',
+                            color: phase.severity === 'high' ? '#dc2626' : phase.severity === 'medium' ? '#ca8a04' : '#16a34a',
+                          }}>
+                            {phase.severity === 'high' ? '🔴 חשוב' : phase.severity === 'medium' ? '🟡 בינוני' : '🟢 קל'}
+                          </span>
+                        </div>
 
-                            {/* Title HE */}
-                            <div className="space-y-1">
-                              <label className="text-xs font-bold flex items-center gap-1" style={{ color: '#4a2020' }}>
-                                🇮🇱 כותרת בעברית
-                              </label>
-                              <Input
-                                value={draft.title_he}
-                                onChange={(e) => setPhaseDrafts(prev => ({
-                                  ...prev,
-                                  [phase.id]: { ...prev[phase.id], title_he: e.target.value },
-                                }))}
-                                dir="rtl"
-                                className="text-sm h-9"
-                                style={{
-                                  background: '#FFFFFF',
-                                  color: '#4a2020',
-                                  border: '1.5px solid rgba(216, 180, 180, 0.3)',
-                                  borderRadius: '8px',
-                                }}
-                              />
-                            </div>
-
-                            {/* Title EN */}
-                            <div className="space-y-1">
-                              <label className="text-xs font-bold flex items-center gap-1" style={{ color: '#4a2020' }}>
-                                <Globe className="w-3 h-3" /> Title in English
-                              </label>
-                              <Input
-                                value={draft.title_en}
-                                onChange={(e) => setPhaseDrafts(prev => ({
-                                  ...prev,
-                                  [phase.id]: { ...prev[phase.id], title_en: e.target.value },
-                                }))}
-                                dir="ltr"
-                                className="text-sm h-9"
-                                style={{
-                                  background: '#FFFFFF',
-                                  color: '#4a2020',
-                                  border: '1.5px solid rgba(216, 180, 180, 0.3)',
-                                  borderRadius: '8px',
-                                }}
-                              />
-                            </div>
-
-                            {/* Image Uploader */}
-                            <PhaseImageUploader
-                              currentUrl={draft.image_url}
-                              previewUrl={draft.imagePreview}
-                              onFileSelect={(file) => handleImageSelect(phase.id, file)}
+                        {/* Titles */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold" style={{ color: '#4a2020' }}>🇮🇱 כותרת בעברית</label>
+                            <Input
+                              value={draft.title_he}
+                              onChange={(e) => setPhaseDrafts(prev => ({
+                                ...prev,
+                                [phase.id]: { ...prev[phase.id], title_he: e.target.value },
+                              }))}
+                              dir="rtl"
+                              className="text-sm h-9"
+                              style={{ background: '#FFFFFF', color: '#4a2020', border: '1.5px solid rgba(216, 180, 180, 0.3)', borderRadius: '8px' }}
                             />
                           </div>
-                        )}
-
-                        {/* Day row */}
-                        <div className="space-y-1.5">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold"
-                              style={{
-                                background: 'linear-gradient(135deg, #D4AF37, #F0D78C)',
-                                color: '#fff',
-                                boxShadow: '0 2px 8px rgba(212, 175, 55, 0.3)',
-                              }}
-                            >
-                              {day}
-                            </span>
-                            <label className="text-sm font-bold" style={{ color: '#4a2020' }}>
-                              יום {day}
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold flex items-center gap-1" style={{ color: '#4a2020' }}>
+                              <Globe className="w-3 h-3" /> Title in English
                             </label>
-                            {phase && !showPhaseHeader && (
-                              <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(216, 180, 180, 0.2)', color: '#8c6a6a' }}>
-                                {phase.icon} {phase.title_he}
-                              </span>
-                            )}
+                            <Input
+                              value={draft.title_en}
+                              onChange={(e) => setPhaseDrafts(prev => ({
+                                ...prev,
+                                [phase.id]: { ...prev[phase.id], title_en: e.target.value },
+                              }))}
+                              dir="ltr"
+                              className="text-sm h-9"
+                              style={{ background: '#FFFFFF', color: '#4a2020', border: '1.5px solid rgba(216, 180, 180, 0.3)', borderRadius: '8px' }}
+                            />
                           </div>
-                          <AutoTextarea
-                            value={dayDrafts[day] ?? ''}
-                            onChange={(val) => setDayDrafts(prev => ({ ...prev, [day]: val }))}
-                            placeholder={`הנחיות ליום ${day}...`}
-                          />
+                        </div>
+
+                        {/* Image Uploader */}
+                        <PhaseImageUploader
+                          currentUrl={draft.image_url}
+                          previewUrl={draft.imagePreview}
+                          onFileSelect={(file) => handleImageSelect(phase.id, file)}
+                        />
+
+                        {/* Instructions per stage */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold" style={{ color: '#4a2020' }}>📋 הנחיות בעברית</label>
+                            <AutoTextarea
+                              value={draft.steps_he}
+                              onChange={(val) => setPhaseDrafts(prev => ({
+                                ...prev,
+                                [phase.id]: { ...prev[phase.id], steps_he: val },
+                              }))}
+                              placeholder="הנחיות ללקוחה בעברית (שורה לכל הנחיה)…"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold" style={{ color: '#4a2020' }}>📋 Instructions in English</label>
+                            <AutoTextarea
+                              value={draft.steps_en}
+                              onChange={(val) => setPhaseDrafts(prev => ({
+                                ...prev,
+                                [phase.id]: { ...prev[phase.id], steps_en: val },
+                              }))}
+                              placeholder="Instructions in English (one per line)…"
+                            />
+                          </div>
                         </div>
                       </div>
                     );
                   })}
-
-                  <Button
-                    variant="outline"
-                    className="w-full h-11 rounded-xl font-bold text-sm transition-all hover:scale-[1.01]"
-                    style={{
-                      color: '#D4AF37',
-                      borderColor: 'rgba(212, 175, 55, 0.4)',
-                      background: 'rgba(212, 175, 55, 0.06)',
-                    }}
-                    onClick={handleAddDay}
-                  >
-                    <Plus className="w-4 h-4 ml-1.5" />
-                    + הוסף יום למסע
-                  </Button>
-                </>
+                </div>
               )}
             </div>
           ) : (

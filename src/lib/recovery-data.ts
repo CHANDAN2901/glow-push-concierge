@@ -27,7 +27,7 @@ export const eyebrowPhases: DayInstruction[] = [
     icon: "💧", severity: 'high'
   },
   {
-    day: 4, dayEnd: 10,
+    day: 4, dayEnd: 7,
     titleEn: "Peeling Stage — Caution! 🛡️", titleHe: "שלב הקילופים — זהירות! 🛡️",
     checklist: [
       { en: "❌ Don't scratch or peel the scab (it pulls pigment!)", he: '❌ אסור לגרד או לקלף את הגלד (זה יתלוש פיגמנט!).' },
@@ -37,7 +37,7 @@ export const eyebrowPhases: DayInstruction[] = [
     icon: "🛡️", severity: 'high'
   },
   {
-    day: 11, dayEnd: 20,
+    day: 8, dayEnd: 14,
     titleEn: "Ghosting Phase 👻", titleHe: "העלמות הפיגמנט 👻",
     checklist: [
       { en: "👻 Color looks like it disappeared? Don't worry, it'll come back.", he: '👻 הצבע נראה כאילו נעלם? אל דאגה, הוא יחזור.' },
@@ -47,7 +47,7 @@ export const eyebrowPhases: DayInstruction[] = [
     icon: "👻", severity: 'medium'
   },
   {
-    day: 21, dayEnd: 30,
+    day: 15, dayEnd: 30,
     titleEn: "Final Result ✨", titleHe: "החשיפה הסופית ✨",
     checklist: [
       { en: '✨ The color is stabilizing and coming back.', he: '✨ הצבע מתייצב וחוזר לעצמו.' },
