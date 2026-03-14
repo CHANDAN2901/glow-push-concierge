@@ -52,9 +52,7 @@ export default function TimelineSettings() {
   const navigate = useNavigate();
   const { lang } = useI18n();
   const isHe = lang === 'he';
-  const [steps, setSteps] = useState<StepContent[]>(
-    DEFAULT_STEPS.map((d, i) => ({ step_index: i, ...d }))
-  );
+  const [steps, setSteps] = useState<StepContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profileId, setProfileId] = useState<string | null>(null);
@@ -63,6 +61,34 @@ export default function TimelineSettings() {
     if (!user) { setLoading(false); return; }
     const load = async () => {
       setLoading(true);
+
+      // 1. Fetch Super Admin global defaults from healing_phases
+      let globalPhases: HealingPhaseRow[] = [];
+      try {
+        globalPhases = await restSelect<HealingPhaseRow>(
+          'healing_phases',
+          'treatment_type=eq.eyebrows&order=sort_order.asc'
+        );
+      } catch (e) {
+        console.error('Failed to fetch healing_phases:', e);
+      }
+
+      // Build base steps from global defaults
+      const baseSteps: StepContent[] = globalPhases.map((p, i) => {
+        const dayLabel = p.day_start === p.day_end
+          ? `יום ${p.day_start}`
+          : `ימים ${p.day_start}-${p.day_end}`;
+        return {
+          step_index: i,
+          dayLabel,
+          title_he: p.title_he,
+          title_en: p.title_en,
+          instruction_he: p.steps_he.join('\n') || p.title_he,
+          instruction_en: p.steps_en.join('\n') || p.title_en,
+        };
+      });
+
+      // 2. Fetch artist profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('id')
@@ -71,6 +97,8 @@ export default function TimelineSettings() {
 
       if (profile) {
         setProfileId(profile.id);
+
+        // 3. Fetch artist-specific overrides from timeline_content
         const { data: rows } = await supabase
           .from('timeline_content' as any)
           .select('*')
@@ -78,21 +106,22 @@ export default function TimelineSettings() {
           .order('step_index');
 
         if (rows && rows.length > 0) {
-          const dbSteps = (rows as any[]);
-          const merged: StepContent[] = DEFAULT_STEPS.map((d, i) => {
+          const dbSteps = rows as any[];
+          // Merge overrides on top of global defaults
+          const merged: StepContent[] = baseSteps.map((base, i) => {
             const row = dbSteps.find((r: any) => r.step_index === i);
             if (row) return {
-              step_index: i,
-              dayLabel: d.dayLabel,
-              title_he: row.title_he || d.title_he,
-              title_en: row.title_en || d.title_en,
-              instruction_he: row.quote_he || d.instruction_he,
-              instruction_en: row.quote_en || d.instruction_en,
+              ...base,
+              title_he: row.title_he || base.title_he,
+              title_en: row.title_en || base.title_en,
+              instruction_he: row.quote_he || base.instruction_he,
+              instruction_en: row.quote_en || base.instruction_en,
             };
-            return { step_index: i, ...d };
+            return base;
           });
+          // Add any custom steps beyond global count
           dbSteps
-            .filter((r: any) => r.step_index >= 6)
+            .filter((r: any) => r.step_index >= baseSteps.length)
             .sort((a: any, b: any) => a.step_index - b.step_index)
             .forEach((r: any) => {
               merged.push({
@@ -106,7 +135,12 @@ export default function TimelineSettings() {
               });
             });
           setSteps(merged);
+        } else {
+          // No artist overrides — show global defaults as-is
+          setSteps(baseSteps);
         }
+      } else {
+        setSteps(baseSteps);
       }
       setLoading(false);
     };
