@@ -120,6 +120,7 @@ const Pricing = () => {
         slug: db.slug,
         name: { en: db.name_en, he: db.name_he },
         price: { ils: db.price_monthly, usd: db.price_usd },
+        originalPrice: { ils: db.original_price_monthly, usd: db.original_price_usd },
         isHighlighted: db.is_highlighted,
         badge: db.badge_en || db.badge_he ? { en: db.badge_en || '', he: db.badge_he || '' } : null,
         stripe_price_id: db.stripe_price_id,
