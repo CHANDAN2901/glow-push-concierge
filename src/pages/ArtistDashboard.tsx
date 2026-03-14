@@ -85,6 +85,7 @@ interface ClientEntry {
   email?: string;
   day: number;
   treatment: string;
+  treatmentDate?: string | null;
   link: string;
   beforeImg: string;
   afterImg: string;
