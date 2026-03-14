@@ -2112,7 +2112,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       if (error) throw error;
 
                       // Clone global master template into client-specific record
-                      const tt = selectedClient.treatmentType?.includes('שפתיים') || selectedClient.treatmentType?.toLowerCase().includes('lip') ? 'lips' : 'eyebrows';
+                      const tt = selectedClient.treatment?.includes('שפתיים') || selectedClient.treatment?.toLowerCase().includes('lip') ? 'lips' : 'eyebrows';
                       try {
                         await supabase.rpc('clone_healing_phases_for_client', {
                           p_client_id: clientId,
