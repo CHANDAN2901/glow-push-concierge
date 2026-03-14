@@ -144,6 +144,8 @@ export default function HealingJourneyTimeline({
   const { toast } = useToast();
   const isHe = lang === 'he';
   const { buildWhatsAppText } = useAftercareTemplates();
+  const treatment: 'eyebrows' | 'lips' = isLipsTreatment(treatmentType) ? 'lips' : 'eyebrows';
+  const { phases } = useHealingPhases(treatment);
 
   const startDate = treatmentStartDate || (() => {
     const d = new Date();
@@ -157,9 +159,9 @@ export default function HealingJourneyTimeline({
   const [customTitle, setCustomTitle] = useState('');
   const [customDesc, setCustomDesc] = useState('');
 
-  const defaultSteps = getDefaultSteps(treatmentDay, startDate, waSentLog, clientName, treatmentType);
+  const defaultSteps = buildStepsFromPhases(phases, treatmentDay, startDate, waSentLog, clientName);
   const allSteps = [...defaultSteps, ...customAlerts].sort((a, b) => a.day - b.day);
-  const phase = getCurrentPhaseLabel(treatmentDay, isHe);
+  const phase = getCurrentPhaseFromDB(treatmentDay, phases, isHe);
 
   const handleSendManual = (step: TimelineStep) => {
     const msg = buildWhatsAppText(step.day || 1, clientName, artistName);
