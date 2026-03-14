@@ -929,17 +929,29 @@ const ClientHome = () => {
               <span className="text-[11px]" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Call' : 'חייגי'}</span>
             </a>
             {/* Waze */}
-            <a
-              href={artistWaze || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all hover:scale-[1.03] active:scale-[0.97] client-glass-card"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
-                <Navigation className="w-4.5 h-4.5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
-              </div>
-              <span className="text-[11px]" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Navigate' : 'נווטי'}</span>
-            </a>
+            {artistWaze ? (
+              <a
+                href={artistWaze}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all hover:scale-[1.03] active:scale-[0.97] client-glass-card"
+              >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
+                  <Navigation className="w-4.5 h-4.5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+                </div>
+                <span className="text-[11px]" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Navigate' : 'נווטי'}</span>
+              </a>
+            ) : (
+              <button
+                onClick={() => toast({ title: lang === 'en' ? 'Address not set yet' : 'הכתובת עדיין לא הוגדרה' })}
+                className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all hover:scale-[1.03] active:scale-[0.97] client-glass-card opacity-50"
+              >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.12)' }}>
+                  <Navigation className="w-4.5 h-4.5" style={{ color: '#D4AF37', filter: GOLD_ICON_GLOW }} />
+                </div>
+                <span className="text-[11px]" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Navigate' : 'נווטי'}</span>
+              </button>
+            )}
             {/* WhatsApp */}
             <a
               href={`https://wa.me/${waPhone}`}
