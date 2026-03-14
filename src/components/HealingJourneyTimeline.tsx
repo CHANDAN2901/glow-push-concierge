@@ -49,19 +49,14 @@ function isLipsTreatment(treatmentType: string): boolean {
   return treatmentType.includes('שפתיים') || treatmentType.toLowerCase().includes('lip');
 }
 
-function getDefaultSteps(
+function buildStepsFromPhases(
+  phases: HealingPhase[],
   currentDay: number,
   startDate: string,
   sentLog: Record<string, string>,
   clientName: string,
-  treatmentType: string,
 ): TimelineStep[] {
   const start = new Date(startDate);
-  const formatDate = (dayOffset: number) => {
-    const d = new Date(start);
-    d.setDate(d.getDate() + dayOffset);
-    return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
-  };
   const formatDateTime = (dayOffset: number) => {
     const d = new Date(start);
     d.setDate(d.getDate() + dayOffset);
@@ -76,8 +71,6 @@ function getDefaultSteps(
     return 'scheduled';
   };
 
-  const lips = isLipsTreatment(treatmentType);
-
   const dayZero: TimelineStep = {
     day: 0,
     icon: <CheckCircle className="w-5 h-5" />,
@@ -89,112 +82,20 @@ function getDefaultSteps(
     status: 'sent' as const,
   };
 
-  if (lips) {
-    return [
-      dayZero,
-      {
-        day: 1,
-        icon: <Droplets className="w-5 h-5" />,
-        emoji: '🧴',
-        titleHe: 'לחות ומניעת הרפס',
-        titleEn: 'Hydration & Cold Sore Prevention',
-        descHe: 'שתייה בקש, הימנעות מאוכל חריף/חם, מריחת משחה. זכרי לא לנשק!',
-        descEn: 'Drink with a straw, avoid spicy/hot food, apply ointment. No kissing!',
-        status: getStatus(1),
-        scheduledDate: formatDateTime(1),
-        messageKey: 'congrats',
-      },
-      {
-        day: 3,
-        icon: <Ban className="w-5 h-5" />,
-        emoji: '🚫',
-        titleHe: 'שלב הקילוף',
-        titleEn: 'Peeling Stage',
-        descHe: 'השפתיים עשויות להרגיש יבשות או להתקלף. הקפידי על לחות מקסימלית — לא לקלף!',
-        descEn: 'Lips may feel dry or start peeling. Maximum moisture — don\'t peel!',
-        status: getStatus(3),
-        scheduledDate: formatDateTime(3),
-        messageKey: 'peeling',
-      },
-      {
-        day: 10,
-        icon: <Camera className="w-5 h-5" />,
-        emoji: '📸',
-        titleHe: 'התייצבות הצבע',
-        titleEn: 'Color Stabilization',
-        descHe: 'הצבע עשוי להיראות בהיר — הוא יתייצב בשבועות הקרובים. שלחי תמונה!',
-        descEn: 'Color may look light — it will stabilize in coming weeks. Send a photo!',
-        status: getStatus(10),
-        scheduledDate: formatDateTime(10),
-        messageKey: 'ghosting',
-      },
-      {
-        day: 30,
-        icon: <Heart className="w-5 h-5" />,
-        emoji: '💋',
-        titleHe: 'תזכורת טאצ׳ אפ',
-        titleEn: 'Touch-up Reminder',
-        descHe: 'הזמנה לקביעת תור לטאצ׳ אפ במידת הצורך',
-        descEn: 'Invitation to schedule a touch-up if needed',
-        status: getStatus(30),
-        scheduledDate: formatDateTime(30),
-        messageKey: 'touchup',
-      },
-    ];
-  }
+  const phaseSteps: TimelineStep[] = phases.map(p => ({
+    day: p.day_start,
+    icon: <Heart className="w-5 h-5" />,
+    emoji: p.icon,
+    titleHe: p.title_he,
+    titleEn: p.title_en,
+    descHe: p.steps_he.join(' ') || p.title_he,
+    descEn: p.steps_en.join(' ') || p.title_en,
+    status: getStatus(p.day_start),
+    scheduledDate: formatDateTime(p.day_start),
+    messageKey: `phase_${p.sort_order}`,
+  }));
 
-  // Brows
-  return [
-    dayZero,
-    {
-      day: 1,
-      icon: <Droplets className="w-5 h-5" />,
-      emoji: '🧴',
-      titleHe: 'מריחת משחה',
-      titleEn: 'Ointment Application',
-      descHe: 'הסבר על מריחת משחה ושמירה על האזור. הצבע כהה היום — זה טבעי!',
-      descEn: 'Ointment application & area care. Color is dark today — totally normal!',
-      status: getStatus(1),
-      scheduledDate: formatDateTime(1),
-      messageKey: 'congrats',
-    },
-    {
-      day: 4,
-      icon: <Ban className="w-5 h-5" />,
-      emoji: '🚫',
-      titleHe: 'שלב הקילוף',
-      titleEn: 'Peeling Stage',
-      descHe: 'תזכורת לא לקלף באופן יזום — הגלד חייב ליפול לבד כדי לשמור על הפיגמנט',
-      descEn: "Don't peel — let scabs fall off naturally to preserve pigment",
-      status: getStatus(4),
-      scheduledDate: formatDateTime(4),
-      messageKey: 'peeling',
-    },
-    {
-      day: 10,
-      icon: <Camera className="w-5 h-5" />,
-      emoji: '📸',
-      titleHe: 'ביקורת סופית',
-      titleEn: 'Final Check-in',
-      descHe: 'בקשה לתמונה של התוצאה ובדיקת מצב ההחלמה',
-      descEn: 'Request a photo of the result & check healing status',
-      status: getStatus(10),
-      scheduledDate: formatDateTime(10),
-      messageKey: 'ghosting',
-    },
-    {
-      day: 30,
-      icon: <Heart className="w-5 h-5" />,
-      emoji: '✨',
-      titleHe: 'תזכורת טאצ׳ אפ',
-      titleEn: 'Touch-up Reminder',
-      descHe: 'הזמנה לקביעת תור לטאצ׳ אפ במידת הצורך',
-      descEn: 'Invitation to schedule a touch-up if needed',
-      status: getStatus(30),
-      scheduledDate: formatDateTime(30),
-      messageKey: 'touchup',
-    },
-  ];
+  return [dayZero, ...phaseSteps];
 }
 
 const STATUS_CONFIG = {
