@@ -2109,6 +2109,55 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     : (lang === 'en' ? 'Send Test Notification 🔔' : 'שלחי התראת בדיקה 🔔')}
                 </button>
 
+                {/* ── Finish Treatment CTA ── */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const clientId = selectedClient.dbId;
+                    if (!clientId) {
+                      toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה קודם', variant: 'destructive' });
+                      return;
+                    }
+                    setFinishingTreatment(true);
+                    const today = new Date().toISOString().split('T')[0];
+                    const { error } = await supabase
+                      .from('clients')
+                      .update({ treatment_date: today })
+                      .eq('id', clientId);
+                    if (error) {
+                      toast({ title: lang === 'en' ? 'Failed to save' : 'שגיאה בשמירה', variant: 'destructive' });
+                      setFinishingTreatment(false);
+                      return;
+                    }
+                    setFinishTreatmentDone(true);
+                    setFinishingTreatment(false);
+                    // Update local client state
+                    setSelectedClient(prev => prev ? { ...prev, treatmentDate: today } : null);
+                    setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today } : c));
+                    toast({ title: lang === 'en' ? 'Recovery journey started! ✨' : 'מסע ההחלמה התחיל! ✨' });
+                  }}
+                  disabled={finishingTreatment || finishTreatmentDone}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide transition-all active:scale-[0.98] disabled:opacity-70"
+                  style={{
+                    background: finishTreatmentDone
+                      ? 'hsl(142 76% 36%)'
+                      : 'linear-gradient(135deg, #D4AF37 0%, #F5C6D0 50%, #D4AF37 100%)',
+                    color: finishTreatmentDone ? '#fff' : '#4a3636',
+                    boxShadow: finishTreatmentDone
+                      ? '0 4px 18px rgba(34,197,94,0.3)'
+                      : '0 8px 32px rgba(212,175,55,0.35), 0 0 20px rgba(245,198,208,0.25)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                  }}
+                >
+                  {finishingTreatment ? (
+                    <span className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
+                  ) : finishTreatmentDone ? (
+                    <>{lang === 'en' ? '✅ Recovery journey sent to client!' : '✅ מסע ההחלמה נשלח ללקוחה!'}</>
+                  ) : (
+                    <>{lang === 'en' ? '✨ Finish Treatment — Start Recovery Journey' : '✨ סיימתי טיפול - התחלי מסע החלמה'}</>
+                  )}
+                </button>
+
                 {/* 3. AI Voice Treatment Record */}
                 <FeatureGate featureKey={FK.VOICE_NOTES} mode="badge">
                   <VoiceTreatmentRecord
