@@ -141,13 +141,14 @@ export default function HealingJourneyTimeline({
   onCancel,
   waSentLog,
   onSendWhatsApp,
+  clientId,
 }: HealingJourneyTimelineProps) {
   const { lang } = useI18n();
   const { toast } = useToast();
   const isHe = lang === 'he';
   const { buildWhatsAppText } = useAftercareTemplates();
   const treatment: 'eyebrows' | 'lips' = isLipsTreatment(treatmentType) ? 'lips' : 'eyebrows';
-  const { phases } = useHealingPhases(treatment);
+  const { phases } = useClientHealingPhases(clientId, treatment);
 
   const startDate = treatmentStartDate || (() => {
     const d = new Date();
