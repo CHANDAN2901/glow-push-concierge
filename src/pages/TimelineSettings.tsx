@@ -58,119 +58,112 @@ export default function TimelineSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profileId, setProfileId] = useState<string | null>(null);
+  const [baseStepCount, setBaseStepCount] = useState(0);
 
-  useEffect(() => {
+  const loadTimelineSteps = useCallback(async () => {
     if (authLoading) return;
-    if (!user) { setLoading(false); return; }
-    let cancelled = false;
-    const load = async () => {
-      if (cancelled) return;
-      setLoading(true);
+    if (!user) {
+      setSteps([]);
+      setProfileId(null);
+      setBaseStepCount(0);
+      setLoading(false);
+      return;
+    }
 
-      let globalPhases: HealingPhaseRow[] = [];
-      try {
-        globalPhases = await restSelect<HealingPhaseRow>(
-          'healing_phases',
-          'treatment_type=eq.eyebrows&order=sort_order.asc'
-        );
-      } catch (e) {
-        console.error('Failed to fetch healing_phases:', e);
-      }
+    setLoading(true);
+    try {
+      const globalPhases = await restSelect<HealingPhaseRow>(
+        'healing_phases',
+        'treatment_type=eq.eyebrows&order=sort_order.asc'
+      );
 
-      // Build base steps from global defaults
       const baseSteps: StepContent[] = globalPhases.map((p, i) => {
         const dayLabel = p.day_start === p.day_end
           ? `יום ${p.day_start}`
           : `ימים ${p.day_start}-${p.day_end}`;
+        const defaultInstructionHe = p.steps_he.join('\n') || p.title_he;
+        const defaultInstructionEn = p.steps_en.join('\n') || p.title_en;
+
         return {
           step_index: i,
           dayLabel,
           title_he: p.title_he,
           title_en: p.title_en,
-          instruction_he: p.steps_he.join('\n') || p.title_he,
-          instruction_en: p.steps_en.join('\n') || p.title_en,
+          instruction_he: defaultInstructionHe,
+          instruction_en: defaultInstructionEn,
+          default_instruction_he: defaultInstructionHe,
+          default_instruction_en: defaultInstructionEn,
         };
       });
 
-      // 2. Fetch artist profile
-      const { data: profile } = await supabase
+      setBaseStepCount(baseSteps.length);
+
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (profile) {
-        setProfileId(profile.id);
-
-        // 3. Fetch artist-specific overrides from timeline_content
-        const { data: rows } = await supabase
-          .from('timeline_content' as any)
-          .select('*')
-          .eq('artist_profile_id', profile.id)
-          .order('step_index');
-
-        if (rows && rows.length > 0) {
-          const dbSteps = rows as any[];
-          // Merge overrides on top of global defaults
-          const merged: StepContent[] = baseSteps.map((base, i) => {
-            const row = dbSteps.find((r: any) => r.step_index === i);
-            if (row) return {
-              ...base,
-              title_he: row.title_he || base.title_he,
-              title_en: row.title_en || base.title_en,
-              instruction_he: row.quote_he || base.instruction_he,
-              instruction_en: row.quote_en || base.instruction_en,
-            };
-            return base;
-          });
-          // Add any custom steps beyond global count
-          dbSteps
-            .filter((r: any) => r.step_index >= baseSteps.length)
-            .sort((a: any, b: any) => a.step_index - b.step_index)
-            .forEach((r: any) => {
-              merged.push({
-                step_index: r.step_index,
-                dayLabel: r.title_he?.split('—')[0]?.trim() || `שלב ${r.step_index + 1}`,
-                title_he: r.title_he || '',
-                title_en: r.title_en || '',
-                instruction_he: r.quote_he || '',
-                instruction_en: r.quote_en || '',
-                isCustom: true,
-              });
-            });
-          if (!cancelled) setSteps(merged);
-        } else {
-          // No artist overrides — show global defaults as-is
-          if (!cancelled) setSteps(baseSteps);
-        }
-      } else {
-        if (!cancelled) setSteps(baseSteps);
+      if (profileError || !profile) {
+        setProfileId(null);
+        setSteps(baseSteps);
+        return;
       }
-      if (!cancelled) setLoading(false);
-    };
-    load();
-    return () => { cancelled = true; };
-  }, [user, authLoading]);
+
+      setProfileId(profile.id);
+
+      const { data: rows, error: rowsError } = await supabase
+        .from('timeline_content' as any)
+        .select('step_index, quote_he, quote_en')
+        .eq('artist_profile_id', profile.id)
+        .order('step_index');
+
+      if (rowsError) throw rowsError;
+
+      const overridesByIndex = new Map<number, { quote_he: string | null; quote_en: string | null }>(
+        ((rows as any[]) || []).map((row: any) => [row.step_index, { quote_he: row.quote_he, quote_en: row.quote_en }])
+      );
+
+      const merged = baseSteps.map((base) => {
+        const row = overridesByIndex.get(base.step_index);
+        if (!row) return base;
+        return {
+          ...base,
+          instruction_he: row.quote_he || base.instruction_he,
+          instruction_en: row.quote_en || base.instruction_en,
+        };
+      });
+
+      setSteps(merged);
+    } catch (e) {
+      console.error('Failed to load timeline settings:', e);
+      setSteps([]);
+      toast({ title: 'שגיאה בטעינת מסע ההחלמה', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  }, [authLoading, user, toast]);
+
+  useEffect(() => {
+    loadTimelineSteps();
+  }, [loadTimelineSteps]);
 
   const updateStep = (idx: number, field: keyof StepContent, value: string) => {
-    setSteps(prev => prev.map((s, i) => i === idx ? { ...s, [field]: value } : s));
+    setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, [field]: value } : s)));
   };
 
   const addCustomStep = () => {
-    const nextIndex = Math.max(...steps.map(s => s.step_index)) + 1;
-    setSteps(prev => [...prev, {
-      step_index: nextIndex,
-      dayLabel: `שלב ${nextIndex + 1}`,
-      title_he: '',
-      title_en: '',
-      instruction_he: '',
-      instruction_en: '',
-      isCustom: true,
-    }]);
+    toast({
+      title: 'ניתן לערוך שלבים קיימים בלבד',
+      description: 'השלבים מגיעים מתבנית הסופר אדמין וניתנים להתאמה לכל יום.',
+    });
   };
 
-  const removeCustomStep = (idx: number) => {
-    setSteps(prev => prev.filter((_, i) => i !== idx));
+  const removeCustomStep = () => {
+    toast({
+      title: 'לא ניתן למחוק שלב ברירת מחדל',
+      description: 'מחיקת שלבים מתבצעת במסך הסופר אדמין בלבד.',
+    });
   };
 
   const handleSave = async () => {
@@ -178,27 +171,57 @@ export default function TimelineSettings() {
       toast({ title: 'יש להתחבר כדי לשמור שינויים', variant: 'destructive' });
       return;
     }
+
     setSaving(true);
     try {
-      for (const step of steps) {
-        const { error } = await (supabase as any)
+      await supabase
+        .from('timeline_content')
+        .delete()
+        .eq('artist_profile_id', profileId)
+        .gte('step_index', baseStepCount);
+
+      for (const step of steps.filter((s) => s.step_index < baseStepCount)) {
+        const currentHe = step.instruction_he.trim();
+        const currentEn = step.instruction_en.trim();
+        const defaultHe = step.default_instruction_he.trim();
+        const defaultEn = step.default_instruction_en.trim();
+        const isDefault = currentHe === defaultHe && currentEn === defaultEn;
+
+        if (isDefault) {
+          const { error: deleteError } = await supabase
+            .from('timeline_content')
+            .delete()
+            .eq('artist_profile_id', profileId)
+            .eq('step_index', step.step_index);
+          if (deleteError) throw deleteError;
+          continue;
+        }
+
+        const { error: upsertError } = await (supabase as any)
           .from('timeline_content')
-          .upsert({
-            artist_profile_id: profileId,
-            step_index: step.step_index,
-            quote_he: step.instruction_he,
-            quote_en: step.instruction_en,
-            tip_he: '',
-            tip_en: '',
-          }, { onConflict: 'artist_profile_id,step_index' });
-        if (error) throw error;
+          .upsert(
+            {
+              artist_profile_id: profileId,
+              step_index: step.step_index,
+              quote_he: step.instruction_he,
+              quote_en: step.instruction_en,
+              tip_he: '',
+              tip_en: '',
+            },
+            { onConflict: 'artist_profile_id,step_index' }
+          );
+
+        if (upsertError) throw upsertError;
       }
+
+      await loadTimelineSteps();
       toast({ title: 'התוכן עודכן בהצלחה ויוצג ללקוחותייך ✅', className: 'bg-green-600 text-white border-green-700' });
     } catch (err: any) {
       console.error('Save failed:', err);
       toast({ title: 'שגיאה בשמירה: ' + (err?.message || 'Unknown'), variant: 'destructive' });
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const goldGradient = 'linear-gradient(135deg, hsl(36 50% 42%), hsl(38 55% 58%) 40%, hsl(40 50% 72%) 60%, hsl(36 50% 42%))';
