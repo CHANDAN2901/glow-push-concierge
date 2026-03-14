@@ -33,12 +33,32 @@ export function useClientHealingPhases(
   const [isClientSpecific, setIsClientSpecific] = useState(false);
 
   useEffect(() => {
+    // If no clientId, fall back directly to global healing_phases
     if (!clientId) {
-      setPhases([]);
+      let cancelled = false;
+      setLoading(true);
       setError(null);
       setIsClientSpecific(false);
-      setLoading(false);
-      return;
+
+      restSelect<HealingPhase>(
+        'healing_phases',
+        `treatment_type=eq.${treatment}&order=sort_order.asc`
+      )
+        .then((globalPhases) => {
+          if (!cancelled) {
+            setPhases(globalPhases);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            console.error('Failed to fetch global healing phases:', err);
+            setError(err?.message || 'Failed to load');
+            setLoading(false);
+          }
+        });
+
+      return () => { cancelled = true; };
     }
 
     let cancelled = false;
