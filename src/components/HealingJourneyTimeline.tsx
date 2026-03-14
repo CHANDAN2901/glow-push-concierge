@@ -37,14 +37,12 @@ interface HealingJourneyTimelineProps {
   onSendWhatsApp: (day: number, message: string) => void;
 }
 
-/* ── Current-phase label ── */
-function getCurrentPhaseLabel(day: number, isHe: boolean): { label: string; emoji: string } {
-  if (day <= 1) return { label: isHe ? 'יום הטיפול' : 'Treatment Day', emoji: '✨' };
-  if (day <= 3) return { label: isHe ? 'שלב ההגנה' : 'Protection Phase', emoji: '💧' };
-  if (day <= 7) return { label: isHe ? 'שלב הקילוף' : 'Peeling Phase', emoji: '🛡️' };
-  if (day <= 14) return { label: isHe ? 'שלב ה-Ghosting' : 'Ghosting Phase', emoji: '👻' };
-  if (day <= 30) return { label: isHe ? 'התייצבות הצבע' : 'Color Stabilization', emoji: '🎨' };
-  return { label: isHe ? 'הושלם' : 'Completed', emoji: '🎉' };
+/* ── Current-phase label from DB ── */
+function getCurrentPhaseFromDB(day: number, phases: HealingPhase[], isHe: boolean): { label: string; emoji: string } {
+  const phase = phases.find(p => day >= p.day_start && day <= p.day_end);
+  if (phase) return { label: isHe ? phase.title_he : phase.title_en, emoji: phase.icon };
+  if (phases.length > 0 && day > phases[phases.length - 1].day_end) return { label: isHe ? 'הושלם' : 'Completed', emoji: '🎉' };
+  return { label: isHe ? 'מסע החלמה' : 'Healing Journey', emoji: '✨' };
 }
 
 function isLipsTreatment(treatmentType: string): boolean {
