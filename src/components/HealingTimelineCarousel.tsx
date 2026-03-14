@@ -45,6 +45,7 @@ interface Props {
   currentDay: number;
   artistProfileId?: string | null;
   treatment?: 'eyebrows' | 'lips';
+  clientId?: string | null;
 }
 
 export default function HealingTimelineCarousel({ currentDay, artistProfileId, treatment = 'eyebrows' }: Props) {
