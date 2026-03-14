@@ -12,7 +12,7 @@ export default function TimelineSettings() {
   const [treatment, setTreatment] = useState<'eyebrows' | 'lips'>('eyebrows');
   const { phases, loading, error } = useHealingPhases(treatment);
 
-  const viewRows = useMemo(() => phases.map((phase, index) => {
+  const viewRows = useMemo(() => phases.map((phase) => {
     const dayLabel = phase.day_start === phase.day_end
       ? (isHe ? `יום ${phase.day_start}` : `Day ${phase.day_start}`)
       : (isHe ? `ימים ${phase.day_start}-${phase.day_end}` : `Days ${phase.day_start}-${phase.day_end}`);

@@ -41,7 +41,6 @@ function getActiveStepIndex(steps: TimelineStep[], currentDay: number): number {
 
 interface Props {
   currentDay: number;
-  artistProfileId?: string | null;
   treatment?: 'eyebrows' | 'lips';
 }
 
