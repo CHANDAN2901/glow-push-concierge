@@ -223,7 +223,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const handleSubmit = async () => {
     // In preview mode, skip real submission and show the thank-you screen directly
     if (isPreview) {
-      setShowThankYou(true);
+      setIsSubmitted(true);
       return;
     }
 
@@ -249,7 +249,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       };
       const result = await onComplete(data);
       if (result?.clientId) setResultClientId(result.clientId);
-      setShowThankYou(true);
+      setIsSubmitted(true);
     } catch (error: any) {
       console.error('Submit error:', error);
       const { toast } = await import('sonner');
