@@ -314,7 +314,8 @@ const Pricing = () => {
           const isElite = plan.isHighlighted;
 
           const isVip = plan.slug === 'vip-3year';
-          const monthlyEquivalent = isVip ? Math.round(plan.price.ils / 12) : 0;
+          const monthlyEquivalentIls = isVip ? Math.round(plan.price.ils / 12) : 0;
+          const monthlyEquivalentUsd = isVip ? Math.round(plan.price.usd / 12) : 0;
 
           return (
             <>
