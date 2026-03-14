@@ -313,6 +313,9 @@ const Pricing = () => {
           const badge = plan.badge ? (isHe ? plan.badge.he : plan.badge.en) : null;
           const isElite = plan.isHighlighted;
 
+          const isVip = plan.slug === 'vip-3year';
+          const monthlyEquivalent = isVip ? Math.round(plan.price.ils / 12) : 0;
+
           return (
             <>
               {idx > 0 && (
@@ -324,19 +327,52 @@ const Pricing = () => {
                 key={plan.slug}
                 className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
                 style={{
-                border: 'none',
+                border: isVip ? '2px solid #FACC15' : 'none',
                 outline: 'none',
                 background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(255,240,243,0.25) 40%, rgba(232,160,176,0.08) 70%, transparent 100%)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
                 borderRadius: '48px',
-                boxShadow: isElite
-                  ? '0 0 60px rgba(232, 160, 176, 0.22), 0 0 120px rgba(216, 180, 180, 0.12)'
-                  : '0 0 50px rgba(232, 160, 176, 0.16), 0 0 100px rgba(216, 180, 180, 0.08)',
+                boxShadow: isVip
+                  ? '0 0 15px rgba(250, 204, 21, 0.5), 0 0 60px rgba(232, 160, 176, 0.22), 0 0 120px rgba(216, 180, 180, 0.12)'
+                  : isElite
+                    ? '0 0 60px rgba(232, 160, 176, 0.22), 0 0 120px rgba(216, 180, 180, 0.12)'
+                    : '0 0 50px rgba(232, 160, 176, 0.16), 0 0 100px rgba(216, 180, 180, 0.08)',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
             >
+              {/* VIP "Most Valuable" Badge */}
+              {isVip && (
+                <div
+                  className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-1.5 rounded-full text-sm font-black whitespace-nowrap tracking-wide"
+                  style={{
+                    background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
+                    color: '#78350F',
+                    border: '1px solid #EAB308',
+                    boxShadow: '0 4px 16px rgba(250, 204, 21, 0.5), 0 1px 4px rgba(0,0,0,0.1)',
+                    textShadow: '0 1px 0 rgba(255,255,255,0.4)',
+                  }}
+                >
+                  👑 {isHe ? 'המשתלם ביותר' : 'Best Value'}
+                </div>
+              )}
+
+              {/* Launch Price Badge (non-VIP) */}
+              {!isVip && (
+                <div
+                  className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-1.5 rounded-full text-sm font-black whitespace-nowrap tracking-wide"
+                  style={{
+                    background: '#FFFFFF',
+                    color: ROSE_GOLD_METALLIC,
+                    border: `2px solid ${ROSE_GOLD_METALLIC}`,
+                    boxShadow: '0 4px 16px rgba(201, 149, 108, 0.35), 0 1px 4px rgba(0,0,0,0.06)',
+                  }}
+                >
+                  🔥 {isHe ? 'מחיר השקה מיוחד!' : 'Special Launch Price!'}
+                </div>
+              )}
+
               {/* Sparkle decorations */}
               <Sparkles
                 className="absolute top-4 start-4 w-4 h-4 opacity-40"
@@ -347,49 +383,68 @@ const Pricing = () => {
                 style={{ color: ROSE_GOLD_METALLIC }}
               />
 
-              {/* Launch Price Badge */}
-              <div
-                className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-1.5 rounded-full text-sm font-black whitespace-nowrap tracking-wide"
-                style={{
-                  background: '#FFFFFF',
-                  color: ROSE_GOLD_METALLIC,
-                  border: `2px solid ${ROSE_GOLD_METALLIC}`,
-                  boxShadow: '0 4px 16px rgba(201, 149, 108, 0.35), 0 1px 4px rgba(0,0,0,0.06)',
-                }}
-              >
-                🔥 {isHe ? 'מחיר השקה מיוחד!' : 'Special Launch Price!'}
-              </div>
-
-              <div className={`flex items-center justify-center gap-2 ${isElite ? 'mt-4' : ''} mb-6`}>
+              <div className={`flex items-center justify-center gap-2 ${isElite || isVip ? 'mt-4' : ''} mb-6`}>
                 <PlanTitle slug={plan.slug} name={name} />
                 <Icon className="w-5 h-5" style={{ color: '#d8b4b4' }} />
               </div>
 
-              <div className="flex flex-col items-center justify-center mb-8">
-                {plan.originalPrice.ils > 0 && (
-                  <span className="line-through text-lg mb-1" style={{ color: '#999' }}>
-                    {isHe ? `₪${Math.round(plan.originalPrice.ils)} / חודש` : `$${Math.round(plan.originalPrice.usd)} / month`}
-                  </span>
-                )}
-                <div className="flex items-baseline gap-1.5">
-                  <span
-                    className="text-5xl font-serif font-bold"
-                    style={{
-                      backgroundImage: `url(${roseGoldTexture})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
-                    }}
-                  >
-                    {isHe ? `₪${plan.price.ils.toLocaleString()}` : `$${plan.price.usd.toLocaleString()}`}
-                  </span>
-                  <span className="text-sm" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
-                    {isHe ? '/ חודש' : '/ month'}
-                  </span>
+              {/* VIP: Monthly equivalent pricing */}
+              {isVip ? (
+                <div className="flex flex-col items-center justify-center mb-8">
+                  {plan.originalPrice.ils > 0 && (
+                    <span className="line-through text-lg mb-1" style={{ color: '#999' }}>
+                      {isHe ? `₪${Math.round(plan.originalPrice.ils / 12)} / חודש` : `$${Math.round(plan.originalPrice.usd / 12)} / month`}
+                    </span>
+                  )}
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span
+                      className="text-5xl font-serif font-bold"
+                      style={{
+                        backgroundImage: `url(${roseGoldTexture})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
+                      }}
+                    >
+                      ₪{monthlyEquivalent}
+                    </span>
+                    <span className="text-lg" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
+                      {isHe ? '/ לחודש' : '/ month'}
+                    </span>
+                  </div>
+                  <div className="text-sm mt-1 mb-0 text-center" style={{ color: 'rgba(75, 60, 50, 0.5)' }}>
+                    {isHe ? `בחיוב מראש של ₪${plan.price.ils.toLocaleString()} לשנה` : `Billed annually at $${plan.price.usd.toLocaleString()}/year`}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center mb-8">
+                  {plan.originalPrice.ils > 0 && (
+                    <span className="line-through text-lg mb-1" style={{ color: '#999' }}>
+                      {isHe ? `₪${Math.round(plan.originalPrice.ils)} / חודש` : `$${Math.round(plan.originalPrice.usd)} / month`}
+                    </span>
+                  )}
+                  <div className="flex items-baseline gap-1.5">
+                    <span
+                      className="text-5xl font-serif font-bold"
+                      style={{
+                        backgroundImage: `url(${roseGoldTexture})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
+                      }}
+                    >
+                      {isHe ? `₪${plan.price.ils.toLocaleString()}` : `$${plan.price.usd.toLocaleString()}`}
+                    </span>
+                    <span className="text-sm" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
+                      {isHe ? '/ חודש' : '/ month'}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               <ul className="space-y-0 mb-10 flex-1">
                 {features.map((f, i) => (
