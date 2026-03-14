@@ -2170,6 +2170,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       <p className="text-xs font-semibold tracking-wide text-center" style={{ color: '#9a8585' }}>
                         {lang === 'en' ? '🔗 Client Portal Link' : '🔗 קישור לאזור הלקוחה'}
                       </p>
+                      <p className="text-sm text-center leading-relaxed mb-1" style={{ color: '#7a6a6a' }}>
+                        {lang === 'en'
+                          ? "Your client's personal link is ready 👑 Don't forget to send it via WhatsApp so she can follow her recovery instructions."
+                          : 'הקישור האישי של הלקוחה מוכן 👑 אל תשכחי לשלוח לה אותו לוואטסאפ כדי שתוכל לעקוב אחרי הוראות ההחלמה.'}
+                      </p>
                       <div className="flex gap-2">
                         <a
                           href={waUrl}
