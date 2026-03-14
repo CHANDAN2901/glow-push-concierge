@@ -324,6 +324,7 @@ const setSelectedClient = useCallback((clientOrUpdater: ClientEntry | null | ((p
 
 useEffect(() => {
   setIncludePolicyShare(true);
+  setFinishTreatmentDone(false);
 }, [selectedClient?.dbId, selectedClient?.name]);
 
 const scrollContainerRef = useRef<HTMLDivElement>(null);
