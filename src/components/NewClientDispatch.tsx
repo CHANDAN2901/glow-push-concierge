@@ -85,7 +85,7 @@ const NewClientDispatch = ({
         full_name: name,
         phone: phone || null,
         treatment_type: treatLabel ? (lang === 'en' ? treatLabel.en : treatLabel.he) : treatment,
-        treatment_date: new Date().toISOString().split('T')[0],
+        treatment_date: null,
       }).select('id').single();
       if (error) throw error;
       return data?.id;

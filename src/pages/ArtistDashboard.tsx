@@ -203,6 +203,19 @@ const generateSlug = (name: string) =>
   name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9א-ת]/g, '') +
   Math.floor(Math.random() * 900 + 100);
 
+const hasRealTreatmentDate = (treatment_date?: string | null) => {
+  if (!treatment_date) return false;
+  const normalized = treatment_date.trim();
+  if (!normalized || normalized.toLowerCase() === 'null') return false;
+  return !Number.isNaN(new Date(normalized).getTime());
+};
+
+const calcRecoveryDay = (treatmentDate: string) => {
+  const d = new Date(treatmentDate);
+  if (Number.isNaN(d.getTime())) return 0;
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24)));
+};
+
 const ArtistDashboard = () => {
   const { t, lang, setLang } = useI18n();
   const { toast } = useToast();
@@ -241,7 +254,9 @@ const ArtistDashboard = () => {
   };
   const [sendingTestPush, setSendingTestPush] = useState(false);
   const [finishingTreatment, setFinishingTreatment] = useState(false);
+  const [updatingTreatmentDate, setUpdatingTreatmentDate] = useState(false);
   const [finishTreatmentDone, setFinishTreatmentDone] = useState(false);
+  const [manualTreatmentDate, setManualTreatmentDate] = useState('');
   const [dismissedTouchup, setDismissedTouchup] = useState(() => !!localStorage.getItem('gp-dismiss-touchup'));
   const [medicalForm, setMedicalForm] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -325,8 +340,54 @@ const setSelectedClient = useCallback((clientOrUpdater: ClientEntry | null | ((p
 
 useEffect(() => {
   setIncludePolicyShare(true);
-  setFinishTreatmentDone(!!selectedClient?.treatmentDate);
-}, [selectedClient?.dbId, selectedClient?.name]);
+  const strictDone = hasRealTreatmentDate(selectedClient?.treatmentDate);
+  setFinishTreatmentDone(strictDone);
+  setManualTreatmentDate(strictDone ? (selectedClient?.treatmentDate as string) : '');
+}, [selectedClient?.dbId, selectedClient?.treatmentDate]);
+
+const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) => {
+  const clientId = selectedClient?.dbId;
+  if (!clientId) {
+    toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה קודם', variant: 'destructive' });
+    return;
+  }
+
+  const normalizedDate = nextDate && nextDate.trim() ? nextDate : null;
+  setUpdatingTreatmentDate(true);
+  try {
+    const { error } = await supabase
+      .from('clients')
+      .update({ treatment_date: normalizedDate })
+      .eq('id', clientId);
+
+    if (error) throw error;
+
+    const strictDone = hasRealTreatmentDate(normalizedDate);
+    const day = strictDone ? calcRecoveryDay(normalizedDate as string) : 0;
+
+    setSelectedClient(prev => prev && prev.dbId === clientId
+      ? { ...prev, treatmentDate: normalizedDate, day }
+      : prev
+    );
+    setClients(prev => prev.map(c => c.dbId === clientId
+      ? { ...c, treatmentDate: normalizedDate, day }
+      : c
+    ));
+    setManualTreatmentDate(normalizedDate || '');
+    setFinishTreatmentDone(strictDone);
+
+    toast({
+      title: strictDone
+        ? (lang === 'en' ? 'Treatment date updated' : 'תאריך הטיפול עודכן')
+        : (lang === 'en' ? 'Treatment date cleared' : 'תאריך הטיפול נוקה'),
+    });
+  } catch (err) {
+    console.error('Failed to update treatment date:', err);
+    toast({ title: lang === 'en' ? 'Failed to update treatment date' : 'שגיאה בעדכון תאריך הטיפול', variant: 'destructive' });
+  } finally {
+    setUpdatingTreatmentDate(false);
+  }
+}, [selectedClient?.dbId, lang, toast, setSelectedClient]);
 
 const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasUnsavedLogoChangeRef = useRef(false);
@@ -1026,7 +1087,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           full_name: clientName,
           phone: clientPhone || null,
           treatment_type: getTreatmentLabel(treatmentType),
-          treatment_date: treatmentDate,
+          treatment_date: null,
         }).then(({ error }) => {
           if (!error) fetchClients();
           else console.error('Failed to save client:', error);
@@ -1101,8 +1162,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       if (error) throw error;
       if (data) {
         const dbClients: ClientEntry[] = data.map(c => {
-          const treatmentDate = c.treatment_date ? new Date(c.treatment_date) : new Date(c.created_at);
-          const daysSince = Math.max(0, Math.floor((Date.now() - treatmentDate.getTime()) / (1000 * 60 * 60 * 24)));
+          const treatmentDateValue = hasRealTreatmentDate(c.treatment_date) ? c.treatment_date : null;
+          const daysSince = treatmentDateValue ? calcRecoveryDay(treatmentDateValue) : 0;
           return {
             dbId: c.id,
             name: c.full_name,
@@ -1110,8 +1171,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             email: c.email || '',
             day: daysSince,
             treatment: c.treatment_type || '',
-            treatmentDate: c.treatment_date || null,
-            link: `${origin}/c/${encodeURIComponent(c.id)}?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}&start=${c.treatment_date || new Date(c.created_at).toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId)}`,
+            treatmentDate: treatmentDateValue,
+            link: `${origin}/c/${encodeURIComponent(c.id)}?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}&start=${treatmentDateValue || ''}&artist_id=${encodeURIComponent(userProfileId)}`,
             beforeImg: '',
             afterImg: '',
             pushOptedIn: c.push_opted_in || false,
@@ -2023,6 +2084,34 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   );
                 })()}
 
+                {/* === Manual Treatment Date (with clear failsafe) === */}
+                <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-foreground">
+                      {lang === 'en' ? 'Treatment Date' : 'תאריך טיפול'}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => updateSelectedTreatmentDate(null)}
+                      disabled={updatingTreatmentDate || !manualTreatmentDate}
+                      className="text-xs underline text-muted-foreground hover:text-foreground disabled:opacity-50"
+                    >
+                      {lang === 'en' ? 'Clear Date' : 'נקה תאריך'}
+                    </button>
+                  </div>
+                  <Input
+                    type="date"
+                    dir="ltr"
+                    value={manualTreatmentDate}
+                    disabled={updatingTreatmentDate}
+                    onChange={(e) => {
+                      const nextValue = e.target.value;
+                      setManualTreatmentDate(nextValue);
+                      void updateSelectedTreatmentDate(nextValue || null);
+                    }}
+                  />
+                </div>
+
                 {/* === Send Test Push Notification === */}
                 <button
                   type="button"
@@ -2123,23 +2212,27 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     }
                     setFinishingTreatment(true);
                     const today = new Date().toISOString().split('T')[0];
-                    const { error } = await supabase
-                      .from('clients')
-                      .update({ treatment_date: today })
-                      .eq('id', clientId);
-                    if (error) {
+                    try {
+                      const { error } = await supabase
+                        .from('clients')
+                        .update({ treatment_date: today })
+                        .eq('id', clientId);
+                      if (error) throw error;
+
+                      const nextDay = calcRecoveryDay(today);
+                      setFinishTreatmentDone(true);
+                      setManualTreatmentDate(today);
+                      setSelectedClient(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
+                      setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today, day: nextDay } : c));
+                      toast({ title: lang === 'en' ? 'Recovery journey started! ✨' : 'מסע ההחלמה התחיל! ✨' });
+                    } catch (error) {
+                      console.error('Failed to set treatment date:', error);
                       toast({ title: lang === 'en' ? 'Failed to save' : 'שגיאה בשמירה', variant: 'destructive' });
+                    } finally {
                       setFinishingTreatment(false);
-                      return;
                     }
-                    setFinishTreatmentDone(true);
-                    setFinishingTreatment(false);
-                    // Update local client state
-                    setSelectedClient(prev => prev ? { ...prev, treatmentDate: today } : null);
-                    setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today } : c));
-                    toast({ title: lang === 'en' ? 'Recovery journey started! ✨' : 'מסע ההחלמה התחיל! ✨' });
                   }}
-                  disabled={finishingTreatment || finishTreatmentDone}
+                  disabled={finishingTreatment || updatingTreatmentDate || finishTreatmentDone}
                   className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide transition-all active:scale-[0.98] disabled:opacity-70"
                   style={{
                     background: finishTreatmentDone
