@@ -261,7 +261,7 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Price USD ($)</label>
+                <label className="text-sm font-medium mb-1 block">Total Price ($)</label>
                 <Input
                   type="number"
                   value={plan.price_usd}
