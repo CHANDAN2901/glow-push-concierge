@@ -2159,24 +2159,24 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
                   return (
                     <div
-                      className="rounded-2xl overflow-hidden p-4 space-y-3 transition-all hover:shadow-lg"
+                      className="rounded-3xl overflow-hidden p-6 space-y-4 transition-all hover:shadow-xl"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.55)',
-                        backdropFilter: 'blur(16px)',
-                        WebkitBackdropFilter: 'blur(16px)',
-                        border: '1.5px solid rgba(216, 180, 180, 0.4)',
-                        boxShadow: '0 4px 20px rgba(216, 180, 180, 0.15)',
+                        background: 'linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,252,248,0.80) 50%, rgba(255,255,255,0.75) 100%)',
+                        backdropFilter: 'blur(20px)',
+                        WebkitBackdropFilter: 'blur(20px)',
+                        border: '1.5px solid rgba(212, 175, 55, 0.35)',
+                        boxShadow: '0 8px 32px rgba(212, 175, 55, 0.10), 0 2px 8px rgba(0,0,0,0.04)',
                       }}
                     >
-                      <p className="text-xs font-semibold tracking-wide text-center" style={{ color: '#9a8585' }}>
+                      <p className="text-xs font-bold tracking-widest text-center uppercase" style={{ color: '#B8860B', letterSpacing: '0.12em' }}>
                         {lang === 'en' ? '🔗 Client Portal Link' : '🔗 קישור לאזור הלקוחה'}
                       </p>
-                      <p className="text-sm text-center leading-relaxed mb-1" style={{ color: '#7a6a6a' }}>
+                      <p className="text-sm text-center leading-relaxed" style={{ color: '#5a4a4a' }}>
                         {lang === 'en'
                           ? "Your client's personal link is ready 👑 Don't forget to send it via WhatsApp so she can follow her recovery instructions."
                           : 'הקישור האישי של הלקוחה מוכן 👑 אל תשכחי לשלוח לה אותו לוואטסאפ כדי שתוכל לעקוב אחרי הוראות ההחלמה.'}
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <a
                           href={waUrl}
                           target="_blank"
@@ -2187,8 +2187,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                               toast({ title: lang === 'en' ? 'No phone number set for this client' : 'לא הוגדר מספר טלפון ללקוחה זו', variant: 'destructive' });
                             }
                           }}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
-                          style={{ background: '#25D366', color: '#ffffff', boxShadow: '0 4px 18px rgba(37, 211, 102, 0.35)' }}
+                          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97] hover:scale-[1.02]"
+                          style={{
+                            background: 'linear-gradient(135deg, #1a8f4a 0%, #22c55e 40%, #34d399 60%, #22c55e 100%)',
+                            color: '#ffffff',
+                            boxShadow: '0 6px 24px rgba(34, 197, 94, 0.35), 0 2px 6px rgba(0,0,0,0.08)',
+                          }}
                         >
                           <MessageCircle className="w-4 h-4" strokeWidth={2} />
                           {lang === 'en' ? 'WhatsApp' : 'וואטסאפ'}
@@ -2202,14 +2206,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                               window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', clientZoneLink);
                             }
                           }}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-bold transition-all active:scale-[0.97] hover:shadow-lg"
-                          style={{
-                            background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                            color: '#4a3636',
-                            boxShadow: '0 4px 18px rgba(212,175,55,0.35)',
-                          }}
+                          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97] hover:scale-[1.02] btn-metallic-gold"
                         >
-                          <Copy className="w-4 h-4" strokeWidth={2} style={{ color: '#4a3636' }} />
+                          <Copy className="w-4 h-4" strokeWidth={2} />
                           {lang === 'en' ? 'Copy Link' : 'העתקת קישור'}
                         </button>
                       </div>
