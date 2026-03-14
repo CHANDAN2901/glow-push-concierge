@@ -34,7 +34,8 @@ export function useClientHealingPhases(
 
   useEffect(() => {
     // If no clientId, fall back directly to global healing_phases
-    if (!clientId) {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!clientId || !UUID_RE.test(clientId)) {
       let cancelled = false;
       setLoading(true);
       setError(null);
