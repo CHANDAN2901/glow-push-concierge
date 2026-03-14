@@ -307,11 +307,8 @@ export default function AdminMessages() {
     borderBottom: isActive ? '3px solid #D4AF37' : '3px solid transparent',
   });
 
-  const getPhaseForDay = (day: number) => phases.find(p => day >= p.day_start && day <= p.day_end);
-  const isFirstDayOfPhase = (day: number) => {
-    const phase = getPhaseForDay(day);
-    return phase ? phase.day_start === day : false;
-  };
+
+
 
   return (
     <div className="space-y-4 max-w-3xl relative pb-28" dir="rtl">
