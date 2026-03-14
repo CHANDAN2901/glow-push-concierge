@@ -255,7 +255,6 @@ const ArtistDashboard = () => {
   const [sendingTestPush, setSendingTestPush] = useState(false);
   const [finishingTreatment, setFinishingTreatment] = useState(false);
   const [updatingTreatmentDate, setUpdatingTreatmentDate] = useState(false);
-  const [finishTreatmentDone, setFinishTreatmentDone] = useState(false);
   const [manualTreatmentDate, setManualTreatmentDate] = useState('');
   const [dismissedTouchup, setDismissedTouchup] = useState(() => !!localStorage.getItem('gp-dismiss-touchup'));
   const [medicalForm, setMedicalForm] = useState(true);
@@ -286,62 +285,10 @@ const ArtistDashboard = () => {
   const [facebookUrl, setFacebookUrl] = useState('');
   const [wazeAddress, setWazeAddress] = useState('');
   const [shopProducts, setShopProducts] = useState<ShopProduct[]>(() => loadShopProducts());
-
-  // URL-synced active tab
-  const activeTabParam = searchParams.get('tab') as 'home' | 'clients' | 'calendar' | 'upgrades' | 'messages' | 'digital-card' | 'profile' | 'healing' | 'bonuses' | 'push' | null;
-  const [activeTab, setActiveTabInternal] = useState<'home' | 'clients' | 'calendar' | 'upgrades' | 'messages' | 'digital-card' | 'profile' | 'healing' | 'bonuses' | 'push'>(activeTabParam || 'home');
-  const selectedClientParam = searchParams.get('client');
-
-  // Sync activeTab when URL tab param changes (e.g. from checklist navigation)
-  useEffect(() => {
-    if (activeTabParam && activeTabParam !== activeTab) {
-      setActiveTabInternal(activeTabParam);
-    }
-  }, [activeTabParam]);
-
-  // Use a ref to avoid searchParams in callback dependencies (prevents re-render loops)
-  const searchParamsRef = useRef(searchParams);
-  searchParamsRef.current = searchParams;
-
-  // Wrap setActiveTab to sync URL
-  const setActiveTab = useCallback((tab: 'home' | 'clients' | 'calendar' | 'upgrades' | 'messages' | 'digital-card' | 'profile' | 'healing' | 'bonuses' | 'push') => {
-    setActiveTabInternal(tab);
-    // Haptic feedback on tab switch
-    if (navigator.vibrate) navigator.vibrate(50);
-    const params = new URLSearchParams(searchParamsRef.current);
-    params.set('tab', tab);
-    params.delete('client');
-    setSearchParams(params, { replace: true });
-    // Scroll to top when switching tabs
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = 0;
-    }
-  }, [setSearchParams]);
-
-const [selectedClient, setSelectedClientInternal] = useState<ClientEntry | null>(null);
-const [includePolicyShare, setIncludePolicyShare] = useState(true);
-
-// Wrap setSelectedClient to sync URL
-const setSelectedClient = useCallback((clientOrUpdater: ClientEntry | null | ((prev: ClientEntry | null) => ClientEntry | null)) => {
-  setSelectedClientInternal(prev => {
-    const newVal = typeof clientOrUpdater === 'function' ? clientOrUpdater(prev) : clientOrUpdater;
-    const params = new URLSearchParams(searchParamsRef.current);
-    if (newVal) {
-      params.set('tab', 'clients');
-      params.set('client', newVal.dbId || newVal.name);
-    } else {
-      params.delete('client');
-    }
-    setSearchParams(params, { replace: true });
-    return newVal;
-  });
-}, [setSearchParams]);
-
+...
 useEffect(() => {
   setIncludePolicyShare(true);
   const strictDone = hasRealTreatmentDate(selectedClient?.treatmentDate);
-  setFinishTreatmentDone(strictDone);
   setManualTreatmentDate(strictDone ? (selectedClient?.treatmentDate as string) : '');
 }, [selectedClient?.dbId, selectedClient?.treatmentDate]);
 
@@ -374,7 +321,6 @@ const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) 
       : c
     ));
     setManualTreatmentDate(normalizedDate || '');
-    setFinishTreatmentDone(strictDone);
 
     toast({
       title: strictDone
@@ -388,6 +334,9 @@ const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) 
     setUpdatingTreatmentDate(false);
   }
 }, [selectedClient?.dbId, lang, toast, setSelectedClient]);
+
+const treatment_date = selectedClient?.treatmentDate?.trim() || '';
+const isTreatmentDone = !!(treatment_date && treatment_date !== '' && treatment_date !== 'null');
 
 const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasUnsavedLogoChangeRef = useRef(false);
