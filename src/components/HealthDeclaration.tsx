@@ -104,7 +104,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showThankYou, setShowThankYou] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [resultClientId, setResultClientId] = useState<string | null>(null);
   const sigContainerRef = useRef<HTMLDivElement>(null);
 
@@ -223,7 +223,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const handleSubmit = async () => {
     // In preview mode, skip real submission and show the thank-you screen directly
     if (isPreview) {
-      setShowThankYou(true);
+      setIsSubmitted(true);
       return;
     }
 
@@ -249,7 +249,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       };
       const result = await onComplete(data);
       if (result?.clientId) setResultClientId(result.clientId);
-      setShowThankYou(true);
+      setIsSubmitted(true);
     } catch (error: any) {
       console.error('Submit error:', error);
       const { toast } = await import('sonner');
@@ -269,7 +269,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const hasAnyYellow = dbQuestions.some(q => q.risk_level === 'yellow' && answers[q.id]);
 
   // ═══════════════ THANK YOU — VIP GOLDEN TICKET ═══════════════
-  if (showThankYou) {
+  if (isSubmitted) {
     const handleAddToCalendar = () => {
       const dateStr = appointmentDate || new Date().toISOString().split('T')[0];
       const timeStr = appointmentTime || '10:00';
@@ -319,8 +319,8 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         ];
 
     return (
-      <div className="fixed inset-0 z-[70] overflow-y-auto" style={{ background: T.bg }}>
-        <div className="min-h-screen flex flex-col items-center justify-center px-5 py-10 hd-flip-perspective">
+      <div className="fixed inset-0 z-[130] overflow-y-auto" style={{ background: T.bg }}>
+        <div className="min-h-full flex flex-col items-center px-5 pt-20 pb-16 hd-flip-perspective">
           {/* VIP TICKET CARD */}
           <div
             className="hd-flip-card hd-shine-overlay relative w-full max-w-sm rounded-3xl overflow-hidden"
@@ -1026,6 +1026,22 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         </div>
       </div>
       </div>
+
+      {/* Preview-only debug jump to success state */}
+      {!readOnly && isPreview && !isSubmitted && (
+        <div className="px-4 pt-3">
+          <div className="max-w-lg mx-auto">
+            <button
+              type="button"
+              onClick={() => setIsSubmitted(true)}
+              className="w-full py-3 rounded-full text-sm font-semibold transition-all min-h-[48px] active:scale-[0.97]"
+              style={{ border: `1.5px dashed ${T.gold}`, color: T.gold, backgroundColor: 'rgba(255,255,255,0.7)' }}
+            >
+              צפי במסך הצלחה (תצוגה מקדימה)
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Sticky bottom navigation — always visible, never scrolled away */}
       {!readOnly && (
