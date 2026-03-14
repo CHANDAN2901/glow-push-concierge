@@ -1110,6 +1110,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             email: c.email || '',
             day: daysSince,
             treatment: c.treatment_type || '',
+            treatmentDate: c.treatment_date || null,
             link: `${origin}/c/${encodeURIComponent(c.id)}?name=${encodeURIComponent(c.full_name)}&treatment=${encodeURIComponent(c.treatment_type || '')}&start=${c.treatment_date || new Date(c.created_at).toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId)}`,
             beforeImg: '',
             afterImg: '',
