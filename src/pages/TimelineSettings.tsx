@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Save, Loader2, Sparkles, Plus, Trash2, GripVertical } from 'lucide-react';
 import healingCharsImg from '@/assets/healing-characters.jpg';
 import { supabase } from '@/integrations/supabase/client';
+import { restSelect } from '@/lib/supabase-rest';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -21,14 +22,19 @@ const STEP_SPRITES: { col: number; row: number }[] = [
   { col: 0, row: 1 }, // Day 42
 ];
 
-const DEFAULT_STEPS = [
-  { dayLabel: 'יום 1', title_he: 'יום ראשון — מושלם!', title_en: 'Day 1 — Perfect!', instruction_he: 'שמרי על האזור נקי ויבש. מרחי משחה בעדינות. הצבע כהה היום — זה טבעי!', instruction_en: 'Keep the area clean and dry. Apply ointment gently. Color is dark today — totally normal!' },
-  { dayLabel: 'ימים 2-4', title_he: 'ימים 2-4 — כהות', title_en: 'Days 2-4 — Darkening', instruction_he: 'הפיגמנט מתחמצן ומכהה — ידהה בקרוב. המשיכי למרוח משחה.', instruction_en: 'The pigment oxidizes and darkens — it will fade soon. Keep applying ointment.' },
-  { dayLabel: 'ימים 5-7', title_he: 'ימים 5-7 — קילוף', title_en: 'Days 5-7 — Peeling', instruction_he: 'לא לקלף! תני לגלד ליפול לבד כדי לשמור על הפיגמנט.', instruction_en: "Don't peel! Let scabs fall off naturally to preserve pigment." },
-  { dayLabel: 'ימים 8-10', title_he: 'ימים 8-10 — Ghosting', title_en: 'Days 8-10 — Ghosting', instruction_he: 'שלב ה-Ghosting — הצבע ייראה בהיר מאוד. הוא יחזור!', instruction_en: 'Ghosting phase — color looks very light. It will come back!' },
-  { dayLabel: 'ימים 14-28', title_he: 'ימים 14-28 — חזרה', title_en: 'Days 14-28 — Coming Back', instruction_he: 'הצבע מתייצב. שמרי על הגנה מהשמש.', instruction_en: 'Color is stabilizing. Protect from sun exposure.' },
-  { dayLabel: 'יום 42', title_he: 'יום 42 — מושלם!', title_en: 'Day 42 — Perfect!', instruction_he: 'מושלם! הגיע הזמן לקבוע תור לטאצ׳ אפ.', instruction_en: "Perfect! Time to schedule your touch-up." },
-];
+interface HealingPhaseRow {
+  id: string;
+  treatment_type: string;
+  day_start: number;
+  day_end: number;
+  title_he: string;
+  title_en: string;
+  icon: string;
+  severity: string;
+  steps_he: string[];
+  steps_en: string[];
+  sort_order: number;
+}
 
 interface StepContent {
   step_index: number;
@@ -46,9 +52,7 @@ export default function TimelineSettings() {
   const navigate = useNavigate();
   const { lang } = useI18n();
   const isHe = lang === 'he';
-  const [steps, setSteps] = useState<StepContent[]>(
-    DEFAULT_STEPS.map((d, i) => ({ step_index: i, ...d }))
-  );
+  const [steps, setSteps] = useState<StepContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profileId, setProfileId] = useState<string | null>(null);
@@ -57,6 +61,34 @@ export default function TimelineSettings() {
     if (!user) { setLoading(false); return; }
     const load = async () => {
       setLoading(true);
+
+      // 1. Fetch Super Admin global defaults from healing_phases
+      let globalPhases: HealingPhaseRow[] = [];
+      try {
+        globalPhases = await restSelect<HealingPhaseRow>(
+          'healing_phases',
+          'treatment_type=eq.eyebrows&order=sort_order.asc'
+        );
+      } catch (e) {
+        console.error('Failed to fetch healing_phases:', e);
+      }
+
+      // Build base steps from global defaults
+      const baseSteps: StepContent[] = globalPhases.map((p, i) => {
+        const dayLabel = p.day_start === p.day_end
+          ? `יום ${p.day_start}`
+          : `ימים ${p.day_start}-${p.day_end}`;
+        return {
+          step_index: i,
+          dayLabel,
+          title_he: p.title_he,
+          title_en: p.title_en,
+          instruction_he: p.steps_he.join('\n') || p.title_he,
+          instruction_en: p.steps_en.join('\n') || p.title_en,
+        };
+      });
+
+      // 2. Fetch artist profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('id')
@@ -65,6 +97,8 @@ export default function TimelineSettings() {
 
       if (profile) {
         setProfileId(profile.id);
+
+        // 3. Fetch artist-specific overrides from timeline_content
         const { data: rows } = await supabase
           .from('timeline_content' as any)
           .select('*')
@@ -72,21 +106,22 @@ export default function TimelineSettings() {
           .order('step_index');
 
         if (rows && rows.length > 0) {
-          const dbSteps = (rows as any[]);
-          const merged: StepContent[] = DEFAULT_STEPS.map((d, i) => {
+          const dbSteps = rows as any[];
+          // Merge overrides on top of global defaults
+          const merged: StepContent[] = baseSteps.map((base, i) => {
             const row = dbSteps.find((r: any) => r.step_index === i);
             if (row) return {
-              step_index: i,
-              dayLabel: d.dayLabel,
-              title_he: row.title_he || d.title_he,
-              title_en: row.title_en || d.title_en,
-              instruction_he: row.quote_he || d.instruction_he,
-              instruction_en: row.quote_en || d.instruction_en,
+              ...base,
+              title_he: row.title_he || base.title_he,
+              title_en: row.title_en || base.title_en,
+              instruction_he: row.quote_he || base.instruction_he,
+              instruction_en: row.quote_en || base.instruction_en,
             };
-            return { step_index: i, ...d };
+            return base;
           });
+          // Add any custom steps beyond global count
           dbSteps
-            .filter((r: any) => r.step_index >= 6)
+            .filter((r: any) => r.step_index >= baseSteps.length)
             .sort((a: any, b: any) => a.step_index - b.step_index)
             .forEach((r: any) => {
               merged.push({
@@ -100,7 +135,12 @@ export default function TimelineSettings() {
               });
             });
           setSteps(merged);
+        } else {
+          // No artist overrides — show global defaults as-is
+          setSteps(baseSteps);
         }
+      } else {
+        setSteps(baseSteps);
       }
       setLoading(false);
     };
