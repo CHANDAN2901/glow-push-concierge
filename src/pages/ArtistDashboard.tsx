@@ -1560,7 +1560,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 }} />
                 <div className="text-center z-[2] relative px-6" dir="rtl">
                   <span className="block font-extrabold text-sm leading-snug" style={{ color: '#fff' }}>
-                    {lang === 'en' ? 'A Good Friend is Worth Gold (& Rose-Gold) | Get ₪50 Gift!' : 'חברה טובה שווה זהב (ורוז-גולד) | קבלי ₪50 מתנה!'}
+                    {lang === 'en' ? 'Share with a colleague & get ₪50 gift! 🎁' : 'שתפי קולגה וקבלי 50 ₪ מתנה! 🎁'}
                   </span>
                 </div>
               </button>
