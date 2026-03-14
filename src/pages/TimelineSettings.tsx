@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Save, Loader2, Sparkles, Plus, Trash2, GripVertical } from 'lucide-react';
 import healingCharsImg from '@/assets/healing-characters.jpg';
 import { supabase } from '@/integrations/supabase/client';
+import { restSelect } from '@/lib/supabase-rest';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -21,14 +22,19 @@ const STEP_SPRITES: { col: number; row: number }[] = [
   { col: 0, row: 1 }, // Day 42
 ];
 
-const DEFAULT_STEPS = [
-  { dayLabel: 'יום 1', title_he: 'יום ראשון — מושלם!', title_en: 'Day 1 — Perfect!', instruction_he: 'שמרי על האזור נקי ויבש. מרחי משחה בעדינות. הצבע כהה היום — זה טבעי!', instruction_en: 'Keep the area clean and dry. Apply ointment gently. Color is dark today — totally normal!' },
-  { dayLabel: 'ימים 2-4', title_he: 'ימים 2-4 — כהות', title_en: 'Days 2-4 — Darkening', instruction_he: 'הפיגמנט מתחמצן ומכהה — ידהה בקרוב. המשיכי למרוח משחה.', instruction_en: 'The pigment oxidizes and darkens — it will fade soon. Keep applying ointment.' },
-  { dayLabel: 'ימים 5-7', title_he: 'ימים 5-7 — קילוף', title_en: 'Days 5-7 — Peeling', instruction_he: 'לא לקלף! תני לגלד ליפול לבד כדי לשמור על הפיגמנט.', instruction_en: "Don't peel! Let scabs fall off naturally to preserve pigment." },
-  { dayLabel: 'ימים 8-10', title_he: 'ימים 8-10 — Ghosting', title_en: 'Days 8-10 — Ghosting', instruction_he: 'שלב ה-Ghosting — הצבע ייראה בהיר מאוד. הוא יחזור!', instruction_en: 'Ghosting phase — color looks very light. It will come back!' },
-  { dayLabel: 'ימים 14-28', title_he: 'ימים 14-28 — חזרה', title_en: 'Days 14-28 — Coming Back', instruction_he: 'הצבע מתייצב. שמרי על הגנה מהשמש.', instruction_en: 'Color is stabilizing. Protect from sun exposure.' },
-  { dayLabel: 'יום 42', title_he: 'יום 42 — מושלם!', title_en: 'Day 42 — Perfect!', instruction_he: 'מושלם! הגיע הזמן לקבוע תור לטאצ׳ אפ.', instruction_en: "Perfect! Time to schedule your touch-up." },
-];
+interface HealingPhaseRow {
+  id: string;
+  treatment_type: string;
+  day_start: number;
+  day_end: number;
+  title_he: string;
+  title_en: string;
+  icon: string;
+  severity: string;
+  steps_he: string[];
+  steps_en: string[];
+  sort_order: number;
+}
 
 interface StepContent {
   step_index: number;
