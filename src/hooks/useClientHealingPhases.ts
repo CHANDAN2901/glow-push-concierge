@@ -29,77 +29,82 @@ export function useClientHealingPhases(
 ) {
   const [phases, setPhases] = useState<HealingPhase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isClientSpecific, setIsClientSpecific] = useState(false);
 
   useEffect(() => {
     if (!clientId) {
       setPhases([]);
+      setError(null);
+      setIsClientSpecific(false);
       setLoading(false);
       return;
     }
 
     let cancelled = false;
     setLoading(true);
+    setError(null);
 
-    // First try client-specific phases
     restSelect<ClientHealingPhase>(
       'client_healing_phases',
-      `client_id=eq.${clientId}&order=sort_order.asc`
+      `client_id=eq.${clientId}&treatment_type=eq.${treatment}&order=sort_order.asc`
     )
       .then((clientPhases) => {
         if (cancelled) return;
 
         if (clientPhases.length > 0) {
-          // Use client-specific data
-          setPhases(clientPhases.map(cp => ({
-            id: cp.id,
-            treatment_type: cp.treatment_type as 'eyebrows' | 'lips',
-            day_start: cp.day_start,
-            day_end: cp.day_end,
-            title_he: cp.title_he,
-            title_en: cp.title_en,
-            icon: cp.icon,
-            severity: cp.severity,
-            steps_he: cp.steps_he,
-            steps_en: cp.steps_en,
-            sort_order: cp.sort_order,
-          })));
+          setPhases(
+            clientPhases.map((cp) => ({
+              id: cp.id,
+              treatment_type: cp.treatment_type,
+              day_start: cp.day_start,
+              day_end: cp.day_end,
+              title_he: cp.title_he,
+              title_en: cp.title_en,
+              icon: cp.icon,
+              severity: cp.severity,
+              steps_he: cp.steps_he,
+              steps_en: cp.steps_en,
+              sort_order: cp.sort_order,
+            }))
+          );
           setIsClientSpecific(true);
           setLoading(false);
-        } else {
-          // Fallback to global master template
-          restSelect<HealingPhase>(
-            'healing_phases',
-            `treatment_type=eq.${treatment}&order=sort_order.asc`
-          )
-            .then((globalPhases) => {
-              if (!cancelled) {
-                setPhases(globalPhases);
-                setIsClientSpecific(false);
-                setLoading(false);
-              }
-            })
-            .catch((err) => {
-              if (!cancelled) {
-                console.error('Failed to fetch global healing phases:', err);
-                setLoading(false);
-              }
-            });
+          return;
         }
+
+        restSelect<HealingPhase>(
+          'healing_phases',
+          `treatment_type=eq.${treatment}&order=sort_order.asc`
+        )
+          .then((globalPhases) => {
+            if (cancelled) return;
+            setPhases(globalPhases);
+            setIsClientSpecific(false);
+            setLoading(false);
+          })
+          .catch((err) => {
+            if (cancelled) return;
+            console.error('Failed to fetch global healing phases:', err);
+            setError(err?.message || 'Failed to load');
+            setLoading(false);
+          });
       })
       .catch((err) => {
-        if (!cancelled) {
-          console.error('Failed to fetch client healing phases:', err);
-          setLoading(false);
-        }
+        if (cancelled) return;
+        console.error('Failed to fetch client healing phases:', err);
+        setError(err?.message || 'Failed to load');
+        setLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [clientId, treatment]);
 
   const getPhaseForDay = (day: number): HealingPhase | null => {
-    return phases.find(p => day >= p.day_start && day <= p.day_end) || null;
+    return phases.find((p) => day >= p.day_start && day <= p.day_end) || null;
   };
 
-  return { phases, loading, isClientSpecific, getPhaseForDay };
+  return { phases, loading, error, isClientSpecific, getPhaseForDay };
 }

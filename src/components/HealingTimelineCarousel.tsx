@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
+import { isLegacyTimelineOverride } from '@/lib/timeline-overrides';
 import { useClientHealingPhases } from '@/hooks/useClientHealingPhases';
 import type { HealingPhase } from '@/hooks/useHealingPhases';
 import healingCharsImg from '@/assets/healing-characters.jpg';
@@ -81,7 +82,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
   // Apply artist overrides on top of DB steps
   const finalSteps = steps.map((s, i) => {
     const row = artistOverrides.find((r: any) => r.step_index === i);
-    if (!row) return s;
+    if (!row || isLegacyTimelineOverride(row.quote_he, row.quote_en)) return s;
     return {
       ...s,
       instruction: row.quote_he || s.instruction,
