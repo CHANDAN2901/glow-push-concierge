@@ -578,6 +578,14 @@ const ClientProfile = () => {
           </button>
         </div>
 
+        {/* ── Finish Treatment CTA ── */}
+        <FinishTreatmentCTA
+          client={client}
+          clientDbId={clientDbId}
+          lang={lang}
+          onTreatmentStarted={(updatedClient) => setClient(updatedClient)}
+        />
+
         {/* ── Health Declaration ── */}
         <SectionCard
           icon={<FileText className="w-5 h-5" style={{ color: GOLD }} />}
