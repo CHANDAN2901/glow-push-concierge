@@ -253,7 +253,7 @@ export default function AdminPricingEditor() {
                 <Input value={plan.name_en} onChange={(e) => updatePlan(plan.id, 'name_en', e.target.value)} />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">מחיר חודשי (₪)</label>
+                <label className="text-sm font-medium mb-1 block">מחיר כולל לתקופה (₪)</label>
                 <Input
                   type="number"
                   value={plan.price_monthly}
@@ -261,7 +261,7 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Price USD ($)</label>
+                <label className="text-sm font-medium mb-1 block">Total Price ($)</label>
                 <Input
                   type="number"
                   value={plan.price_usd}
@@ -269,7 +269,7 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">💰 מחיר מקורי / מחוק (₪)</label>
+                <label className="text-sm font-medium mb-1 block">💰 מחיר כולל מקורי / מחוק (₪)</label>
                 <Input
                   type="number"
                   value={plan.original_price_monthly}
@@ -278,7 +278,7 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">💰 Original Price USD ($)</label>
+                <label className="text-sm font-medium mb-1 block">💰 Original Total Price ($)</label>
                 <Input
                   type="number"
                   value={plan.original_price_usd}
