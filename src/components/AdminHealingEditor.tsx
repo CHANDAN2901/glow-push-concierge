@@ -31,9 +31,7 @@ export default function AdminHealingEditor() {
     setLoading(true);
     try {
       const data = await restSelect<HealingPhaseRow>('healing_phases', 'order=sort_order.asc');
-      if (data.length > 0) {
-        setPhases(data);
-      }
+      setPhases(data);
     } catch (e: any) {
       console.error('Failed to fetch healing phases:', e?.message);
     }
