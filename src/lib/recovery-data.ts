@@ -37,7 +37,7 @@ export const eyebrowPhases: DayInstruction[] = [
     icon: "🛡️", severity: 'high'
   },
   {
-    day: 11, dayEnd: 20,
+    day: 8, dayEnd: 14,
     titleEn: "Ghosting Phase 👻", titleHe: "העלמות הפיגמנט 👻",
     checklist: [
       { en: "👻 Color looks like it disappeared? Don't worry, it'll come back.", he: '👻 הצבע נראה כאילו נעלם? אל דאגה, הוא יחזור.' },
