@@ -269,7 +269,7 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">💰 מחיר מקורי / מחוק (₪)</label>
+                <label className="text-sm font-medium mb-1 block">💰 מחיר כולל מקורי / מחוק (₪)</label>
                 <Input
                   type="number"
                   value={plan.original_price_monthly}
