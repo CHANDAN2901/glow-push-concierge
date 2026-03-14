@@ -269,7 +269,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const hasAnyYellow = dbQuestions.some(q => q.risk_level === 'yellow' && answers[q.id]);
 
   // ═══════════════ THANK YOU — VIP GOLDEN TICKET ═══════════════
-  if (showThankYou) {
+  if (isSubmitted) {
     const handleAddToCalendar = () => {
       const dateStr = appointmentDate || new Date().toISOString().split('T')[0];
       const timeStr = appointmentTime || '10:00';
@@ -319,8 +319,8 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         ];
 
     return (
-      <div className="fixed inset-0 z-[70] overflow-y-auto" style={{ background: T.bg }}>
-        <div className="min-h-screen flex flex-col items-center justify-center px-5 py-10 hd-flip-perspective">
+      <div className="fixed inset-0 z-[130] overflow-y-auto" style={{ background: T.bg }}>
+        <div className="min-h-full flex flex-col items-center px-5 pt-20 pb-16 hd-flip-perspective">
           {/* VIP TICKET CARD */}
           <div
             className="hd-flip-card hd-shine-overlay relative w-full max-w-sm rounded-3xl overflow-hidden"
