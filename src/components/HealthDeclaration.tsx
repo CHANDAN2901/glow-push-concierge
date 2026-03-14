@@ -1027,6 +1027,22 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
       </div>
       </div>
 
+      {/* Preview-only debug jump to success state */}
+      {!readOnly && isPreview && !isSubmitted && (
+        <div className="px-4 pt-3">
+          <div className="max-w-lg mx-auto">
+            <button
+              type="button"
+              onClick={() => setIsSubmitted(true)}
+              className="w-full py-3 rounded-full text-sm font-semibold transition-all min-h-[48px] active:scale-[0.97]"
+              style={{ border: `1.5px dashed ${T.gold}`, color: T.gold, backgroundColor: 'rgba(255,255,255,0.7)' }}
+            >
+              צפי במסך הצלחה (תצוגה מקדימה)
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Sticky bottom navigation — always visible, never scrolled away */}
       {!readOnly && (
         <div
