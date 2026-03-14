@@ -47,7 +47,7 @@ export const eyebrowPhases: DayInstruction[] = [
     icon: "👻", severity: 'medium'
   },
   {
-    day: 21, dayEnd: 30,
+    day: 15, dayEnd: 30,
     titleEn: "Final Result ✨", titleHe: "החשיפה הסופית ✨",
     checklist: [
       { en: '✨ The color is stabilizing and coming back.', he: '✨ הצבע מתייצב וחוזר לעצמו.' },
