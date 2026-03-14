@@ -203,6 +203,19 @@ const generateSlug = (name: string) =>
   name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9א-ת]/g, '') +
   Math.floor(Math.random() * 900 + 100);
 
+const hasRealTreatmentDate = (treatment_date?: string | null) => {
+  if (!treatment_date) return false;
+  const normalized = treatment_date.trim();
+  if (!normalized || normalized === 'null') return false;
+  return !Number.isNaN(new Date(normalized).getTime());
+};
+
+const calcRecoveryDay = (treatmentDate: string) => {
+  const d = new Date(treatmentDate);
+  if (Number.isNaN(d.getTime())) return 0;
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24)));
+};
+
 const ArtistDashboard = () => {
   const { t, lang, setLang } = useI18n();
   const { toast } = useToast();
