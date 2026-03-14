@@ -286,6 +286,15 @@ const ArtistDashboard = () => {
   const [wazeAddress, setWazeAddress] = useState('');
   const [shopProducts, setShopProducts] = useState<ShopProduct[]>(() => loadShopProducts());
 
+  // URL-synced state for selected client & active tab
+  const selectedClientParam = searchParams.get('client');
+  const [selectedClient, setSelectedClient] = useState<ClientEntry | null>(null);
+  const setSelectedClientInternal = setSelectedClient;
+  type TabId = 'home' | 'clients' | 'calendar' | 'healing' | 'bonuses' | 'messages' | 'digital-card' | 'push' | 'profile';
+  const [activeTab, setActiveTab] = useState<TabId>('home');
+  const setActiveTabInternal = setActiveTab;
+  const [includePolicyShare, setIncludePolicyShare] = useState(true);
+
 useEffect(() => {
   setIncludePolicyShare(true);
   const strictDone = hasRealTreatmentDate(selectedClient?.treatmentDate);
