@@ -1354,7 +1354,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           {!(subScreen || selectedClient) && (
             <button
               onClick={() => setActiveTab('profile')}
-              className="absolute right-[60px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 z-20 relative"
+              className="absolute right-[60px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 z-20"
               style={{
                 background: 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
               }}
