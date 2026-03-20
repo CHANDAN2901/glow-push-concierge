@@ -14,7 +14,7 @@ const PaymentHistory = () => {
   const isHe = lang === 'he';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] to-[#FFFFFF] pb-20 pt-14" dir={isHe ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen pb-20 pt-14" style={{ background: '#fcf9f8' }} dir={isHe ? 'rtl' : 'ltr'}>
 
       <div className="pt-8 pb-6 text-center px-4">
         <h1

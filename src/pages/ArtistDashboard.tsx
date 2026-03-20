@@ -651,7 +651,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             style={{
               background: 'white',
               border: '2.5px solid #D4AF37',
-              color: '#4a3636',
+              color: '#4a3520',
             }}
           >
             {lang === 'en' ? 'Undo' : 'ביטול'}
@@ -1283,7 +1283,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
   return (
-    <div className="min-h-screen flex flex-col relative artist-dashboard" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #FDF5F3 15%, #F8E0E4 40%, #F0C8CE 65%, #E8B8C0 85%, #E0A8B2 100%)', animation: 'bg-fade-to-pink 1.2s ease-out forwards' }}>
+    <div className="min-h-screen flex flex-col relative artist-dashboard" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #fcf9f8 30%, #f6f3f2 100%)' }}>
       {/* Subtle diagonal line texture */}
       <div className="fixed inset-0 z-0 pointer-events-none" style={{
         backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 80px, rgba(212,175,55,0.03) 80px, rgba(212,175,55,0.03) 81px)`,
@@ -1293,7 +1293,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         <img src={defaultLogo} alt="" className="w-[400px] opacity-[0.03]" />
       </div>
       {/* ===== FIXED TOP HEADER ===== */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'linear-gradient(180deg, hsla(350, 35%, 92%, 0.95) 0%, hsla(350, 40%, 90%, 0.98) 100%)', borderBottom: '1.5px solid hsl(38 40% 82%)' }}>
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg" style={{ background: 'linear-gradient(180deg, rgba(252,249,248,0.95) 0%, rgba(246,243,242,0.98) 100%)', borderBottom: '1.5px solid hsl(38 40% 82%)' }}>
         <div className="relative w-full h-16 px-5">
 
           {/* Left side buttons (add, preview, back) */}
@@ -1313,7 +1313,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   onClick={() => { setDispatchPrefill(null); setDispatchOpen(true); }}
                   className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 relative"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
+                    background: 'linear-gradient(135deg, rgba(252,249,248,0.9), rgba(246,243,242,0.85))',
                   }}
                 >
                   <div className="absolute inset-0 rounded-full pointer-events-none" style={{
@@ -1327,7 +1327,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   onClick={() => setClientPreviewOpen(true)}
                   className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 relative"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
+                    background: 'linear-gradient(135deg, rgba(252,249,248,0.9), rgba(246,243,242,0.85))',
                   }}
                   title={lang === 'en' ? 'Preview Client Page' : 'צפייה בדף לקוחה'}
                 >
@@ -1356,7 +1356,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               onClick={() => setActiveTab('profile')}
               className="absolute right-[60px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 z-20"
               style={{
-                background: 'linear-gradient(135deg, rgba(255,235,240,0.9), rgba(255,225,232,0.85))',
+                background: 'linear-gradient(135deg, rgba(252,249,248,0.9), rgba(246,243,242,0.85))',
               }}
             >
               <div className="absolute inset-0 rounded-full pointer-events-none" style={{
@@ -1374,7 +1374,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold tracking-wide backdrop-blur-sm transition-all hover:scale-105 active:scale-95 shadow-lg z-30"
             style={{
               background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-              color: '#4a3636',
+              color: '#4a3520',
               boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
             }}
           >
@@ -1398,7 +1398,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             }}
           >
             <Crown className="w-5 h-5 shrink-0" style={{ color: '#B8860B' }} />
-            <p className="text-sm font-medium flex-1" style={{ color: '#4a3636' }}>
+            <p className="text-sm font-medium flex-1" style={{ color: '#4a3520' }}>
               {lang === 'en'
                 ? `${trialDaysLeft} days left in your free trial ✨`
                 : `נשארו לך עוד ${trialDaysLeft} ימים להתנסות בחינם ב-Glow Push ✨`}
@@ -1440,7 +1440,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             <div
               className="rounded-b-3xl px-5 pt-8 pb-6 -mx-5"
               style={{
-                background: 'linear-gradient(180deg, rgba(234,195,191,0.6) 0%, transparent 100%)',
+                background: 'linear-gradient(180deg, rgba(242,233,200,0.4) 0%, transparent 100%)',
               }}
             >
               <h1 className="text-2xl font-bold tracking-wide mb-1" style={{ color: '#3D3D3D' }}>
@@ -1460,9 +1460,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 <div
                   className="relative mt-4 rounded-[2rem] animate-fade-up overflow-hidden"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
+                    background: 'linear-gradient(135deg, rgba(252,249,248,0.95) 0%, rgba(250,246,238,0.92) 50%, rgba(246,243,234,0.90) 100%)',
                     backdropFilter: 'blur(16px)',
-                    boxShadow: '0 16px 40px rgba(160,100,80,0.2), 0 8px 20px rgba(180,120,90,0.14), 0 4px 10px rgba(212,175,55,0.1)',
+                    boxShadow: '0 16px 40px rgba(115,92,0,0.12), 0 8px 20px rgba(115,92,0,0.08), 0 4px 10px rgba(212,175,55,0.1)',
                     padding: '1.25rem 1.5rem',
                   }}
                 >
@@ -1477,7 +1477,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   >
                     <X className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
-                  <p className="text-sm font-bold leading-relaxed text-center relative z-10" style={{ color: '#4a3636' }}>
+                  <p className="text-sm font-bold leading-relaxed text-center relative z-10" style={{ color: '#4a3520' }}>
                     {lang === 'en'
                       ? `🔥 Amazing week! You onboarded ${clients.length} new clients. Keep it up!`
                       : `🔥 שבוע מטורף! הכנסת ${clients.length} לקוחות חדשות השבוע. המשיכי כך!`}
@@ -1508,8 +1508,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   key={i}
                   className="rounded-2xl p-4 text-center animate-fade-up relative overflow-hidden"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,235,240,0.92) 0%, rgba(255,228,234,0.88) 50%, rgba(255,220,230,0.85) 100%)',
-                    boxShadow: '0 16px 40px rgba(160,100,80,0.22), 0 8px 20px rgba(180,120,90,0.15), 0 4px 10px rgba(212,175,55,0.1), 0 1px 3px rgba(0,0,0,0.06)',
+                    background: 'linear-gradient(135deg, rgba(252,249,248,0.95) 0%, rgba(250,246,238,0.90) 50%, rgba(246,243,234,0.88) 100%)',
+                    boxShadow: '0 16px 40px rgba(115,92,0,0.12), 0 8px 20px rgba(115,92,0,0.08), 0 4px 10px rgba(212,175,55,0.1), 0 1px 3px rgba(0,0,0,0.06)',
                     animationDelay: `${i * 0.08}s`,
                     opacity: 0,
                   }}
@@ -1525,7 +1525,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     </span>
                   )}
                   <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.5} />
-                  <p className="text-xl font-extrabold mb-1 relative z-10" style={{ color: '#4a3636' }}>{metric.value}</p>
+                  <p className="text-xl font-extrabold mb-1 relative z-10" style={{ color: '#4a3520' }}>{metric.value}</p>
                   <p className="text-[10px] font-medium relative z-10" style={{ color: '#6b5a5a' }}>{metric.label}</p>
                   {metric.trend && (
                     <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
@@ -1542,14 +1542,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 onClick={() => setActiveTab('bonuses')}
                 className="special-promo-btn w-[90%] max-w-[420px] min-h-[80px] flex items-center justify-center relative overflow-hidden active:scale-95"
                 style={{
-                  background: 'linear-gradient(145deg, #E8A0B0 0%, #D4838F 100%)',
+                  background: 'linear-gradient(145deg, #d4af37 0%, #b8960b 100%)',
                   borderRadius: '50px',
                   border: 'none',
-                  boxShadow: '0 12px 36px rgba(212, 131, 143, 0.4), 0 20px 50px rgba(180, 110, 110, 0.2), 0 0 20px rgba(232, 160, 176, 0.3)',
+                  boxShadow: '0 12px 36px rgba(115, 92, 0, 0.35), 0 20px 50px rgba(115, 92, 0, 0.15), 0 0 20px rgba(212, 175, 55, 0.25)',
                   transition: 'all 0.3s ease',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 18px 48px rgba(212, 131, 143, 0.5), 0 28px 60px rgba(180, 110, 110, 0.25), 0 0 30px rgba(232, 160, 176, 0.4)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(212, 131, 143, 0.4), 0 20px 50px rgba(180, 110, 110, 0.2), 0 0 20px rgba(232, 160, 176, 0.3)'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 18px 48px rgba(115, 92, 0, 0.5), 0 28px 60px rgba(115, 92, 0, 0.25), 0 0 30px rgba(212, 175, 55, 0.4)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(115, 92, 0, 0.4), 0 20px 50px rgba(115, 92, 0, 0.2), 0 0 20px rgba(212, 175, 55, 0.3)'; }}
               >
                 <div className="absolute inset-0 pointer-events-none z-[1]" style={{
                   background: 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)',
@@ -1577,7 +1577,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       background: 'hsl(0 0% 100%)',
                       borderColor: 'hsl(38 55% 58%)',
                       color: 'hsl(36 50% 42%)',
-                      boxShadow: '0 10px 28px rgba(160,100,80,0.16), 0 4px 12px rgba(180,120,90,0.1), 0 2px 6px rgba(212,175,55,0.08)',
+                      boxShadow: '0 10px 28px rgba(115,92,0,0.10), 0 4px 12px rgba(115,92,0,0.06), 0 2px 6px rgba(212,175,55,0.08)',
                     }}
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
@@ -1624,7 +1624,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         >
                           <div
                             className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg"
-                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}
+                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520' }}
                           >
                             {client.name.charAt(0)}
                           </div>
@@ -1680,7 +1680,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         >
                           <div
                             className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg"
-                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}
+                            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520' }}
                           >
                             {client.name.charAt(0)}
                           </div>
@@ -1827,18 +1827,18 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <div
                     className="mx-auto w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4"
                     style={{
-                      background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 50%, #d8b4b4 100%)',
-                      boxShadow: '0 6px 24px rgba(216, 180, 180, 0.45)',
+                      background: 'linear-gradient(135deg, #d4af37 0%, #b8960b 50%, #d4af37 100%)',
+                      boxShadow: '0 6px 24px rgba(115, 92, 0, 0.35)',
                     }}
                   >
                     {selectedClient.name.charAt(0)}
                   </div>
-                  <h1 className="font-serif font-bold text-2xl tracking-wide" style={{ color: '#4a3636' }}>
+                  <h1 className="font-serif font-bold text-2xl tracking-wide" style={{ color: '#4a3520' }}>
                     {selectedClient.name}
                   </h1>
                   {/* Treatment pill badge */}
                   <div className="mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium"
-                    style={{ backgroundColor: 'rgba(216, 180, 180, 0.15)', color: '#4a3636', border: '1px solid rgba(216, 180, 180, 0.4)' }}
+                    style={{ backgroundColor: 'rgba(212, 175, 55, 0.15)', color: '#4a3520', border: '1px solid rgba(212, 175, 55, 0.4)' }}
                   >
                     {selectedClient.treatment} · {lang === 'en' ? `Day ${selectedClient.day}` : `יום ${selectedClient.day}`}
                   </div>
@@ -1851,20 +1851,20 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     background: 'rgba(255, 255, 255, 0.55)',
                     backdropFilter: 'blur(16px)',
                     WebkitBackdropFilter: 'blur(16px)',
-                    border: '1.5px solid rgba(216, 180, 180, 0.4)',
-                    boxShadow: '0 4px 20px rgba(216, 180, 180, 0.15)',
+                    border: '1.5px solid rgba(212, 175, 55, 0.4)',
+                    boxShadow: '0 4px 20px rgba(212, 175, 55, 0.15)',
                   }}
                 >
                   <div className="px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(216, 180, 180, 0.2)' }}>
-                        <Users className="w-4 h-4" style={{ color: '#d8b4b4' }} strokeWidth={1.5} />
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(212, 175, 55, 0.2)' }}>
+                        <Users className="w-4 h-4" style={{ color: '#c9a87c' }} strokeWidth={1.5} />
                       </div>
                       <div>
                         <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#9a8585' }}>
                           {lang === 'en' ? 'Phone' : 'טלפון'}
                         </p>
-                        <p className="text-sm font-medium" style={{ color: '#4a3636' }}>
+                        <p className="text-sm font-medium" style={{ color: '#4a3520' }}>
                           {selectedClient.phone || (lang === 'en' ? 'Not set' : 'לא הוגדר')}
                         </p>
                       </div>
@@ -1872,9 +1872,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     <button
                       onClick={() => openEditClient(selectedClient)}
                       className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-muted/60"
-                      style={{ backgroundColor: 'rgba(216, 180, 180, 0.2)' }}
+                      style={{ backgroundColor: 'rgba(212, 175, 55, 0.2)' }}
                     >
-                      <Pencil className="w-3.5 h-3.5" style={{ color: '#d8b4b4' }} strokeWidth={1.5} />
+                      <Pencil className="w-3.5 h-3.5" style={{ color: '#c9a87c' }} strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
@@ -1916,7 +1916,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           type="button"
                           onClick={() => setViewDeclarationFor(selectedClient.name)}
                           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold tracking-wide transition-all active:scale-[0.97]"
-                          style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636' }}
+                          style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520' }}
                         >
                           <Eye className="w-4 h-4" strokeWidth={2} />
                           {lang === 'en' ? 'View Full Health Declaration' : 'צפייה בהצהרת הבריאות המלאה'}
@@ -1962,7 +1962,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         style={{
                           background: 'linear-gradient(135deg, #c98a8a 0%, #b06e6e 40%, #a05e5e 100%)',
                           color: '#ffffff',
-                          boxShadow: '0 8px 32px rgba(176, 110, 110, 0.45), 0 0 20px rgba(200, 140, 140, 0.25)',
+                          boxShadow: '0 8px 32px rgba(115, 92, 0, 0.45), 0 0 20px rgba(184, 150, 11, 0.25)',
                           border: '1px solid rgba(255, 255, 255, 0.15)',
                         }}
                       >
@@ -2140,7 +2140,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     background: isTreatmentDone
                       ? 'hsl(142 76% 36%)'
                       : 'linear-gradient(135deg, #D4AF37 0%, #F5C6D0 50%, #D4AF37 100%)',
-                    color: isTreatmentDone ? '#9ca3af' : '#4a3636',
+                    color: isTreatmentDone ? '#9ca3af' : '#4a3520',
                     boxShadow: isTreatmentDone
                       ? '0 4px 18px rgba(34,197,94,0.3)'
                       : '0 8px 32px rgba(212,175,55,0.35), 0 0 20px rgba(245,198,208,0.25)',
@@ -2244,7 +2244,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                     <div className="px-5 py-4 border-b border-border">
                       <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                        <FileOutput className="w-4 h-4" style={{ color: '#d8b4b4' }} />
+                        <FileOutput className="w-4 h-4" style={{ color: '#c9a87c' }} />
                         {lang === 'en' ? 'Treatment History' : 'היסטוריית טיפולים'}
                       </h3>
                     </div>
@@ -2268,7 +2268,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                 }
                               }}
                               className="w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-accent/20"
-                              style={{ color: '#d8b4b4' }}
+                              style={{ color: '#c9a87c' }}
                             >
                               <Pencil className="w-3 h-3" />
                             </button>
@@ -2294,7 +2294,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                   <div className="px-5 py-4 border-b border-border">
                     <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                      <Image className="w-4 h-4" style={{ color: '#d8b4b4' }} />
+                      <Image className="w-4 h-4" style={{ color: '#c9a87c' }} />
                       {lang === 'en' ? 'Before & After Collage' : 'קולאז׳ לפני ואחרי'}
                       <HelpTooltip text="יצירת תמונות מקצועיות לשיווק באינסטגרם ושליחה ללקוחה ישירות לוואטסאפ." id="collage" />
                     </h3>
@@ -2317,7 +2317,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <div className="rounded-3xl overflow-hidden bg-card border border-border shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
                     <div className="px-5 py-4 border-b border-border">
                       <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
-                        <Camera className="w-4 h-4" style={{ color: '#d8b4b4' }} />
+                        <Camera className="w-4 h-4" style={{ color: '#c9a87c' }} />
                         {lang === 'en' ? 'Shared Healing Gallery' : 'גלריית החלמה משותפת'}
                       </h3>
                       <p className="text-xs text-muted-foreground mt-1">
@@ -2347,7 +2347,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <button
                     onClick={() => { if (navigator.vibrate) navigator.vibrate(50); setDispatchPrefill(null); setDispatchOpen(true); }}
                     className="w-full rounded-full py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                    style={{ background: '#ffffff', border: '2.5px solid #d8b4b4', color: '#4a3636', boxShadow: '0 4px 16px rgba(216, 180, 180, 0.3), 0 2px 8px rgba(216, 180, 180, 0.15)' }}
+                    style={{ background: '#ffffff', border: '2.5px solid rgba(212,175,55,0.5)', color: '#4a3520', boxShadow: '0 4px 16px rgba(115, 92, 0, 0.12), 0 2px 8px rgba(115, 92, 0, 0.08)' }}
                   >
                     <Plus className="w-4 h-4" strokeWidth={3} />
                     {lang === 'en' ? 'Add New Client' : 'הוספי לקוחה חדשה'}
@@ -2355,7 +2355,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <button
                     onClick={() => setImportOpen(true)}
                     className="w-full rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                    style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(216, 180, 180, 0.4)', color: '#4a3636' }}
+                    style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(212, 175, 55, 0.4)', color: '#4a3520' }}
                   >
                     <Upload className="w-3.5 h-3.5" />
                     {lang === 'en' ? 'Import Clients (CSV)' : 'ייבוא לקוחות (CSV)'}
@@ -2470,8 +2470,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           background: 'rgba(255, 255, 255, 0.55)',
                           backdropFilter: 'blur(16px)',
                           WebkitBackdropFilter: 'blur(16px)',
-                          border: hasFlags ? undefined : '1px solid rgba(216, 180, 180, 0.45)',
-                          boxShadow: '0 4px 20px -4px rgba(180, 110, 110, 0.08)',
+                          border: hasFlags ? undefined : '1px solid rgba(212, 175, 55, 0.45)',
+                          boxShadow: '0 4px 20px -4px rgba(115, 92, 0, 0.08)',
                         }}
                       >
                         <div className="flex px-3 py-2.5" dir="rtl">
@@ -2481,12 +2481,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                               <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <div
                                   className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${hasFlags ? 'bg-destructive/10 text-destructive' : ''}`}
-                                  style={hasFlags ? {} : { background: 'linear-gradient(145deg, #f0c8c8, #d8a0a0)', color: '#fff', border: '1px solid rgba(216, 180, 180, 0.5)' }}
+                                  style={hasFlags ? {} : { background: 'linear-gradient(145deg, #d4af37, #b8960b)', color: '#fff', border: '1px solid rgba(212, 175, 55, 0.5)' }}
                                 >
                                   {hasFlags ? <AlertTriangle className="w-3.5 h-3.5" /> : client.name.charAt(0)}
                                 </div>
                                 <div className="min-w-0">
-                                  <p className={`font-bold text-xs leading-tight ${hasFlags ? 'text-destructive' : ''}`} style={hasFlags ? {} : { color: '#4a3636', fontFamily: "'Playfair Display', 'FB Ahava', serif" }}>
+                                  <p className={`font-bold text-xs leading-tight ${hasFlags ? 'text-destructive' : ''}`} style={hasFlags ? {} : { color: '#4a3520', fontFamily: "'Playfair Display', 'FB Ahava', serif" }}>
                                     {birthdayWeek && <span className="ml-1">🎂</span>}
                                     {needsRenewal && <span className="ml-1">🔄</span>}
                                     {client.name}
@@ -2515,16 +2515,16 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                   </div>
                                   <p className="text-[10px] leading-tight" style={{ color: '#8c6a6a' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
                                 </div>
-                                {isSafe && <ShieldCheck className="w-3 h-3 shrink-0" style={{ color: '#d8b4b4' }} />}
-                                {client.pushOptedIn && <Bell className="w-3 h-3 shrink-0" style={{ color: '#d8b4b4' }} />}
+                                {isSafe && <ShieldCheck className="w-3 h-3 shrink-0" style={{ color: '#c9a87c' }} />}
+                                {client.pushOptedIn && <Bell className="w-3 h-3 shrink-0" style={{ color: '#c9a87c' }} />}
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
                                 <button type="button" onClick={(e) => { e.stopPropagation(); openEditClient(client); }}
-                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#4a3636' }}>
+                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.15)', color: '#4a3520' }}>
                                   <Pencil className="w-3 h-3" />
                                 </button>
                                 <button type="button" onClick={(e) => { e.stopPropagation(); openWhatsApp(client.phone, client.name, client.link); }}
-                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(216, 180, 180, 0.15)', color: '#4a3636' }}>
+                                  className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.15)', color: '#4a3520' }}>
                                   <MessageCircle className="w-3 h-3" />
                                 </button>
                                 <button type="button" onClick={(e) => { e.stopPropagation(); setDeletingClient(client); }}
@@ -2548,7 +2548,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         <div className="px-3 pb-2.5 flex items-center gap-1.5 flex-wrap">
                           {lastSent && (
                             <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
-                              <CheckCircle className="w-2.5 h-2.5" style={{ color: '#d8b4b4' }} />
+                              <CheckCircle className="w-2.5 h-2.5" style={{ color: '#c9a87c' }} />
                               {lang === 'en' ? `Sent: ${lastSent}` : `נשלח: ${lastSent}`}
                             </span>
                           )}
@@ -2570,7 +2570,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                     await sendHealthFormWhatsApp(client.name, client.phone, true, client.dbId);
                                   }}
                                   className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
-                                  style={{ background: 'linear-gradient(145deg, #E8A0B0, #D4838F)', color: '#fff', boxShadow: '0 4px 14px rgba(212, 131, 143, 0.3), 0 0 10px rgba(232, 160, 176, 0.15)' }}>
+                                  style={{ background: 'linear-gradient(145deg, #d4af37, #b8960b)', color: '#fff', boxShadow: '0 4px 14px rgba(115, 92, 0, 0.3), 0 0 10px rgba(212, 175, 55, 0.15)' }}>
                                   <MessageCircle className="w-3 h-3" /> {lang === 'en' ? 'Health Declaration' : 'הצהרת בריאות'}
                                 </button>
                               );
@@ -2579,20 +2579,20 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           {birthdayWeek && (
                             <button type="button" onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
-                              style={{ background: 'rgba(216, 180, 180, 0.12)', color: '#4a3636', border: '1px solid #d8b4b4', boxShadow: '0 3px 10px rgba(216, 180, 180, 0.15)' }}>
+                              style={{ background: 'rgba(212, 175, 55, 0.12)', color: '#4a3520', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 3px 10px rgba(212, 175, 55, 0.15)' }}>
                               🎂 {lang === 'en' ? 'Birthday Wish' : 'ברכת יום הולדת'}
                             </button>
                           )}
                           {needsRenewal && (
                             <button type="button" onClick={(e) => { e.stopPropagation(); setRenewalClient(client); }}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
-                              style={{ background: 'rgba(216, 180, 180, 0.12)', color: '#4a3636', border: '1px solid #d8b4b4', boxShadow: '0 3px 10px rgba(216, 180, 180, 0.15)' }}>
+                              style={{ background: 'rgba(212, 175, 55, 0.12)', color: '#4a3520', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 3px 10px rgba(212, 175, 55, 0.15)' }}>
                               🔄 {lang === 'en' ? 'Renewal' : 'חידוש טיפול'}
                             </button>
                           )}
                           <button type="button" onClick={(e) => { e.stopPropagation(); setShowInvoiceComingSoon(true); }}
                             className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-medium transition-all active:scale-95"
-                            style={{ color: '#a09a9a', background: 'rgba(216, 180, 180, 0.08)', border: '1px solid rgba(216, 180, 180, 0.3)' }}>
+                            style={{ color: '#8a7a5a', background: 'rgba(212, 175, 55, 0.08)', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
                             <FileOutput className="w-3 h-3" /> {lang === 'en' ? 'Invoice' : 'חשבונית/קבלה'}
                           </button>
                         </div>
@@ -2675,7 +2675,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   }
                 }}
                 className="preview-card-btn w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
-                style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
+                style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
               >
                 <Share2 className="w-5 h-5" />
                 {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}
@@ -2852,21 +2852,21 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   background: 'rgba(255, 255, 255, 0.45)',
                   backdropFilter: 'blur(16px)',
                   WebkitBackdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(216, 180, 180, 0.4)',
-                  boxShadow: '0 4px 20px rgba(216, 180, 180, 0.12)',
+                  border: '1px solid rgba(212, 175, 55, 0.4)',
+                  boxShadow: '0 4px 20px rgba(212, 175, 55, 0.12)',
                 }}
               >
                 {/* Coming Soon tag */}
                 <span
                   className="absolute top-3 end-3 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
-                  style={{ background: 'linear-gradient(135deg, #d8b4b4, #c9a0a0)', color: '#fff' }}
+                  style={{ background: 'linear-gradient(135deg, #d4af37, #b8960b)', color: '#fff' }}
                 >
                   {lang === 'en' ? 'Coming Soon' : 'בקרוב'}
                 </span>
                 <div className="flex items-center gap-3">
-                  <Crown className="w-5 h-5 shrink-0" style={{ color: '#d8b4b4' }} />
+                  <Crown className="w-5 h-5 shrink-0" style={{ color: '#c9a87c' }} />
                   <div className="flex-1">
-                    <p className="font-bold text-sm" style={{ color: '#4a3636' }}>
+                    <p className="font-bold text-sm" style={{ color: '#4a3520' }}>
                       {lang === 'en' ? 'Full WhatsApp Automation — Coming Soon!' : 'אוטומציה מלאה בוואטסאפ — בקרוב!'}
                     </p>
                     <p className="text-[10px] mt-0.5" style={{ color: '#8c6a6a' }}>
@@ -3040,7 +3040,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 className="w-full mt-2 h-12 rounded-full font-bold text-sm tracking-wide"
                 style={{
                   background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                  color: '#4a3636',
+                  color: '#4a3520',
                   border: '1px solid #B8860B',
                   boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
                 }}
@@ -3105,7 +3105,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   className="w-full mt-2 h-12 rounded-full text-white font-bold text-sm tracking-wide"
                   style={{
                     background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                    color: '#4a3636',
+                    color: '#4a3520',
                     border: '1px solid #B8860B',
                     boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
                   }}
@@ -3218,7 +3218,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   className="w-full mt-2 h-12 rounded-full font-bold text-sm tracking-wide"
                   style={{
                     background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-                    color: '#4a3636',
+                    color: '#4a3520',
                     border: '1px solid #B8860B',
                     boxShadow: '0 3px 14px rgba(212,175,55,0.45)',
                   }}
@@ -3283,9 +3283,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           <span
                             className="px-3 py-1 rounded-full text-[10px] font-bold"
                             style={{
-                              background: 'linear-gradient(135deg, #d69da9 0%, #cf8f9b 40%, #c4869a 70%, #cf8f9b 90%, #d69da9 100%)',
+                              background: 'linear-gradient(135deg, #d4af37 0%, #b8960b 40%, #e8d070 70%, #b8960b 90%, #d4af37 100%)',
                               color: '#fff',
-                              boxShadow: '0 4px 12px rgba(214,157,169,0.4)',
+                              boxShadow: '0 4px 12px rgba(115,92,0,0.3)',
                             }}
                           >
                             {(() => {
@@ -3328,7 +3328,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           {/* Description */}
                           <p
                             className="text-[11px] leading-relaxed mb-4 px-2"
-                            style={{ color: '#4a3636' }}
+                            style={{ color: '#4a3520' }}
                           >
                             {(() => {
                               const v = promoDescription || 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.';
@@ -3341,7 +3341,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                             className="px-6 py-2.5 rounded-xl text-xs font-bold mx-auto inline-flex items-center gap-1.5"
                             style={{
                               background: 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
-                              color: '#4a3636',
+                              color: '#4a3520',
                               boxShadow: '0 4px 16px rgba(212,175,55,0.35)',
                             }}
                           >
@@ -3551,25 +3551,25 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   width: '60px',
                   height: '60px',
                   background: isActive
-                    ? 'linear-gradient(145deg, #fff5f0, #f0dcd5)'
-                    : 'linear-gradient(145deg, #ffffff, #f0e4e4)',
+                    ? 'linear-gradient(145deg, #faf6ee, #f0e8cc)'
+                    : 'linear-gradient(145deg, #ffffff, #f6f3f2)',
                   border: isActive ? '2px solid #D4AF37' : '1px solid #ecc6c6',
                   borderRadius: '50%',
                   boxShadow: isActive
-                    ? '0 8px 30px rgba(212, 175, 55, 0.35), 0 4px 15px rgba(180, 110, 110, 0.2), inset 0 1px 3px rgba(255,255,255,0.7)'
+                    ? '0 8px 30px rgba(212, 175, 55, 0.35), 0 4px 15px rgba(115, 92, 0, 0.2), inset 0 1px 3px rgba(255,255,255,0.7)'
                     : '8px 8px 20px rgba(180, 140, 140, 0.45), -8px -8px 20px rgba(255, 255, 255, 0.95), 0 6px 24px rgba(160, 120, 120, 0.2)',
                 }}
               >
                 <tab.icon
                   size={20}
                   strokeWidth={1.5}
-                  style={{ color: isActive ? '#B8860B' : '#a88383' }}
+                  style={{ color: isActive ? '#B8860B' : '#735c00' }}
                 />
                 <span
                   style={{
                     fontSize: '10px',
                     fontWeight: isActive ? 700 : 600,
-                    color: isActive ? '#4a3636' : '#8c6a6a',
+                    color: isActive ? '#4a3520' : '#8c6a6a',
                     fontFamily: "'Assistant', sans-serif",
                     lineHeight: 1,
                   }}
@@ -3858,7 +3858,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               }
             }}
             className="preview-card-btn mt-4 flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
-            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3636', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
+            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
           >
             <Share2 className="w-5 h-5" />
             {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}
@@ -3951,7 +3951,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               style={{
                 border: '6px solid hsl(38 55% 62%)',
                 boxShadow: '0 20px 60px -10px hsla(0,0%,0%,0.35), inset 0 0 0 2px hsl(40 50% 72% / 0.4)',
-                background: 'hsl(350 50% 93%)',
+                background: 'hsl(15 39% 98%)',
               }}
             >
               {/* Notch */}
