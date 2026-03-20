@@ -105,6 +105,12 @@ export const translations: Record<string, Record<Language, string>> = {
   'feedback.topic.bug': { en: 'Bug report', he: 'דיווח על תקלה' },
   'feedback.topic.other': { en: 'Other', he: 'אחר' },
   'feedback.aria': { en: 'Send feedback', he: 'שלחי משוב' },
+
+  // Cookie consent
+  'cookie.title': { en: '🍪 Cookies & Privacy', he: '🍪 עוגיות ופרטיות' },
+  'cookie.description': { en: 'We use cookies to enhance your experience. You can accept all cookies or only essential ones.', he: 'אנו משתמשים בעוגיות כדי לשפר את חוויית השימוש באפליקציה. ניתן לבחור לאשר את כל העוגיות או להסתפק בעוגיות חיוניות בלבד.' },
+  'cookie.acceptAll': { en: 'Accept All', he: 'אישור הכל' },
+  'cookie.essentialOnly': { en: 'Essential Only', he: 'חיוניות בלבד' },
 };
 
 export function translate(key: string, lang: Language): string {

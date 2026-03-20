@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 const COOKIE_KEY = 'gp-cookie-consent';
 
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const location = useLocation();
+  const { t } = useI18n();
   const isArtistRoute = location.pathname === '/artist';
   const isHealthDeclaration = location.pathname === '/health-declaration';
 
@@ -47,11 +49,10 @@ export default function CookieConsentBanner() {
               <Shield className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'hsl(38 55% 50%)' }} />
               <div>
                 <p className="text-sm font-semibold mb-1" style={{ color: 'hsl(0 0% 20%)' }}>
-                  🍪 עוגיות ופרטיות
+                  {t('cookie.title')}
                 </p>
                 <p className="text-xs leading-relaxed" style={{ color: 'hsl(0 0% 40%)' }}>
-                  אנו משתמשים בעוגיות כדי לשפר את חוויית השימוש באפליקציה.
-                  ניתן לבחור לאשר את כל העוגיות או להסתפק בעוגיות חיוניות בלבד.
+                  {t('cookie.description')}
                 </p>
               </div>
             </div>
@@ -64,7 +65,7 @@ export default function CookieConsentBanner() {
                   boxShadow: '0 4px 12px hsla(38, 55%, 50%, 0.3)',
                 }}
               >
-                אישור הכל
+                {t('cookie.acceptAll')}
               </button>
               <button
                 onClick={() => accept('essential')}
@@ -75,7 +76,7 @@ export default function CookieConsentBanner() {
                   background: 'transparent',
                 }}
               >
-                חיוניות בלבד
+                {t('cookie.essentialOnly')}
               </button>
             </div>
           </div>

@@ -29,7 +29,7 @@ import ClientProfile from "./pages/ClientProfile";
 import NotFound from "./pages/NotFound";
 import FaqPage from "./pages/FaqPage";
 import FaqManager from "./pages/FaqManager";
-import Legal from "./pages/Legal";
+import Legal from "./pages/Legal";``
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
