@@ -189,7 +189,7 @@ const MarketingLanding = () => {
           <div className="absolute bottom-0 -left-20 w-[400px] h-[400px] rounded-full opacity-5 blur-3xl" style={{ background: '#735c00' }} />
         </div>
 
-        <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Text */}
           <div className={`z-10 ${isHe ? 'text-right' : 'text-left'}`}>
             <div
@@ -218,17 +218,17 @@ const MarketingLanding = () => {
                 : 'Transform your studio into a digital masterpiece. Smart client management, automated healing journeys, and AI tools built for PMU artists.'}
             </p>
 
-            <div className={`flex flex-wrap gap-4 ${isHe ? 'justify-end' : 'justify-start'}`}>
+            <div className={`flex gap-3 ${isHe ? 'justify-end' : 'justify-start'}`}>
               <button
                 onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
-                className="px-8 py-4 rounded-xl text-base font-bold transition-all hover:opacity-90 active:scale-95 shadow-xl"
+                className="flex-1 sm:flex-none px-6 sm:px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold transition-all hover:opacity-90 active:scale-95 shadow-xl"
                 style={{ background: GOLD, color: '#fff', boxShadow: '0 8px 24px rgba(115,92,0,0.3)' }}
               >
                 {user ? (isHe ? 'לקליניקה שלי →' : 'My Clinic →') : (isHe ? 'התחילי עכשיו ←' : 'Get Started →')}
               </button>
               <button
                 onClick={() => scrollTo('pricing')}
-                className="px-8 py-4 rounded-xl text-base font-bold transition-all hover:opacity-80"
+                className="flex-1 sm:flex-none px-6 sm:px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold transition-all hover:opacity-80"
                 style={{ background: 'rgba(212,175,55,0.1)', color: '#735c00', border: '1.5px solid rgba(212,175,55,0.3)' }}
               >
                 {isHe ? 'צפי במחירים' : 'View Pricing'}
@@ -236,11 +236,11 @@ const MarketingLanding = () => {
             </div>
           </div>
 
-          {/* Image */}
-          <div className="relative hidden lg:block">
+          {/* Image – visible on all screens */}
+          <div className="relative flex justify-center lg:block">
             <div
-              className="aspect-[4/5] rounded-full overflow-hidden relative z-10"
-              style={{ border: '12px solid rgba(212,175,55,0.15)', boxShadow: '0 24px 64px rgba(0,0,0,0.12)' }}
+              className="w-64 h-80 sm:w-72 sm:h-96 lg:w-full lg:aspect-[4/5] lg:h-auto rounded-full overflow-hidden relative z-10"
+              style={{ border: '10px solid rgba(212,175,55,0.18)', boxShadow: '0 24px 64px rgba(0,0,0,0.12)' }}
             >
               <img
                 src={heroPmuLuxury}
@@ -248,8 +248,8 @@ const MarketingLanding = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -top-10 -right-10 w-64 h-64 rounded-full blur-3xl opacity-20" style={{ background: '#d4af37' }} />
-            <div className="absolute -bottom-10 -left-10 w-80 h-80 rounded-full blur-3xl opacity-10" style={{ background: '#735c00' }} />
+            <div className="absolute -top-10 -right-10 w-48 h-48 lg:w-64 lg:h-64 rounded-full blur-3xl opacity-20" style={{ background: '#d4af37' }} />
+            <div className="absolute -bottom-10 -left-10 w-56 h-56 lg:w-80 lg:h-80 rounded-full blur-3xl opacity-10" style={{ background: '#735c00' }} />
           </div>
         </div>
 
@@ -274,34 +274,47 @@ const MarketingLanding = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[280px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 md:auto-rows-[280px]">
             {/* AI Magic Tools – large */}
             <div
-              className="md:col-span-2 md:row-span-2 rounded-2xl p-8 flex flex-col justify-between group overflow-hidden relative"
+              className="md:col-span-2 md:row-span-2 rounded-2xl flex flex-col group overflow-hidden relative"
               style={{ background: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}
             >
-              <div className="absolute inset-0 opacity-[0.04] pointer-events-none group-hover:opacity-[0.07] transition-opacity duration-700">
-                <img src={equipmentHero} alt="" className="w-full h-full object-cover" />
+              {/* Visible image at top */}
+              <div className="w-full h-44 md:h-56 overflow-hidden shrink-0 relative">
+                <img
+                  src={equipmentHero}
+                  alt="AI Tools"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(252,249,248,0.6))' }}
+                />
               </div>
-              <div className="relative z-10">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(212,175,55,0.12)' }}>
-                  <Wand2 size={24} style={{ color: '#735c00' }} />
+              <div className="p-6 flex flex-col flex-1 justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(212,175,55,0.12)' }}>
+                      <Wand2 size={20} style={{ color: '#735c00' }} />
+                    </div>
+                    <h3 className="text-2xl" style={{ fontFamily: "'Noto Serif', serif", color: '#1c1b1b' }}>AI Magic Tools</h3>
+                  </div>
+                  <p className="text-sm leading-relaxed" style={{ color: '#5f5e5e' }}>
+                    {isHe
+                      ? 'כלי בינה מלאכותית ליצירת כיתובים לסושיאל, השוואת לפני ואחרי, קולאז׳ ממותג, ותיעוד קולי של הטיפול.'
+                      : 'AI tools for social captions, before/after comparison, branded collages, and voice-recorded treatment notes.'}
+                  </p>
                 </div>
-                <h3 className="text-3xl mb-4" style={{ fontFamily: "'Noto Serif', serif", color: '#1c1b1b' }}>AI Magic Tools</h3>
-                <p className="leading-relaxed max-w-sm" style={{ color: '#5f5e5e' }}>
-                  {isHe
-                    ? 'כלי בינה מלאכותית ליצירת כיתובים לסושיאל, השוואת לפני ואחרי, קולאז׳ ממותג, ותיעוד קולי של הטיפול.'
-                    : 'AI tools for social captions, before/after comparison, branded collages, and voice-recorded treatment notes.'}
-                </p>
-              </div>
-              <div className="relative z-10 mt-auto">
-                <button
-                  onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
-                  className="text-sm font-bold flex items-center gap-2 hover:opacity-70 transition-opacity"
-                  style={{ color: '#735c00' }}
-                >
-                  {isHe ? 'גלי עוד ←' : 'Learn more →'}
-                </button>
+                <div className="mt-4">
+                  <button
+                    onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
+                    className="text-sm font-bold flex items-center gap-2 hover:opacity-70 transition-opacity"
+                    style={{ color: '#735c00' }}
+                  >
+                    {isHe ? 'גלי עוד ←' : 'Learn more →'}
+                  </button>
+                </div>
               </div>
             </div>
 
