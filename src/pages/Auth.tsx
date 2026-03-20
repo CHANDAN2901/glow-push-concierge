@@ -238,7 +238,7 @@ const Auth = () => {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4"
-      style={{ background: 'linear-gradient(145deg, hsl(350 50% 95%) 0%, hsl(350 50% 93%) 40%, hsl(350 45% 91%) 100%)' }}
+      style={{ background: 'linear-gradient(145deg, #fcf9f8 0%, #f6f3f2 40%, #f0edec 100%)' }}
     >
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
