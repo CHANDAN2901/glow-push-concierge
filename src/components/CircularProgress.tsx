@@ -45,7 +45,7 @@ const CircularProgress = ({ percentage, size = 160, strokeWidth = 6, animate = t
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="hsl(350 40% 88%)"
+          stroke="hsl(38 40% 85%)"
           strokeWidth={strokeWidth}
         />
         {/* Soft Gold gradient */}

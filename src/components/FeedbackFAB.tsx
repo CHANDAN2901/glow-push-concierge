@@ -54,9 +54,9 @@ export default function FeedbackFAB() {
           width: 56,
           height: 56,
           borderRadius: "50%",
-          background: "linear-gradient(135deg, #E8C0C8 0%, #d69da9 100%)",
+          background: "linear-gradient(135deg, #d4af37 0%, #b8960b 100%)",
           border: "none",
-          boxShadow: "0 6px 14px rgba(0,0,0,0.15), 0 2px 6px rgba(214,157,169,0.3)",
+          boxShadow: "0 6px 14px rgba(0,0,0,0.15), 0 2px 6px rgba(115,92,0,0.3)",
         }}
       >
         <Lightbulb className="h-6 w-6 text-white drop-shadow" />
@@ -132,8 +132,8 @@ export default function FeedbackFAB() {
                 disabled={loading}
                 className="w-full h-12 rounded-2xl text-white font-serif text-base tracking-wide relative overflow-hidden"
                 style={{
-                  background: "linear-gradient(135deg, #E8C0C8 0%, #c4869a 100%)",
-                  boxShadow: "0 4px 14px rgba(196,134,154,0.35), 0 0 0 1.5px #D4AF3755",
+                  background: "linear-gradient(135deg, #d4af37 0%, #996515 100%)",
+                  boxShadow: "0 4px 14px rgba(115,92,0,0.35), 0 0 0 1.5px #D4AF3755",
                 }}
               >
                 {loading ? (

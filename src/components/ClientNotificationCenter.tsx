@@ -227,8 +227,8 @@ export default function ClientNotificationCenter({
                         <span
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{
-                            background: 'radial-gradient(circle, hsl(350 55% 75%) 0%, hsl(350 50% 65%) 100%)',
-                            boxShadow: '0 0 6px hsl(350 55% 75% / 0.5)',
+                            background: 'radial-gradient(circle, hsl(45 70% 55%) 0%, hsl(42 65% 45%) 100%)',
+                            boxShadow: '0 0 6px hsl(45 70% 55% / 0.5)',
                           }}
                         />
                       )}

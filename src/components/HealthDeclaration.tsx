@@ -58,7 +58,7 @@ interface Props {
 
 // Ultra-Luxury theme
 const T = {
-  bg: 'linear-gradient(145deg, hsl(350 50% 95%), hsl(350 50% 93%), hsl(350 45% 91%))',
+  bg: 'linear-gradient(145deg, hsl(38 40% 97%), hsl(38 38% 96%), hsl(36 35% 95%))',
   card: 'linear-gradient(135deg, rgba(216,180,180,0.25) 0%, rgba(201,160,160,0.15) 100%)',
   cardBg: 'rgba(255,255,255,0.35)',
   cardBorder: 'rgba(216,180,180,0.4)',
@@ -421,7 +421,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   // ═══════════════ INTRO / WELCOME SCREEN ═══════════════
   if (showIntro) {
     return (
-      <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto" style={{ background: 'linear-gradient(180deg, hsl(350 50% 95%) 0%, hsl(350 48% 94%) 50%, hsl(350 45% 93%) 100%)' }}>
+      <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto" style={{ background: 'linear-gradient(180deg, hsl(38 40% 97%) 0%, hsl(38 38% 96%) 50%, hsl(36 35% 95%) 100%)' }}>
         <div className="flex flex-col items-center min-h-screen">
 
           {/* Hero image with soft fade */}
@@ -435,7 +435,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(180deg, transparent 20%, hsla(350,50%,95%,0.3) 50%, hsl(350,50%,95%) 100%)',
+                background: 'linear-gradient(180deg, transparent 20%, hsla(38,40%,97%,0.3) 50%, hsl(38,40%,97%) 100%)',
               }}
             />
             {/* Title overlay */}
@@ -555,7 +555,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
         <div className="w-full max-w-lg">
 
           {/* ═══ Seamless Luxury Header — Metallic Rose Gold Gradient ═══ */}
-          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '140px', background: 'linear-gradient(180deg, hsl(350 35% 65%) 0%, hsl(350 40% 72%) 25%, hsl(350 45% 80%) 50%, hsl(350 50% 88%) 75%, hsl(350 50% 93%) 95%, hsl(350 50% 94%) 100%)' }}>
+          <div className="relative w-full rounded-t-3xl overflow-hidden mb-0" style={{ height: '140px', background: 'linear-gradient(180deg, hsl(38 55% 55%) 0%, hsl(40 50% 65%) 25%, hsl(42 48% 78%) 50%, hsl(40 45% 88%) 75%, hsl(38 40% 97%) 95%, hsl(38 40% 97%) 100%)' }}>
 
             <div className="relative z-10 flex items-center justify-between w-full px-5 pt-3">
               <button

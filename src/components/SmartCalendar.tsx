@@ -858,7 +858,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                 <div
                   className="rounded-[12px] p-4 relative overflow-hidden"
                   style={{
-                    background: 'linear-gradient(135deg, #F5E0E4 0%, #FFFFFF 40%, #F0D0D5 70%, #E8C0C8 100%)',
+                    background: 'linear-gradient(135deg, #faf6ef 0%, #ffffff 40%, #f5f0e6 70%, #ede8da 100%)',
                   }}
                 >
                 <div className="flex items-start gap-3">

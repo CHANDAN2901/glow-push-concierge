@@ -92,7 +92,7 @@ export default function ClinicPolicyAcknowledgment({ artistProfileId, lang, onAc
       <div
         className="px-6 py-6 flex items-center gap-3 shrink-0"
         style={{
-          background: 'linear-gradient(135deg, hsl(350 35% 75%) 0%, hsl(350 50% 90%) 50%, hsl(40 60% 90%) 100%)',
+          background: 'linear-gradient(135deg, hsl(38 55% 60%) 0%, hsl(40 45% 85%) 50%, hsl(40 60% 90%) 100%)',
           borderBottom: '1px solid rgba(212,175,55,0.2)',
         }}
       >

@@ -33,7 +33,7 @@ const Landing = () => {
     <div className="min-h-screen">
       {/* Hero */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
-        style={{ background: 'linear-gradient(165deg, hsl(350 50% 97%) 0%, hsl(350 50% 93%) 35%, hsl(350 45% 91%) 65%, hsl(0 0% 100%) 100%)' }}
+        style={{ background: 'linear-gradient(165deg, hsl(38 40% 98%) 0%, hsl(38 38% 96%) 35%, hsl(36 35% 95%) 65%, hsl(0 0% 100%) 100%)' }}
       >
         {/* Decorative elements */}
         <div className="absolute top-20 left-10 w-72 h-72 rounded-full bg-gold-muted/40 blur-3xl" />

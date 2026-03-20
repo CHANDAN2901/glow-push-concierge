@@ -93,8 +93,8 @@ const GOLD_TEXT_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #99
 const GOLD_BORDER = '1.5px solid rgba(212,175,55,0.45)';
 const CARD_BG = 'linear-gradient(145deg, rgba(60,40,45,0.55) 0%, rgba(80,55,60,0.5) 50%, rgba(60,40,45,0.5) 100%)';
 const CARD_SHADOW = '0 12px 40px rgba(0,0,0,0.25), 0 4px 12px rgba(0,0,0,0.15), 0 0 0 1px rgba(212,175,55,0.15)';
-const BODY_TEXT = '#4a3636';
-const SUBTEXT_COLOR = '#6b5a5a';
+const BODY_TEXT = '#3d3520';
+const SUBTEXT_COLOR = '#5f5635';
 const GOLD_ICON_GLOW = 'drop-shadow(0 0 8px rgba(212,175,55,0.6)) drop-shadow(0 2px 4px rgba(212,175,55,0.4))';
 const FBAHAVA = "'FB Ahava', 'Assistant', sans-serif";
 const TITLE_FONT = FBAHAVA;
@@ -164,8 +164,8 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'e
         <span
           className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full border border-white/80"
           style={{
-            background: 'radial-gradient(circle, hsl(350 55% 75%) 0%, hsl(350 50% 65%) 100%)',
-            boxShadow: '0 0 6px hsl(350 55% 75% / 0.6)',
+            background: 'radial-gradient(circle, hsl(45 70% 55%) 0%, hsl(42 65% 45%) 100%)',
+            boxShadow: '0 0 6px hsl(45 70% 55% / 0.6)',
           }}
         />
       )}
@@ -525,7 +525,7 @@ const ClientHome = () => {
   /* ─── Loading / Error ─── */
   if (phasesLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0D0D5' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#fcf9f8' }}>
         <div className="flex flex-col items-center gap-3">
           <div className="animate-spin w-8 h-8 border-3 rounded-full" style={{ borderColor: '#D4AF37', borderTopColor: 'transparent' }} />
           <p className="text-sm" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>טוען...</p>
@@ -536,7 +536,7 @@ const ClientHome = () => {
 
   if (phasesError) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0D0D5' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#fcf9f8' }}>
         <div className="max-w-sm text-center p-6 rounded-2xl bg-white border border-destructive/30">
           <p className="text-destructive font-medium mb-2">שגיאה בטעינת נתונים</p>
           <p className="text-xs text-muted-foreground">{phasesError}</p>
@@ -556,7 +556,7 @@ const ClientHome = () => {
       <header
         className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl"
         style={{
-          background: 'linear-gradient(180deg, rgba(240,208,213,0.96) 0%, rgba(240,208,213,0.88) 100%)',
+          background: 'linear-gradient(180deg, rgba(252,249,248,0.96) 0%, rgba(252,249,248,0.88) 100%)',
           borderBottom: '2px solid rgba(212,175,55,0.35)',
           boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 0 12px rgba(212,175,55,0.06)',
         }}
@@ -593,13 +593,13 @@ const ClientHome = () => {
                 fontFamily: FBAHAVA,
                 fontSize: '28px',
                 lineHeight: 1.6,
-                background: 'linear-gradient(160deg, #4A0E20 0%, #7A2845 15%, #B5546A 35%, #D4808E 50%, #B5546A 65%, #7A2845 85%, #4A0E20 100%)',
+                background: 'linear-gradient(160deg, #735c00 0%, #9a7c00 20%, #d4af37 45%, #b8960b 65%, #735c00 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
                 textShadow: 'none',
                 WebkitTextStrokeWidth: '0.3px',
-                WebkitTextStrokeColor: 'rgba(74,14,32,0.15)',
+                WebkitTextStrokeColor: 'rgba(115,92,0,0.15)',
               } as React.CSSProperties}
             >
               ✨ {lang === 'en' ? `Welcome to your healing journey, ${clientName}!` : `ברוכה הבאה למסע ההחלמה שלך, ${clientName}!`} ✨
@@ -622,7 +622,7 @@ const ClientHome = () => {
             onClick={() => setShowPolicyModal(true)}
             className="w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
             style={{
-              background: 'linear-gradient(135deg, rgba(216,180,180,0.3), rgba(201,160,160,0.15))',
+              background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.05))',
               border: GOLD_BORDER,
               color: BODY_TEXT,
               fontFamily: FBAHAVA,
@@ -635,7 +635,7 @@ const ClientHome = () => {
             onClick={() => setShowHealthDeclModal(true)}
             className="w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97]"
             style={{
-              background: 'linear-gradient(135deg, rgba(216,180,180,0.3), rgba(201,160,160,0.15))',
+              background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.05))',
               border: GOLD_BORDER,
               color: BODY_TEXT,
               fontFamily: FBAHAVA,
@@ -800,7 +800,7 @@ const ClientHome = () => {
           <div className="absolute inset-0 pointer-events-none rounded-3xl" style={{ boxShadow: 'inset 0 0 30px rgba(212,175,55,0.08)' }} />
           {/* Corner badge */}
           <div className="absolute top-3 left-3">
-            <span className="px-4 py-1.5 rounded-full text-xs font-bold" style={{ background: 'linear-gradient(135deg, #d69da9 0%, #cf8f9b 40%, #c4869a 70%, #cf8f9b 90%, #d69da9 100%)', color: '#fff', fontFamily: FBAHAVA, boxShadow: '0 4px 12px rgba(214,157,169,0.4), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(180,100,120,0.15)', textShadow: '0 1px 2px rgba(0,0,0,0.15)' }}>
+            <span className="px-4 py-1.5 rounded-full text-xs font-bold" style={{ background: 'linear-gradient(135deg, #d4af37 0%, #b8960b 40%, #e8d070 70%, #b8960b 90%, #d4af37 100%)', color: '#fff', fontFamily: FBAHAVA, boxShadow: '0 4px 12px rgba(115,92,0,0.35), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(115,92,0,0.2)', textShadow: '0 1px 2px rgba(0,0,0,0.15)' }}>
               {promo.tag_text}
             </span>
           </div>
@@ -846,7 +846,7 @@ const ClientHome = () => {
             {lang === 'en' ? voucherTextEn : voucherTextHe}
           </p>
           <div className="flex items-center justify-center mb-5">
-            <div className="px-8 py-3 rounded-2xl" style={{ background: 'linear-gradient(135deg, #e8b8c0 0%, #d69da9 30%, #c4838f 60%, #d69da9 80%, #e8b8c0 100%)', backgroundSize: '200% 100%', color: '#fff', border: 'none', boxShadow: '0 4px 15px rgba(214,157,169,0.45), inset 0 1px 0 rgba(255,255,255,0.35)' }}>
+            <div className="px-8 py-3 rounded-2xl" style={{ background: 'linear-gradient(135deg, #d4af37 0%, #b8960b 30%, #aa7c0a 60%, #b8960b 80%, #d4af37 100%)', backgroundSize: '200% 100%', color: '#fff', border: 'none', boxShadow: '0 4px 15px rgba(115,92,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35)' }}>
               <span className="font-bold text-xl tracking-[0.15em]">{referralCode}</span>
             </div>
           </div>
@@ -1097,7 +1097,7 @@ const ClientHome = () => {
         <div
           className="fixed bottom-0 left-0 right-0 z-[60]"
           style={{
-            background: 'linear-gradient(180deg, rgba(240,208,213,0.97) 0%, rgba(234,200,205,0.99) 100%)',
+            background: 'linear-gradient(180deg, rgba(252,249,248,0.97) 0%, rgba(250,246,240,0.99) 100%)',
             backdropFilter: 'blur(24px)',
             boxShadow: '0 -8px 32px rgba(0,0,0,0.08), 0 -1px 0 rgba(212,175,55,0.3)',
             borderTop: '2px solid rgba(212,175,55,0.35)',

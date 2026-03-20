@@ -157,8 +157,8 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
       style={{
         animationDelay: '280ms',
         backgroundColor: 'hsl(0 0% 100%)',
-        boxShadow: '0 4px 24px hsl(350 30% 88% / 0.35)',
-        border: '1px solid hsl(350 30% 92%)',
+        boxShadow: '0 4px 24px hsl(38 35% 82% / 0.35)',
+        border: '1px solid hsl(38 35% 90%)',
       }}
     >
       {/* Section title */}
@@ -232,7 +232,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                     ? '2px solid hsl(38 55% 62%)'
                     : isSelected
                     ? '2px dashed hsl(38 55% 62%)'
-                    : '1px solid hsl(350 30% 92%)',
+                    : '1px solid hsl(38 35% 90%)',
                   boxShadow: isActive
                     ? '0 0 20px hsl(38 55% 62% / 0.25), 0 4px 12px hsl(38 40% 50% / 0.1)'
                     : isSelected
@@ -262,7 +262,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                   style={{
                     border: isActive
                       ? '3px solid hsl(38 55% 62%)'
-                      : '2px solid hsl(350 30% 92%)',
+                      : '2px solid hsl(38 35% 90%)',
                     boxShadow: isActive
                       ? '0 0 12px hsl(38 55% 62% / 0.2)'
                       : 'none',
@@ -326,7 +326,7 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
                 ? 'linear-gradient(90deg, hsl(36 50% 42%), hsl(38 55% 62%))'
                 : i < activeIdx
                 ? 'hsl(38 55% 62%)'
-                : 'hsl(350 30% 88%)',
+                : 'hsl(38 35% 82%)',
             }}
           />
         ))}

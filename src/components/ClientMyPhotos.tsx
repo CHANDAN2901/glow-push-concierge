@@ -32,8 +32,8 @@ const ClientMyPhotos = ({ lang, gallery }: ClientMyPhotosProps) => {
       style={{
         animationDelay: '420ms',
         backgroundColor: 'hsl(0 0% 100%)',
-        boxShadow: '0 2px 16px hsl(350 30% 88% / 0.3)',
-        border: '1px solid hsl(350 30% 92%)',
+        boxShadow: '0 2px 16px hsl(38 35% 82% / 0.3)',
+        border: '1px solid hsl(38 35% 90%)',
       }}
     >
       <div className="flex items-center gap-3 mb-4">

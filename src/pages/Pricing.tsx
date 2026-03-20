@@ -11,22 +11,22 @@ import { supabase } from '@/integrations/supabase/client';
 import BackButton from '@/components/BackButton';
 import { FEATURES } from '@/lib/subscriptionConfig';
 
-const ROSE_GOLD = '#d8b4b4';
-const ROSE_GOLD_DARK = 'hsl(14 29% 30%)';
-const ROSE_GOLD_METALLIC = '#C9956C';
+const ROSE_GOLD = '#d4af37';
+const ROSE_GOLD_DARK = 'hsl(40 60% 25%)';
+const ROSE_GOLD_METALLIC = '#b8860b';
 const GOLD = '#D4AF37';
 const GOLD_TEXT = '#B8860B';
-const GOLD_BORDER = 'rgba(216, 180, 180, 0.4)';
-const TEXT_DARK = 'hsl(14 29% 30%)';
+const GOLD_BORDER = 'rgba(212, 175, 55, 0.35)';
+const TEXT_DARK = 'hsl(40 60% 20%)';
 const GOLD_GRADIENT = 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)';
 const GOLD_GRADIENT_WIDE = 'linear-gradient(90deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)';
 
 const GLASS_BG = 'rgba(255, 255, 255, 0.55)';
 const GLASS_BG_HIGHLIGHT = 'rgba(255, 255, 255, 0.65)';
-const GLASS_BORDER = '1.5px solid rgba(216, 180, 180, 0.5)';
-const GLASS_BORDER_HIGHLIGHT = '2px solid rgba(216, 180, 180, 0.7)';
-const GLASS_SHADOW = '0 8px 32px rgba(216, 180, 180, 0.2), 0 2px 8px rgba(0,0,0,0.04)';
-const GLASS_SHADOW_HIGHLIGHT = '0 12px 40px rgba(216, 180, 180, 0.3), 0 4px 16px rgba(201, 149, 108, 0.1)';
+const GLASS_BORDER = '1.5px solid rgba(212, 175, 55, 0.3)';
+const GLASS_BORDER_HIGHLIGHT = '2px solid rgba(212, 175, 55, 0.5)';
+const GLASS_SHADOW = '0 8px 32px rgba(115, 92, 0, 0.1), 0 2px 8px rgba(0,0,0,0.04)';
+const GLASS_SHADOW_HIGHLIGHT = '0 12px 40px rgba(115, 92, 0, 0.15), 0 4px 16px rgba(212, 175, 55, 0.1)';
 
 const iconMap: Record<string, React.ElementType> = {
   lite: Sparkles,
@@ -48,7 +48,7 @@ const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
         <span className="font-light tracking-wide">{prefix} </span>
         <span
           className="font-bold bg-clip-text text-transparent"
-          style={{ backgroundImage: `linear-gradient(135deg, #d8b4b4, #c9a0a0, #d8b4b4)` }}
+          style={{ backgroundImage: `linear-gradient(135deg, #d4af37, #b8960b, #d4af37)` }}
         >
           {suffix}
         </span>
@@ -76,7 +76,7 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
     : `linear-gradient(90deg, ${ROSE_GOLD}, ${ROSE_GOLD_METALLIC})`;
 
   return (
-    <div className="mb-4 rounded-xl px-4 py-3" style={{ background: 'rgba(216, 180, 180, 0.1)', border: '1px solid rgba(216, 180, 180, 0.3)' }}>
+    <div className="mb-4 rounded-xl px-4 py-3" style={{ background: 'rgba(212, 175, 55, 0.08)', border: '1px solid rgba(212, 175, 55, 0.18)' }}>
       <div className="flex items-center gap-2 mb-2">
         {isUrgent && <Flame className="w-4 h-4 animate-pulse" style={{ color: '#E74C3C' }} />}
         <span className="text-sm font-bold" style={{ color: textColor }}>
@@ -85,7 +85,7 @@ const FomoBadge = ({ totalSpots, takenSpots, isHe }: { totalSpots: number; taken
             : `Only ${remaining} founding-price spots left!`}
         </span>
       </div>
-      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(216, 180, 180, 0.2)' }}>
+      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(212, 175, 55, 0.12)' }}>
         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: barColor }} />
       </div>
     </div>
@@ -213,11 +213,11 @@ const Pricing = () => {
             style={{
               border: 'none',
               outline: 'none',
-              background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(255,240,243,0.25) 40%, rgba(232,160,176,0.08) 70%, transparent 100%)',
+              background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(252,249,248,0.25) 40%, rgba(212,175,55,0.05) 70%, transparent 100%)',
               backdropFilter: 'blur(24px)',
               WebkitBackdropFilter: 'blur(24px)',
               borderRadius: '48px',
-              boxShadow: '0 0 50px rgba(232, 160, 176, 0.18), 0 0 100px rgba(216, 180, 180, 0.1)',
+              boxShadow: '0 0 50px rgba(212, 175, 55, 0.14), 0 0 100px rgba(212, 175, 55, 0.08)',
             }}
           >
             <h2
@@ -268,11 +268,11 @@ const Pricing = () => {
           style={{
             border: 'none',
             outline: 'none',
-            background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(255,240,243,0.25) 40%, rgba(232,160,176,0.08) 70%, transparent 100%)',
+            background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(252,249,248,0.25) 40%, rgba(212,175,55,0.05) 70%, transparent 100%)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
             borderRadius: '48px',
-            boxShadow: '0 0 55px rgba(232, 160, 176, 0.2), 0 0 110px rgba(216, 180, 180, 0.1)',
+            boxShadow: '0 0 55px rgba(212, 175, 55, 0.15), 0 0 110px rgba(212, 175, 55, 0.08)',
           }}
         >
           <div className="relative z-10">
@@ -330,15 +330,15 @@ const Pricing = () => {
                 style={{
                 border: isVip ? '2px solid #D4AF37' : 'none',
                 outline: 'none',
-                background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(255,240,243,0.25) 40%, rgba(232,160,176,0.08) 70%, transparent 100%)',
+                background: 'radial-gradient(ellipse 90% 80% at 50% 45%, rgba(255,255,255,0.45) 0%, rgba(252,249,248,0.25) 40%, rgba(212,175,55,0.05) 70%, transparent 100%)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
                 borderRadius: '48px',
                 boxShadow: isVip
-                  ? '0 0 15px rgba(212, 175, 55, 0.45), 0 0 40px rgba(212, 175, 55, 0.2), 0 0 80px rgba(216, 180, 180, 0.12)'
+                  ? '0 0 15px rgba(212, 175, 55, 0.45), 0 0 40px rgba(212, 175, 55, 0.2), 0 0 80px rgba(212, 175, 55, 0.08)'
                   : isElite
-                    ? '0 0 60px rgba(232, 160, 176, 0.22), 0 0 120px rgba(216, 180, 180, 0.12)'
-                    : '0 0 50px rgba(232, 160, 176, 0.16), 0 0 100px rgba(216, 180, 180, 0.08)',
+                    ? '0 0 60px rgba(212, 175, 55, 0.18), 0 0 120px rgba(212, 175, 55, 0.08)'
+                    : '0 0 50px rgba(212, 175, 55, 0.12), 0 0 100px rgba(212, 175, 55, 0.05)',
                 animationDelay: `${200 + idx * 100}ms`,
                 animationFillMode: 'both',
               }}
@@ -348,10 +348,10 @@ const Pricing = () => {
                 <div
                   className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-1.5 rounded-full text-sm font-black whitespace-nowrap tracking-wide"
                   style={{
-                    background: 'linear-gradient(135deg, #d8b4b4 0%, #c9a0a0 40%, #e0c4c4 60%, #c9a0a0 100%)',
+                    background: 'linear-gradient(135deg, #d4af37 0%, #b8960b 40%, #e8d070 60%, #b8960b 100%)',
                     color: '#FFFFFF',
-                    border: '1.5px solid rgba(216, 180, 180, 0.6)',
-                    boxShadow: '0 4px 18px rgba(216, 180, 180, 0.45), 0 2px 8px rgba(201, 160, 160, 0.3)',
+                    border: '1.5px solid rgba(212, 175, 55, 0.45)',
+                    boxShadow: '0 4px 18px rgba(212, 175, 55, 0.35), 0 2px 8px rgba(115, 92, 0, 0.2)',
                     textShadow: '0 1px 2px rgba(0,0,0,0.15)',
                   }}
                 >
@@ -367,7 +367,7 @@ const Pricing = () => {
                     background: '#FFFFFF',
                     color: ROSE_GOLD_METALLIC,
                     border: `2px solid ${ROSE_GOLD_METALLIC}`,
-                    boxShadow: '0 4px 16px rgba(201, 149, 108, 0.35), 0 1px 4px rgba(0,0,0,0.06)',
+                    boxShadow: '0 4px 16px rgba(115, 92, 0, 0.3), 0 1px 4px rgba(0,0,0,0.06)',
                   }}
                 >
                   🔥 {isHe ? 'מחיר השקה מיוחד!' : 'Special Launch Price!'}
@@ -386,7 +386,7 @@ const Pricing = () => {
 
               <div className={`flex items-center justify-center gap-2 ${isElite || isVip ? 'mt-4' : ''} mb-6`}>
                 <PlanTitle slug={plan.slug} name={name} />
-                <Icon className="w-5 h-5" style={{ color: '#d8b4b4' }} />
+                <Icon className="w-5 h-5" style={{ color: '#d4af37' }} />
               </div>
 
               {/* VIP: Monthly equivalent pricing */}
@@ -406,7 +406,7 @@ const Pricing = () => {
                         backgroundPosition: 'center',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
-                        filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
+                        filter: 'drop-shadow(0 2px 8px rgba(212, 175, 55, 0.3)) drop-shadow(0 0 4px rgba(115, 92, 0, 0.2))',
                       }}
                     >
                       {isHe ? `₪${monthlyEquivalentIls}` : `$${monthlyEquivalentUsd}`}
@@ -435,7 +435,7 @@ const Pricing = () => {
                         backgroundPosition: 'center',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
-                        filter: 'drop-shadow(0 2px 8px rgba(216, 180, 180, 0.5)) drop-shadow(0 0 4px rgba(201, 160, 160, 0.3))',
+                        filter: 'drop-shadow(0 2px 8px rgba(212, 175, 55, 0.3)) drop-shadow(0 0 4px rgba(115, 92, 0, 0.2))',
                       }}
                     >
                       {isHe ? `₪${plan.price.ils.toLocaleString()}` : `$${plan.price.usd.toLocaleString()}`}
@@ -454,7 +454,7 @@ const Pricing = () => {
                       <span>{f}</span>
                     </div>
                     {i < features.length - 1 && (
-                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: 'rgba(216, 180, 180, 0.2)' }} />
+                      <div style={{ height: '1px', width: '50%', margin: '0 auto', background: 'rgba(212, 175, 55, 0.12)' }} />
                     )}
                   </li>
                 ))}
@@ -530,7 +530,7 @@ const Pricing = () => {
           </div>
 
           <Accordion type="single" collapsible className="space-y-3">
-            <AccordionItem value="vip" className="border rounded-xl overflow-hidden backdrop-blur-md" style={{ borderColor: 'rgba(216, 180, 180, 0.3)', background: 'rgba(255,255,255,0.5)' }}>
+            <AccordionItem value="vip" className="border rounded-xl overflow-hidden backdrop-blur-md" style={{ borderColor: 'rgba(212, 175, 55, 0.18)', background: 'rgba(255,255,255,0.5)' }}>
               <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
                 <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                   {isHe ? 'מדיניות ביטול מיוחדת למסלול המייסדות (VIP)' : 'Special Cancellation Policy for Founders (VIP)'}
@@ -545,7 +545,7 @@ const Pricing = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="monthly" className="border rounded-xl overflow-hidden backdrop-blur-md" style={{ borderColor: 'rgba(216, 180, 180, 0.3)', background: 'rgba(255,255,255,0.5)' }}>
+            <AccordionItem value="monthly" className="border rounded-xl overflow-hidden backdrop-blur-md" style={{ borderColor: 'rgba(212, 175, 55, 0.18)', background: 'rgba(255,255,255,0.5)' }}>
               <AccordionTrigger className="px-5 py-4 hover:no-underline gap-3">
                 <span className="text-sm font-bold text-start" style={{ color: TEXT_DARK }}>
                   {isHe ? 'תנאי ביטול למסלולי Pro ו-Elite (מנוי חודשי)' : 'Cancellation Terms for Pro & Elite (Monthly)'}

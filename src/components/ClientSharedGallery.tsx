@@ -159,7 +159,7 @@ const ClientSharedGallery = forwardRef<HTMLDivElement, ClientSharedGalleryProps>
                   {photo.uploaded_by === 'client' && (
                     <span
                       className="absolute bottom-1 left-1 text-[7px] font-bold px-1.5 py-0.5 rounded-full z-10"
-                      style={{ background: 'hsl(350 50% 93%)', color: '#4a3636' }}
+                      style={{ background: 'hsl(38 40% 96%)', color: '#3d3520' }}
                     >
                       {isHe ? 'שלי' : 'Mine'}
                     </span>

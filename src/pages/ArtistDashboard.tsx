@@ -1526,7 +1526,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   )}
                   <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.5} />
                   <p className="text-xl font-extrabold mb-1 relative z-10" style={{ color: '#4a3520' }}>{metric.value}</p>
-                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#6b5a5a' }}>{metric.label}</p>
+                  <p className="text-[10px] font-medium relative z-10" style={{ color: '#5f5635' }}>{metric.label}</p>
                   {metric.trend && (
                     <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
                       ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
@@ -2432,7 +2432,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         <div
                           className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
                           style={{
-                            background: 'linear-gradient(135deg, #F0D0D5 0%, #FDF6E3 100%)',
+                            background: 'linear-gradient(135deg, #faf6ef 0%, #fdf9f2 100%)',
                             border: '2px solid hsl(38 55% 62% / 0.25)',
                           }}
                         >
@@ -3254,7 +3254,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     className="relative overflow-hidden"
                     style={{
                       borderRadius: '28px',
-                      background: 'linear-gradient(135deg, #F8E8EC 0%, #F0D0D5 30%, #E8C0C8 60%, #F0D0D5 80%, #F8E8EC 100%)',
+                      background: 'linear-gradient(135deg, #fdf9f2 0%, #faf6ef 30%, #f5f0e6 60%, #faf6ef 80%, #fdf9f2 100%)',
                       minHeight: '380px',
                     }}
                   >
