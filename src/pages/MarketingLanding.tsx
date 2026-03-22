@@ -201,7 +201,7 @@ const MarketingLanding = () => {
             </div>
 
             <h1
-              className="text-4xl lg:text-6xl mb-4 font-bold"
+              className="text-3xl lg:text-5xl mb-4 font-bold"
               style={{ color: '#1c1b1b' }}
             >
               {isHe ? (
