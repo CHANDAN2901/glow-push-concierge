@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
-import { Sparkles, Users, Shield, BookOpen, Wand2, Check, ChevronDown } from 'lucide-react';
+import { Sparkles, Users, Shield, BookOpen, Check, ChevronDown } from 'lucide-react';
 
 import heroLogo from '@/assets/glowpush-hero-logo.png';
 import heroPmuLuxury from '@/assets/hero-pmu-luxury.jpg';
@@ -282,7 +282,7 @@ const MarketingLanding = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 md:auto-rows-[280px]">
-            {/* AI Magic Tools – large */}
+            {/* Smart Healing Journey – large */}
             <div
               className="md:col-span-2 md:row-span-2 rounded-2xl flex flex-col group overflow-hidden relative"
               style={{ background: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}
@@ -291,7 +291,7 @@ const MarketingLanding = () => {
               <div className="w-full h-44 md:h-56 overflow-hidden shrink-0 relative">
                 <img
                   src={equipmentHero}
-                  alt="AI Tools"
+                  alt={isHe ? 'מסע החלמה חכם' : 'Smart Healing Journey'}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div
@@ -303,14 +303,16 @@ const MarketingLanding = () => {
                 <div>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(212,175,55,0.12)' }}>
-                      <Wand2 size={20} style={{ color: '#735c00' }} />
+                      <Sparkles size={20} style={{ color: '#735c00' }} />
                     </div>
-                    <h3 className="text-2xl" style={{ fontFamily: "'Noto Serif', serif", color: '#1c1b1b' }}>AI Magic Tools</h3>
+                    <h3 className="text-2xl" style={{ fontFamily: "'Noto Serif', serif", color: '#1c1b1b' }}>
+                      {isHe ? 'מסע החלמה חכם' : 'Smart Healing Journey'}
+                    </h3>
                   </div>
                   <p className="text-sm leading-relaxed" style={{ color: '#5f5e5e' }}>
                     {isHe
-                      ? 'כלי בינה מלאכותית ליצירת כיתובים לסושיאל, השוואת לפני ואחרי, קולאז׳ ממותג, ותיעוד קולי של הטיפול.'
-                      : 'AI tools for social captions, before/after comparison, branded collages, and voice-recorded treatment notes.'}
+                      ? 'טיימליין 30 יום אוטומטי שמלווה את הלקוחה צעד אחרי צעד — תזכורות, הנחיות טיפוח ותמונות שלבי החלמה ישירות לוואטסאפ שלה.'
+                      : 'An automated 30-day timeline that guides your client step by step — reminders, care instructions and healing phase photos sent directly to her WhatsApp.'}
                   </p>
                 </div>
                 <div className="mt-4">
