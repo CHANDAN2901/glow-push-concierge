@@ -201,8 +201,8 @@ const MarketingLanding = () => {
             </div>
 
             <h1
-              className="text-5xl lg:text-[4.5rem] leading-[1.1] mb-6 font-bold"
-              style={{ color: '#5f5e5e' }}
+              className="text-4xl lg:text-6xl leading-[1.15] mb-4 font-bold"
+              style={{ color: '#1c1b1b' }}
             >
               {isHe ? (
                 <>מסע החלמה חכם ללקוחות{' '}<span style={{ color: '#d4af37' }}>האיפור הקבוע</span> שלך</>
