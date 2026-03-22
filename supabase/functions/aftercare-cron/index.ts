@@ -6,10 +6,42 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+// SECURITY: Authenticate the cron request using a secret token
+// This prevents anyone from manually triggering the cron job
+async function authenticateCronRequest(req: Request): Promise<boolean> {
+  // Check for secret cron token in authorization header
+  const authHeader = req.headers.get("authorization");
+  const cronSecret = Deno.env.get("CRON_SECRET_KEY");
+  
+  // If no CRON_SECRET_KEY is configured, deny all requests (secure by default)
+  if (!cronSecret) {
+    console.error("[aftercare-cron] CRON_SECRET_KEY not configured - denying access");
+    return false;
+  }
+  
+  // Check if authorization header matches the secret
+  if (authHeader === `Bearer ${cronSecret}`) {
+    return true;
+  }
+  
+  return false;
+}
+
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // SECURITY: Require cron secret token
+  const isAuthenticated = await authenticateCronRequest(req);
+  if (!isAuthenticated) {
+    return new Response(
+      JSON.stringify({ error: "Access denied. Valid cron token required." }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  console.log("[aftercare-cron] Cron access authenticated");
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;

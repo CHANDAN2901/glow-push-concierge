@@ -10,6 +10,7 @@ import { Mail, Lock, User, Building2, ArrowRight, Gift, Check, X, Loader2, Eye, 
 import { Link } from 'react-router-dom';
 import glowpushLogo from '@/assets/glowpush-logo.png';
 import PostSignupInstallPrompt from '@/components/PostSignupInstallPrompt';
+import { sendAuthNotification } from '@/lib/sendServerPushNotification';
 
 type PromoStatus = 'idle' | 'checking' | 'valid_referral' | 'valid_academy' | 'invalid';
 
@@ -124,6 +125,14 @@ const Auth = () => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast({ title: lang === 'en' ? 'Welcome back!' : 'ברוכה השבה!' });
+
+        // 🔔 Push notification on login
+        void sendAuthNotification({
+          type: 'login_success',
+          title: lang === 'en' ? 'Welcome Back! 👋' : 'ברוכה השבה! 👋',
+          body: lang === 'en' ? "You're now signed in to your studio" : 'התחברת לסטודיו שלך',
+        });
+
         navigate('/artist');
       } else {
         const { data: signUpData, error } = await supabase.auth.signUp({
@@ -138,6 +147,13 @@ const Auth = () => {
           },
         });
         if (error) throw error;
+
+        // 🔔 Push notification on signup
+        void sendAuthNotification({
+          type: 'signup_success',
+          title: lang === 'en' ? 'Welcome to Glow Push! ✨' : 'ברוכה הבאה ל-Glow Push! ✨',
+          body: lang === 'en' ? 'Your account has been created successfully!' : 'החשבון שלך נוצר בהצלחה!',
+        });
 
         // After signup, store promo attribution on the profile
         if (signUpData?.user && (promoStatus === 'valid_referral' || promoStatus === 'valid_academy')) {

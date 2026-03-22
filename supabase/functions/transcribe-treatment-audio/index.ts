@@ -1,9 +1,52 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// SECURITY: Validate audio base64 size (max 10MB)
+function isValidAudioSize(base64String: string, maxSizeMB: number = 10): boolean {
+  const sizeInBytes = (base64String.length * 3) / 4;
+  const sizeInMB = sizeInBytes / (1024 * 1024);
+  return sizeInMB <= maxSizeMB;
+}
+
+// SECURITY: Authenticate the request
+async function authenticateRequest(req: Request): Promise<{ userId: string } | null> {
+  const authHeader = req.headers.get("authorization");
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authHeader.replace("Bearer ", "");
+  
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) {
+      return null;
+    }
+
+    return { userId: user.id };
+  } catch (e) {
+    console.error("Auth error:", e);
+    return null;
+  }
+}
 
 function cleanRunawayRepetition(text: string, maxConsecutive = 3): string {
   if (!text) return "";
@@ -39,10 +82,21 @@ function cleanRunawayRepetition(text: string, maxConsecutive = 3): string {
   return cleaned.join("").replace(/\s+/g, " ").trim();
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // SECURITY: Require authentication
+  const auth = await authenticateRequest(req);
+  if (!auth) {
+    return new Response(
+      JSON.stringify({ error: "Authentication required. Please log in to use audio transcription." }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  console.log("[transcribe-treatment-audio] Authenticated user:", auth.userId);
 
   try {
     const { audioBase64, mimeType, lang } = await req.json();
@@ -51,6 +105,14 @@ serve(async (req) => {
 
     if (!audioBase64) {
       return new Response(JSON.stringify({ error: "No audio provided" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // SECURITY: Validate audio size
+    if (!isValidAudioSize(audioBase64, 10)) {
+      return new Response(JSON.stringify({ error: "Audio file too large. Maximum size is 10MB." }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

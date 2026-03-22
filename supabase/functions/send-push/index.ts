@@ -1,9 +1,44 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
+
+async function authenticateRequest(req: Request): Promise<{ userId: string } | null> {
+  const authHeader = req.headers.get("authorization");
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authHeader.replace("Bearer ", "");
+  
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) {
+      return null;
+    }
+
+    return { userId: user.id };
+  } catch (e) {
+    console.error("Auth error:", e);
+    return null;
+  }
+}
 
 function base64urlToUint8Array(b64url: string): Uint8Array {
   const padding = '='.repeat((4 - (b64url.length % 4)) % 4);
@@ -46,12 +81,6 @@ function classifyProviderFailure(status: number, bodyText: string): 'subscriptio
   return 'provider_error';
 }
 
-
-/**
- * Import VAPID keys as CryptoKey for signing.
- * Public key (65 bytes uncompressed) is used to extract x,y for JWK.
- * Private key (32 bytes) is the d value.
- */
 async function importVapidKeys(publicKeyB64url: string, privateKeyB64url: string): Promise<CryptoKey> {
   const pubBytes = base64urlToUint8Array(publicKeyB64url);
   const privBytes = base64urlToUint8Array(privateKeyB64url);
@@ -65,7 +94,6 @@ async function importVapidKeys(publicKeyB64url: string, privateKeyB64url: string
     throw new Error(`Private key should be 32 bytes, got ${privBytes.length}`);
   }
 
-  // Extract x, y from uncompressed public key (0x04 || x || y)
   const x = uint8ArrayToBase64url(pubBytes.slice(1, 33));
   const y = uint8ArrayToBase64url(pubBytes.slice(33, 65));
   const d = uint8ArrayToBase64url(privBytes);
@@ -183,7 +211,6 @@ async function encryptPayload(
     await crypto.subtle.encrypt({ name: 'AES-GCM', iv: new Uint8Array(nonceBits) }, cek, paddedPayload)
   );
 
-  // Build aes128gcm body: salt(16) + rs(4) + idlen(1) + keyid(65) + ciphertext
   const rs = 4096;
   const header = new Uint8Array(16 + 4 + 1 + serverPubExported.length);
   header.set(salt, 0);
@@ -198,10 +225,21 @@ async function encryptPayload(
   return { body: fullBody };
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // SECURITY: Require authentication for push notifications
+  const auth = await authenticateRequest(req);
+  if (!auth) {
+    return new Response(
+      JSON.stringify({ error: 'Authentication required. Please log in to send push notifications.' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  console.log('[send-push] Authenticated user:', auth.userId);
 
   try {
     const requestBody = await req.json().catch(() => null);
@@ -235,10 +273,6 @@ serve(async (req) => {
     console.log('[send-push] VAPID key summary:', JSON.stringify({
       hasPublic: !!rawPublic,
       hasPrivate: !!rawPrivate,
-      rawPublicLength: rawPublic.length,
-      rawPrivateLength: rawPrivate.length,
-      sanitizedPublicLength: vapidPublicKey.length,
-      sanitizedPrivateLength: vapidPrivateKey.length,
     }));
 
     if (!vapidPublicKey || !vapidPrivateKey) {
@@ -328,12 +362,7 @@ serve(async (req) => {
         providerStatus: response.status,
         providerStatusText: response.statusText,
         endpointHost: endpoint.host,
-        endpointLength: subscription.endpoint.length,
         providerResponse: providerBody,
-        responseHeaders: {
-          contentType: response.headers.get('content-type'),
-          wwwAuthenticate: response.headers.get('www-authenticate'),
-        },
       }));
 
       return new Response(
@@ -362,7 +391,6 @@ serve(async (req) => {
     console.error('[send-push] Unhandled error:', JSON.stringify({
       name: error?.name,
       message: error?.message,
-      stack: error?.stack,
     }));
 
     return new Response(

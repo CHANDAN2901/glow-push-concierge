@@ -5,10 +5,74 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-Deno.serve(async (req) => {
+// SECURITY: Authenticate the request
+async function authenticateRequest(req: Request): Promise<{ userId: string; role: string } | null> {
+  const authHeader = req.headers.get("authorization");
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authHeader.replace("Bearer ", "");
+  
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) {
+      return null;
+    }
+
+    // Get user profile to check role
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id, role")
+      .eq("id", user.id)
+      .single();
+
+    return {
+      userId: user.id,
+      role: profile?.role || "user",
+    };
+  } catch (e) {
+    console.error("Auth error:", e);
+    return null;
+  }
+}
+
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // SECURITY: Require authentication - only artists/admins should access birthday greetings
+  const auth = await authenticateRequest(req);
+  if (!auth) {
+    return new Response(
+      JSON.stringify({ error: "Authentication required. Please log in to view birthday greetings." }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Only allow artists and admins to access this endpoint
+  if (!["artist", "admin", "superadmin"].includes(auth.role)) {
+    return new Response(
+      JSON.stringify({ error: "Access denied. Only artists and admins can view birthday greetings." }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  console.log("[birthday-greetings] Authenticated user:", auth.userId, "Role:", auth.role);
 
   try {
     const supabase = createClient(

@@ -1,12 +1,89 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-serve(async (req) => {
+// SECURITY: Validate URLs to prevent SSRF attacks
+function isValidImageUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString);
+    const hostname = url.hostname.toLowerCase();
+    
+    // Block localhost and internal IPs
+    if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0") {
+      return false;
+    }
+    
+    // Block internal IP ranges
+    if (/^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\./.test(hostname)) {
+      return false;
+    }
+    if (hostname === "169.254.169.254") {
+      return false;
+    }
+    
+    // Only allow http and https
+    if (!["http:", "https:"].includes(url.protocol)) {
+      return false;
+    }
+    
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// SECURITY: Authenticate the request
+async function authenticateRequest(req: Request): Promise<{ userId: string } | null> {
+  const authHeader = req.headers.get("authorization");
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authHeader.replace("Bearer ", "");
+  
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) {
+      return null;
+    }
+
+    return { userId: user.id };
+  } catch (e) {
+    console.error("Auth error:", e);
+    return null;
+  }
+}
+
+serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // SECURITY: Require authentication
+  const auth = await authenticateRequest(req);
+  if (!auth) {
+    return new Response(
+      JSON.stringify({ error: "Authentication required. Please log in to use AI compare features." }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  console.log("[ai-compare] Authenticated user:", auth.userId);
 
   try {
     const { beforeImage, afterImage, artistName, logoUrl } = await req.json();
@@ -15,6 +92,19 @@ serve(async (req) => {
 
     if (!beforeImage || !afterImage) {
       return new Response(JSON.stringify({ error: "Both before and after images are required" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // SECURITY: Validate URLs to prevent SSRF attacks
+    if (!isValidImageUrl(beforeImage)) {
+      return new Response(JSON.stringify({ error: "Invalid beforeImage URL. Only external HTTPS URLs are allowed." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!isValidImageUrl(afterImage)) {
+      return new Response(JSON.stringify({ error: "Invalid afterImage URL. Only external HTTPS URLs are allowed." }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

@@ -6,17 +6,100 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-Deno.serve(async (req) => {
+// SECURITY: Validate base64 image data
+function isValidBase64Image(base64String: string): boolean {
+  // Check if it's a valid base64 image format
+  return /^data:image\/(jpeg|jpg|png|gif|webp);base64,/i.test(base64String);
+}
+
+// SECURITY: Check file size (max 10MB)
+function isValidFileSize(base64String: string, maxSizeMB: number = 10): boolean {
+  const base64Content = base64String.includes(",") 
+    ? base64String.split(",")[1] 
+    : base64String;
+  
+  const sizeInBytes = (base64Content.length * 3) / 4;
+  const sizeInMB = sizeInBytes / (1024 * 1024);
+  
+  return sizeInMB <= maxSizeMB;
+}
+
+// SECURITY: Authenticate the request
+async function authenticateRequest(req: Request): Promise<{ userId: string; profileId: string } | null> {
+  const authHeader = req.headers.get("authorization");
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authHeader.replace("Bearer ", "");
+  
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) {
+      return null;
+    }
+
+    return {
+      userId: user.id,
+      profileId: user.id,
+    };
+  } catch (e) {
+    console.error("Auth error:", e);
+    return null;
+  }
+}
+
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // SECURITY: Require authentication
+  const auth = await authenticateRequest(req);
+  if (!auth) {
+    return new Response(
+      JSON.stringify({ error: "Authentication required. Please log in to upload photos." }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  console.log("[upload-client-photo] Authenticated user:", auth.userId);
 
   try {
     const { artistProfileId, clientId, category, base64Data, fileName } = await req.json();
 
     if (!artistProfileId || !category || !base64Data) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
+        JSON.stringify({ error: "Missing required fields: artistProfileId, category, and base64Data" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // SECURITY: Validate that the image is actually an image
+    if (!isValidBase64Image(base64Data)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid image format. Only JPEG, PNG, GIF, and WebP images are allowed." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // SECURITY: Check file size
+    if (!isValidFileSize(base64Data, 10)) {
+      return new Response(
+        JSON.stringify({ error: "File too large. Maximum size is 10MB." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
