@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
-import { Sparkles, Users, Shield, BookOpen, Wand2, Check, ChevronDown } from 'lucide-react';
+import { Sparkles, Users, Shield, BookOpen, Check, ChevronDown } from 'lucide-react';
 
 import heroLogo from '@/assets/glowpush-hero-logo.png';
 import heroPmuLuxury from '@/assets/hero-pmu-luxury.jpg';
