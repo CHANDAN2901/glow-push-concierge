@@ -204,12 +204,11 @@ const MarketingLanding = () => {
               className="text-5xl lg:text-[4.5rem] leading-tight mb-6"
               style={{ fontFamily: "'Noto Serif', serif", fontStyle: 'italic', color: '#1c1b1b' }}
             >
-              GlowPush:{' '}
-              <span style={{ color: '#d4af37' }}>
-                {isHe ? 'מצוינות PMU' : 'PMU Excellence'}
-              </span>{' '}
-              <br />
-              {isHe ? 'מוגדרת מחדש.' : 'Redefined.'}
+              {isHe ? (
+                <>מסע החלמה חכם ללקוחות{' '}<span style={{ color: '#d4af37' }}>האיפור הקבוע</span> שלך ״</>
+              ) : (
+                <>A Smart Healing Journey for Your{' '}<span style={{ color: '#d4af37' }}>PMU</span> Clients</>
+              )}
             </h1>
 
             <p className="text-lg lg:text-xl font-light mb-10 max-w-xl leading-relaxed" style={{ color: '#5f5e5e' }}>
