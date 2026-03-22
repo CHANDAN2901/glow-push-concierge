@@ -201,13 +201,21 @@ const MarketingLanding = () => {
             </div>
 
             <h1
-              className="text-4xl lg:text-6xl leading-[1.15] mb-4 font-bold"
+              className="text-4xl lg:text-6xl mb-4 font-bold"
               style={{ color: '#1c1b1b' }}
             >
               {isHe ? (
-                <>מסע החלמה חכם ללקוחות{' '}<span style={{ color: '#d4af37' }}>האיפור הקבוע</span> שלך</>
+                <span className="flex flex-col gap-1.5 lg:gap-2">
+                  <span>מסע החלמה חכם</span>
+                  <span>ללקוחות <span style={{ color: '#d4af37' }}>האיפור הקבוע</span></span>
+                  <span>שלך</span>
+                </span>
               ) : (
-                <>A Smart Healing Journey for Your{' '}<span style={{ color: '#d4af37' }}>PMU</span> Clients</>
+                <span className="flex flex-col gap-1.5 lg:gap-2">
+                  <span>A Smart Healing Journey</span>
+                  <span>for Your <span style={{ color: '#d4af37' }}>PMU</span></span>
+                  <span>Clients</span>
+                </span>
               )}
             </h1>
 
