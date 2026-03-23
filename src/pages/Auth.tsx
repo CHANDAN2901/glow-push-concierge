@@ -123,10 +123,19 @@ const Auth = () => {
     try {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          // 🔔 Push notification on LOGIN FAILURE
+          void sendAuthNotification({
+            type: 'login_error',
+            title: lang === 'en' ? 'Login Failed ❌' : 'התחברות נכשלה ❌',
+            body: lang === 'en' ? 'Please check your credentials and try again' : 'אנא בדקי את פרטי ההתחברות ונסי שוב',
+          });
+          throw error;
+        }
+        
         toast({ title: lang === 'en' ? 'Welcome back!' : 'ברוכה השבה!' });
 
-        // 🔔 Push notification on login
+        // 🔔 Push notification on LOGIN SUCCESS
         void sendAuthNotification({
           type: 'login_success',
           title: lang === 'en' ? 'Welcome Back! 👋' : 'ברוכה השבה! 👋',
@@ -146,9 +155,18 @@ const Auth = () => {
             },
           },
         });
-        if (error) throw error;
+        
+        if (error) {
+          // 🔔 Push notification on SIGNUP FAILURE
+          void sendAuthNotification({
+            type: 'signup_error',
+            title: lang === 'en' ? 'Signup Failed ❌' : 'הרשמה נכשלה ❌',
+            body: lang === 'en' ? 'Please check your details and try again' : 'אנא בדקי את הפרטים ונסי שוב',
+          });
+          throw error;
+        }
 
-        // 🔔 Push notification on signup
+        // 🔔 Push notification on SIGNUP SUCCESS
         void sendAuthNotification({
           type: 'signup_success',
           title: lang === 'en' ? 'Welcome to Glow Push! ✨' : 'ברוכה הבאה ל-Glow Push! ✨',

@@ -71,7 +71,7 @@ function summarizeSubscription(subscription: any) {
     endpointHost,
     endpointLength: typeof endpoint === 'string' ? endpoint.length : 0,
     p256dhLength: typeof subscription?.keys?.p256dh === 'string' ? subscription.keys.p256dh.length : 0,
-    authLength: typeof subscription?.keys?.auth === 'string' ? subscription.keys.auth.length : 0,
+    authLength: typeof subscription?.keys?.auth === 'string' ? subscription.keys.auth.auth.length : 0,
   };
 }
 
