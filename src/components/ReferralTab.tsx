@@ -18,9 +18,45 @@ const ReferralTab = ({ artistName = '', artistProfileId }: ReferralTabProps) => 
   const [copied, setCopied] = useState(false);
   const [voucherWaHe, setVoucherWaHe] = useState(VOUCHER_DEFAULTS.voucher_wa_he);
   const [voucherWaEn, setVoucherWaEn] = useState(VOUCHER_DEFAULTS.voucher_wa_en);
+  const [referralCode, setReferralCode] = useState('');
 
-  const referralCode = (artistName || 'artist').toLowerCase().replace(/\s+/g, '') + Math.floor(100 + Math.random() * 900);
-  const referralLink = `${window.location.origin}/auth?ref=${referralCode}`;
+  const referralLink = referralCode ? `${window.location.origin}/auth?ref=${referralCode}` : '';
+
+  // Fetch or generate a stable referral code saved in profiles
+  useEffect(() => {
+    if (!artistProfileId) return;
+    (async () => {
+      const { data: profile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('referral_code')
+        .eq('id', artistProfileId)
+        .maybeSingle();
+
+      if (fetchError) console.error('[ReferralTab] fetch error:', fetchError);
+
+      if (profile?.referral_code) {
+        setReferralCode(profile.referral_code);
+        return;
+      }
+
+      // No code yet — generate one and persist it
+      const base = (artistName || 'artist').toLowerCase().replace(/\s+/g, '');
+      const newCode = base + Math.floor(100 + Math.random() * 900);
+
+      const { error: saveError } = await supabase
+        .from('profiles')
+        .update({ referral_code: newCode })
+        .eq('id', artistProfileId)
+        .select('referral_code')
+        .maybeSingle();
+
+      if (saveError) {
+        console.error('[ReferralTab] save error:', saveError);
+      } else {
+        setReferralCode(newCode);
+      }
+    })();
+  }, [artistProfileId]);
 
   // Fetch saved voucher templates from DB
   useEffect(() => {
@@ -67,7 +103,6 @@ const ReferralTab = ({ artistName = '', artistProfileId }: ReferralTabProps) => 
     { icon: Gift, label: isHe ? 'קרדיט שנצבר' : 'Credits Earned', value: '₪316' },
   ];
 
-  const appLink = window.location.origin;
 
   const handleShare = async () => {
     const shareText = buildVoucherMessage();
@@ -111,7 +146,7 @@ const ReferralTab = ({ artistName = '', artistProfileId }: ReferralTabProps) => 
           <div className="flex items-center gap-2">
             <div className="flex-1 bg-background border border-border rounded-lg px-3 py-2.5 text-sm font-mono truncate text-start">
               <Link2 className="w-3.5 h-3.5 inline mr-2 text-accent" />
-              {referralLink}
+              {referralLink || (isHe ? 'טוען...' : 'Loading...')}
             </div>
             <Button
               onClick={copyLink}

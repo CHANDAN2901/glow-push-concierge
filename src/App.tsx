@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import RequireAuth from "@/components/RequireAuth";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { I18nProvider } from "@/components/I18nProvider";
 import Header from "@/components/Header";
@@ -56,28 +57,28 @@ const App = () => (
               <Route path="/" element={<MarketingLanding />} />
               <Route path="/c/:clientId" element={<ClientHome />} />
               <Route path="/client" element={<ClientHome />} />
-              <Route path="/artist" element={<ArtistDashboard />} />
+              <Route path="/artist" element={<RequireAuth><ArtistDashboard /></RequireAuth>} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/auth" element={<Auth />} />
-              
-              <Route path="/digital-card" element={<DigitalCard />} />
+
+              <Route path="/digital-card" element={<RequireAuth><DigitalCard /></RequireAuth>} />
               <Route path="/health-declaration" element={<HealthDeclarationPage />} />
               <Route path="/f/:code" element={<FormLinkResolver />} />
-              <Route path="/admin/aftercare" element={<AftercareEditorPage />} />
-              <Route path="/admin/timeline" element={<TimelineEditorPage />} />
-              <Route path="/admin/timeline-content" element={<TimelineContentEditorPage />} />
-              <Route path="/admin/timeline-settings" element={<ProtectedRoute featureId="healing_timeline"><TimelineSettings /></ProtectedRoute>} />
-              <Route path="/admin/faq" element={<FaqPage />} />
-              <Route path="/admin/faq-manager" element={<FaqManager />} />
-              <Route path="/super-admin" element={<SuperAdmin />} />
+              <Route path="/admin/aftercare" element={<RequireAuth><AftercareEditorPage /></RequireAuth>} />
+              <Route path="/admin/timeline" element={<RequireAuth><TimelineEditorPage /></RequireAuth>} />
+              <Route path="/admin/timeline-content" element={<RequireAuth><TimelineContentEditorPage /></RequireAuth>} />
+              <Route path="/admin/timeline-settings" element={<RequireAuth><ProtectedRoute featureId="healing_timeline"><TimelineSettings /></ProtectedRoute></RequireAuth>} />
+              <Route path="/admin/faq" element={<RequireAuth><FaqPage /></RequireAuth>} />
+              <Route path="/admin/faq-manager" element={<RequireAuth><FaqManager /></RequireAuth>} />
+              <Route path="/super-admin" element={<RequireAuth><SuperAdmin /></RequireAuth>} />
               <Route path="/debug-test" element={<DebugTest />} />
-              <Route path="/client-profile" element={<ClientProfile />} />
+              <Route path="/client-profile" element={<RequireAuth><ClientProfile /></RequireAuth>} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/legal" element={<Legal />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
-              <Route path="/payment-history" element={<PaymentHistory />} />
+              <Route path="/payment-history" element={<RequireAuth><PaymentHistory /></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>

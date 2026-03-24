@@ -283,9 +283,11 @@ export default function OnboardingWizard({
       </div>
 
       <Button
-        onClick={() => {
-          // Mark onboarding as complete
+        onClick={async () => {
           localStorage.setItem('gp-onboarding-done', '1');
+          if (userProfileId) {
+            await supabase.from('profiles').update({ onboarding_checklist_dismissed: true }).eq('id', userProfileId);
+          }
           onClose();
           toast({
             title: isHe ? '🎉 הקליניקה הדיגיטלית שלך מוכנה!' : '🎉 Your digital clinic is ready!',
@@ -316,7 +318,7 @@ export default function OnboardingWizard({
       >
         {/* Close button */}
         <button
-          onClick={() => { localStorage.setItem('gp-onboarding-done', '1'); onClose(); }}
+          onClick={async () => { localStorage.setItem('gp-onboarding-done', '1'); if (userProfileId) { await supabase.from('profiles').update({ onboarding_checklist_dismissed: true }).eq('id', userProfileId); } onClose(); }}
           className="absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
         >
           <X className="w-4 h-4" />

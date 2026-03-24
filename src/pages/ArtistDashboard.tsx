@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import {
   Users, Upload, ToggleLeft, ToggleRight, Settings, FileText, Bell, Sparkles,
-  Plus, MessageCircle, Clock, MessageSquare, Copy, CheckCircle, Trash2, Calendar, Gift,
+  Plus, MessageCircle, Clock, MessageSquare, Copy, CheckCircle, Trash2, Calendar, Gift, LogOut,
   Lock, Globe, Camera, Star, Zap, Crown, AlertTriangle, X, ClipboardCheck,
   Share2, Image, DollarSign, CalendarCheck, Eye, HelpCircle, Smartphone, ShieldCheck, ShieldAlert,
   Mic, FileOutput, ChevronRight, CreditCard, Pencil, Home, ScrollText, ArrowRight, Loader2, Search,
@@ -228,6 +228,7 @@ const ArtistDashboard = () => {
   const [profileCreatedAt, setProfileCreatedAt] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('trial');
   const [subscriptionTier, setSubscriptionTier] = useState<string>('lite');
+  const [totalClientsCount, setTotalClientsCount] = useState(0);
 
   const trialDaysLeft = calcTrialDaysLeft(profileCreatedAt);
   const trialActive = trialDaysLeft > 0;
@@ -306,7 +307,7 @@ useEffect(() => {
 const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) => {
   const clientId = selectedClient?.dbId;
   if (!clientId) {
-    toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה קודם', variant: 'destructive' });
+    toast({ title: t('artist.dashboard.clientMustBeSaved'), variant: 'destructive' });
     return;
   }
 
@@ -335,12 +336,12 @@ const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) 
 
     toast({
       title: strictDone
-        ? (lang === 'en' ? 'Treatment date updated' : 'תאריך הטיפול עודכן')
-        : (lang === 'en' ? 'Treatment date cleared' : 'תאריך הטיפול נוקה'),
+        ? t('artist.dashboard.treatmentDateUpdated')
+        : t('artist.dashboard.treatmentDateCleared'),
     });
   } catch (err) {
     console.error('Failed to update treatment date:', err);
-    toast({ title: lang === 'en' ? 'Failed to update treatment date' : 'שגיאה בעדכון תאריך הטיפול', variant: 'destructive' });
+    toast({ title: t('artist.dashboard.treatmentDateFailed'), variant: 'destructive' });
   } finally {
     setUpdatingTreatmentDate(false);
   }
@@ -439,7 +440,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     if (!user) return;
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier')
+      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier, onboarding_checklist_dismissed')
       .eq('user_id', user.id)
       .maybeSingle() as { data: any; error: any };
 
@@ -451,6 +452,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     if (data) {
       setUserProfileId(data.id);
       setHasWhatsAppAutomation(!!data.has_whatsapp_automation);
+      // Sync DB onboarding dismissal to localStorage so both checks are cross-device
+      if (data.onboarding_checklist_dismissed) {
+        localStorage.setItem('gp-onboarding-done', '1');
+        localStorage.setItem('gp-welcome-tour-done', '1');
+      }
 
       // When impersonating, ONLY set profile ID and WA automation (needed for DB queries)
       // Block all display-facing fields from being overwritten
@@ -544,7 +550,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             toastRef.current({
               title: langRef.current === 'en'
                 ? '✨ New health declaration received!'
-                : '✨ התקבלה הצהרת בריאות חדשה!',
+                : '✨ התקבלה הצהרת בריאות חדשה!', // uses langRef, not t() — intentional (realtime callback)
             });
           });
         }
@@ -568,11 +574,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   });
 
   const marketplaceFeatures = [
-    { id: 'language-pack', name: lang === 'en' ? 'Language Pack' : 'חבילת שפות', desc: lang === 'en' ? 'Auto-translate to Russian, English and Arabic' : 'תרגום אוטומטי לרוסית, אנגלית וערבית', icon: Globe, emoji: '🌍' },
-    { id: 'before-after', name: lang === 'en' ? 'Before & After Generator' : 'מחולל לפני/אחרי', desc: lang === 'en' ? 'Create branded comparison photos for Instagram' : 'כלי ליצירת תמונות השוואה ממותגות לאינסטגרם', icon: Camera, emoji: '📸' },
-    { id: 'review-bot', name: lang === 'en' ? 'Review Bot' : 'בוט ביקורות', desc: lang === 'en' ? 'Auto-send review request on day 30' : 'שליחת בקשת דירוג אוטומטית ללקוחה ביום ה-30', icon: Star, emoji: '⭐' },
-    { id: 'auto-messages', name: lang === 'en' ? 'Message Automation' : 'אוטומציית הודעות', desc: lang === 'en' ? 'Send client link via WhatsApp automatically' : 'שליחת הקישור ללקוחה בוואטסאפ ללא מגע יד אדם', icon: Zap, emoji: '⚡' },
-    { id: 'health-declaration', name: lang === 'en' ? 'Digital Health Declaration' : 'הצהרת בריאות דיגיטלית', desc: lang === 'en' ? 'Health declaration form with digital signature' : 'טופס הצהרת בריאות עם חתימה דיגיטלית', icon: ClipboardCheck, emoji: '📋' },
+    { id: 'language-pack', name: t('artist.dashboard.marketplace.languagePack'), desc: t('artist.dashboard.marketplace.languagePack.desc'), icon: Globe, emoji: '🌍' },
+    { id: 'before-after', name: t('artist.dashboard.marketplace.beforeAfter'), desc: t('artist.dashboard.marketplace.beforeAfter.desc'), icon: Camera, emoji: '📸' },
+    { id: 'review-bot', name: t('artist.dashboard.marketplace.reviewBot'), desc: t('artist.dashboard.marketplace.reviewBot.desc'), icon: Star, emoji: '⭐' },
+    { id: 'auto-messages', name: t('artist.dashboard.marketplace.autoMessages'), desc: t('artist.dashboard.marketplace.autoMessages.desc'), icon: Zap, emoji: '⚡' },
+    { id: 'health-declaration', name: t('artist.dashboard.marketplace.healthDeclaration'), desc: t('artist.dashboard.marketplace.healthDeclaration.desc'), icon: ClipboardCheck, emoji: '📋' },
   ];
 
   const toggleFeature = (featureId: string) => {
@@ -582,12 +588,6 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       return updated;
     });
   };
-
-  const stats = [
-    { icon: Users, label: lang === 'en' ? 'Active Clients' : 'לקוחות פעילות', value: '24' },
-    { icon: Clock, label: lang === 'en' ? 'Trial Days Left' : 'ימים לניסיון', value: String(trialDaysLeft) },
-    { icon: MessageSquare, label: lang === 'en' ? 'Messages Saved' : 'הודעות שנחסכו', value: '312' },
-  ];
 
   const treatmentOptions = TREATMENT_OPTIONS;
 
@@ -603,7 +603,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     if (!deleteId) {
       // No DB record — just remove from local state
       setClients(prev => prev.filter(c => c.name !== clientToDelete.name));
-      toast({ title: lang === 'en' ? 'Client removed' : 'הלקוחה הוסרה' });
+      toast({ title: t('artist.dashboard.clientRemoved') });
       return;
     }
     
@@ -622,11 +622,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       }
 
       toast({
-        title: lang === 'en' ? 'Client deleted successfully' : 'הלקוחה נמחקה בהצלחה',
+        title: t('artist.dashboard.clientDeleted'),
         duration: 6000,
         action: (
           <ToastAction
-            altText={lang === 'en' ? 'Undo' : 'ביטול'}
+            altText={t('artist.dashboard.undo')}
             onClick={async () => {
               try {
                 const { error } = await supabase.from('clients').insert({
@@ -641,10 +641,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 });
                 if (error) throw error;
                 fetchClients();
-                toast({ title: lang === 'en' ? 'Deletion undone ✅' : 'המחיקה בוטלה ✅' });
+                toast({ title: t('artist.dashboard.deletionUndone') });
               } catch (err) {
                 console.error('Failed to undo delete:', err);
-                toast({ title: lang === 'en' ? 'Failed to undo' : 'שחזור הלקוחה נכשל', variant: 'destructive' });
+                toast({ title: t('artist.dashboard.undoFailed'), variant: 'destructive' });
               }
             }}
             className="px-3 py-1.5 rounded-full text-xs font-serif font-semibold transition-all active:scale-95 shrink-0 hover:bg-transparent"
@@ -654,7 +654,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               color: '#4a3520',
             }}
           >
-            {lang === 'en' ? 'Undo' : 'ביטול'}
+            {t('artist.dashboard.undo')}
           </ToastAction>
         ),
       });
@@ -663,7 +663,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       fetchClients();
     } catch (err) {
       console.error('Failed to delete client:', err);
-      toast({ title: lang === 'en' ? 'Failed to delete client' : 'מחיקת הלקוחה נכשלה', variant: 'destructive' });
+      toast({ title: t('artist.dashboard.deleteClientFailed'), variant: 'destructive' });
     }
   };
 
@@ -671,15 +671,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const buildReminderWhatsAppUrl = (clientName: string, clientPhone: string): string => {
     const appt = appointmentLookup[clientName];
     const cleanP = clientPhone ? formatPhone(clientPhone) : '';
-    const studioLabel = artistName || (lang === 'en' ? 'Your Studio' : 'הסטודיו שלך');
+    const studioLabel = artistName || t('artist.dashboard.yourStudio');
     let text: string;
     if (appt) {
       const dateFormatted = new Date(appt.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
       text = `היי ${clientName}, תזכורת מהקליניקה של ${studioLabel} - קבענו לתאריך ${dateFormatted} בשעה ${appt.time}. מחכה לראותך! ✨`;
     } else {
-      text = lang === 'en'
-        ? `Hi ${clientName}, just a reminder about your upcoming appointment! ✨`
-        : `היי ${clientName}, תזכורת מהקליניקה של ${studioLabel} - מחכה לראותך! ✨`;
+      text = `היי ${clientName}, תזכורת מהקליניקה של ${studioLabel} - מחכה לראותך! ✨`; // WhatsApp message body — left in Hebrew as default
     }
     return cleanP
       ? `https://wa.me/${cleanP}?text=${encodeURIComponent(text)}`
@@ -851,12 +849,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   // Open WhatsApp with health form signing request
   const sendHealthFormWhatsApp = async (clientName: string, clientPhone?: string, includePolicy = true, clientDbId?: string) => {
     if (!clientPhone || clientPhone.replace(/[^0-9]/g, '').length === 0) {
-      toast({ title: lang === 'en' ? 'Cannot send — phone number missing for this client. Please update her details.' : 'לא ניתן לשלוח הודעה - חסר מספר טלפון ללקוחה זו. אנא עדכני את פרטיה.', variant: 'destructive' });
+      toast({ title: t('artist.dashboard.cannotSendNoPhone'), variant: 'destructive' });
       return;
     }
 
     if (!clientDbId || !userProfileId) {
-      toast({ title: lang === 'en' ? 'Cannot send secure link yet. Please save client first.' : 'לא ניתן לשלוח קישור מאובטח עדיין. שמרי קודם את פרטי הלקוחה.', variant: 'destructive' });
+      toast({ title: t('artist.dashboard.cannotSendNoSave'), variant: 'destructive' });
       return;
     }
 
@@ -869,7 +867,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       toast({ title: 'הודעה נשלחה בהצלחה ✉️' });
     } catch (err) {
       console.error('Failed to generate secure health form link:', err);
-      toast({ title: lang === 'en' ? 'Failed to create secure link' : 'שגיאה ביצירת קישור מאובטח', variant: 'destructive' });
+      toast({ title: t('artist.dashboard.secureLinkFailed'), variant: 'destructive' });
     }
   };
 
@@ -882,13 +880,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         .eq('id', clientEntry.dbId);
       if (error) {
         console.error('Failed to approve exception:', error);
-        toast({ title: lang === 'en' ? 'Failed to approve' : 'שגיאה באישור ההחרגה', variant: 'destructive' });
+        toast({ title: t('artist.dashboard.approveExceptionFailed'), variant: 'destructive' });
         return;
       }
     }
     // Update local state so it disappears immediately
     setClients(prev => prev.map(c => c.dbId === clientEntry.dbId ? { ...c, medicalExceptionApproved: true } : c));
-    toast({ title: lang === 'en' ? 'Exception approved ✅' : 'החרגה אושרה ✅' });
+    toast({ title: t('artist.dashboard.exceptionApproved') });
   };
 
   // Edit client
@@ -931,10 +929,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       // Refetch from DB to ensure consistency
       await fetchClients();
       setEditingClient(null);
-      toast({ title: lang === 'en' ? 'Client saved successfully ✅' : 'הפרטים עודכנו בהצלחה ✅' });
+      toast({ title: t('artist.dashboard.clientSaved') });
     } catch (err) {
       console.error('Failed to save client:', err);
-      toast({ title: lang === 'en' ? 'Failed to save client details' : 'שמירת פרטי הלקוחה נכשלה. אנא נסי שוב.', variant: 'destructive' });
+      toast({ title: t('artist.dashboard.clientSaveFailed'), variant: 'destructive' });
     } finally {
       setSavingClient(false);
     }
@@ -947,23 +945,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     setHealthDeclarations(updated);
     localStorage.setItem('gp-health-declarations', JSON.stringify(updated));
     setShowDeclarationFor(null);
-    toast({ title: lang === 'en' ? 'Health declaration saved! ✅' : 'הצהרת הבריאות נשמרה! ✅' });
+    toast({ title: t('artist.dashboard.declarationSaved') });
     // Refresh DB declarations
     fetchDbDeclarations();
   };
 
-  const [clients, setClients] = useState<ClientEntry[]>(() => {
-    try {
-      const saved = localStorage.getItem('pmu_clients');
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return [
-      { name: 'דנה אברהם', phone: '0501234567', day: 1, treatment: lang === 'en' ? 'Lip Blush' : 'שפתיים', link: `${origin}/c/demo1?name=${encodeURIComponent('Dana Avraham')}&treatment=lips&start=2026-02-14`, beforeImg: '', afterImg: '' },
-      { name: 'מאיה לוי', phone: '0529876543', day: 5, treatment: lang === 'en' ? 'Brows' : 'גבות', link: `${origin}/c/demo2?name=${encodeURIComponent('Maya Levi')}&treatment=eyebrows&start=2026-02-10`, beforeImg: '', afterImg: '' },
-      { name: 'נועה שפירא', phone: '0541112233', day: 28, treatment: lang === 'en' ? 'Brows' : 'גבות', link: `${origin}/c/demo3?name=${encodeURIComponent('Noa Shapira')}&treatment=eyebrows&start=2026-01-18`, beforeImg: '', afterImg: '' },
-      { name: 'שירה כהן', phone: '0521234567', day: 365, treatment: lang === 'en' ? 'Brows' : 'גבות', link: `${origin}/c/demo4?name=${encodeURIComponent('Shira Cohen')}&treatment=eyebrows&start=2025-02-22`, beforeImg: '', afterImg: '' },
-    ];
-  });
+  const [clients, setClients] = useState<ClientEntry[]>([]);
 
   // Clients with active (non-approved) red flags
   const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !c.medicalExceptionApproved);
@@ -972,12 +959,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sendSmartReminder = (client: ClientEntry) => {
     const clientDay = Number(client.day);
     if (!Number.isFinite(clientDay)) {
-      toast({ title: lang === 'en' ? 'Please define text for this day in Push Management' : 'נא להגדיר טקסט ליום זה במסך ניהול פושים', variant: 'destructive' });
+      toast({ title: t('artist.dashboard.defineTextFirst'), variant: 'destructive' });
       return;
     }
 
     if (!hasMessageForDay(clientDay, client.treatment)) {
-      toast({ title: lang === 'en' ? 'Please define text for this day in Push Management' : 'נא להגדיר טקסט ליום זה במסך ניהול פושים', variant: 'destructive' });
+      toast({ title: t('artist.dashboard.defineTextFirst'), variant: 'destructive' });
       return;
     }
 
@@ -996,7 +983,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     const updated = { ...waSentLog, [key]: now };
     setWaSentLog(updated);
     saveSentLog(updated);
-    toast({ title: lang === 'en' ? 'WhatsApp opened!' : 'וואטסאפ נפתח!' });
+    toast({ title: t('artist.dashboard.whatsappOpened') });
   };
 
   const getTreatmentLabel = (value: string) => getTreatmentLabelFn(value, lang);
@@ -1023,12 +1010,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     setFormError('');
     try {
       if (!clientName || !treatmentType) {
-        setFormError(lang === 'en' ? 'Please fill in name and treatment type' : 'אנא מלאי שם וסוג טיפול');
+        setFormError(t('artist.dashboard.generateLinkError'));
         return;
       }
       const link = currentPreview;
       if (!link) {
-        setFormError(lang === 'en' ? 'Failed to generate link' : 'שגיאה ביצירת הקישור');
+        setFormError(t('artist.dashboard.generateLinkFailed'));
         return;
       }
       setGeneratedLink(link);
@@ -1064,7 +1051,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       setAfterImg('');
     } catch (e) {
       console.error('Error generating link:', e);
-      setFormError(lang === 'en' ? 'Failed to generate link. Please check details.' : 'שגיאה ביצירת הקישור. אנא בדקי את הפרטים.');
+      setFormError(t('artist.dashboard.generateLinkFailedDetails'));
     }
   };
 
@@ -1072,7 +1059,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     await navigator.clipboard.writeText(generatedLink);
     setCopied(true);
     toast({
-      title: lang === 'en' ? 'Link copied!' : 'הקישור הועתק!',
+      title: t('artist.dashboard.linkCopiedShort'),
     });
     setTimeout(() => setCopied(false), 2000);
   };
@@ -1080,17 +1067,17 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const copyClientLink = async (link: string) => {
     await navigator.clipboard.writeText(link);
     toast({
-      title: lang === 'en' ? 'Link copied!' : 'הקישור הועתק!',
+      title: t('artist.dashboard.linkCopiedShort'),
     });
   };
 
   const openWhatsApp = (phone: string, name: string, link: string) => {
     if (!link) {
-      alert(lang === 'en' ? 'Please generate the link first' : 'אנא צרי את הקישור תחילה');
+      alert(t('artist.dashboard.generateLinkFirst'));
       return;
     }
     try {
-      const firstName = (name || '').split(' ')[0] || (lang === 'en' ? 'there' : 'מותק');
+      const firstName = (name || '').split(' ')[0] || 'מותק'; // 'מותק' is a Hebrew endearment used in the WhatsApp message body
       const message = `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול! כדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות: ${link}\n\nמחכה לראות את התוצאה הסופית! באהבה, ${artistName || 'אורית אהרוני'} - Glow Push 🤍`;
       const encoded = encodeURIComponent(message);
       if (phone && phone.trim()) {
@@ -1101,7 +1088,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       }
     } catch (e) {
       console.error('Error opening WhatsApp:', e);
-      alert(lang === 'en' ? 'Failed to open WhatsApp. Try copying the link.' : 'שגיאה בפתיחת וואטסאפ. נסי להעתיק את הקישור.');
+      alert(t('artist.dashboard.openWhatsAppFailed'));
     }
   };
 
@@ -1139,6 +1126,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           };
         });
         const totalCount = count ?? 0;
+        setTotalClientsCount(totalCount);
         setHasMoreClients(from + data.length < totalCount);
         if (append) {
           setClients(prev => {
@@ -1147,12 +1135,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             return [...prev, ...newOnly];
           });
         } else {
-          setClients(prev => {
-            const dbIds = new Set(dbClients.map(c => c.dbId));
-            const dbNames = new Set(dbClients.map(c => c.name));
-            const localOnly = prev.filter(c => !c.dbId && !dbNames.has(c.name));
-            return [...dbClients, ...localOnly];
-          });
+          setClients(dbClients);
         }
       }
     } catch (err) {
@@ -1213,10 +1196,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
 
-  // Persist clients to localStorage whenever they change
+  // Clear stale localStorage client cache (clients now fetched from DB only)
   useEffect(() => {
-    try { localStorage.setItem('pmu_clients', JSON.stringify(clients)); } catch {}
-  }, [clients]);
+    try { localStorage.removeItem('pmu_clients'); } catch {}
+  }, []);
 
   // Restore selected client from URL params after clients are loaded
   useEffect(() => {
@@ -1228,23 +1211,18 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     }
   }, [selectedClientParam, clients, selectedClient]);
 
-  const displayName = artistName || (lang === 'en' ? 'My Studio' : 'הסטודיו שלי');
+  const displayName = artistName || t('artist.dashboard.myStudio');
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (lang === 'en') {
-      if (hour < 12) return 'Good Morning';
-      if (hour < 18) return 'Good Afternoon';
-      return 'Good Evening';
-    }
-    if (hour < 12) return 'בוקר טוב';
-    if (hour < 18) return 'צהריים טובים';
-    return 'ערב טוב';
+    if (hour < 12) return t('artist.dashboard.greetingMorning');
+    if (hour < 18) return t('artist.dashboard.greetingAfternoon');
+    return t('artist.dashboard.greetingEvening');
   };
 
   const quickActions = [
-    { icon: Plus, label: lang === 'en' ? 'New Client' : 'לקוחה חדשה', onClick: () => { setDispatchPrefill(null); setDispatchOpen(true); } },
-    { icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', onClick: () => setActiveTab('calendar') },
-    { icon: CreditCard, label: lang === 'en' ? 'My Digital Card' : 'הכרטיס הדיגיטלי שלי', onClick: () => setShowDigitalCardPreview(true) },
+    { icon: Plus, label: t('artist.dashboard.newClient'), onClick: () => { setDispatchPrefill(null); setDispatchOpen(true); } },
+    { icon: Calendar, label: t('artist.dashboard.calendar'), onClick: () => setActiveTab('calendar') },
+    { icon: CreditCard, label: t('artist.dashboard.myDigitalCard'), onClick: () => setShowDigitalCardPreview(true) },
   ];
 
   // Scroll to top when selecting a client — use anchor + setTimeout for reliable scroll
@@ -1270,14 +1248,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [healingJourneyClient, setHealingJourneyClient] = useState<ClientEntry | null>(null);
 
   const tabTitles: Record<string, string> = {
-    home: lang === 'en' ? 'Dashboard' : 'דאשבורד',
-    calendar: lang === 'en' ? 'Calendar' : 'יומן',
-    clients: lang === 'en' ? 'Clients' : 'לקוחות',
-    healing: lang === 'en' ? 'Healing Journey' : 'תהליך החלמה',
-    bonuses: lang === 'en' ? 'Bonuses' : 'בונוסים',
-    messages: lang === 'en' ? 'Messages' : 'הודעות',
-    'digital-card': lang === 'en' ? 'Digital Card' : 'כרטיס דיגיטלי',
-    profile: lang === 'en' ? 'Settings' : 'הגדרות',
+    home: t('artist.dashboard.tabHome'),
+    calendar: t('artist.dashboard.tabCalendar'),
+    clients: t('artist.dashboard.tabClients'),
+    healing: t('artist.dashboard.tabHealing'),
+    bonuses: t('artist.dashboard.tabBonuses'),
+    messages: t('artist.dashboard.tabMessages'),
+    'digital-card': t('artist.dashboard.tabDigitalCard'),
+    profile: t('artist.dashboard.tabProfile'),
   };
 
   const currentTitle = subScreen || tabTitles[activeTab] || '';
@@ -1329,7 +1307,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   style={{
                     background: 'linear-gradient(135deg, rgba(252,249,248,0.9), rgba(246,243,242,0.85))',
                   }}
-                  title={lang === 'en' ? 'Preview Client Page' : 'צפייה בדף לקוחה'}
+                  title={t('artist.dashboard.previewClientPage')}
                 >
                   <div className="absolute inset-0 rounded-full pointer-events-none" style={{
                     border: '1.5px solid transparent',
@@ -1399,9 +1377,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           >
             <Crown className="w-5 h-5 shrink-0" style={{ color: '#B8860B' }} />
             <p className="text-sm font-medium flex-1" style={{ color: '#4a3520' }}>
-              {lang === 'en'
-                ? `${trialDaysLeft} days left in your free trial ✨`
-                : `נשארו לך עוד ${trialDaysLeft} ימים להתנסות בחינם ב-Glow Push ✨`}
+              {lang === 'he'
+                ? `נשארו לך עוד ${trialDaysLeft} ${t('artist.dashboard.trialBannerText')}`
+                : `${trialDaysLeft} days left in your free trial ✨`}
             </p>
             <button
               onClick={() => navigate('/pricing')}
@@ -1411,7 +1389,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 color: '#fff',
               }}
             >
-              {lang === 'en' ? 'Upgrade' : 'שדרוג'}
+              {t('artist.dashboard.upgrade')}
             </button>
           </div>
         )}
@@ -1447,13 +1425,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 {(() => {
                   const hour = new Date().getHours();
                   const firstName = artistName ? artistName.split(' ')[0] : '';
-                  if (lang === 'en') return firstName ? `Hi ${firstName} 👋` : (hour < 12 ? 'Good Morning! ✨' : hour < 17 ? 'Good Afternoon! ✨' : 'Good Evening! ✨');
-                  if (firstName) return `היי ${firstName} 👋`;
-                  return hour < 12 ? 'בוקר טוב! ✨' : hour < 17 ? 'צהריים טובים! ✨' : 'ערב טוב! ✨';
+                  const greetingWord = hour < 12 ? t('artist.dashboard.greetingMorning') : hour < 17 ? t('artist.dashboard.greetingAfternoon') : t('artist.dashboard.greetingEvening');
+                  if (firstName) return lang === 'en' ? `Hi ${firstName} 👋` : `היי ${firstName} 👋`;
+                  return `${greetingWord}! ✨`;
                 })()}
               </h1>
               <p className="text-sm" style={{ color: '#555' }}>
-                {lang === 'en' ? "Here's your business overview" : 'הנה הסקירה העסקית שלך'}
+                {t('artist.dashboard.businessOverview')}
               </p>
 
               {clients.length > 0 && !dismissedTouchup && (
@@ -1478,9 +1456,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     <X className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
                   <p className="text-sm font-bold leading-relaxed text-center relative z-10" style={{ color: '#4a3520' }}>
-                    {lang === 'en'
-                      ? `🔥 Amazing week! You onboarded ${clients.length} new clients. Keep it up!`
-                      : `🔥 שבוע מטורף! הכנסת ${clients.length} לקוחות חדשות השבוע. המשיכי כך!`}
+                    {lang === 'he'
+                      ? `🔥 שבוע מטורף! הכנסת ${clients.length} ${t('artist.dashboard.weeklyStats')}`
+                      : `🔥 Amazing week! You onboarded ${clients.length} new clients. Keep it up!`}
                   </p>
                 </div>
               )}
@@ -1500,9 +1478,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             {/* ═══ 2. STATS / INCOME ROW ═══ */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: lang === 'en' ? 'Revenue' : 'הכנסות', value: '₪0', trend: '', icon: DollarSign, comingSoon: true },
-                { label: lang === 'en' ? 'New Clients' : 'לקוחות חדשות', value: String(clients.length), trend: '+3', icon: Users },
-                { label: lang === 'en' ? 'Today' : 'היום', value: String(clients.filter(c => c.day === 0 || c.day === 1).length), trend: '', icon: CalendarCheck },
+                { label: t('artist.dashboard.metric.revenue'), value: '₪0', trend: '', icon: DollarSign, comingSoon: true },
+                { label: t('artist.dashboard.metric.newClients'), value: String(totalClientsCount), trend: '', icon: Users },
+                { label: t('artist.dashboard.metric.today'), value: String(Object.values(appointmentLookup).filter(a => a.date === new Date().toISOString().split('T')[0]).length), trend: '', icon: CalendarCheck },
               ].map((metric, i) => (
                 <div
                   key={i}
@@ -1521,7 +1499,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   }} />
                   {'comingSoon' in metric && metric.comingSoon && (
                     <span className="absolute top-1.5 right-1.5 z-20 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide" style={{ background: 'linear-gradient(135deg, #BF953F, #FCF6BA, #B38728)', color: '#4a2020' }}>
-                      {lang === 'en' ? 'Coming Soon' : 'בקרוב'}
+                      {t('artist.dashboard.comingSoon')}
                     </span>
                   )}
                   <metric.icon className="w-5 h-5 mx-auto mb-2 relative z-10" style={{ color: '#B8860B' }} strokeWidth={1.5} />
@@ -1529,7 +1507,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <p className="text-[10px] font-medium relative z-10" style={{ color: '#5f5635' }}>{metric.label}</p>
                   {metric.trend && (
                     <p className="text-[10px] font-bold mt-1 relative z-10" style={{ color: '#22c55e' }}>
-                      ↑ {metric.trend} {lang === 'en' ? 'vs last month' : 'מחודש שעבר'}
+                      ↑ {metric.trend} {t('artist.dashboard.vsLastMonth')}
                     </p>
                   )}
                 </div>
@@ -1560,7 +1538,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 }} />
                 <div className="text-center z-[2] relative px-6" dir="rtl">
                   <span className="block font-extrabold text-sm leading-snug" style={{ color: '#fff' }}>
-                    {lang === 'en' ? 'Share with a colleague & get ₪50 gift! 🎁' : 'שתפי קולגה וקבלי 50 ₪ מתנה! 🎁'}
+                    {t('artist.dashboard.referralPromo')}
                   </span>
                 </div>
               </button>
@@ -1581,7 +1559,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     }}
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
-                    {lang === 'en' ? 'Edit Growth Engine' : 'עריכת מנוע צמיחה יומי'}
+                    {t('artist.dashboard.editGrowthEngine')}
                   </button>
                 </div>
 
@@ -1604,7 +1582,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               return (
                 <div className="animate-fade-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
                   <h3 className="text-xl font-bold mb-4 block" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: 'hsl(14 29% 30%)' }}>
-                    {lang === 'en' ? 'Your Appointments Today' : 'התורים שלך היום'}
+                    {t('artist.dashboard.appointmentsToday')}
                   </h3>
                   <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
                     {todayClients.map((client, i) => {
@@ -1632,7 +1610,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           <p className="text-[10px] text-muted-foreground truncate w-full text-center">{client.treatment}</p>
                           {signed && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: 'hsl(142 76% 36%)' }}>
-                              <CheckCircle className="w-3 h-3" /> {lang === 'en' ? 'Signed' : 'חתום'}
+                              <CheckCircle className="w-3 h-3" /> {t('artist.dashboard.signed')}
                             </span>
                           )}
                         </div>
@@ -1646,7 +1624,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             {/* ═══ 5. ACTIVE HEALING TRACKING ═══ */}
             <div className="animate-fade-up" style={{ animationDelay: '0.35s', opacity: 0 }}>
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: 'hsl(14 29% 30%)' }}>
-                {lang === 'en' ? 'Active Healing Tracking' : 'מעקב החלמה פעיל'}
+                {t('artist.dashboard.activeHealingTracking')}
                 <HelpTooltip id="active-recovery" text="כאן תראי את הלקוחות בשלבי ההחלמה. המערכת תציג כפתור וואטסאפ באופן אוטומטי בימים בהם נדרש ליצור קשר לפי הפרוטוקול." />
               </h3>
               {(() => {
@@ -1655,7 +1633,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   return (
                     <div className="rounded-2xl p-6 text-center" style={{ background: 'rgba(255,255,255,0.4)', border: '1px solid hsl(var(--gold) / 0.15)' }}>
                       <p className="text-sm text-muted-foreground">
-                        {lang === 'en' ? 'No active healing processes' : 'אין תהליכי החלמה פעילים'}
+                        {t('artist.dashboard.noActiveHealing')}
                       </p>
                     </div>
                   );
@@ -1686,7 +1664,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           </div>
                           <p className="text-xs font-semibold truncate w-full text-center" style={{ color: '#3D3D3D' }}>{client.name}</p>
                           <span className="text-[11px] font-bold" style={{ color: 'hsl(38 40% 45%)' }}>
-                            {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}
+                            {`${t('artist.dashboard.dayLabel')} ${client.day}`}
                           </span>
                         </button>
                         <HealingNotificationBadge
@@ -1710,13 +1688,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 <div className="flex items-center gap-2 mb-2">
                   <ShieldAlert className="w-5 h-5 text-destructive" />
                   <h3 className="text-sm font-bold text-destructive">
-                    {lang === 'en' ? `⚠️ ${redFlagClients.length} Client${redFlagClients.length > 1 ? 's' : ''} Require Attention` : `⚠️ ${redFlagClients.length} לקוחות דורשות תשומת לב`}
+                    {`⚠️ ${redFlagClients.length} ${redFlagClients.length > 1 ? t('artist.dashboard.redFlagTitlePlural') : t('artist.dashboard.redFlagTitle')}`}
                   </h3>
                 </div>
                 <div className="space-y-2">
                   {redFlagClients.map((c, i) => {
                     const risk = getClientRiskLevel(c.name);
-                    const flags = risk === 'red' ? [lang === 'en' ? 'Medical Warning' : 'התוויית נגד רפואית'] : risk === 'yellow' ? [lang === 'en' ? 'Requires Attention' : 'דורש תשומת לב'] : [];
+                    const flags = risk === 'red' ? [t('artist.dashboard.medicalWarning')] : risk === 'yellow' ? [t('artist.dashboard.requiresAttention')] : [];
                     return (
                       <div
                         key={i}
@@ -1732,7 +1710,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           onClick={(e) => { e.stopPropagation(); approveException(c); }}
                           className="shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
                         >
-                          {lang === 'en' ? 'Approve' : 'אישור החרגה'}
+                          {t('artist.dashboard.approveException')}
                         </button>
                       </div>
                     );
@@ -1744,17 +1722,17 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             {/* ═══ 6. MANAGEMENT BUTTONS GROUP ═══ */}
             <div className="space-y-5 pt-6">
               <h3 className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: "'FB Ahava', 'Assistant', sans-serif", color: 'hsl(14 29% 30%)' }}>
-                {lang === 'en' ? 'Management' : 'ניהול'}
+                {t('artist.dashboard.management')}
               </h3>
 
               <FeatureGate featureKey={FK.DIGITAL_CARD} mode="badge">
                 <div className="relative">
                   <button onClick={() => setShowDigitalCardPreview(true)} className="pill-action-btn animate-fade-up">
                     <span className="pill-icon-circle"><CreditCard className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
-                    <span className="flex-1 text-right pr-3">{lang === 'en' ? 'My Digital Card' : 'הכרטיס הדיגיטלי שלי'}</span>
+                    <span className="flex-1 text-right pr-3">{t('artist.dashboard.myDigitalCardBtn')}</span>
                   </button>
                   <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                    <HelpTooltip id="digital-card" text={lang === 'en' ? 'Your luxury digital business card — share it with clients via WhatsApp or social media in one tap.' : 'כרטיס ביקור דיגיטלי יוקרתי — שתפי אותו עם לקוחות בוואטסאפ או ברשתות בלחיצה אחת.'} />
+                    <HelpTooltip id="digital-card" text={t('artist.dashboard.digitalCardTooltip')} />
                   </span>
                 </div>
               </FeatureGate>
@@ -1763,10 +1741,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               <div className="relative">
                 <button onClick={() => navigate('/admin/timeline-settings')} className="pill-action-btn animate-fade-up">
                   <span className="pill-icon-circle"><Pencil className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
-                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Healing Journey' : 'עריכת מסע ההחלמה'}</span>
+                  <span className="flex-1 text-right pr-3">{t('artist.dashboard.editHealingJourney')}</span>
                 </button>
                 <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                  <HelpTooltip id="healing-journey" text={lang === 'en' ? 'Customize the 30-day healing timeline — edit daily care instructions, tips, and notifications for your clients.' : 'התאימי את ציר הזמן של 30 ימי ההחלמה — ערכי הוראות טיפול, טיפים והתראות לכל יום.'} />
+                  <HelpTooltip id="healing-journey" text={t('artist.dashboard.healingJourneyTooltip')} />
                 </span>
               </div>
               </FeatureGate>
@@ -1775,10 +1753,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 <div className="relative">
                   <button onClick={() => setShowHealthEditor(true)} className="pill-action-btn animate-fade-up">
                     <span className="pill-icon-circle"><ClipboardCheck className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
-                    <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Health Declaration' : 'עריכת הצהרת בריאות'}</span>
+                    <span className="flex-1 text-right pr-3">{t('artist.dashboard.editHealthDeclaration')}</span>
                   </button>
                   <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                    <HelpTooltip id="health-declaration" text={lang === 'en' ? 'Manage the health declaration questions sent to clients — add, edit, delete with undo, or restore defaults.' : 'ניהול שאלות הצהרת הבריאות — הוסיפי, ערכי, מחקי עם ביטול, או שחזרי ברירת מחדל.'} />
+                    <HelpTooltip id="health-declaration" text={t('artist.dashboard.healthDeclarationTooltip')} />
                   </span>
                 </div>
               </FeatureGate>
@@ -1793,17 +1771,17 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <span className="pill-icon-circle preview-pill-icon" style={{ width: '40px', height: '40px' }}>
                     <Eye className="w-4 h-4" style={{ color: '#FFFFFF' }} strokeWidth={1.5} />
                   </span>
-                <span className="flex-1 text-right pr-3 text-sm">{lang === 'en' ? 'Preview Template' : 'תצוגה מקדימה'}</span>
+                <span className="flex-1 text-right pr-3 text-sm">{t('artist.dashboard.previewTemplate')}</span>
                 </button>
 
               <FeatureGate featureKey={FK.REFERRALS} mode="badge">
               <div className="relative">
                 <button onClick={() => setShowVoucherEditor(true)} className="pill-action-btn animate-fade-up">
                   <span className="pill-icon-circle"><Gift className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
-                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'Edit Referral Voucher' : 'עריכת שובר חברות'}</span>
+                  <span className="flex-1 text-right pr-3">{t('artist.dashboard.editReferralVoucher')}</span>
                 </button>
                 <span className="absolute top-1/2 -translate-y-1/2 left-3 z-10">
-                  <HelpTooltip id="referral-voucher" text={lang === 'en' ? 'Customize the referral voucher text and WhatsApp message your clients see and share.' : 'התאימי את טקסט שובר ההפניה והודעת הוואטסאפ שהלקוחות שלך רואות ומשתפות.'} />
+                  <HelpTooltip id="referral-voucher" text={t('artist.dashboard.referralVoucherTooltip')} />
                 </span>
               </div>
               </FeatureGate>
@@ -1840,7 +1818,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <div className="mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium"
                     style={{ backgroundColor: 'rgba(212, 175, 55, 0.15)', color: '#4a3520', border: '1px solid rgba(212, 175, 55, 0.4)' }}
                   >
-                    {selectedClient.treatment} · {lang === 'en' ? `Day ${selectedClient.day}` : `יום ${selectedClient.day}`}
+                    {selectedClient.treatment} · {`${t('artist.dashboard.dayLabel')} ${selectedClient.day}`}
                   </div>
                 </div>
 
@@ -1862,10 +1840,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       </div>
                       <div>
                         <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#9a8585' }}>
-                          {lang === 'en' ? 'Phone' : 'טלפון'}
+                          {t('artist.dashboard.phone')}
                         </p>
                         <p className="text-sm font-medium" style={{ color: '#4a3520' }}>
-                          {selectedClient.phone || (lang === 'en' ? 'Not set' : 'לא הוגדר')}
+                          {selectedClient.phone || t('artist.dashboard.notSet')}
                         </p>
                       </div>
                     </div>
@@ -1895,10 +1873,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     };
                     const rc = riskColors[risk];
                     const riskLabel = risk === 'red'
-                      ? (lang === 'en' ? 'Medical Warning' : 'התוויית נגד רפואית')
+                      ? t('artist.dashboard.medicalWarning')
                       : risk === 'yellow'
-                        ? (lang === 'en' ? 'Requires Attention' : 'דורש תשומת לב')
-                        : (lang === 'en' ? 'All Clear' : 'תקין — ללא ממצאים');
+                        ? t('artist.dashboard.requiresAttention')
+                        : t('artist.dashboard.allClear');
                     return (
                       <div className="rounded-2xl overflow-hidden border p-4 space-y-3" style={{ backgroundColor: rc.bg, borderColor: rc.border }}>
                         <div className="flex items-center gap-3">
@@ -1908,7 +1886,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           <div className="flex-1">
                             <p className="text-sm font-bold" style={{ color: rc.text }}>{riskLabel}</p>
                             <p className="text-xs" style={{ color: '#9a8585' }}>
-                              {lang === 'en' ? 'Declaration submitted' : 'הצהרת בריאות הוגשה'}
+                              {t('artist.dashboard.declarationSubmitted')}
                             </p>
                           </div>
                         </div>
@@ -1919,7 +1897,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520' }}
                         >
                           <Eye className="w-4 h-4" strokeWidth={2} />
-                          {lang === 'en' ? 'View Full Health Declaration' : 'צפייה בהצהרת הבריאות המלאה'}
+                          {t('artist.dashboard.viewFullDeclaration')}
                         </button>
                       </div>
                     );
@@ -1946,7 +1924,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <ScrollText className="w-4 h-4 shrink-0 text-primary" />
                           <label htmlFor="include-policy-health" className="text-xs font-bold leading-snug cursor-pointer text-foreground">
-                            {lang === 'en' ? 'Include Clinic Policy & Treatment Agreement' : 'צרפי גם את מדיניות הקליניקה והסכם הטיפול'}
+                            {t('artist.dashboard.includePolicy')}
                           </label>
                         </div>
                         <PremiumPolicySwitch
@@ -1967,7 +1945,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         }}
                       >
                         <MessageCircle className="w-4 h-4" strokeWidth={2} />
-                        {lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ'}
+                        {t('artist.dashboard.sendHealthWhatsApp')}
                       </button>
                     </div>
                   );
@@ -1980,7 +1958,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-foreground">
-                      {lang === 'en' ? 'Treatment Date' : 'תאריך טיפול'}
+                      {t('artist.dashboard.treatmentDate')}
                     </p>
                     <button
                       type="button"
@@ -1988,7 +1966,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       disabled={updatingTreatmentDate || !manualTreatmentDate}
                       className="text-xs underline text-muted-foreground hover:text-foreground disabled:opacity-50"
                     >
-                      {lang === 'en' ? 'Clear Date' : 'נקה תאריך'}
+                      {t('artist.dashboard.clearDate')}
                     </button>
                   </div>
                   <Input
@@ -2019,7 +1997,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         .order('created_at', { ascending: false })
                         .limit(1);
                       if (subErr || !subs?.length) {
-                        toast({ title: lang === 'en' ? 'No push subscription found for this client' : 'לא נמצא מנוי התראות ללקוחה זו', variant: 'destructive' });
+                        toast({ title: t('artist.dashboard.noPushSub'), variant: 'destructive' });
                         setSendingTestPush(false);
                         return;
                       }
@@ -2030,8 +2008,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                             endpoint: sub.endpoint,
                             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
                           },
-                          title: lang === 'en' ? 'GlowPush System Test 🔔' : 'בדיקת מערכת GlowPush 🔔',
-                          body: lang === 'en' ? `Hey ${selectedClient.name}, this is a test notification! ✨` : `היי ${selectedClient.name}, זו התראת ניסיון מהמערכת! ✨`,
+                          title: t('artist.dashboard.testPushTitle'),
+                          body: `היי ${selectedClient.name}, זו התראת ניסיון מהמערכת! ✨`, // push notification body — sent to client device
                           day: 1,
                         },
                       });
@@ -2043,17 +2021,15 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         if (isPushSubscriptionExpired(details)) {
                           await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
                           toast({
-                            title: lang === 'en' ? 'Subscription expired' : 'המנוי פג תוקף',
-                            description: lang === 'en'
-                              ? 'The client needs to re-open their recovery link to re-subscribe.'
-                              : 'הלקוחה צריכה לפתוח מחדש את הקישור כדי להירשם שוב להתראות.',
+                            title: t('artist.dashboard.subscriptionExpired'),
+                            description: t('artist.dashboard.subscriptionExpiredDesc'),
                             variant: 'destructive'
                           });
                           return;
                         }
 
                         toast({
-                          title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה',
+                          title: t('artist.dashboard.notificationFailed'),
                           description: details.message,
                           variant: 'destructive'
                         });
@@ -2061,21 +2037,21 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       }
 
                       if (pushResult && typeof pushResult === 'object' && 'success' in pushResult && !pushResult.success) {
-                        const providerMessage = (pushResult as any).error || (lang === 'en' ? 'Push delivery failed' : 'שליחת ההתראה נכשלה');
+                        const providerMessage = (pushResult as any).error || t('artist.dashboard.notificationFailed');
                         toast({
-                          title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה',
+                          title: t('artist.dashboard.notificationFailed'),
                           description: providerMessage,
                           variant: 'destructive'
                         });
                         return;
                       }
 
-                      toast({ title: lang === 'en' ? 'Test notification sent! ✅' : 'התראת בדיקה נשלחה בהצלחה! ✅' });
+                      toast({ title: t('artist.dashboard.testNotificationSent') });
                     } catch (err: any) {
                       const details = await extractEdgeFunctionError(err);
                       console.error('[TestPush] Failed:', details);
                       toast({
-                        title: lang === 'en' ? 'Failed to send notification' : 'שליחת ההתראה נכשלה',
+                        title: t('artist.dashboard.notificationFailed'),
                         description: details.message,
                         variant: 'destructive'
                       });
@@ -2089,8 +2065,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 >
                   <Bell className="w-5 h-5" />
                   {sendingTestPush
-                    ? (lang === 'en' ? 'Sending...' : 'שולחת...')
-                    : (lang === 'en' ? 'Send Test Notification 🔔' : 'שלחי התראת בדיקה 🔔')}
+                    ? t('artist.dashboard.sendingTest')
+                    : t('artist.dashboard.sendTestNotification')}
                 </button>
 
                 {/* ── Finish Treatment CTA ── */}
@@ -2099,7 +2075,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   onClick={async () => {
                     const clientId = selectedClient.dbId;
                     if (!clientId) {
-                      toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה קודם', variant: 'destructive' });
+                      toast({ title: t('artist.dashboard.clientMustBeSaved'), variant: 'destructive' });
                       return;
                     }
                     setFinishingTreatment(true);
@@ -2126,10 +2102,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       setManualTreatmentDate(today);
                       setSelectedClient(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
                       setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today, day: nextDay } : c));
-                      toast({ title: lang === 'en' ? 'Recovery journey started! ✨' : 'מסע ההחלמה התחיל! ✨' });
+                      toast({ title: t('artist.dashboard.recoveryStarted') });
                     } catch (error) {
                       console.error('Failed to set treatment date:', error);
-                      toast({ title: lang === 'en' ? 'Failed to save' : 'שגיאה בשמירה', variant: 'destructive' });
+                      toast({ title: t('artist.dashboard.saveFailed'), variant: 'destructive' });
                     } finally {
                       setFinishingTreatment(false);
                     }
@@ -2150,9 +2126,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   {finishingTreatment ? (
                     <span className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
                   ) : isTreatmentDone ? (
-                    <>{lang === 'en' ? '✅ Recovery journey sent to client!' : '✅ מסע ההחלמה נשלח ללקוחה!'}</>
+                    <>{t('artist.dashboard.treatmentDone')}</>
                   ) : (
-                    <>{lang === 'en' ? '✨ Finish Treatment — Start Recovery Journey' : '✨ סיימתי טיפול - התחלי מסע החלמה'}</>
+                    <>{t('artist.dashboard.finishTreatment')}</>
                   )}
                 </button>
 
@@ -2165,7 +2141,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   const artistSig = artistName || 'אורית אהרוני';
                   const waMsg = lang === 'en'
                     ? `Hi ${firstName} ✨, so happy we finished the treatment!\n\nTo keep your results perfect, here's your personal recovery journey with all the instructions and reminders:\n\n${clientZoneLink}\n\nCan't wait to see the final result!\n\nWith love, ${artistSig} - Glow Push 🤍`
-                    : `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול!\n\nכדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות:\n\n${clientZoneLink}\n\nמחכה לראות את התוצאה הסופית!\n\nבאהבה, ${artistSig} - Glow Push 🤍`;
+                    : `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול!\n\nכדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות:\n\n${clientZoneLink}\n\nמחכה לראות את התוצאה הסופית!\n\nבאהבה, ${artistSig} - Glow Push 🤍`; // WhatsApp message body — left as-is per spec
                   const waUrl = buildWhatsAppUrl(cleanPhone, waMsg);
 
                   return (
@@ -2180,12 +2156,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       }}
                     >
                       <p className="text-xs font-bold tracking-widest text-center uppercase" style={{ color: '#B8860B', letterSpacing: '0.12em' }}>
-                        {lang === 'en' ? '🔗 Client Portal Link' : '🔗 קישור לאזור הלקוחה'}
+                        {t('artist.dashboard.clientPortalLink')}
                       </p>
                       <p className="text-sm text-center leading-relaxed" style={{ color: '#5a4a4a' }}>
-                        {lang === 'en'
-                          ? "Your client's personal link is ready 👑 Don't forget to send it via WhatsApp so she can follow her recovery instructions."
-                          : 'הקישור האישי של הלקוחה מוכן 👑 אל תשכחי לשלוח לה אותו לוואטסאפ כדי שתוכל לעקוב אחרי הוראות ההחלמה.'}
+                        {t('artist.dashboard.clientPortalDesc')}
                       </p>
                       <div className="flex gap-3">
                         <a
@@ -2195,7 +2169,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           onClick={(e) => {
                             if (!hasPhone) {
                               e.preventDefault();
-                              toast({ title: lang === 'en' ? 'No phone number set for this client' : 'לא הוגדר מספר טלפון ללקוחה זו', variant: 'destructive' });
+                              toast({ title: t('artist.dashboard.noPhone'), variant: 'destructive' });
                             }
                           }}
                           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97] hover:scale-[1.02]"
@@ -2206,21 +2180,21 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           }}
                         >
                           <MessageCircle className="w-4 h-4" strokeWidth={2} />
-                          {lang === 'en' ? 'WhatsApp' : 'וואטסאפ'}
+                          {t('artist.dashboard.whatsapp')}
                         </a>
                         <button
                           onClick={async () => {
                             try {
                               await navigator.clipboard.writeText(clientZoneLink);
-                              toast({ title: lang === 'en' ? 'Link copied! ✨' : 'הקישור הועתק בהצלחה! ✨' });
+                              toast({ title: t('artist.dashboard.linkCopied') });
                             } catch {
-                              window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', clientZoneLink);
+                              window.prompt(t('artist.dashboard.copyThisLink'), clientZoneLink);
                             }
                           }}
                           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97] hover:scale-[1.02] btn-metallic-gold"
                         >
                           <Copy className="w-4 h-4" strokeWidth={2} />
-                          {lang === 'en' ? 'Copy Link' : 'העתקת קישור'}
+                          {t('artist.dashboard.copyLink')}
                         </button>
                       </div>
                     </div>
@@ -2234,7 +2208,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     clientName={selectedClient.name}
                     onSave={(text, structured) => {
                       saveTreatmentNote(selectedClient.name, text, structured);
-                      toast({ title: lang === 'en' ? `Notes saved to ${selectedClient.name}'s file ✅` : `התיעוד נשמר בהצלחה בתיק של ${selectedClient.name}! ✅` });
+                      toast({ title: lang === 'he' ? `${t('artist.dashboard.noteSaved')} ${selectedClient.name}! ✅` : `Notes saved to ${selectedClient.name}'s file ✅` });
                     }}
                   />
                 </FeatureGate>
@@ -2245,7 +2219,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     <div className="px-5 py-4 border-b border-border">
                       <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
                         <FileOutput className="w-4 h-4" style={{ color: '#c9a87c' }} />
-                        {lang === 'en' ? 'Treatment History' : 'היסטוריית טיפולים'}
+                        {t('artist.dashboard.treatmentHistory')}
                       </h3>
                     </div>
                     <div className="divide-y divide-border">
@@ -2275,10 +2249,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           </div>
                           {note.structured ? (
                             <div className="space-y-1 text-xs text-foreground">
-                              {note.structured.treatmentArea && <p><span className="font-semibold">🎯 {lang === 'en' ? 'Area' : 'אזור'}:</span> {note.structured.treatmentArea}</p>}
-                              {note.structured.pigmentFormula && <p><span className="font-semibold">💧 {lang === 'en' ? 'Pigment' : 'פיגמנט'}:</span> {note.structured.pigmentFormula}</p>}
-                              {note.structured.needleType && <p><span className="font-semibold">🔬 {lang === 'en' ? 'Needle' : 'מחט'}:</span> {note.structured.needleType}</p>}
-                              {note.structured.clinicalNotes && <p><span className="font-semibold">📝 {lang === 'en' ? 'Notes' : 'הערות'}:</span> {note.structured.clinicalNotes}</p>}
+                              {note.structured.treatmentArea && <p><span className="font-semibold">🎯 {t('artist.dashboard.noteArea')}:</span> {note.structured.treatmentArea}</p>}
+                              {note.structured.pigmentFormula && <p><span className="font-semibold">💧 {t('artist.dashboard.notePigment')}:</span> {note.structured.pigmentFormula}</p>}
+                              {note.structured.needleType && <p><span className="font-semibold">🔬 {t('artist.dashboard.noteNeedle')}:</span> {note.structured.needleType}</p>}
+                              {note.structured.clinicalNotes && <p><span className="font-semibold">📝 {t('artist.dashboard.noteNotes')}:</span> {note.structured.clinicalNotes}</p>}
                             </div>
                           ) : (
                             <p className="text-xs text-foreground">{note.rawText}</p>
@@ -2295,11 +2269,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <div className="px-5 py-4 border-b border-border">
                     <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
                       <Image className="w-4 h-4" style={{ color: '#c9a87c' }} />
-                      {lang === 'en' ? 'Before & After Collage' : 'קולאז׳ לפני ואחרי'}
+                      {t('artist.dashboard.beforeAfterCollage')}
                       <HelpTooltip text="יצירת תמונות מקצועיות לשיווק באינסטגרם ושליחה ללקוחה ישירות לוואטסאפ." id="collage" />
                     </h3>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {lang === 'en' ? 'Upload before & after photos, edit, and save to gallery' : 'העלי תמונות לפני ואחרי, ערכי ושמרי לגלריה'}
+                      {t('artist.dashboard.beforeAfterDesc')}
                     </p>
                   </div>
                   <div className="p-5">
@@ -2318,10 +2292,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     <div className="px-5 py-4 border-b border-border">
                       <h3 className="font-light text-sm flex items-center gap-2 text-foreground">
                         <Camera className="w-4 h-4" style={{ color: '#c9a87c' }} />
-                        {lang === 'en' ? 'Shared Healing Gallery' : 'גלריית החלמה משותפת'}
+                        {t('artist.dashboard.sharedHealingGallery')}
                       </h3>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {lang === 'en' ? 'Upload photos visible to the client in real-time' : 'העלי תמונות שהלקוחה תראה בזמן אמת'}
+                        {t('artist.dashboard.sharedHealingGalleryDesc')}
                       </p>
                     </div>
                     <div className="p-5">
@@ -2350,7 +2324,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     style={{ background: '#ffffff', border: '2.5px solid rgba(212,175,55,0.5)', color: '#4a3520', boxShadow: '0 4px 16px rgba(115, 92, 0, 0.12), 0 2px 8px rgba(115, 92, 0, 0.08)' }}
                   >
                     <Plus className="w-4 h-4" strokeWidth={3} />
-                    {lang === 'en' ? 'Add New Client' : 'הוספי לקוחה חדשה'}
+                    {t('artist.dashboard.addNewClient')}
                   </button>
                   <button
                     onClick={() => setImportOpen(true)}
@@ -2358,7 +2332,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(212, 175, 55, 0.4)', color: '#4a3520' }}
                   >
                     <Upload className="w-3.5 h-3.5" />
-                    {lang === 'en' ? 'Import Clients (CSV)' : 'ייבוא לקוחות (CSV)'}
+                    {t('artist.dashboard.importClients')}
                   </button>
                 </div>
 
@@ -2370,7 +2344,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   type="text"
                   value={clientSearchQuery}
                   onChange={(e) => setClientSearchQuery(e.target.value)}
-                  placeholder={lang === 'en' ? 'Search by name or phone...' : 'חיפוש לפי שם או טלפון...'}
+                  placeholder={t('artist.dashboard.searchPlaceholder')}
                   className="w-full h-11 rounded-2xl bg-background pr-10 pl-10 text-sm placeholder:text-muted-foreground focus:outline-none transition-all"
                   style={{
                     border: '1.5px solid hsl(38 55% 62% / 0.35)',
@@ -2442,10 +2416,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           className="text-base font-bold mb-1.5"
                           style={{ color: '#B8860B' }}
                         >
-                          {lang === 'en' ? 'No clients found' : 'לא נמצאו לקוחות'}
+                          {t('artist.dashboard.noClientsFound')}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {lang === 'en' ? 'Try a different search term' : 'נסי מילת חיפוש אחרת'}
+                          {t('artist.dashboard.tryDifferentSearch')}
                         </p>
                       </div>
                     );
@@ -2463,7 +2437,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   const needsRenewal = isRenewalDue(client.treatment, client.day);
                     const isSafe = clientIsSafe(client.name);
                     const risk = getClientRiskLevel(client.name);
-                    const flags = hasFlags ? [risk === 'red' ? (lang === 'en' ? 'Medical Warning' : 'התוויית נגד') : (lang === 'en' ? 'Attention' : 'תשומת לב')] : [];
+                    const flags = hasFlags ? [risk === 'red' ? t('artist.dashboard.medicalWarningShort') : t('artist.dashboard.attention')] : [];
                     return (
                       <div key={i} className={`rounded-2xl overflow-hidden transition-all cursor-pointer ${hasFlags ? 'border-2 border-destructive/30' : ''}`}
                         style={{
@@ -2496,10 +2470,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                       const risk = getClientRiskLevel(client.name);
                                       const color = risk === 'red' ? '#ef4444' : risk === 'yellow' ? '#eab308' : '#22c55e';
                                       const label = risk === 'red'
-                                        ? (lang === 'en' ? 'Warning' : 'התוויית נגד')
+                                        ? t('artist.dashboard.warning')
                                         : risk === 'yellow'
-                                          ? (lang === 'en' ? 'Attention' : 'דורש תשומת לב')
-                                          : (lang === 'en' ? 'Clear' : 'תקין');
+                                          ? t('artist.dashboard.requiresAttentionShort')
+                                          : t('artist.dashboard.clear');
                                       return (
                                         <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-bold" style={{ background: `${color}18`, color, border: `1px solid ${color}40` }}>
                                           {risk === 'green' ? <ShieldCheck className="w-2.5 h-2.5" /> : <AlertTriangle className="w-2.5 h-2.5" />}
@@ -2509,11 +2483,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                     })() : (
                                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-medium" style={{ background: 'rgba(156,163,175,0.1)', color: '#9ca3af', border: '1px solid rgba(156,163,175,0.25)' }}>
                                         <Clock className="w-2.5 h-2.5" />
-                                        {lang === 'en' ? 'Pending' : 'ממתין'}
+                                        {t('artist.dashboard.pending')}
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-[10px] leading-tight" style={{ color: '#8c6a6a' }}>{client.treatment} · {lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`}</p>
+                                  <p className="text-[10px] leading-tight" style={{ color: '#8c6a6a' }}>{client.treatment} · {`${t('artist.dashboard.dayLabel')} ${client.day}`}</p>
                                 </div>
                                 {isSafe && <ShieldCheck className="w-3 h-3 shrink-0" style={{ color: '#c9a87c' }} />}
                                 {client.pushOptedIn && <Bell className="w-3 h-3 shrink-0" style={{ color: '#c9a87c' }} />}
@@ -2538,7 +2512,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                 <span className="text-[10px] font-bold text-destructive">{flags.join(' · ')}</span>
                                 <button onClick={(e) => { e.stopPropagation(); approveException(client); }}
                                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-destructive/10 text-destructive transition-all">
-                                  <ShieldCheck className="w-2.5 h-2.5" /> {lang === 'en' ? 'Approve' : 'אישור חריגה'}
+                                  <ShieldCheck className="w-2.5 h-2.5" /> {t('artist.dashboard.approveExceptionShort')}
                                 </button>
                               </div>
                             )}
@@ -2549,7 +2523,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           {lastSent && (
                             <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
                               <CheckCircle className="w-2.5 h-2.5" style={{ color: '#c9a87c' }} />
-                              {lang === 'en' ? `Sent: ${lastSent}` : `נשלח: ${lastSent}`}
+                              {`${t('artist.dashboard.clientSentLabel')} ${lastSent}`}
                             </span>
                           )}
                           <FeatureGate featureKey={FK.HEALTH_DECLARATION} mode="badge">
@@ -2557,7 +2531,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                             <button type="button" onClick={() => setViewDeclarationFor(client.name)}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold text-white transition-all active:scale-95"
                               style={{ background: 'linear-gradient(145deg, #4ade80, #22c55e)', boxShadow: '0 3px 10px rgba(34, 197, 94, 0.25), 0 0 8px rgba(34, 197, 94, 0.1)' }}>
-                              <ClipboardCheck className="w-3 h-3" /> {lang === 'en' ? '✅ Signed' : '✅ חתומה'}
+                              <ClipboardCheck className="w-3 h-3" /> {t('artist.dashboard.signedBtn')}
                             </button>
                           ) : (() => {
                               const cleanPhone = client.phone ? formatPhone(client.phone) : '';
@@ -2571,7 +2545,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                                   }}
                                   className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
                                   style={{ background: 'linear-gradient(145deg, #d4af37, #b8960b)', color: '#fff', boxShadow: '0 4px 14px rgba(115, 92, 0, 0.3), 0 0 10px rgba(212, 175, 55, 0.15)' }}>
-                                  <MessageCircle className="w-3 h-3" /> {lang === 'en' ? 'Health Declaration' : 'הצהרת בריאות'}
+                                  <MessageCircle className="w-3 h-3" /> {t('artist.dashboard.healthDeclarationBtn')}
                                 </button>
                               );
                             })()}
@@ -2580,20 +2554,20 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                             <button type="button" onClick={(e) => { e.stopPropagation(); setBirthdayWishClient(client); }}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
                               style={{ background: 'rgba(212, 175, 55, 0.12)', color: '#4a3520', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 3px 10px rgba(212, 175, 55, 0.15)' }}>
-                              🎂 {lang === 'en' ? 'Birthday Wish' : 'ברכת יום הולדת'}
+                              🎂 {t('artist.dashboard.birthdayWish')}
                             </button>
                           )}
                           {needsRenewal && (
                             <button type="button" onClick={(e) => { e.stopPropagation(); setRenewalClient(client); }}
                               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all active:scale-95"
                               style={{ background: 'rgba(212, 175, 55, 0.12)', color: '#4a3520', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 3px 10px rgba(212, 175, 55, 0.15)' }}>
-                              🔄 {lang === 'en' ? 'Renewal' : 'חידוש טיפול'}
+                              🔄 {t('artist.dashboard.renewal')}
                             </button>
                           )}
                           <button type="button" onClick={(e) => { e.stopPropagation(); setShowInvoiceComingSoon(true); }}
                             className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-medium transition-all active:scale-95"
                             style={{ color: '#8a7a5a', background: 'rgba(212, 175, 55, 0.08)', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
-                            <FileOutput className="w-3 h-3" /> {lang === 'en' ? 'Invoice' : 'חשבונית/קבלה'}
+                            <FileOutput className="w-3 h-3" /> {t('artist.dashboard.invoice')}
                           </button>
                         </div>
                       </div>
@@ -2626,8 +2600,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           <FeatureGate featureKey={FK.DIGITAL_CARD} mode="block">
             <div className="space-y-6">
               <div className="text-center mb-4">
-                <h2 className="text-xl font-bold text-foreground">{lang === 'en' ? 'Your Digital Card' : 'הכרטיס הדיגיטלי שלך'}</h2>
-                <p className="text-sm text-muted-foreground mt-1">{lang === 'en' ? 'Share with clients for booking & info' : 'שתפי עם לקוחות להזמנות ומידע'}</p>
+                <h2 className="text-xl font-bold text-foreground">{t('artist.dashboard.yourDigitalCard')}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{t('artist.dashboard.shareWithClients')}</p>
               </div>
               <div className="rounded-2xl overflow-hidden border border-border shadow-md bg-background">
                 <DigitalCard
@@ -2653,23 +2627,23 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   if (wazeAddress) params.set('waze', wazeAddress);
                   const qs = params.toString();
                   const shareUrl = `${BASE}${qs ? `?${qs}` : ''}`;
-                  const shareTitle = lang === 'en' ? 'Digital Business Card' : 'כרטיס ביקור דיגיטלי';
-                  const shareText = lang === 'en' ? 'Hey! ✨ Check out my new digital studio card. All the ways to reach me and see my work — just one click away:' : 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
+                  const shareTitle = t('artist.dashboard.digitalBusinessCard');
+                  const shareText = t('artist.dashboard.shareCardText');
                   try {
                     if (navigator.share) {
                       await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
-                      toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                      toast({ title: t('artist.dashboard.shareSuccess') });
                     } else {
                       await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                      toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                      toast({ title: t('artist.dashboard.shareSuccess') });
                     }
                   } catch (e: any) {
                     if (e?.name !== 'AbortError') {
                       try {
                         await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                        toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                        toast({ title: t('artist.dashboard.shareSuccess') });
                       } catch {
-                        window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', shareUrl);
+                        window.prompt(t('artist.dashboard.copyThisLink'), shareUrl);
                       }
                     }
                   }
@@ -2678,7 +2652,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
               >
                 <Share2 className="w-5 h-5" />
-                {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}
+                {t('artist.dashboard.copyCardLink')}
               </button>
             </div>
           </FeatureGate>
@@ -2705,7 +2679,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               const updated = { ...waSentLog, [key]: now };
               setWaSentLog(updated);
               saveSentLog(updated);
-              toast({ title: lang === 'en' ? 'WhatsApp opened!' : 'וואטסאפ נפתח!' });
+              toast({ title: t('artist.dashboard.whatsappOpened') });
             }}
           />
           </FeatureGate>
@@ -2784,8 +2758,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             console.error('Error rendering treatment selection:', err);
             return (
               <div className="p-6 text-center text-muted-foreground">
-                <p>{lang === 'en' ? 'Error loading treatment selection. Please refresh.' : 'שגיאה בטעינת בחירת הטיפול. נסי לרענן.'}</p>
-                <button onClick={() => setHealingJourneyClient(null)} className="mt-3 px-4 py-2 rounded-full text-sm btn-metallic-gold">{lang === 'en' ? 'Go Back' : 'חזרה'}</button>
+                <p>{t('artist.dashboard.treatmentSelectionError')}</p>
+                <button onClick={() => setHealingJourneyClient(null)} className="mt-3 px-4 py-2 rounded-full text-sm btn-metallic-gold">{t('artist.dashboard.goBack')}</button>
               </div>
             );
           }
@@ -2793,7 +2767,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         {activeTab === 'healing' && !subScreen && !healingJourneyClient && (
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-foreground">
-              {lang === 'en' ? 'Active Healing Journeys' : 'תהליכי החלמה פעילים'}
+              {t('artist.dashboard.activeHealingJourneys')}
             </h2>
             {(() => {
               const healingClients = clients.filter(c => c.day >= 1 && c.day <= 30);
@@ -2802,7 +2776,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <div className="rounded-2xl bg-card border border-border p-8 text-center">
                     <Sparkles className="w-10 h-10 mx-auto mb-3 text-accent" />
                     <p className="text-sm text-muted-foreground">
-                      {lang === 'en' ? 'No active healing processes. Start a healing journey from the Dashboard.' : 'אין תהליכי החלמה פעילים. התחילי מסע החלמה מהדאשבורד.'}
+                      {t('artist.dashboard.noActiveHealingFull')}
                     </p>
                   </div>
                 );
@@ -2820,9 +2794,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-sm text-foreground truncate">{client.name}</p>
-                        <p className="text-xs text-muted-foreground">{lang === 'en' ? `Day ${client.day}` : `יום ${client.day}`} · {client.treatment}</p>
+                        <p className="text-xs text-muted-foreground">{`${t('artist.dashboard.dayLabel')} ${client.day}`} · {client.treatment}</p>
                       </div>
-                      <div className="text-xs font-semibold text-accent">{lang === 'en' ? `Day ${client.day}/30` : `${client.day}/30`}</div>
+                      <div className="text-xs font-semibold text-accent">{lang === 'he' ? `${client.day}/30` : `Day ${client.day}/30`}</div>
                     </button>
                   ))}
                 </div>
@@ -2836,7 +2810,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             <div className="space-y-4">
               <BonusCenter
                 userProfileId={userProfileId}
-                onNavigateToReferrals={() => { setActiveTab('profile'); setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }}
+                onNavigateToReferrals={() => { setActiveTab('profile'); setSubScreen(lang === 'en' ? 'Referrals' : 'הפניות'); }} // subScreen names used as string keys, not UI labels
               />
             </div>
           </FeatureGate>
@@ -2861,16 +2835,16 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   className="absolute top-3 end-3 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #b8960b)', color: '#fff' }}
                 >
-                  {lang === 'en' ? 'Coming Soon' : 'בקרוב'}
+                  {t('artist.dashboard.comingSoon')}
                 </span>
                 <div className="flex items-center gap-3">
                   <Crown className="w-5 h-5 shrink-0" style={{ color: '#c9a87c' }} />
                   <div className="flex-1">
                     <p className="font-bold text-sm" style={{ color: '#4a3520' }}>
-                      {lang === 'en' ? 'Full WhatsApp Automation — Coming Soon!' : 'אוטומציה מלאה בוואטסאפ — בקרוב!'}
+                      {t('artist.dashboard.waComingSoon')}
                     </p>
                     <p className="text-[10px] mt-0.5" style={{ color: '#8c6a6a' }}>
-                      {lang === 'en' ? 'Messages will send automatically — zero clicks' : 'ההודעות יישלחו לבד — בלי ללחוץ על כלום'}
+                      {t('artist.dashboard.waComingSoonDesc')}
                     </p>
                   </div>
                 </div>
@@ -2897,7 +2871,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 name: apt.clientName,
                 phone: apt.clientPhone,
                 day: 1,
-                treatment: apt.treatmentType === 'eyebrows' ? (lang === 'en' ? 'Brows' : 'גבות') : apt.treatmentType === 'eyeliner' ? (lang === 'en' ? 'Eyeliner' : 'אייליינר') : (lang === 'en' ? 'Lips' : 'שפתיים'),
+                treatment: apt.treatmentType === 'eyebrows' ? t('artist.dashboard.treatmentTypeBrows') : apt.treatmentType === 'eyeliner' ? t('artist.dashboard.treatmentTypeEyeliner') : t('artist.dashboard.treatmentTypeLips'),
                 link: `${origin}/c/new?name=${encodeURIComponent(apt.clientName)}&treatment=${apt.treatmentType}&start=${apt.date}`,
                 beforeImg: '',
                 afterImg: '',
@@ -2922,13 +2896,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             <div className="rounded-3xl p-5 bg-card" style={{ border: '3px solid transparent', backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box', boxShadow: '0 8px 32px -4px rgba(212, 175, 55, 0.35), 0 4px 16px -2px rgba(0, 0, 0, 0.1)' }}>
               <div className="flex items-center gap-3 mb-3">
                 <Settings className="w-5 h-5 text-accent" strokeWidth={1.5} />
-                <h2 className="font-bold text-xl tracking-wide text-foreground">{lang === 'en' ? 'Business Details' : 'פרטי העסק'}</h2>
+                <h2 className="font-bold text-xl tracking-wide text-foreground">{t('artist.dashboard.businessDetails')}</h2>
               </div>
               <div className="h-[2px] w-full mb-5" style={{ background: 'linear-gradient(90deg, transparent, hsl(38 55% 62%), transparent)' }} />
 
               {/* Logo */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium text-foreground">{lang === 'en' ? 'Studio Logo' : 'לוגו הסטודיו'}</Label>
+                <Label className="text-sm font-medium text-foreground">{t('artist.dashboard.studioLogo')}</Label>
                 <label
                   className="w-full rounded-2xl p-6 flex flex-col items-center gap-2 cursor-pointer bg-white transition-all hover:shadow-md"
                   style={{ border: '2px solid hsl(38 55% 62%)' }}
@@ -2940,17 +2914,17 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   ) : (
                     <Upload className="w-6 h-6 text-accent" />
                   )}
-                  <span className="text-sm font-medium text-accent">{logoUrl ? (lang === 'en' ? 'Change Logo' : 'החליפי לוגו') : (lang === 'en' ? 'Upload Logo' : 'העלי לוגו')}</span>
+                  <span className="text-sm font-medium text-accent">{logoUrl ? t('artist.dashboard.changeLogo') : t('artist.dashboard.uploadLogo')}</span>
                   <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    if (file.size > 10 * 1024 * 1024) { toast({ title: lang === 'en' ? 'File too large (max 10MB)' : 'הקובץ גדול מדי (מקס 10MB)', variant: 'destructive' }); e.target.value = ''; return; }
+                    if (file.size > 10 * 1024 * 1024) { toast({ title: t('artist.dashboard.fileTooLarge'), variant: 'destructive' }); e.target.value = ''; return; }
                     const reader = new FileReader();
                     reader.onload = () => {
                       const nextLogoUrl = reader.result as string;
                       setLogoUrl(nextLogoUrl);
                       setHasUnsavedLogoChange(true);
-                      toast({ title: lang === 'en' ? 'Logo updated locally' : 'הלוגו עודכן בתצוגה המקומית' });
+                      toast({ title: t('artist.dashboard.logoUpdatedLocally') });
                     };
                     reader.readAsDataURL(file);
                     e.target.value = '';
@@ -2970,22 +2944,22 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     }}
                     className="text-xs text-destructive hover:underline block mx-auto"
                   >
-                    {hasUnsavedLogoChange ? (lang === 'en' ? 'Cancel logo change' : 'ביטול שינוי לוגו') : (lang === 'en' ? 'Remove' : 'הסרה')}
+                    {hasUnsavedLogoChange ? t('artist.dashboard.cancelLogoChange') : t('artist.dashboard.remove')}
                   </button>
                 )}
                 <p className="text-xs text-muted-foreground text-center mt-2">
-                  💡 {lang === 'en' ? 'Tip: For perfect collage results, upload a logo with a transparent background (PNG file).' : 'המלצה: לקבלת תוצאה מושלמת בקולאז׳, מומלץ להעלות לוגו עם רקע שקוף (קובץ PNG).'}
+                  💡 {t('artist.dashboard.logoTip')}
                 </p>
               </div>
 
               <div className="h-px w-full bg-gradient-to-l from-transparent via-accent/20 to-transparent my-4" />
               {/* Name */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium text-foreground">{lang === 'en' ? 'Business Name' : 'שם העסק'}</Label>
+                <Label className="text-sm font-medium text-foreground">{t('artist.dashboard.businessName')}</Label>
                 <Input
                   value={artistName}
                   onChange={(e) => { setArtistName(e.target.value); localStorage.setItem('gp-artist-name', e.target.value); }}
-                  placeholder={lang === 'en' ? 'e.g. Dana' : 'לדוגמה: דנה'}
+                  placeholder={t('artist.dashboard.businessNamePlaceholder')}
                   className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
                   style={{ border: '2px solid hsl(38 55% 62%)' }}
                 />
@@ -2994,7 +2968,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               <div className="h-px w-full bg-gradient-to-l from-transparent via-accent/20 to-transparent my-4" />
               {/* Phone */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium text-foreground">{lang === 'en' ? 'WhatsApp Number' : 'מספר וואטסאפ'}</Label>
+                <Label className="text-sm font-medium text-foreground">{t('artist.dashboard.whatsappNumber')}</Label>
                 <Input
                   value={artistPhone}
                   onChange={(e) => { setArtistPhone(e.target.value); localStorage.setItem('gp-artist-phone', e.target.value); }}
@@ -3009,7 +2983,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
               <Button
                 onClick={async () => {
-                  if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
+                  if (!userProfileId) { toast({ title: t('artist.dashboard.profileNotFound'), variant: 'destructive' }); return; }
                     setSavingBusiness(true);
                     try {
                       const finalLogoUrl = await uploadProfileLogo(logoUrl);
@@ -3029,10 +3003,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       setHasUnsavedLogoChange(false);
                       if (finalLogoUrl) localStorage.setItem('gp-artist-logo', finalLogoUrl);
                       else localStorage.removeItem('gp-artist-logo');
-                      toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
+                      toast({ title: t('artist.dashboard.changesSaved') });
                     } catch (err: any) {
                       console.error('Save business details error:', err);
-                      toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
+                      toast({ title: t('artist.dashboard.saveFailed2'), variant: 'destructive' });
                     }
                     setSavingBusiness(false);
                 }}
@@ -3046,7 +3020,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 }}
               >
                 {savingBusiness ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
-                {savingBusiness ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמירת שינויים')}
+                {savingBusiness ? t('artist.dashboard.saving') : t('artist.dashboard.saveChanges')}
               </Button>
             </div>
 
@@ -3054,27 +3028,27 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             <div className="rounded-3xl p-5 bg-card" style={{ border: '3px solid transparent', backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box', boxShadow: '0 8px 32px -4px rgba(212, 175, 55, 0.35), 0 4px 16px -2px rgba(0, 0, 0, 0.1)' }}>
               <div className="flex items-center gap-3 mb-3">
                 <Smartphone className="w-5 h-5 text-accent" strokeWidth={1.5} />
-                <h2 className="font-bold text-xl tracking-wide text-foreground">{lang === 'en' ? 'Digital Card Settings' : 'הגדרות כרטיס דיגיטלי'}</h2>
+                <h2 className="font-bold text-xl tracking-wide text-foreground">{t('artist.dashboard.digitalCardSettings')}</h2>
               </div>
               <div className="h-[2px] w-full mb-5" style={{ background: 'linear-gradient(90deg, transparent, hsl(38 55% 62%), transparent)' }} />
 
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Instagram Link' : 'לינק לאינסטגרם'}</Label>
+                  <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.instagramLink')}</Label>
                   <Input value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://instagram.com/your_page" dir="ltr" className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Facebook Link' : 'לינק לפייסבוק'}</Label>
+                  <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.facebookLink')}</Label>
                   <Input value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} placeholder="https://facebook.com/your_page" dir="ltr" className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Business Address (Waze)' : 'כתובת העסק (עבור Waze)'}</Label>
-                  <Input value={wazeAddress} onChange={(e) => setWazeAddress(e.target.value)} placeholder={lang === 'en' ? 'e.g. Dizengoff 50, Tel Aviv' : 'לדוגמה: דיזנגוף 50, תל אביב'} className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                  <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.businessAddress')}</Label>
+                  <Input value={wazeAddress} onChange={(e) => setWazeAddress(e.target.value)} placeholder={t('artist.dashboard.addressPlaceholder')} className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
                 </div>
 
               <Button
                   onClick={async () => {
-                    if (!userProfileId) { toast({ title: lang === 'en' ? 'Profile not found' : 'פרופיל לא נמצא', variant: 'destructive' }); return; }
+                    if (!userProfileId) { toast({ title: t('artist.dashboard.profileNotFound'), variant: 'destructive' }); return; }
                      setSavingCard(true);
                     try {
                       const finalLogoUrl = await uploadProfileLogo(logoUrl);
@@ -3094,10 +3068,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       setHasUnsavedLogoChange(false);
                       if (finalLogoUrl) localStorage.setItem('gp-artist-logo', finalLogoUrl);
                       else localStorage.removeItem('gp-artist-logo');
-                      toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
+                      toast({ title: t('artist.dashboard.changesSaved') });
                     } catch (err: any) {
                       console.error('Save card settings error:', err);
-                      toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
+                      toast({ title: t('artist.dashboard.saveFailed2'), variant: 'destructive' });
                     }
                     setSavingCard(false);
                   }}
@@ -3111,7 +3085,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   }}
                 >
                   {savingCard ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
-                  {savingCard ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמירת שינויים')}
+                  {savingCard ? t('artist.dashboard.saving') : t('artist.dashboard.saveChanges')}
                 </Button>
               </div>
             </div>
@@ -3122,7 +3096,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 className="preview-card-btn w-full flex items-center justify-center rounded-3xl p-5 transition-all hover:scale-[1.01] active:scale-[0.98]"
               >
                 <span className="block w-full text-center font-bold text-base tracking-wide relative z-10" style={{ color: '#FFFFFF' }}>
-                  {lang === 'en' ? 'View Digital Card' : 'תצוגת כרטיס דיגיטלי'}
+                  {t('artist.dashboard.viewDigitalCard')}
                 </span>
               </button>
             </FeatureGate>
@@ -3137,7 +3111,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               className="preview-card-btn w-full rounded-3xl p-5 flex items-center justify-center transition-all hover:scale-[1.01] active:scale-[0.98]"
             >
               <span className="block w-full text-center font-bold text-base tracking-wide relative z-10" style={{ color: '#FFFFFF' }}>
-                {lang === 'en' ? 'Preview Client Screen' : 'תצוגת מסך לקוחה'}
+                {t('artist.dashboard.previewClientScreen')}
               </span>
             </button>
 
@@ -3146,47 +3120,47 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             <div className="rounded-3xl p-5 bg-card" style={{ border: '3px solid transparent', backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box', boxShadow: '0 8px 32px -4px rgba(212, 175, 55, 0.35), 0 4px 16px -2px rgba(0, 0, 0, 0.1)' }}>
               <div className="flex items-center gap-3 mb-3">
                 <Gift className="w-5 h-5 text-accent" strokeWidth={1.5} />
-                <h2 className="font-bold text-xl tracking-wide text-foreground">{lang === 'en' ? 'Manage Promotions & Benefits' : 'ניהול מבצעים והטבות'}</h2>
+                <h2 className="font-bold text-xl tracking-wide text-foreground">{t('artist.dashboard.managePromotions')}</h2>
               </div>
               <div className="h-[2px] w-full mb-5" style={{ background: 'linear-gradient(90deg, transparent, hsl(38 55% 62%), transparent)' }} />
 
               <div className="space-y-5" dir="rtl">
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Tag Text' : 'טקסט תגית'}</Label>
+                  <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.tagText')}</Label>
                   <Input
                     value={promoTagText}
                     onChange={(e) => setPromoTagText(e.target.value)}
-                    dir={lang === 'en' ? 'ltr' : 'rtl'}
-                    placeholder={lang === 'en' ? 'Exclusive for Returning Clients ✨' : 'פינוק ללקוחות חוזרות ✨'}
+                    dir={lang === 'he' ? 'rtl' : 'ltr'}
+                    placeholder={t('artist.dashboard.tagTextPlaceholder')}
                     className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
                     style={{ border: '1px solid hsl(38 55% 62%)' }}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Main Title' : 'כותרת ראשית'}</Label>
+                  <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.mainTitle')}</Label>
                   <Input
                     value={promoTitle}
                     onChange={(e) => setPromoTitle(e.target.value)}
-                    dir={lang === 'en' ? 'ltr' : 'rtl'}
-                    placeholder={lang === 'en' ? 'Complete Your Look' : 'להשלמת המראה'}
+                    dir={lang === 'he' ? 'rtl' : 'ltr'}
+                    placeholder={t('artist.dashboard.mainTitlePlaceholder')}
                     className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
                     style={{ border: '1px solid hsl(38 55% 62%)' }}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Description' : 'תיאור'}</Label>
+                  <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.description')}</Label>
                   <Textarea
                     value={promoDescription}
                     onChange={(e) => setPromoDescription(e.target.value)}
-                    dir={lang === 'en' ? 'ltr' : 'rtl'}
+                    dir={lang === 'he' ? 'rtl' : 'ltr'}
                     rows={4}
-                    placeholder={lang === 'en' ? 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.' : 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.'}
+                    placeholder={t('artist.dashboard.promoDescriptionPlaceholder')}
                     className="rounded-2xl bg-white text-sm px-4 py-3 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
                     style={{ border: '1px solid hsl(38 55% 62%)' }}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Button Text' : 'טקסט כפתור'}</Label>
+                  <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.buttonText')}</Label>
                   <Input
                     value={promoButtonText}
                     onChange={(e) => setPromoButtonText(e.target.value)}
@@ -3209,9 +3183,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     });
                     setSavingPromo(false);
                     if (success) {
-                      toast({ title: lang === 'en' ? 'Changes saved successfully! ✨' : 'השינויים נשמרו בהצלחה! ✨' });
+                      toast({ title: t('artist.dashboard.changesSaved') });
                     } else {
-                      toast({ title: lang === 'en' ? 'Save failed' : 'השמירה נכשלה', variant: 'destructive' });
+                      toast({ title: t('artist.dashboard.saveFailed2'), variant: 'destructive' });
                     }
                   }}
                   disabled={savingPromo}
@@ -3224,14 +3198,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   }}
                 >
                   {savingPromo ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
-                  {savingPromo ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמירת שינויים')}
+                  {savingPromo ? t('artist.dashboard.saving') : t('artist.dashboard.saveChanges')}
                 </Button>
               </div>
 
               {/* Live Phone Preview */}
               <div className="mt-8">
                 <Label className="text-sm font-semibold text-foreground mb-4 block">
-                  {lang === 'en' ? 'Live Client Preview' : 'תצוגה מקדימה אצל הלקוחה'}
+                  {t('artist.dashboard.liveClientPreview')}
                 </Label>
                 {/* Phone mockup frame */}
                 <div
@@ -3290,7 +3264,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           >
                             {(() => {
                               const v = promoTagText || 'פינוק ללקוחות חוזרות ✨';
-                              if (lang === 'en' && (v === 'פינוק ללקוחות חוזרות ✨' || v === 'פינוק ללקוחות ✨')) return 'Exclusive for Returning Clients ✨';
+                              if (lang !== 'he' && (v === 'פינוק ללקוחות חוזרות ✨' || v === 'פינוק ללקוחות ✨')) return 'Exclusive for Returning Clients ✨';
                               return v;
                             })()}
                           </span>
@@ -3321,7 +3295,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           >
                             {(() => {
                               const v = promoTitle || 'להשלמת המראה';
-                              if (lang === 'en' && v === 'להשלמת המראה') return 'Complete Your Look';
+                              if (lang !== 'he' && v === 'להשלמת המראה') return 'Complete Your Look';
                               return v;
                             })()}
                           </h3>
@@ -3332,7 +3306,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           >
                             {(() => {
                               const v = promoDescription || 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.';
-                              if (lang === 'en' && (v.startsWith('אהבת את הגבות') || v === 'אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה')) return 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.';
+                              if (lang !== 'he' && (v.startsWith('אהבת את הגבות') || v === 'אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה')) return 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.';
                               return v;
                             })()}
                           </p>
@@ -3348,7 +3322,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                             <Sparkles className="w-3.5 h-3.5" />
                             {(() => {
                               const v = promoButtonText || 'לפרטים ותיאום 💋';
-                              if (lang === 'en' && (v === 'לפרטים ותיאום 💋' || v === 'הזמיני עכשיו')) return 'Details & Booking';
+                              if (lang !== 'he' && (v === 'לפרטים ותיאום 💋' || v === 'הזמיני עכשיו')) return 'Details & Booking';
                               return v;
                             })()}
                           </div>
@@ -3358,7 +3332,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   </div>
                 </div>
                 <p className="text-center text-xs text-muted-foreground mt-3">
-                  {lang === 'en' ? 'This is how clients see your promotion' : 'כך הלקוחות שלך יראו את ההטבה'}
+                  {t('artist.dashboard.promoPreviewDesc')}
                 </p>
               </div>
             </div>
@@ -3374,7 +3348,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             <div className="bg-card rounded-3xl border border-border p-5 shadow-[0_6px_32px_-8px_hsl(0_0%_0%/0.1)]">
               <div className="flex items-center gap-3 mb-4">
                 <Crown className="w-5 h-5 text-accent" />
-                <h2 className="font-light text-lg">{lang === 'en' ? 'Account Settings' : 'הגדרות חשבון'}</h2>
+                <h2 className="font-light text-lg">{t('artist.dashboard.accountSettings')}</h2>
               </div>
               <div className="space-y-1">
                 {/* Medical Form Toggle */}
@@ -3398,11 +3372,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 >
                   <Bell className="w-4 h-4 text-accent" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{lang === 'en' ? 'Notifications' : 'התראות'}</p>
+                    <p className="text-sm font-medium">{t('artist.dashboard.notifications')}</p>
                     <p className="text-xs text-muted-foreground">
                       {hasWhatsAppAutomation
-                        ? (lang === 'en' ? '⚡ Full WhatsApp automation active' : '⚡ אוטומציית וואטסאפ מלאה פעילה')
-                        : (lang === 'en' ? '🔔 Push notifications + manual WhatsApp' : '🔔 התראות Push + וואטסאפ ידני')}
+                        ? t('artist.dashboard.waAutomationActive')
+                        : t('artist.dashboard.pushPlusManual')}
                     </p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
@@ -3413,7 +3387,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <div className="py-3 border-b border-border px-1">
                     <div className="flex items-center gap-3 mb-2">
                       <MessageCircle className="w-4 h-4 text-accent" />
-                      <p className="text-sm font-medium flex-1">{lang === 'en' ? 'Monthly Usage' : 'שימוש חודשי'}</p>
+                      <p className="text-sm font-medium flex-1">{t('artist.dashboard.monthlyUsage')}</p>
                       <span className="text-xs font-semibold text-foreground">42 / 200</span>
                     </div>
                     <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
@@ -3426,9 +3400,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       />
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-1.5">
-                      {lang === 'en'
-                        ? 'WhatsApp messages used this month. Extra packages available beyond quota.'
-                        : 'הודעות וואטסאפ שנוצלו החודש. מעבר למכסה, ניתן לרכוש חבילות נוספות.'}
+                      {t('artist.dashboard.monthlyUsageDesc')}
                     </p>
                   </div>
                 )}
@@ -3438,7 +3410,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <Crown className="w-4 h-4 text-accent" />
-                  <p className="text-sm font-medium flex-1">{lang === 'en' ? 'My Subscription & Upgrades' : 'המנוי שלי ושדרוגים'}</p>
+                  <p className="text-sm font-medium flex-1">{t('artist.dashboard.mySubscription')}</p>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
                 {/* Bonuses */}
@@ -3447,7 +3419,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <Gift className="w-4 h-4 text-accent" />
-                  <p className="text-sm font-medium flex-1">{lang === 'en' ? 'Bonuses & Rewards' : 'בונוסים ותגמולים'}</p>
+                  <p className="text-sm font-medium flex-1">{t('artist.dashboard.bonusesRewards')}</p>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
                 {/* Help Center */}
@@ -3456,7 +3428,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <HelpCircle className="w-4 h-4 text-accent" />
-                  <p className="text-sm font-medium flex-1">{lang === 'en' ? 'Help Center' : 'מרכז עזרה'}</p>
+                  <p className="text-sm font-medium flex-1">{t('artist.dashboard.helpCenter')}</p>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
                 {/* Refund Policy */}
@@ -3465,7 +3437,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <ScrollText className="w-4 h-4 text-accent" />
-                  <p className="text-sm font-medium flex-1">{lang === 'en' ? 'Cancellation & Refund Policy' : 'מדיניות ביטולים והחזרים'}</p>
+                  <p className="text-sm font-medium flex-1">{t('artist.dashboard.refundPolicy')}</p>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
 
@@ -3475,7 +3447,21 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <ScrollText className="w-4 h-4 text-accent" />
-                  <p className="text-sm font-medium flex-1">{lang === 'en' ? 'Clinic Policy' : 'מדיניות הקליניקה'}</p>
+                  <p className="text-sm font-medium flex-1">{t('artist.dashboard.clinicPolicy')}</p>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
+                </button>
+
+                {/* Logout */}
+                <button
+                  onClick={async () => {
+                    localStorage.clear();
+                    await supabase.auth.signOut();
+                    window.location.href = '/auth';
+                  }}
+                  className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
+                >
+                  <LogOut className="w-4 h-4 text-accent" />
+                  <p className="text-sm font-medium flex-1">{lang === 'he' ? 'התנתקות' : 'Log Out'}</p>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
 
@@ -3485,7 +3471,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   className="flex items-center gap-3 w-full py-3 text-start hover:bg-destructive/5 rounded-lg px-1 transition-colors"
                 >
                   <Trash2 className="w-4 h-4 text-destructive" />
-                  <p className="text-sm font-medium flex-1 text-destructive">{lang === 'en' ? 'Delete My Account' : 'מחיקת החשבון שלי'}</p>
+                  <p className="text-sm font-medium flex-1 text-destructive">{t('artist.dashboard.deleteMyAccount')}</p>
                   <ChevronRight className="w-4 h-4 text-destructive/50" style={{ transform: lang === 'he' ? 'rotate(180deg)' : undefined }} />
                 </button>
 
@@ -3506,15 +3492,15 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         <footer className="border-t py-6 mt-8 text-center" style={{ borderColor: 'hsl(38 40% 88%)' }}>
           <div className="flex items-center justify-center gap-4 text-xs" style={{ color: 'hsl(0 0% 55%)' }}>
             <Link to="/terms" className="hover:underline transition-colors" style={{ color: '#FFFFFF' }}>
-              {lang === 'en' ? 'Terms of Service' : 'תנאי שימוש'}
+              {t('artist.dashboard.termsOfService')}
             </Link>
             <span>·</span>
             <Link to="/refund-policy" className="hover:underline transition-colors" style={{ color: '#FFFFFF' }}>
-              {lang === 'en' ? 'Refund Policy' : 'מדיניות ביטולים'}
+              {t('artist.dashboard.refundPolicyLink')}
             </Link>
             <span>·</span>
             <Link to="/privacy" className="hover:underline transition-colors" style={{ color: '#FFFFFF' }}>
-              {lang === 'en' ? 'Privacy Policy' : 'מדיניות פרטיות'}
+              {t('artist.dashboard.privacyPolicy')}
             </Link>
           </div>
         </footer>
@@ -3527,11 +3513,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-[450px] pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-center justify-between px-2.5 py-1.5">
           {[
-            { id: 'upgrade' as const, icon: Crown, label: lang === 'en' ? 'Upgrade' : 'שדרוג', route: '/pricing' },
-            { id: 'clients' as const, icon: Users, label: lang === 'en' ? 'Clients' : 'לקוחות', route: null },
-            { id: 'calendar' as const, icon: Calendar, label: lang === 'en' ? 'Calendar' : 'יומן', route: null },
+            { id: 'upgrade' as const, icon: Crown, label: t('artist.dashboard.navUpgrade'), route: '/pricing' },
+            { id: 'clients' as const, icon: Users, label: t('artist.dashboard.navClients'), route: null },
+            { id: 'calendar' as const, icon: Calendar, label: t('artist.dashboard.tabCalendar'), route: null },
             { id: 'push' as const, icon: Clock, label: '!push', route: null },
-            { id: 'home' as const, icon: Home, label: lang === 'en' ? 'Dashboard' : 'ראשי', route: null },
+            { id: 'home' as const, icon: Home, label: t('artist.dashboard.navMain'), route: null },
           ].map((tab) => {
             const isActive = tab.route ? false : activeTab === tab.id;
             return (
@@ -3608,16 +3594,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         <DialogContent className="max-w-sm text-center" dir={lang === 'he' ? 'rtl' : 'ltr'}>
           <DialogHeader>
             <DialogTitle className="font-serif text-lg">
-              {lang === 'en' ? 'Coming Soon to Glow Push! 🚀' : 'בקרוב ב-Glow Push! 🚀'}
+              {t('artist.dashboard.invoiceComingSoonTitle')}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground leading-relaxed py-2">
-            {lang === 'en'
-              ? 'We are working on a direct integration with leading accounting systems, so you can issue receipts for your clients with a single click, right from the app. Stay tuned!'
-              : 'אנחנו עובדות על חיבור ישיר למערכות הנהלת החשבונות המובילות, כדי שתוכלי להפיק קבלות ללקוחות שלך בלחיצת כפתור אחת, ישירות מהאפליקציה. יש למה לחכות!'}
+            {t('artist.dashboard.invoiceComingSoonDesc')}
           </p>
           <Button onClick={() => setShowInvoiceComingSoon(false)} className="w-full rounded-full mt-1">
-            {lang === 'en' ? 'Got it' : 'הבנתי'}
+            {t('artist.dashboard.gotIt')}
           </Button>
         </DialogContent>
       </Dialog>
@@ -3627,13 +3611,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         <DialogContent className="max-w-sm" dir={lang === 'he' ? 'rtl' : 'ltr'}>
           <DialogHeader>
             <DialogTitle className="font-serif text-lg">
-              {lang === 'en' ? 'Delete Client' : 'מחיקת לקוחה'}
+              {t('artist.dashboard.deleteClientTitle')}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground leading-relaxed py-2">
-            {lang === 'en'
-              ? `Are you sure you want to delete ${deletingClient?.name || 'this client'}? This will also delete her treatment history and cannot be undone.`
-              : `האם את בטוחה שברצונך למחוק את הלקוחה ${deletingClient?.name || ''}? פעולה זו תמחק גם את היסטוריית הטיפולים שלה ולא ניתנת לביטול.`}
+            {lang === 'he'
+              ? `האם את בטוחה שברצונך למחוק את הלקוחה ${deletingClient?.name || ''}? פעולה זו תמחק גם את היסטוריית הטיפולים שלה ולא ניתנת לביטול.`
+              : `Are you sure you want to delete ${deletingClient?.name || 'this client'}? This will also delete her treatment history and cannot be undone.`}
           </p>
           <label className="flex items-center gap-2 py-1 cursor-pointer">
             <Checkbox
@@ -3641,17 +3625,15 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               onCheckedChange={(v) => setDeleteAlsoAppointments(!!v)}
             />
             <span className="text-sm text-muted-foreground">
-              {lang === 'en'
-                ? 'Also delete future appointments from calendar?'
-                : 'האם למחוק גם את התורים העתידיים שלה מהיומן?'}
+              {t('artist.dashboard.deleteClientAlsoAppts')}
             </span>
           </label>
           <div className="flex gap-3 pt-2">
             <Button variant="outline" onClick={() => { setDeletingClient(null); setDeleteAlsoAppointments(false); }} className="flex-1 rounded-full">
-              {lang === 'en' ? 'Cancel' : 'ביטול'}
+              {t('artist.dashboard.cancel')}
             </Button>
             <Button variant="destructive" onClick={confirmDeleteClient} className="flex-1 rounded-full">
-              {lang === 'en' ? 'Delete' : 'מחיקה'}
+              {t('artist.dashboard.delete')}
             </Button>
           </div>
         </DialogContent>
@@ -3663,28 +3645,28 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           <DialogHeader>
             <DialogTitle className="font-serif flex items-center gap-2">
               <Pencil className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} />
-              {lang === 'en' ? 'Edit Client' : 'עריכת פרטי לקוחה'}
+              {t('artist.dashboard.editClientTitle')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{lang === 'en' ? 'Full Name' : 'שם מלא'}</Label>
+              <Label className="text-xs font-medium">{t('artist.dashboard.fullName')}</Label>
               <Input value={editName} onChange={e => setEditName(e.target.value)} maxLength={100} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{lang === 'en' ? 'Phone' : 'טלפון'}</Label>
+              <Label className="text-xs font-medium">{t('artist.dashboard.phone2')}</Label>
               <Input value={editPhone} onChange={e => setEditPhone(e.target.value)} dir="ltr" inputMode="tel" maxLength={20} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{lang === 'en' ? 'Email' : 'אימייל'}</Label>
+              <Label className="text-xs font-medium">{t('artist.dashboard.email')}</Label>
               <Input value={editEmail} onChange={e => setEditEmail(e.target.value)} dir="ltr" inputMode="email" type="email" maxLength={255} placeholder="example@email.com" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{lang === 'en' ? 'Birth Date' : 'תאריך לידה'}</Label>
+              <Label className="text-xs font-medium">{t('artist.dashboard.birthDate')}</Label>
               <Input value={editBirthDate} onChange={e => setEditBirthDate(e.target.value)} type="date" dir="ltr" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{lang === 'en' ? 'Treatment / Notes' : 'סוג טיפול / הערות'}</Label>
+              <Label className="text-xs font-medium">{t('artist.dashboard.treatmentNotes')}</Label>
               <Input value={editTreatment} onChange={e => setEditTreatment(e.target.value)} maxLength={100} />
             </div>
             <Button
@@ -3692,9 +3674,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               disabled={!editName.trim() || savingClient}
               className="w-full btn-gold-cta"
             >
-              {savingClient
-                ? (lang === 'en' ? 'Saving...' : 'שומר...')
-                : (lang === 'en' ? 'Save Changes' : 'שמור שינויים')}
+              {savingClient ? t('artist.dashboard.saving') : t('artist.dashboard.saveChangesModal')}
             </Button>
           </div>
         </DialogContent>
@@ -3706,26 +3686,26 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           <DialogHeader>
             <DialogTitle className="font-serif flex items-center gap-2">
               <Pencil className="w-4 h-4" style={{ color: 'hsl(38 55% 62%)' }} />
-              {lang === 'en' ? 'Edit Treatment Record' : 'עריכת תיעוד טיפול'}
+              {t('artist.dashboard.editTreatmentRecord')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             {editingNote?.note.structured ? (
               <>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">🎯 {lang === 'en' ? 'Treatment Area' : 'אזור טיפול'}</Label>
+                  <Label className="text-xs font-medium">🎯 {t('artist.dashboard.treatmentArea')}</Label>
                   <Input value={editNoteArea} onChange={e => setEditNoteArea(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">💧 {lang === 'en' ? 'Pigment Formula' : 'פיגמנט'}</Label>
+                  <Label className="text-xs font-medium">💧 {t('artist.dashboard.pigmentFormula')}</Label>
                   <Input value={editNotePigment} onChange={e => setEditNotePigment(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">🔬 {lang === 'en' ? 'Needle Type' : 'סוג מחט'}</Label>
+                  <Label className="text-xs font-medium">🔬 {t('artist.dashboard.needleType')}</Label>
                   <Input value={editNoteNeedle} onChange={e => setEditNoteNeedle(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">📝 {lang === 'en' ? 'Clinical Notes' : 'הערות קליניות'}</Label>
+                  <Label className="text-xs font-medium">📝 {t('artist.dashboard.clinicalNotes')}</Label>
                   <textarea
                     value={editNoteClinical}
                     onChange={e => setEditNoteClinical(e.target.value)}
@@ -3736,7 +3716,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               </>
             ) : (
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{lang === 'en' ? 'Treatment Notes' : 'הערות טיפול'}</Label>
+                <Label className="text-xs font-medium">{t('artist.dashboard.rawTreatmentNotes')}</Label>
                 <textarea
                   value={editNoteRaw}
                   onChange={e => setEditNoteRaw(e.target.value)}
@@ -3765,13 +3745,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 });
                 setSavingNote(false);
                 setEditingNote(null);
-                toast({ title: lang === 'en' ? 'Changes saved successfully! ✅' : 'השינויים נשמרו בהצלחה! ✅' });
+                toast({ title: t('artist.dashboard.noteChangesSaved') });
               }}
               disabled={savingNote}
               className="w-full btn-gold-cta"
             >
               {savingNote ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : null}
-              {savingNote ? (lang === 'en' ? 'Saving...' : 'שומר...') : (lang === 'en' ? 'Save Changes' : 'שמור שינויים')}
+              {savingNote ? t('artist.dashboard.saving') : t('artist.dashboard.saveChangesModal')}
             </Button>
           </div>
         </DialogContent>
@@ -3813,7 +3793,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             <div className="w-full h-full overflow-y-auto">
               <DigitalCard
                 embedded
-                previewName={artistName || (lang === 'en' ? 'Business Name' : 'שם העסק')}
+                previewName={artistName || t('artist.dashboard.businessNameCard')}
                 previewPhone={artistPhone ? formatPhone(artistPhone) : '972508855329'}
                 previewLogo={logoUrl}
                 previewIg={instagramUrl}
@@ -3836,23 +3816,23 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               if (wazeAddress) params.set('waze', wazeAddress);
               const qs = params.toString();
               const shareUrl = `${BASE}${qs ? `?${qs}` : ''}`;
-              const shareTitle = lang === 'en' ? 'Digital Business Card' : 'כרטיס ביקור דיגיטלי';
-              const shareText = lang === 'en' ? 'Hey! ✨ Check out my new digital studio card. All the ways to reach me and see my work — just one click away:' : 'היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:';
+              const shareTitle = t('artist.dashboard.digitalBusinessCard');
+              const shareText = t('artist.dashboard.shareCardText');
               try {
                 if (navigator.share) {
                   await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
-                  toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                  toast({ title: t('artist.dashboard.shareSuccess') });
                 } else {
                   await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                  toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                  toast({ title: t('artist.dashboard.shareSuccess') });
                 }
               } catch (e: any) {
                 if (e?.name !== 'AbortError') {
                   try {
                     await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                    toast({ title: lang === 'en' ? 'Message and link copied successfully ✨' : 'ההודעה והקישור הועתקו בהצלחה ✨' });
+                    toast({ title: t('artist.dashboard.shareSuccess') });
                   } catch {
-                    window.prompt(lang === 'en' ? 'Copy this link:' : 'העתיקי את הקישור:', shareUrl);
+                    window.prompt(t('artist.dashboard.copyThisLink'), shareUrl);
                   }
                 }
               }
@@ -3861,7 +3841,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
           >
             <Share2 className="w-5 h-5" />
-            {lang === 'en' ? 'Copy Card Link' : 'העתק קישור לכרטיס'}
+            {t('artist.dashboard.copyCardLink')}
           </button>
         </div>
         )}
@@ -3882,7 +3862,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         clientName={birthdayWishClient?.name || ''}
         clientPhone={birthdayWishClient?.phone || ''}
         clientDbId={birthdayWishClient?.dbId}
-        artistName={artistName || (lang === 'en' ? 'Your Artist' : 'האמנית שלך')}
+        artistName={artistName || t('artist.dashboard.yourArtist')}
         customTemplate={customTemplates.birthday}
         customTemplateEn={customTemplates.birthday_en}
       />
@@ -3895,7 +3875,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         clientPhone={renewalClient?.phone || ''}
         clientDbId={renewalClient?.dbId}
         treatmentType={renewalClient?.treatment || ''}
-        artistName={artistName || (lang === 'en' ? 'Your Artist' : 'האמנית שלך')}
+        artistName={artistName || t('artist.dashboard.yourArtist')}
         customTemplate={customTemplates.renewal}
         customTemplateEn={customTemplates.renewal_en}
       />
@@ -3905,7 +3885,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-right font-serif">
-              {lang === 'en' ? 'Edit Message Templates' : 'עריכת תבניות הודעה'}
+              {t('artist.dashboard.editTemplates')}
             </DialogTitle>
           </DialogHeader>
           {userProfileId && (
@@ -3958,7 +3938,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 rounded-b-2xl z-10" style={{ background: 'hsl(38 55% 62%)' }} />
               {/* Iframe */}
               <iframe
-                src={`${window.location.origin}/client?name=${encodeURIComponent(lang === 'en' ? 'Dana Example' : 'דנה לדוגמה')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`}
+                src={`${window.location.origin}/client?name=${encodeURIComponent(lang === 'he' ? 'דנה לדוגמה' : 'Dana Example')}&treatment=eyebrows&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`}
                 className="w-full h-full border-none"
                 title="Client page preview"
               />
@@ -3974,7 +3954,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 boxShadow: '0 4px 16px hsl(38 55% 62% / 0.3)',
               }}
             >
-              {lang === 'en' ? '✕ Close Preview' : '✕ סגירת תצוגה מקדימה'}
+              {t('artist.dashboard.closePreview')}
             </button>
           </div>
         </DialogContent>
@@ -3997,13 +3977,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           <DialogHeader>
             <DialogTitle className="text-destructive flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
-              {lang === 'en' ? 'Delete Account' : 'מחיקת חשבון'}
+              {t('artist.dashboard.deleteAccountTitle')}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            {lang === 'en'
-              ? 'This will permanently delete your account and ALL associated data including clients, health declarations, images, and settings. This action cannot be undone.'
-              : 'פעולה זו תמחק לצמיתות את החשבון שלך ואת כל הנתונים הקשורים – לקוחות, הצהרות בריאות, תמונות והגדרות. לא ניתן לבטל פעולה זו.'}
+            {t('artist.dashboard.deleteAccountDesc')}
           </p>
           <div className="flex gap-3 mt-2">
             <Button
@@ -4012,7 +3990,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               onClick={() => setShowDeleteAccountConfirm(false)}
               disabled={deletingAccount}
             >
-              {lang === 'en' ? 'Cancel' : 'ביטול'}
+              {t('artist.dashboard.cancel')}
             </Button>
             <Button
               variant="destructive"
@@ -4027,12 +4005,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   localStorage.clear();
                   window.location.href = '/marketing';
                 } catch (err: any) {
-                  toast({ title: lang === 'en' ? 'Failed to delete account' : 'מחיקת החשבון נכשלה', description: err?.message, variant: 'destructive' });
+                  toast({ title: t('artist.dashboard.deleteAccountFailed'), description: err?.message, variant: 'destructive' });
                   setDeletingAccount(false);
                 }
               }}
             >
-              {deletingAccount ? '...' : (lang === 'en' ? 'Delete Forever' : 'מחיקה לצמיתות')}
+              {deletingAccount ? '...' : t('artist.dashboard.deleteForever')}
             </Button>
           </div>
         </DialogContent>
@@ -4041,7 +4019,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       {/* Welcome Tour */}
       <WelcomeTour
         open={showWelcomeTour}
-        onClose={() => setShowWelcomeTour(false)}
+        onClose={async () => {
+          setShowWelcomeTour(false);
+          if (userProfileId) {
+            await supabase.from('profiles').update({ onboarding_checklist_dismissed: true }).eq('id', userProfileId);
+          }
+        }}
         lang={lang}
       />
 

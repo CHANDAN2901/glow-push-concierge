@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
@@ -17,9 +18,19 @@ type PromoStatus = 'idle' | 'checking' | 'valid_referral' | 'valid_academy' | 'i
 const Auth = () => {
   const { lang } = useI18n();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup');
+
+  // Redirect already-logged-in users away from auth page
+  useEffect(() => {
+    if (!authLoading && user) {
+      const from = (location.state as any)?.from?.pathname || '/artist';
+      navigate(from, { replace: true });
+    }
+  }, [user, authLoading]);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,11 +66,13 @@ const Auth = () => {
     setReferrerProfileId(null);
     setPromoTag(null);
 
+    const normalizedCode = code.trim().toLowerCase();
+
     // 1. Check if it's a referral code (from profiles table)
     const { data: referrer } = await supabase
       .from('profiles')
       .select('id, full_name, referral_code')
-      .eq('referral_code', code.trim())
+      .ilike('referral_code', normalizedCode)
       .maybeSingle();
 
     if (referrer) {
@@ -73,7 +86,7 @@ const Auth = () => {
     const { data: promo } = await supabase
       .from('promo_codes' as any)
       .select('*')
-      .eq('code', code.trim())
+      .ilike('code', normalizedCode)
       .eq('is_active', true)
       .maybeSingle();
 
@@ -142,7 +155,8 @@ const Auth = () => {
           body: lang === 'en' ? "You're now signed in to your studio" : 'התחברת לסטודיו שלך',
         });
 
-        navigate('/artist');
+        const from = (location.state as any)?.from?.pathname || '/artist';
+        navigate(from, { replace: true });
       } else {
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
@@ -173,40 +187,88 @@ const Auth = () => {
           body: lang === 'en' ? 'Your account has been created successfully!' : 'החשבון שלך נוצר בהצלחה!',
         });
 
-        // After signup, store promo attribution on the profile
+        // After signup, apply promo/referral benefits once the profile row exists
         if (signUpData?.user && (promoStatus === 'valid_referral' || promoStatus === 'valid_academy')) {
-          // Wait a moment for the profile trigger to create the row
-          setTimeout(async () => {
+          const userId = signUpData.user.id;
+
+          // Poll for the profile row — DB trigger may take a few seconds
+          const waitForProfile = async (): Promise<string | null> => {
+            for (let i = 0; i < 10; i++) {
+              await new Promise(r => setTimeout(r, 1500));
+              const { data } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('user_id', userId)
+                .maybeSingle();
+              if (data?.id) return data.id;
+            }
+            return null;
+          };
+
+          // Run in background — don't block the UI
+          (async () => {
             try {
-              const updates: Record<string, any> = {};
-              if (promoStatus === 'valid_referral' && referrerProfileId) {
-                updates.referred_by_profile_id = referrerProfileId;
-                updates.promo_code_used = promoCode.trim();
-                // Also create a referral record
-                await supabase.from('referrals').insert({
-                  referrer_profile_id: referrerProfileId,
-                  referred_email: email,
-                  referral_code: promoCode.trim(),
-                  status: 'pending',
-                });
-              }
-              if (promoStatus === 'valid_academy' && promoTag) {
-                updates.promo_code_used = promoCode.trim();
-                updates.promo_tag = promoTag;
-                // Increment usage counter
-                await supabase.rpc('increment_promo_usage' as any, { promo_code_value: promoCode.trim() });
+              const newProfileId = await waitForProfile();
+              if (!newProfileId) {
+                console.warn('[Promo] Profile not found after retries for user', userId);
+                return;
               }
 
-              if (Object.keys(updates).length > 0) {
-                await supabase
+              if (promoStatus === 'valid_referral' && referrerProfileId) {
+                // 1. Mark new user as referred + grant 1 free month via subscription_status
+                await supabase.from('profiles').update({
+                  referred_by_profile_id: referrerProfileId,
+                  promo_code_used: promoCode.trim(),
+                  subscription_status: 'active',
+                }).eq('id', newProfileId);
+
+                // 2. Create a completed referral record with reward
+                await supabase.from('referrals').insert({
+                  referrer_profile_id: referrerProfileId,
+                  referred_profile_id: newProfileId,
+                  referred_email: email,
+                  referral_code: promoCode.trim(),
+                  status: 'converted',
+                  converted_at: new Date().toISOString(),
+                  reward_credit: 50,
+                });
+
+                // 3. Credit the referrer ₪50
+                const { data: referrerProfile } = await supabase
                   .from('profiles')
-                  .update(updates)
-                  .eq('user_id', signUpData.user!.id);
+                  .select('referral_credit')
+                  .eq('id', referrerProfileId)
+                  .maybeSingle();
+                const currentCredit = referrerProfile?.referral_credit ?? 0;
+                await supabase.from('profiles').update({
+                  referral_credit: currentCredit + 50,
+                }).eq('id', referrerProfileId);
+              }
+
+              if (promoStatus === 'valid_academy' && promoTag) {
+                // 1. Fetch how many free months this promo gives
+                const { data: promoRow } = await supabase
+                  .from('promo_codes' as any)
+                  .select('free_months')
+                  .ilike('code', promoCode.trim())
+                  .maybeSingle() as { data: { free_months: number | null } | null };
+
+                const freeMonths = promoRow?.free_months ?? 1;
+
+                // 2. Apply benefit to new user
+                await supabase.from('profiles').update({
+                  promo_code_used: promoCode.trim(),
+                  promo_tag: promoTag,
+                  subscription_status: freeMonths > 0 ? 'active' : undefined,
+                }).eq('id', newProfileId);
+
+                // 3. Increment promo usage counter
+                await supabase.rpc('increment_promo_usage' as any, { promo_code_value: promoCode.trim() });
               }
             } catch (err) {
-              console.warn('Failed to save promo attribution:', err);
+              console.warn('[Promo] Failed to apply promo benefits:', err);
             }
-          }, 2000);
+          })();
         }
 
         const hasPromo = promoStatus === 'valid_referral' || promoStatus === 'valid_academy';
