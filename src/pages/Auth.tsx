@@ -66,6 +66,7 @@ const Auth = () => {
     setPromoStatus('checking');
     setReferrerProfileId(null);
     setPromoTag(null);
+    setPromoCodeType(null);
 
     const normalizedCode = code.trim().toLowerCase();
 
