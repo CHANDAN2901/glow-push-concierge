@@ -14,6 +14,7 @@ import PostSignupInstallPrompt from '@/components/PostSignupInstallPrompt';
 import { sendAuthNotification } from '@/lib/sendServerPushNotification';
 
 type PromoStatus = 'idle' | 'checking' | 'valid_referral' | 'valid_academy' | 'invalid';
+type PromoCodeType = 'ACADEMY' | 'GRADUATE' | 'INFLUENCERS' | 'generic' | null;
 
 const Auth = () => {
   const { lang } = useI18n();
