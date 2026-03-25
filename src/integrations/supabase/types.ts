@@ -1389,6 +1389,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_referral_benefits: {
+        Args: { p_new_user_id: string; p_referral_code: string }
+        Returns: Json
+      }
       clone_healing_phases_for_client: {
         Args: { p_client_id: string; p_treatment_type: string }
         Returns: undefined
