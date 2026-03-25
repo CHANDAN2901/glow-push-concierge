@@ -266,8 +266,17 @@ const Auth = () => {
                 await supabase.rpc('increment_promo_usage' as any, { promo_code_value: promoCode.trim() });
               }
             } catch (err) {
-              console.warn('[Promo] Failed to apply promo benefits:', err);
+              console.warn('[Promo] Client-side apply failed:', err);
             }
+
+            // Always call RPC as safety net — SECURITY DEFINER bypasses RLS so it
+            // handles whatever the client-side steps couldn't. Idempotent: skips
+            // silently if the referral record already exists for this user.
+            const { error: rpcErr } = await supabase.rpc('apply_referral_benefits' as any, {
+              p_new_user_id: userId,
+              p_referral_code: promoCode.trim(),
+            });
+            if (rpcErr) console.warn('[Promo] RPC fallback error:', rpcErr.message);
           })();
         }
 
