@@ -1018,6 +1018,8 @@ export type Database = {
           studio_name: string | null
           subscription_status: string
           subscription_tier: string
+          trial_ends_at: string | null
+          trial_source: string | null
           updated_at: string
           user_id: string
           waze_address: string | null
@@ -1043,6 +1045,8 @@ export type Database = {
           studio_name?: string | null
           subscription_status?: string
           subscription_tier?: string
+          trial_ends_at?: string | null
+          trial_source?: string | null
           updated_at?: string
           user_id: string
           waze_address?: string | null
@@ -1068,6 +1072,8 @@ export type Database = {
           studio_name?: string | null
           subscription_status?: string
           subscription_tier?: string
+          trial_ends_at?: string | null
+          trial_source?: string | null
           updated_at?: string
           user_id?: string
           waze_address?: string | null

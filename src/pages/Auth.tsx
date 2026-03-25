@@ -14,6 +14,7 @@ import PostSignupInstallPrompt from '@/components/PostSignupInstallPrompt';
 import { sendAuthNotification } from '@/lib/sendServerPushNotification';
 
 type PromoStatus = 'idle' | 'checking' | 'valid_referral' | 'valid_academy' | 'invalid';
+type PromoCodeType = 'ACADEMY' | 'GRADUATE' | 'INFLUENCERS' | 'generic' | null;
 
 const Auth = () => {
   const { lang } = useI18n();
@@ -45,7 +46,7 @@ const Auth = () => {
   const [promoLabel, setPromoLabel] = useState('');
   const [referrerProfileId, setReferrerProfileId] = useState<string | null>(null);
   const [promoTag, setPromoTag] = useState<string | null>(null);
-
+  const [promoCodeType, setPromoCodeType] = useState<PromoCodeType>(null);
   // Capture ?ref= from URL on mount
   useEffect(() => {
     const ref = searchParams.get('ref');
@@ -65,6 +66,7 @@ const Auth = () => {
     setPromoStatus('checking');
     setReferrerProfileId(null);
     setPromoTag(null);
+    setPromoCodeType(null);
 
     const normalizedCode = code.trim().toLowerCase();
 
@@ -101,6 +103,13 @@ const Auth = () => {
       setPromoStatus('valid_academy');
       setPromoLabel(p.label || p.code_type);
       setPromoTag(`${p.code_type}_${p.label || p.code}`.replace(/\s+/g, '_'));
+      // Track specific code type for benefit message
+      const codeUpper = code.trim().toUpperCase();
+      if (['ACADEMY', 'GRADUATE', 'INFLUENCERS'].includes(codeUpper)) {
+        setPromoCodeType(codeUpper as PromoCodeType);
+      } else {
+        setPromoCodeType('generic');
+      }
       return;
     }
 
@@ -304,6 +313,25 @@ const Auth = () => {
     }
   };
 
+  const promoBenefitDetail = () => {
+    if (promoCodeType === 'ACADEMY') {
+      return lang === 'en'
+        ? '3 months free on Elite plan, then 50% off first month'
+        : '3 חודשים חינם בתוכנית Elite, אח״כ 50% הנחה על החודש הראשון';
+    }
+    if (promoCodeType === 'GRADUATE') {
+      return lang === 'en'
+        ? '30-day free trial + 50% off first month'
+        : '30 יום חינם + 50% הנחה על החודש הראשון';
+    }
+    if (promoCodeType === 'INFLUENCERS') {
+      return lang === 'en'
+        ? '30-day free trial on Elite plan'
+        : '30 יום חינם בתוכנית Elite';
+    }
+    return null;
+  };
+
   const promoStatusMessage = () => {
     switch (promoStatus) {
       case 'checking':
@@ -317,15 +345,24 @@ const Auth = () => {
             </span>
           </div>
         );
-      case 'valid_academy':
+      case 'valid_academy': {
+        const detail = promoBenefitDetail();
         return (
-          <div className="flex items-center gap-1.5 mt-1.5">
-            <Check className="w-3.5 h-3.5" style={{ color: '#B8860B' }} />
-            <span className="text-xs font-medium" style={{ color: '#B8860B' }}>
-              {lang === 'en' ? 'VIP code recognized! Benefit applied.' : 'קוד ה-VIP זוהה! ההטבה עודכנה בהצלחה'}
-            </span>
+          <div className="mt-1.5 space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5" style={{ color: '#B8860B' }} />
+              <span className="text-xs font-medium" style={{ color: '#B8860B' }}>
+                {lang === 'en' ? 'VIP code recognized! Benefit applied.' : 'קוד ה-VIP זוהה! ההטבה עודכנה בהצלחה'}
+              </span>
+            </div>
+            {detail && (
+              <p className="text-[11px] pr-5" style={{ color: '#B8860B', opacity: 0.8 }}>
+                {detail}
+              </p>
+            )}
           </div>
         );
+      }
       case 'invalid':
         return (
           <div className="flex items-center gap-1.5 mt-1.5">
