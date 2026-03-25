@@ -165,7 +165,7 @@ async function encryptPayload(
   const clientAuth = base64urlToUint8Array(clientAuthB64url);
 
   const clientPubKey = await crypto.subtle.importKey(
-    'raw', clientPubBytes, { name: 'ECDH', namedCurve: 'P-256' }, false, []
+    'raw', clientPubBytes.buffer as ArrayBuffer, { name: 'ECDH', namedCurve: 'P-256' }, false, []
   );
 
   const sharedSecret = await crypto.subtle.deriveBits(
