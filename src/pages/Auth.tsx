@@ -103,6 +103,13 @@ const Auth = () => {
       setPromoStatus('valid_academy');
       setPromoLabel(p.label || p.code_type);
       setPromoTag(`${p.code_type}_${p.label || p.code}`.replace(/\s+/g, '_'));
+      // Track specific code type for benefit message
+      const codeUpper = code.trim().toUpperCase();
+      if (['ACADEMY', 'GRADUATE', 'INFLUENCERS'].includes(codeUpper)) {
+        setPromoCodeType(codeUpper as PromoCodeType);
+      } else {
+        setPromoCodeType('generic');
+      }
       return;
     }
 
