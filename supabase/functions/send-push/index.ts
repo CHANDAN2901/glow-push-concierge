@@ -186,7 +186,7 @@ async function encryptPayload(
   ]);
 
   const prkBits = await crypto.subtle.deriveBits(
-    { name: 'HKDF', hash: 'SHA-256', salt: clientAuth, info: authInfo },
+    { name: 'HKDF', hash: 'SHA-256', salt: clientAuth.buffer as ArrayBuffer, info: authInfo },
     sharedSecretKey, 256
   );
 
