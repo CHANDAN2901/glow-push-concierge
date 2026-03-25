@@ -46,7 +46,7 @@ const Auth = () => {
   const [promoLabel, setPromoLabel] = useState('');
   const [referrerProfileId, setReferrerProfileId] = useState<string | null>(null);
   const [promoTag, setPromoTag] = useState<string | null>(null);
-
+  const [promoCodeType, setPromoCodeType] = useState<PromoCodeType>(null);
   // Capture ?ref= from URL on mount
   useEffect(() => {
     const ref = searchParams.get('ref');
