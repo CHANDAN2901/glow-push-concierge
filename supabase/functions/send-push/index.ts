@@ -74,9 +74,9 @@ function summarizeSubscription(subscription: any) {
 
   return {
     endpointHost,
-    endpointLength: typeof endpoint === 'string' ? endpoint.length : 0,
-    p256dhLength: typeof subscription?.keys?.p256dh === 'string' ? subscription.keys.p256dh.length : 0,
-    authLength: typeof subscription?.keys?.auth === 'string' ? subscription.keys.auth.length : 0,
+    endpointLength: typeof endpoint === "string" ? endpoint.length : 0,
+    p256dhLength: typeof subscription?.keys?.p256dh === "string" ? subscription.keys.p256dh.length : 0,
+    authLength: typeof subscription?.keys?.auth === "string" ? subscription.keys.auth.length : 0,
   };
 }
 
@@ -343,10 +343,10 @@ serve(async (req: Request) => {
       console.log("[send-push] ✅ JWT created");
     } catch (jwtErr: any) {
       console.error("[send-push] JWT creation failed:", jwtErr?.message);
-      return new Response(
-        JSON.stringify({ error: `JWT creation failed: ${jwtErr?.message || "Unknown error"}` }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: `JWT creation failed: ${jwtErr?.message || "Unknown error"}` }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log("[send-push] Sending to host:", endpoint.host);
