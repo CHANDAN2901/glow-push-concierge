@@ -7,6 +7,20 @@ import { subscribeToPush } from '@/lib/push-utils';
 import ClinicPolicyAcknowledgment from '@/components/ClinicPolicyAcknowledgment';
 import { useI18n } from '@/lib/i18n';
 
+const LangToggle = () => {
+  const { lang, setLang } = useI18n();
+  return (
+    <button
+      onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
+      className="fixed top-3 left-3 z-[200] flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md transition-all active:scale-95"
+      style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid #D4AF37', color: '#B8860B', backdropFilter: 'blur(8px)' }}
+      aria-label="Switch language"
+    >
+      {lang === 'he' ? 'EN' : 'עב'}
+    </button>
+  );
+};
+
 const HealthDeclarationPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -185,6 +199,7 @@ const HealthDeclarationPage = () => {
   if (!policyAcknowledged && includePolicy && artistId) {
     return (
       <div className="relative">
+        <LangToggle />
         <ClinicPolicyAcknowledgment
           artistProfileId={artistId}
           lang={lang}
@@ -213,6 +228,7 @@ const HealthDeclarationPage = () => {
 
   return (
     <div className="relative">
+      <LangToggle />
       <HealthDeclaration
         clientName={clientName}
         clientPhone={clientPhone}
