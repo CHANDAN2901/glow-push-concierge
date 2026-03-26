@@ -19,6 +19,9 @@ const ReferralTab = ({ artistName = '', artistProfileId }: ReferralTabProps) => 
   const [voucherWaHe, setVoucherWaHe] = useState(VOUCHER_DEFAULTS.voucher_wa_he);
   const [voucherWaEn, setVoucherWaEn] = useState(VOUCHER_DEFAULTS.voucher_wa_en);
   const [referralCode, setReferralCode] = useState('');
+  const [referralCredit, setReferralCredit] = useState<number>(0);
+  const [invitesSent, setInvitesSent] = useState<number>(0);
+  const [signedUp, setSignedUp] = useState<number>(0);
 
   const referralLink = referralCode ? `${window.location.origin}/auth?ref=${referralCode}` : '';
 
@@ -26,34 +29,40 @@ const ReferralTab = ({ artistName = '', artistProfileId }: ReferralTabProps) => 
   useEffect(() => {
     if (!artistProfileId) return;
     (async () => {
+      // Fetch profile: referral_code + actual credit balance
       const { data: profile, error: fetchError } = await supabase
         .from('profiles')
-        .select('referral_code')
+        .select('referral_code, referral_credit')
         .eq('id', artistProfileId)
         .maybeSingle();
 
       if (fetchError) console.error('[ReferralTab] fetch error:', fetchError);
 
-      if (profile?.referral_code) {
-        setReferralCode(profile.referral_code);
-        return;
+      if (profile?.referral_credit != null) setReferralCredit(profile.referral_credit);
+
+      let code = profile?.referral_code || '';
+      if (!code) {
+        // No code yet — generate one and persist it
+        const base = (artistName || 'artist').toLowerCase().replace(/\s+/g, '');
+        code = base + Math.floor(100 + Math.random() * 900);
+        const { error: saveError } = await supabase
+          .from('profiles')
+          .update({ referral_code: code })
+          .eq('id', artistProfileId)
+          .select('referral_code')
+          .maybeSingle();
+        if (saveError) console.error('[ReferralTab] save error:', saveError);
       }
+      setReferralCode(code);
 
-      // No code yet — generate one and persist it
-      const base = (artistName || 'artist').toLowerCase().replace(/\s+/g, '');
-      const newCode = base + Math.floor(100 + Math.random() * 900);
-
-      const { error: saveError } = await supabase
-        .from('profiles')
-        .update({ referral_code: newCode })
-        .eq('id', artistProfileId)
-        .select('referral_code')
-        .maybeSingle();
-
-      if (saveError) {
-        console.error('[ReferralTab] save error:', saveError);
-      } else {
-        setReferralCode(newCode);
+      // Fetch real referral counts from referrals table
+      const { data: referrals } = await supabase
+        .from('referrals')
+        .select('id, status')
+        .eq('referrer_profile_id', artistProfileId);
+      if (referrals) {
+        setInvitesSent(referrals.length);
+        setSignedUp(referrals.filter(r => r.status === 'converted').length);
       }
     })();
   }, [artistProfileId]);
@@ -98,9 +107,9 @@ const ReferralTab = ({ artistName = '', artistProfileId }: ReferralTabProps) => 
   };
 
   const stats = [
-    { icon: Users, label: isHe ? 'הזמנות שנשלחו' : 'Invites Sent', value: '12' },
-    { icon: TrendingUp, label: isHe ? 'נרשמו דרכך' : 'Signed Up', value: '4' },
-    { icon: Gift, label: isHe ? 'קרדיט שנצבר' : 'Credits Earned', value: '₪316' },
+    { icon: Users, label: isHe ? 'הזמנות שנשלחו' : 'Invites Sent', value: String(invitesSent) },
+    { icon: TrendingUp, label: isHe ? 'נרשמו דרכך' : 'Signed Up', value: String(signedUp) },
+    { icon: Gift, label: isHe ? 'קרדיט שנצבר' : 'Credits Earned', value: `₪${referralCredit}` },
   ];
 
 

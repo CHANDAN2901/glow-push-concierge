@@ -45,6 +45,7 @@ import MessageTemplateSettings from '@/components/MessageTemplateSettings';
 import RenewalMessageDialog, { isRenewalDue } from '@/components/RenewalMessageDialog';
 import HelpTooltip from '@/components/HelpTooltip';
 import WelcomeTour from '@/components/WelcomeTour';
+import PostSignupInstallPrompt from '@/components/PostSignupInstallPrompt';
 import DailyGrowthEngine from '@/components/DailyGrowthEngine';
 import ReferralVoucherEditor from '@/components/ReferralVoucherEditor';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
@@ -229,6 +230,8 @@ const ArtistDashboard = () => {
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('trial');
   const [subscriptionTier, setSubscriptionTier] = useState<string>('lite');
   const [totalClientsCount, setTotalClientsCount] = useState(0);
+  const [artistReferralCode, setArtistReferralCode] = useState<string | null>(null);
+  const [todayAppointmentsCount, setTodayAppointmentsCount] = useState(0);
 
   const trialDaysLeft = calcTrialDaysLeft(profileCreatedAt);
   const trialActive = trialDaysLeft > 0;
@@ -440,7 +443,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     if (!user) return;
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier, onboarding_checklist_dismissed')
+      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier, onboarding_checklist_dismissed, referral_code')
       .eq('user_id', user.id)
       .maybeSingle() as { data: any; error: any };
 
@@ -476,6 +479,21 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           else localStorage.removeItem('gp-artist-logo');
         }
         if (data.full_name) { setArtistName(data.full_name); localStorage.setItem('gp-artist-name', data.full_name); }
+      }
+      if (data.referral_code) {
+        // Use existing code from DB
+        setArtistReferralCode(data.referral_code);
+      } else if (data.id) {
+        // No code in DB yet — generate one, save it to DB first, then use it
+        const base = (data.full_name || 'artist').toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+        const newCode = base + Math.floor(100 + Math.random() * 900);
+        supabase
+          .from('profiles')
+          .update({ referral_code: newCode })
+          .eq('id', data.id)
+          .then(({ error }) => {
+            if (!error) setArtistReferralCode(newCode);
+          });
       }
     }
   }, [user, isImpersonating]);
@@ -736,6 +754,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showWelcomeTour, setShowWelcomeTour] = useState(false);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  // True while waiting for install prompt to close (blocks wizard from firing in parallel)
+  const [isNewSignupFlow, setIsNewSignupFlow] = useState(() => {
+    const hasFlag = !!sessionStorage.getItem('gp-show-install-prompt');
+    if (hasFlag) sessionStorage.removeItem('gp-show-install-prompt');
+    return hasFlag;
+  });
   const [showInvoiceComingSoon, setShowInvoiceComingSoon] = useState(false);
   const [deletingClient, setDeletingClient] = useState<ClientEntry | null>(null);
   const [deleteAlsoAppointments, setDeleteAlsoAppointments] = useState(false);
@@ -751,22 +776,32 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [renewalClient, setRenewalClient] = useState<ClientEntry | null>(null);
   const [customTemplates, setCustomTemplates] = useState<{ birthday?: string; renewal?: string; review?: string; referral?: string; birthday_en?: string; renewal_en?: string; review_en?: string; referral_en?: string }>({});
 
-  // Check if first-time user (no onboarding done)
+  // Show install prompt for new signups — flag was consumed synchronously in state initializer
   useEffect(() => {
-    if (user && userProfileId && !localStorage.getItem('gp-onboarding-done')) {
-      // Small delay to let dashboard render first
+    if (!isNewSignupFlow) return;
+    const timer = setTimeout(() => setShowInstallPrompt(true), 1500);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Check if first-time user (no onboarding done).
+  // Blocked while isNewSignupFlow is true so the wizard doesn't fire behind the install prompt.
+  // userProfileId not required here — wizard handles null gracefully.
+  useEffect(() => {
+    if (user && !localStorage.getItem('gp-onboarding-done') && !isNewSignupFlow) {
       const timer = setTimeout(() => setShowOnboarding(true), 800);
       return () => clearTimeout(timer);
     }
-  }, [user, userProfileId]);
+  }, [user, isNewSignupFlow]);
 
   // Show welcome tour after onboarding wizard is done (for first-time users)
+  // userProfileId not required — just needs user to be logged in.
   useEffect(() => {
-    if (user && userProfileId && localStorage.getItem('gp-onboarding-done') && !localStorage.getItem('gp-welcome-tour-done')) {
+    if (user && localStorage.getItem('gp-onboarding-done') && !localStorage.getItem('gp-welcome-tour-done')) {
       const timer = setTimeout(() => setShowWelcomeTour(true), 1200);
       return () => clearTimeout(timer);
     }
-  }, [user, userProfileId, showOnboarding]);
+  }, [user, showOnboarding]);
 
   // Dynamic health questions for risk calculation
   const { questions: healthQuestionsData } = useHealthQuestions();
@@ -1173,21 +1208,26 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const fetchAppointments = useCallback(async () => {
     if (!userProfileId) return;
     try {
+      const d = new Date();
+      const localToday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       const { data } = await supabase
         .from('appointments')
         .select('client_name, date, time')
         .eq('artist_id', userProfileId)
         .eq('status', 'scheduled')
         .order('date', { ascending: true });
-      if (data && data.length > 0) {
+      if (data) {
         const lookup: Record<string, { date: string; time: string }> = {};
+        let todayCount = 0;
         data.forEach(a => {
+          if (a.date === localToday) todayCount++;
           // Keep the nearest future appointment per client
           if (!lookup[a.client_name]) {
             lookup[a.client_name] = { date: a.date, time: a.time };
           }
         });
         setAppointmentLookup(lookup);
+        setTodayAppointmentsCount(todayCount);
       }
     } catch (err) {
       console.error('Failed to fetch appointments:', err);
@@ -1195,6 +1235,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   }, [userProfileId]);
 
   useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
+  // Re-fetch appointments when navigating back to home tab so Today count is fresh
+  useEffect(() => { if (activeTab === 'home') fetchAppointments(); }, [activeTab, fetchAppointments]);
 
   // Clear stale localStorage client cache (clients now fetched from DB only)
   useEffect(() => {
@@ -1480,7 +1522,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               {[
                 { label: t('artist.dashboard.metric.revenue'), value: '₪0', trend: '', icon: DollarSign, comingSoon: true },
                 { label: t('artist.dashboard.metric.newClients'), value: String(totalClientsCount), trend: '', icon: Users },
-                { label: t('artist.dashboard.metric.today'), value: String(Object.values(appointmentLookup).filter(a => a.date === new Date().toISOString().split('T')[0]).length), trend: '', icon: CalendarCheck },
+                { label: t('artist.dashboard.metric.today'), value: String(todayAppointmentsCount), trend: '', icon: CalendarCheck },
               ].map((metric, i) => (
                 <div
                   key={i}
@@ -1517,7 +1559,15 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
             <div className="animate-fade-up flex justify-center" style={{ animationDelay: '0.1s', opacity: 0 }}>
               <button
-                onClick={() => setActiveTab('bonuses')}
+                onClick={() => {
+                  const referralLink = artistReferralCode
+                    ? `${window.location.origin}/auth?ref=${artistReferralCode}`
+                    : `${window.location.origin}/auth`;
+                  const msg = lang === 'he'
+                    ? `היי, את חייבת לבדוק את Glow Push! זה אפליקציה שנבנתה רק לעוסקות בקוסמטיקה קבועה, ויש שם את כל מה שאנחנו צריכות — כולל הצהרת בריאות מעוצבת להפליא שמציפה התראה אם יש בעיות רפואיות, תיעוד קולי של טיפולים, גלריה משותפת לך ולקוחה שלך במקום תמונות אקראיות בווטסאפ, ועל הכל — מסע התאוששות דיגיטלי ללקוחה.\n\nהרשמי דרך הקישור שלי וקבלי חודש חינם: ${referralLink}`
+                    : `Hi, you have to check out Glow Push! This is an app designed only for permanent makeup, and everything we need is in there — including a beautifully designed health declaration that triggers an alert if there are health issues, voice documentation of treatments, a shared gallery for you and the client instead of random WhatsApp images, and best of all — a digital recovery journey for the client.\n\nSign up with my link and get a free month: ${referralLink}`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                }}
                 className="special-promo-btn w-[90%] max-w-[420px] min-h-[80px] flex items-center justify-center relative overflow-hidden active:scale-95"
                 style={{
                   background: 'linear-gradient(145deg, #d4af37 0%, #b8960b 100%)',
@@ -1577,7 +1627,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
             {/* ── Today's Appointments ── */}
             {(() => {
-              const todayClients = clients.filter(c => c.day === 0 || c.day === 1);
+              const todayClients = clients.filter(c => c.treatmentDate && (c.day === 0 || c.day === 1));
               if (todayClients.length === 0) return null;
               return (
                 <div className="animate-fade-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
@@ -3964,6 +4014,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       <OnboardingWizard
         open={showOnboarding}
         onClose={() => setShowOnboarding(false)}
+        userId={user?.id ?? null}
         userProfileId={userProfileId}
         currentLogoUrl={logoUrl}
         currentName={artistName}
@@ -4015,6 +4066,18 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Post-signup install prompt — closing this unblocks the onboarding wizard */}
+      <PostSignupInstallPrompt
+        open={showInstallPrompt}
+        onClose={() => {
+          setShowInstallPrompt(false);
+          // Re-clear here in case fetchProfileId re-set these from DB onboarding_checklist_dismissed
+          localStorage.removeItem('gp-onboarding-done');
+          localStorage.removeItem('gp-welcome-tour-done');
+          setIsNewSignupFlow(false);
+        }}
+      />
 
       {/* Welcome Tour */}
       <WelcomeTour

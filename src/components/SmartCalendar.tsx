@@ -1231,12 +1231,12 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                   />
                   <label htmlFor="auto-health" className="cursor-pointer">
                     <p className="text-xs font-semibold">
-                      {isHe ? 'שלח הצהרת בריאות אוטומטית בוואטסאפ' : 'Auto-send Health Declaration via WhatsApp'}
+                      {isHe ? 'שלח אוטומטית הצהרת בריאות ומדיניות קליניקה בוואטסאפ' : 'Automatically send health declaration and clinic policy via WhatsApp'}
                     </p>
                     <p className="text-[10px] text-muted-foreground mt-0.5">
                       {isHe
-                        ? 'הלקוחה תקבל הצהרת בריאות דיגיטלית למילוי לפני התור'
-                        : 'Client receives a digital health form to fill before the appointment'}
+                        ? 'מיד עם שמירת התור, הלקוחה תקבל קישור למילוי הצהרת בריאות ומדיניות הקליניקה'
+                        : 'Immediately on booking, client receives the health declaration & clinic policy link'}
                     </p>
                   </label>
                 </div>

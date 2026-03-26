@@ -100,6 +100,12 @@ const Auth = () => {
         setPromoLabel('');
         return;
       }
+      // Check expiration date
+      if (p.expiration_date && new Date(p.expiration_date) < new Date(new Date().toDateString())) {
+        setPromoStatus('invalid');
+        setPromoLabel('');
+        return;
+      }
       setPromoStatus('valid_academy');
       setPromoLabel(p.label || p.code_type);
       setPromoTag(`${p.code_type}_${p.label || p.code}`.replace(/\s+/g, '_'));
@@ -299,8 +305,10 @@ const Auth = () => {
             : (lang === 'en' ? 'We sent a confirmation link to your email.' : 'שלחנו לך קישור אישור למייל.'),
         });
 
-        // Show install prompt after signup
-        setTimeout(() => setShowInstallPrompt(true), 1500);
+        // Signal dashboard to show install prompt + reset onboarding for new user
+        sessionStorage.setItem('gp-show-install-prompt', '1');
+        localStorage.removeItem('gp-onboarding-done');
+        localStorage.removeItem('gp-welcome-tour-done');
       }
     } catch (err: any) {
       toast({

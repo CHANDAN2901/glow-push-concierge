@@ -38,7 +38,7 @@ function useUserTier() {
         .from('profiles')
         .select('subscription_tier')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return (data?.subscription_tier ?? 'lite') as TierSlug;
     },
