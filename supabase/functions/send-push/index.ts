@@ -336,7 +336,18 @@ serve(async (req: Request) => {
     const endpoint = new URL(subscription.endpoint);
     const audience = `${endpoint.protocol}//${endpoint.host}`;
     const expiration = Math.floor(Date.now() / 1000) + 12 * 3600;
-    const jwt = await createVapidJwt(audience, "mailto:push@glowpush.app", signingKey, expiration);
+
+    let jwt: string;
+    try {
+      jwt = await createVapidJwt(audience, "mailto:push@glowpush.app", signingKey, expiration);
+      console.log("[send-push] ✅ JWT created");
+    } catch (jwtErr: any) {
+      console.error("[send-push] JWT creation failed:", jwtErr?.message);
+      return new Response(
+        JSON.stringify({ error: `JWT creation failed: ${jwtErr?.message || "Unknown error"}` }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     console.log("[send-push] Sending to host:", endpoint.host);
     const response = await fetch(subscription.endpoint, {
