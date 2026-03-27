@@ -14,30 +14,28 @@ function isValidBase64Image(base64String: string): boolean {
 
 // SECURITY: Check file size (max 10MB)
 function isValidFileSize(base64String: string, maxSizeMB: number = 10): boolean {
-  const base64Content = base64String.includes(",") 
-    ? base64String.split(",")[1] 
-    : base64String;
-  
+  const base64Content = base64String.includes(",") ? base64String.split(",")[1] : base64String;
+
   const sizeInBytes = (base64Content.length * 3) / 4;
   const sizeInMB = sizeInBytes / (1024 * 1024);
-  
+
   return sizeInMB <= maxSizeMB;
 }
 
 // SECURITY: Authenticate the request
 async function authenticateRequest(req: Request): Promise<{ userId: string; profileId: string } | null> {
   const authHeader = req.headers.get("authorization");
-  
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return null;
   }
 
   const token = authHeader.replace("Bearer ", "");
-  
+
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    
+
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: {
@@ -46,8 +44,11 @@ async function authenticateRequest(req: Request): Promise<{ userId: string; prof
       },
     });
 
-    const { data: { user }, error } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
     if (error || !user) {
       return null;
     }
@@ -75,26 +76,23 @@ Deno.serve(async (req: Request) => {
     // Artists must be authenticated. Clients (anon) must supply a valid clientId.
     if (!auth) {
       if (!clientId) {
-        return new Response(
-          JSON.stringify({ error: "Authentication required." }),
-          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Authentication required." }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
       // Validate clientId exists in DB so random actors can't upload
-      const serviceSupabase = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
+      const serviceSupabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
       const { data: clientRecord } = await serviceSupabase
         .from("clients")
         .select("id")
         .eq("id", clientId)
         .maybeSingle();
       if (!clientRecord) {
-        return new Response(
-          JSON.stringify({ error: "Invalid client." }),
-          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Invalid client." }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
     }
 
@@ -104,7 +102,7 @@ Deno.serve(async (req: Request) => {
     if (!artistProfileId || !category || !base64Data) {
       return new Response(
         JSON.stringify({ error: "Missing required fields: artistProfileId, category, and base64Data" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -112,27 +110,22 @@ Deno.serve(async (req: Request) => {
     if (!isValidBase64Image(base64Data)) {
       return new Response(
         JSON.stringify({ error: "Invalid image format. Only JPEG, PNG, GIF, and WebP images are allowed." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
     // SECURITY: Check file size
     if (!isValidFileSize(base64Data, 10)) {
-      return new Response(
-        JSON.stringify({ error: "File too large. Maximum size is 10MB." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "File too large. Maximum size is 10MB." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
     // Decode base64 to binary
-    const base64Content = base64Data.includes(",")
-      ? base64Data.split(",")[1]
-      : base64Data;
+    const base64Content = base64Data.includes(",") ? base64Data.split(",")[1] : base64Data;
     const binaryStr = atob(base64Content);
     const bytes = new Uint8Array(binaryStr.length);
     for (let i = 0; i < binaryStr.length; i++) {
@@ -145,40 +138,34 @@ Deno.serve(async (req: Request) => {
     else if (base64Data.includes("image/webp")) contentType = "image/webp";
 
     // Sanitize clientId for storage path (remove non-ASCII chars)
-    const safeClientId = (clientId || 'general').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const safeClientId = (clientId || "general").replace(/[^a-zA-Z0-9_-]/g, "_");
     const storagePath = `${artistProfileId}/${safeClientId}/${category}/${fileName || `${Date.now()}.jpg`}`;
 
     // Upload to storage
-    const { error: uploadError } = await supabase.storage
-      .from("client-photos")
-      .upload(storagePath, bytes, {
-        contentType,
-        upsert: true,
-      });
+    const { error: uploadError } = await supabase.storage.from("client-photos").upload(storagePath, bytes, {
+      contentType,
+      upsert: true,
+    });
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
-      return new Response(
-        JSON.stringify({ error: uploadError.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: uploadError.message }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
-      .from("client-photos")
-      .getPublicUrl(storagePath);
+    const { data: urlData } = supabase.storage.from("client-photos").getPublicUrl(storagePath);
 
     // Save metadata
-    const { error: metaError } = await supabase
-      .from("images_metadata")
-      .insert({
-        artist_profile_id: artistProfileId,
-        client_id: clientId || null,
-        category,
-        storage_path: storagePath,
-        label: category,
-      });
+    const { error: metaError } = await supabase.from("images_metadata").insert({
+      artist_profile_id: artistProfileId,
+      client_id: clientId || null,
+      category,
+      storage_path: storagePath,
+      label: category,
+    });
 
     if (metaError) {
       console.error("Metadata error:", metaError);
@@ -189,13 +176,13 @@ Deno.serve(async (req: Request) => {
         url: urlData.publicUrl,
         storagePath,
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
     console.error("Error:", e);
-    return new Response(
-      JSON.stringify({ error: (e as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: (e as Error).message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
