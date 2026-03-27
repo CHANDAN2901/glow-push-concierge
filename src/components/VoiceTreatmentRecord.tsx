@@ -39,6 +39,8 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
   const isRecordingRef = useRef(false);
   const isStartingRef = useRef(false);
   const sessionIdRef = useRef(0);
+  const networkRetryCountRef = useRef(0);
+  const MAX_NETWORK_RETRIES = 3;
 
   useEffect(() => {
     return () => {
@@ -90,7 +92,7 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'he-IL';
+    recognition.lang = lang === 'en' ? 'en-US' : 'he-IL';
     recognition.continuous = true;
     recognition.interimResults = true;
     recognitionRef.current = recognition;
@@ -146,16 +148,25 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     recognition.onerror = (event: any) => {
       if (sessionId !== sessionIdRef.current || recognitionRef.current !== recognition) return;
 
-      console.error('Speech recognition error:', event.error);
       if (event.error === 'not-allowed' || event.error === 'permission-denied') {
         toast({
           title: lang === 'en' ? 'Please allow microphone access in browser settings to record' : 'כדי להקליט, יש לאשר גישה למיקרופון בהגדרות הדפדפן',
           variant: 'destructive',
         });
         handleFullReset();
-      } else if (event.error === 'no-speech') {
-        // Will auto-restart via onend
+      } else if (event.error === 'network') {
+        networkRetryCountRef.current += 1;
+        if (networkRetryCountRef.current >= MAX_NETWORK_RETRIES) {
+          toast({
+            title: lang === 'en' ? 'Network error' : 'שגיאת רשת',
+            description: lang === 'en' ? 'Speech recognition requires an internet connection. Please check your connection and try again.' : 'זיהוי דיבור דורש חיבור לאינטרנט. אנא בדקי את החיבור ונסי שוב.',
+            variant: 'destructive',
+          });
+          handleFullReset();
+        }
+        // else: let onend auto-restart for transient network hiccup
       }
+      // no-speech: let onend auto-restart
     };
 
     recognition.onend = () => {
@@ -167,6 +178,7 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     };
 
     isRecordingRef.current = true;
+    networkRetryCountRef.current = 0;
     try {
       recognition.start();
     } catch (e) {
@@ -204,11 +216,21 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
       try { recognition.stop(); } catch {}
     }
 
+    // Capture any remaining interim text before clearing
+    const pendingInterim = Object.keys(interimResultsByIndexRef.current)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map((index) => interimResultsByIndexRef.current[index])
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
     setInterimTranscription('');
     interimResultsByIndexRef.current = {};
 
-    // Use only final (isFinal) text for processing
-    const spokenText = accumulatedTextRef.current.trim();
+    // Use final text, falling back to any interim text not yet finalized
+    const finalText = accumulatedTextRef.current.trim();
+    const spokenText = finalText || pendingInterim;
     if (!spokenText) {
       toast({
         title: lang === 'en' ? 'No speech detected' : 'לא זוהה דיבור',
