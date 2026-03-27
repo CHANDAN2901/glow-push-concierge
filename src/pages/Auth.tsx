@@ -173,6 +173,7 @@ const Auth = () => {
         const from = (location.state as any)?.from?.pathname || '/artist';
         navigate(from, { replace: true });
       } else {
+        const hasValidCode = promoStatus === 'valid_referral' || promoStatus === 'valid_academy';
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
@@ -181,6 +182,7 @@ const Auth = () => {
             data: {
               full_name: fullName,
               studio_name: studioName,
+              ...(hasValidCode && promoCode.trim() ? { referral_code: promoCode.trim() } : {}),
             },
           },
         });
@@ -202,98 +204,8 @@ const Auth = () => {
           body: lang === 'en' ? 'Your account has been created successfully!' : 'החשבון שלך נוצר בהצלחה!',
         });
 
-        // After signup, apply promo/referral benefits once the profile row exists
-        if (signUpData?.user && (promoStatus === 'valid_referral' || promoStatus === 'valid_academy')) {
-          const userId = signUpData.user.id;
-
-          // Poll for the profile row — DB trigger may take a few seconds
-          const waitForProfile = async (): Promise<string | null> => {
-            for (let i = 0; i < 10; i++) {
-              await new Promise(r => setTimeout(r, 1500));
-              const { data } = await supabase
-                .from('profiles')
-                .select('id')
-                .eq('user_id', userId)
-                .maybeSingle();
-              if (data?.id) return data.id;
-            }
-            return null;
-          };
-
-          // Run in background — don't block the UI
-          (async () => {
-            try {
-              const newProfileId = await waitForProfile();
-              if (!newProfileId) {
-                console.warn('[Promo] Profile not found after retries for user', userId);
-                return;
-              }
-
-              if (promoStatus === 'valid_referral' && referrerProfileId) {
-                // 1. Mark new user as referred + grant 1 free month via subscription_status
-                await supabase.from('profiles').update({
-                  referred_by_profile_id: referrerProfileId,
-                  promo_code_used: promoCode.trim(),
-                  subscription_status: 'active',
-                }).eq('id', newProfileId);
-
-                // 2. Create a completed referral record with reward
-                await supabase.from('referrals').insert({
-                  referrer_profile_id: referrerProfileId,
-                  referred_profile_id: newProfileId,
-                  referred_email: email,
-                  referral_code: promoCode.trim(),
-                  status: 'converted',
-                  converted_at: new Date().toISOString(),
-                  reward_credit: 50,
-                });
-
-                // 3. Credit the referrer ₪50
-                const { data: referrerProfile } = await supabase
-                  .from('profiles')
-                  .select('referral_credit')
-                  .eq('id', referrerProfileId)
-                  .maybeSingle();
-                const currentCredit = referrerProfile?.referral_credit ?? 0;
-                await supabase.from('profiles').update({
-                  referral_credit: currentCredit + 50,
-                }).eq('id', referrerProfileId);
-              }
-
-              if (promoStatus === 'valid_academy' && promoTag) {
-                // 1. Fetch how many free months this promo gives
-                const { data: promoRow } = await supabase
-                  .from('promo_codes' as any)
-                  .select('free_months')
-                  .ilike('code', promoCode.trim())
-                  .maybeSingle() as { data: { free_months: number | null } | null };
-
-                const freeMonths = promoRow?.free_months ?? 1;
-
-                // 2. Apply benefit to new user
-                await supabase.from('profiles').update({
-                  promo_code_used: promoCode.trim(),
-                  promo_tag: promoTag,
-                  subscription_status: freeMonths > 0 ? 'active' : undefined,
-                }).eq('id', newProfileId);
-
-                // 3. Increment promo usage counter
-                await supabase.rpc('increment_promo_usage' as any, { promo_code_value: promoCode.trim() });
-              }
-            } catch (err) {
-              console.warn('[Promo] Client-side apply failed:', err);
-            }
-
-            // Always call RPC as safety net — SECURITY DEFINER bypasses RLS so it
-            // handles whatever the client-side steps couldn't. Idempotent: skips
-            // silently if the referral record already exists for this user.
-            const { error: rpcErr } = await supabase.rpc('apply_referral_benefits' as any, {
-              p_new_user_id: userId,
-              p_referral_code: promoCode.trim(),
-            });
-            if (rpcErr) console.warn('[Promo] RPC fallback error:', rpcErr.message);
-          })();
-        }
+        // Referral/promo benefits are now applied server-side by the handle_new_user
+        // trigger which reads referral_code from user metadata. No client-side RPC needed.
 
         const hasPromo = promoStatus === 'valid_referral' || promoStatus === 'valid_academy';
         toast({
