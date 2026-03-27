@@ -23,6 +23,7 @@ import HealthDeclarationPreview from '@/components/HealthDeclarationPreview';
 import AiMagicSection from '@/components/AiMagicSection';
 import HelpCenter from '@/components/HelpCenter';
 import HealthDeclarationEditor from '@/components/HealthDeclarationEditor';
+import HealingJourneyEditorDialog from '@/components/HealingJourneyEditorDialog';
 import ClinicPolicyEditor from '@/components/ClinicPolicyEditor';
 import SmartCalendar from '@/components/SmartCalendar';
 import SimpleGallery from '@/components/SimpleGallery';
@@ -749,6 +750,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showHealthEditor, setShowHealthEditor] = useState(false);
+  const [showHealingJourneyEditor, setShowHealingJourneyEditor] = useState(false);
   const [showPolicyEditor, setShowPolicyEditor] = useState(false);
   const [showVoucherEditor, setShowVoucherEditor] = useState(false);
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
@@ -1789,7 +1791,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
               <FeatureGate featureKey={FK.HEALING_TIMELINE} mode="badge">
               <div className="relative">
-                <button onClick={() => navigate('/admin/timeline-settings')} className="pill-action-btn animate-fade-up">
+                <button onClick={() => setShowHealingJourneyEditor(true)} className="pill-action-btn animate-fade-up">
                   <span className="pill-icon-circle"><Pencil className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
                   <span className="flex-1 text-right pr-3">{t('artist.dashboard.editHealingJourney')}</span>
                 </button>
@@ -3814,6 +3816,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         onOpenChange={setShowVoucherEditor}
         artistProfileId={userProfileId || ''}
         lang={lang}
+      />
+
+      {/* Healing Journey Editor Dialog */}
+      <HealingJourneyEditorDialog
+        open={showHealingJourneyEditor}
+        onClose={() => setShowHealingJourneyEditor(false)}
       />
 
       {/* Health Declaration Editor - Artist Override Dialog */}

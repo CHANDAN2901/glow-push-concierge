@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RequireAuth from "@/components/RequireAuth";
+import RequireAdmin from "@/components/RequireAdmin";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { I18nProvider } from "@/components/I18nProvider";
 import Header from "@/components/Header";
@@ -64,12 +65,12 @@ const App = () => (
               <Route path="/digital-card" element={<RequireAuth><DigitalCard /></RequireAuth>} />
               <Route path="/health-declaration" element={<HealthDeclarationPage />} />
               <Route path="/f/:code" element={<FormLinkResolver />} />
-              <Route path="/admin/aftercare" element={<RequireAuth><AftercareEditorPage /></RequireAuth>} />
-              <Route path="/admin/timeline" element={<RequireAuth><TimelineEditorPage /></RequireAuth>} />
-              <Route path="/admin/timeline-content" element={<RequireAuth><TimelineContentEditorPage /></RequireAuth>} />
+              <Route path="/admin/aftercare" element={<RequireAuth><RequireAdmin><AftercareEditorPage /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/timeline" element={<RequireAuth><RequireAdmin><TimelineEditorPage /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/timeline-content" element={<RequireAuth><RequireAdmin><TimelineContentEditorPage /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/timeline-settings" element={<RequireAuth><ProtectedRoute featureId="healing_timeline"><TimelineSettings /></ProtectedRoute></RequireAuth>} />
               <Route path="/admin/faq" element={<RequireAuth><FaqPage /></RequireAuth>} />
-              <Route path="/admin/faq-manager" element={<RequireAuth><FaqManager /></RequireAuth>} />
+              <Route path="/admin/faq-manager" element={<RequireAuth><RequireAdmin><FaqManager /></RequireAdmin></RequireAuth>} />
               <Route path="/super-admin" element={<RequireAuth><SuperAdmin /></RequireAuth>} />
               <Route path="/debug-test" element={<DebugTest />} />
               <Route path="/client-profile" element={<RequireAuth><ClientProfile /></RequireAuth>} />
