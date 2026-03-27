@@ -1000,6 +1000,7 @@ export type Database = {
         Row: {
           business_phone: string | null
           created_at: string
+          eligible_lifetime_basic: boolean
           email: string | null
           facebook_url: string | null
           full_name: string | null
@@ -1010,6 +1011,7 @@ export type Database = {
           logo_url: string | null
           onboarding_checklist_dismissed: boolean
           onboarding_checklist_state: Json
+          post_trial_discount_percent: number | null
           promo_code_used: string | null
           promo_tag: string | null
           referral_code: string | null
@@ -1027,6 +1029,7 @@ export type Database = {
         Insert: {
           business_phone?: string | null
           created_at?: string
+          eligible_lifetime_basic?: boolean
           email?: string | null
           facebook_url?: string | null
           full_name?: string | null
@@ -1037,6 +1040,7 @@ export type Database = {
           logo_url?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
+          post_trial_discount_percent?: number | null
           promo_code_used?: string | null
           promo_tag?: string | null
           referral_code?: string | null
@@ -1054,6 +1058,7 @@ export type Database = {
         Update: {
           business_phone?: string | null
           created_at?: string
+          eligible_lifetime_basic?: boolean
           email?: string | null
           facebook_url?: string | null
           full_name?: string | null
@@ -1064,6 +1069,7 @@ export type Database = {
           logo_url?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
+          post_trial_discount_percent?: number | null
           promo_code_used?: string | null
           promo_tag?: string | null
           referral_code?: string | null
@@ -1396,7 +1402,11 @@ export type Database = {
     }
     Functions: {
       apply_referral_benefits: {
-        Args: { p_new_user_id: string; p_referral_code: string }
+        Args: {
+          p_academy_start_date?: string
+          p_new_user_id: string
+          p_referral_code: string
+        }
         Returns: Json
       }
       clone_healing_phases_for_client: {
