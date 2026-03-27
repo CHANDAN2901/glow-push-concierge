@@ -173,6 +173,7 @@ const Auth = () => {
         const from = (location.state as any)?.from?.pathname || '/artist';
         navigate(from, { replace: true });
       } else {
+        const hasValidCode = promoStatus === 'valid_referral' || promoStatus === 'valid_academy';
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
@@ -181,6 +182,7 @@ const Auth = () => {
             data: {
               full_name: fullName,
               studio_name: studioName,
+              ...(hasValidCode && promoCode.trim() ? { referral_code: promoCode.trim() } : {}),
             },
           },
         });
