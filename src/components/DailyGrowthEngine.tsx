@@ -86,7 +86,8 @@ function GoldCard({ children }: { children: React.ReactNode }) {
 
 export default function DailyGrowthEngine({ clients, artistName, lang, onBirthdayClick, onRenewalClick, reviewTemplate, reviewTemplateEn }: DailyGrowthEngineProps) {
   const birthdayClients = clients.filter(c => isBirthdayThisWeek(c.birthDate));
-  const renewalClients = clients.filter(c => isRenewalDue(c.treatment, c.day));
+  // Retention: clients ~11 months post-treatment (300–365 days) due for a refresh
+  const renewalClients = clients.filter(c => c.day >= 300 && c.day <= 395);
   const reviewClients = clients.filter(c => c.day >= 35 && c.day <= 120);
 
   const handleReviewWhatsApp = (client: ClientEntry) => {

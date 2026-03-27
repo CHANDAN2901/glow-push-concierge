@@ -67,19 +67,39 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // SECURITY: Require authentication
   const auth = await authenticateRequest(req);
-  if (!auth) {
-    return new Response(
-      JSON.stringify({ error: "Authentication required. Please log in to upload photos." }),
-      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
-
-  console.log("[upload-client-photo] Authenticated user:", auth.userId);
 
   try {
     const { artistProfileId, clientId, category, base64Data, fileName } = await req.json();
+
+    // Artists must be authenticated. Clients (anon) must supply a valid clientId.
+    if (!auth) {
+      if (!clientId) {
+        return new Response(
+          JSON.stringify({ error: "Authentication required." }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      // Validate clientId exists in DB so random actors can't upload
+      const serviceSupabase = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
+      const { data: clientRecord } = await serviceSupabase
+        .from("clients")
+        .select("id")
+        .eq("id", clientId)
+        .maybeSingle();
+      if (!clientRecord) {
+        return new Response(
+          JSON.stringify({ error: "Invalid client." }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    if (auth) console.log("[upload-client-photo] Authenticated user:", auth.userId);
+    else console.log("[upload-client-photo] Anon client upload for clientId:", clientId);
 
     if (!artistProfileId || !category || !base64Data) {
       return new Response(
