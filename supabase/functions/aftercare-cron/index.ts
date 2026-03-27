@@ -121,6 +121,7 @@ serve(async (req: Request) => {
                   },
                   title: `${matchingMsg.label} ✨`,
                   body: messageText.substring(0, 200),
+                  url: `/c/${client.id}`,
                   day: matchingMsg.day,
                 },
               });

@@ -93,6 +93,7 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
           },
           title: 'בדיקת מערכת GlowPush 🔔',
           body: `היי ${clientName}, זו התראת ניסיון מהמערכת! ✨`,
+          url: `/c/${clientId}`,
           day: 1,
         },
       });

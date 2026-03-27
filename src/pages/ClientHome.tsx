@@ -126,7 +126,7 @@ const goldBtnStyle: React.CSSProperties = {
 };
 
 /* ─── Logo Header ─── */
-const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void; hasUnread?: boolean; onBellClick?: () => void }) => (
+const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick, artistLogoUrl }: { lang: 'en' | 'he'; setLang: (l: 'en' | 'he') => void; hasUnread?: boolean; onBellClick?: () => void; artistLogoUrl?: string }) => (
   <div className="flex items-center justify-between px-4 pt-3 pb-2">
     {/* Language toggle — left */}
     <button
@@ -141,10 +141,10 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick }: { lang: 'e
     >
       {lang === 'he' ? 'EN' : 'עב'}
     </button>
-    {/* Centered hero logo */}
+    {/* Centered logo — artist logo if available, else GlowPush default */}
     <img
-      src={heroLogo}
-      alt="Glow Push"
+      src={artistLogoUrl || heroLogo}
+      alt={artistLogoUrl ? 'Studio Logo' : 'Glow Push'}
       className="object-contain"
       style={{ maxHeight: '82px', filter: 'drop-shadow(0 2px 8px rgba(191,149,63,0.3))' }}
     />
@@ -373,6 +373,7 @@ const ClientHome = () => {
   const [artistWaze, setArtistWaze] = useState('');
   const [artistBusinessPhone, setArtistBusinessPhone] = useState('');
   const [artistFullName, setArtistFullName] = useState('');
+  const [artistLogoUrl, setArtistLogoUrl] = useState(logoUrl);
 
   /** Format any phone for wa.me: strip non-digits, replace leading 0 with 972 */
   const waPhone = useMemo(() => {
@@ -400,7 +401,7 @@ const ClientHome = () => {
       // Get artist profile for contact info
       const { data: profile } = await supabase
         .from('profiles')
-        .select('instagram_url, waze_address, business_phone, full_name')
+        .select('instagram_url, waze_address, business_phone, full_name, logo_url')
         .eq('id', artistProfileId)
         .maybeSingle();
       if (profile) {
@@ -408,6 +409,7 @@ const ClientHome = () => {
         if (profile.waze_address) setArtistWaze(profile.waze_address);
         if (profile.business_phone) setArtistBusinessPhone(profile.business_phone);
         if (profile.full_name) setArtistFullName(profile.full_name);
+        if (profile.logo_url) setArtistLogoUrl(profile.logo_url);
       }
     })();
   }, [artistProfileId]);
@@ -573,7 +575,7 @@ const ClientHome = () => {
         }}
       >
         <div className="max-w-md mx-auto">
-          <LogoBrand lang={lang} setLang={setLang} hasUnread={unreadCount > 0} onBellClick={() => setNotifOpen(true)} />
+          <LogoBrand lang={lang} setLang={setLang} hasUnread={unreadCount > 0} onBellClick={() => setNotifOpen(true)} artistLogoUrl={artistLogoUrl} />
         </div>
       </header>
 
