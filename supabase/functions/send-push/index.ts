@@ -244,15 +244,28 @@ serve(async (req: Request) => {
   console.log("[send-push] Authenticated user:", auth.userId);
 
   try {
-    const requestBody = await req.json().catch(() => null);
-    if (!requestBody) {
+    console.log("[send-push] Parsing request body...");
+    let requestBody: any;
+    try {
+      requestBody = await req.json();
+    } catch (parseErr: any) {
+      console.error("[send-push] JSON parse error:", parseErr?.message);
       return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    if (!requestBody) {
+      return new Response(JSON.stringify({ error: "Empty request body" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log("[send-push] Body keys:", Object.keys(requestBody).join(", "));
     const { subscription, title, body: msgBody, icon, url, day } = requestBody;
+    console.log("[send-push] subscription type:", typeof subscription, "has keys:", !!subscription?.keys);
     const subscriptionSummary = summarizeSubscription(subscription);
     console.log("[send-push] Request summary:", JSON.stringify(subscriptionSummary));
 
