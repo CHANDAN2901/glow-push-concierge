@@ -496,6 +496,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           });
       }
     }
+    setProfileFetched(true);
   }, [user, isImpersonating]);
 
   useEffect(() => { fetchProfileId(); }, [fetchProfileId]);
@@ -755,6 +756,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showWelcomeTour, setShowWelcomeTour] = useState(false);
+  const [profileFetched, setProfileFetched] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   // True while waiting for install prompt to close (blocks wizard from firing in parallel)
   const [isNewSignupFlow, setIsNewSignupFlow] = useState(() => {
@@ -787,13 +789,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Check if first-time user (no onboarding done).
   // Blocked while isNewSignupFlow is true so the wizard doesn't fire behind the install prompt.
-  // userProfileId not required here — wizard handles null gracefully.
+  // Waits for profileFetched so the DB onboarding_checklist_dismissed flag is synced to
+  // localStorage before we decide to show the wizard (prevents it showing on every login).
   useEffect(() => {
-    if (user && !localStorage.getItem('gp-onboarding-done') && !isNewSignupFlow) {
+    if (user && profileFetched && !localStorage.getItem('gp-onboarding-done') && !isNewSignupFlow) {
       const timer = setTimeout(() => setShowOnboarding(true), 800);
       return () => clearTimeout(timer);
     }
-  }, [user, isNewSignupFlow]);
+  }, [user, profileFetched, isNewSignupFlow]);
 
   // Show welcome tour after onboarding wizard is done (for first-time users)
   // userProfileId not required — just needs user to be logged in.
