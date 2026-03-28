@@ -197,7 +197,6 @@ export function decodeShopFromUrl(encoded: string): ShopProduct[] {
 const formatPhone = (raw: string): string => {
   const digits = raw.replace(/[^0-9]/g, '');
   if (digits.startsWith('0')) return '972' + digits.slice(1);
-  if (!digits.startsWith('972')) return '972' + digits;
   return digits;
 };
 
@@ -841,8 +840,30 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   };
 
   // Build clean client zone link — just /c/{clientId}
-  const buildClientZoneLink = (clientId: string): string => {
-    return `${window.location.origin}/c/${clientId}`;
+  const buildClientZoneLink = async (clientId: string, clientName?: string, clientPhone?: string): Promise<string> => {
+    const base = `${window.location.origin}/c/${clientId}`;
+    // Try to embed a health-form token so the portal can auto-open the form if not yet filled
+    try {
+      if (userProfileId && clientId) {
+        const { data, error } = await supabase.from('form_links').insert({
+          artist_id: userProfileId,
+          client_name: clientName || '',
+          client_phone: clientPhone || null,
+          logo_url: logoUrl || null,
+          artist_phone: artistPhone ? formatPhone(artistPhone) : null,
+          treatment_type: '',
+          include_policy: true,
+          client_id: clientId,
+          artist_name: artistName || '',
+          is_token_used: false,
+        } as any).select('code, form_token').single();
+        const token = (data as any)?.form_token as string | undefined;
+        if (!error && data?.code && token) {
+          return `${base}?form_code=${data.code}&form_token=${token}`;
+        }
+      }
+    } catch {}
+    return base;
   };
 
   // Build short health declaration link via tokenized form_links table
@@ -2186,15 +2207,29 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
                 {/* === Share Client Portal Link === */}
                 {(() => {
-                  const clientZoneLink = buildClientZoneLink(selectedClient.dbId || '');
                   const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
                   const hasPhone = cleanPhone.length > 0;
                   const firstName = (selectedClient.name || '').split(' ')[0] || 'מותק';
                   const artistSig = artistName || 'אורית אהרוני';
-                  const waMsg = lang === 'en'
-                    ? `Hi ${firstName} ✨, so happy we finished the treatment!\n\nTo keep your results perfect, here's your personal recovery journey with all the instructions and reminders:\n\n${clientZoneLink}\n\nCan't wait to see the final result!\n\nWith love, ${artistSig} - Glow Push 🤍`
-                    : `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול!\n\nכדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות:\n\n${clientZoneLink}\n\nמחכה לראות את התוצאה הסופית!\n\nבאהבה, ${artistSig} - Glow Push 🤍`; // WhatsApp message body — left as-is per spec
-                  const waUrl = buildWhatsAppUrl(cleanPhone, waMsg);
+
+                  const handleSendPortalWhatsApp = async () => {
+                    const link = await buildClientZoneLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone);
+                    const waMsg = lang === 'en'
+                      ? `Hi ${firstName} ✨, so happy we finished the treatment!\n\nTo keep your results perfect, here's your personal recovery journey with all the instructions and reminders:\n\n${link}\n\nCan't wait to see the final result!\n\nWith love, ${artistSig} - Glow Push 🤍`
+                      : `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול!\n\nכדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות:\n\n${link}\n\nמחכה לראות את התוצאה הסופית!\n\nבאהבה, ${artistSig} - Glow Push 🤍`;
+                    const waUrl = buildWhatsAppUrl(cleanPhone, waMsg);
+                    window.open(waUrl, '_blank');
+                  };
+
+                  const handleCopyPortalLink = async () => {
+                    const link = await buildClientZoneLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone);
+                    try {
+                      await navigator.clipboard.writeText(link);
+                      toast({ title: t('artist.dashboard.linkCopied') });
+                    } catch {
+                      window.prompt(t('artist.dashboard.copyThisLink'), link);
+                    }
+                  };
 
                   return (
                     <div
@@ -2214,15 +2249,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         {t('artist.dashboard.clientPortalDesc')}
                       </p>
                       <div className="flex gap-3">
-                        <a
-                          href={waUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => {
+                        <button
+                          onClick={() => {
                             if (!hasPhone) {
-                              e.preventDefault();
                               toast({ title: t('artist.dashboard.noPhone'), variant: 'destructive' });
+                              return;
                             }
+                            handleSendPortalWhatsApp();
                           }}
                           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97] hover:scale-[1.02]"
                           style={{
@@ -2233,16 +2266,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         >
                           <MessageCircle className="w-4 h-4" strokeWidth={2} />
                           {t('artist.dashboard.whatsapp')}
-                        </a>
+                        </button>
                         <button
-                          onClick={async () => {
-                            try {
-                              await navigator.clipboard.writeText(clientZoneLink);
-                              toast({ title: t('artist.dashboard.linkCopied') });
-                            } catch {
-                              window.prompt(t('artist.dashboard.copyThisLink'), clientZoneLink);
-                            }
-                          }}
+                          onClick={handleCopyPortalLink}
                           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97] hover:scale-[1.02] btn-metallic-gold"
                         >
                           <Copy className="w-4 h-4" strokeWidth={2} />

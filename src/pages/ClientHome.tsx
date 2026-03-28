@@ -330,6 +330,29 @@ const ClientHome = () => {
 
   const clientName = dbClientName || urlClientName || identity.clientName || fallbackName;
 
+  // Auto-open health declaration form if not yet filled
+  useEffect(() => {
+    if (!isUUID(clientId)) return;
+    const formCode = searchParams.get('form_code');
+    const formToken = searchParams.get('form_token');
+    if (!formCode || !formToken) return;
+
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('health_declarations')
+          .select('id')
+          .eq('client_id', clientId)
+          .limit(1)
+          .maybeSingle();
+        if (!data) {
+          // No declaration yet — redirect to the health form
+          navigate(`/f/${formCode}?token=${formToken}&client_id=${clientId}`, { replace: false });
+        }
+      } catch {}
+    })();
+  }, [clientId, searchParams, navigate]);
+
   // Referral code
   const generatedReferralCode = useMemo(() => {
     const firstName = (clientName || '').split(' ')[0].toUpperCase();
@@ -1249,7 +1272,14 @@ const ClientHome = () => {
 
       {/* Policy Modal */}
       <ClinicPolicyViewer open={showPolicyModal} onClose={() => setShowPolicyModal(false)} artistProfileId={artistProfileId || undefined} />
-      <HealthDeclarationReadOnly open={showHealthDeclModal} onOpenChange={setShowHealthDeclModal} clientId={clientId || ''} artistProfileId={artistProfileId || ''} />
+      <HealthDeclarationReadOnly
+        open={showHealthDeclModal}
+        onOpenChange={setShowHealthDeclModal}
+        clientId={clientId || ''}
+        artistProfileId={artistProfileId || ''}
+        formCode={searchParams.get('form_code') || undefined}
+        formToken={searchParams.get('form_token') || undefined}
+      />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import {
   Phone, MessageCircle, Instagram, Heart, Camera, FileText,
   PenLine, Calendar, ChevronRight, User, Sparkles, ArrowUp,
   LifeBuoy, HelpCircle, Eye, Send, Play, Mic, Bell,
-  ShieldCheck, AlertTriangle, AlertCircle, ScrollText,
+  ShieldCheck, AlertTriangle, AlertCircle, ScrollText, Copy,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import PremiumPolicySwitch from '@/components/PremiumPolicySwitch';
@@ -402,6 +402,9 @@ const ClientProfile = () => {
   const phone = client?.phone || clientPhone;
   const name = client?.full_name || clientName || (lang === 'en' ? 'Client' : 'לקוחה');
   const cleanPhone = phone.replace(/[^0-9]/g, '');
+  // If starts with 0, treat as Israeli local (strip 0, add 972).
+  // If already has a country code (10+ digits not starting with 0), use as-is.
+  // Otherwise use as-is and let WhatsApp handle it.
   const intlPhone = cleanPhone.startsWith('0') ? `972${cleanPhone.slice(1)}` : cleanPhone;
 
   const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
@@ -449,13 +452,59 @@ const ClientProfile = () => {
 
   const [includePolicyCP, setIncludePolicyCP] = useState(true);
   const [sendingHealthForm, setSendingHealthForm] = useState(false);
+  const [copyingHealthLink, setCopyingHealthLink] = useState(false);
+  const [generatedDeclLink, setGeneratedDeclLink] = useState<string | null>(null);
+  const [generatingDeclLink, setGeneratingDeclLink] = useState(false);
+
+  const buildHealthDeclarationLink = async (): Promise<string | null> => {
+    const resolvedClientDbId = client?.id || clientDbId;
+    if (!resolvedArtistId || !resolvedClientDbId) return null;
+
+    const { data, error } = await supabase
+      .from('form_links')
+      .insert({
+        artist_id: resolvedArtistId,
+        client_name: name,
+        client_phone: phone || null,
+        include_policy: includePolicyCP,
+        client_id: resolvedClientDbId,
+        is_token_used: false,
+      } as any)
+      .select('code, form_token')
+      .single();
+
+    const token = (data as any)?.form_token as string | undefined;
+    if (error || !data?.code || !token) return null;
+
+    const baseUrl = window.location.origin;
+    const secureParams = new URLSearchParams({ client_id: resolvedClientDbId, token });
+    return `${baseUrl}/f/${data.code}?${secureParams.toString()}`;
+  };
+
+  const copyHealthDeclarationLink = async () => {
+    const resolvedClientDbId = client?.id || clientDbId;
+    if (!resolvedArtistId || !resolvedClientDbId) {
+      toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה לפני השליחה', variant: 'destructive' });
+      return;
+    }
+    setCopyingHealthLink(true);
+    try {
+      const link = await buildHealthDeclarationLink();
+      if (!link) throw new Error('Failed to generate link');
+      await navigator.clipboard.writeText(link);
+      toast({ title: lang === 'en' ? 'Link copied to clipboard ✓' : 'הקישור הועתק ✓' });
+    } catch {
+      toast({ title: lang === 'en' ? 'Failed to copy link' : 'שגיאה בהעתקת הקישור', variant: 'destructive' });
+    } finally {
+      setCopyingHealthLink(false);
+    }
+  };
 
   const sendHealthDeclarationWhatsApp = async () => {
-    if (!intlPhone || !resolvedArtistId) {
+    if (!resolvedArtistId) {
       toast({ title: lang === 'en' ? 'Cannot send secure link yet' : 'לא ניתן לשלוח קישור מאובטח כרגע', variant: 'destructive' });
       return;
     }
-
     const resolvedClientDbId = client?.id || clientDbId;
     if (!resolvedClientDbId) {
       toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה לפני השליחה', variant: 'destructive' });
@@ -464,27 +513,8 @@ const ClientProfile = () => {
 
     setSendingHealthForm(true);
     try {
-      const { data, error } = await supabase
-        .from('form_links')
-        .insert({
-          artist_id: resolvedArtistId,
-          client_name: name,
-          client_phone: phone || null,
-          include_policy: includePolicyCP,
-          client_id: resolvedClientDbId,
-          is_token_used: false,
-        } as any)
-        .select('code, form_token')
-        .single();
-
-      const token = (data as any)?.form_token as string | undefined;
-      if (error || !data?.code || !token) {
-        throw error || new Error('Failed to generate secure token');
-      }
-
-      const baseUrl = window.location.origin;
-      const secureParams = new URLSearchParams({ client_id: resolvedClientDbId, token });
-      const declLink = `${baseUrl}/f/${data.code}?${secureParams.toString()}`;
+      const declLink = await buildHealthDeclarationLink();
+      if (!declLink) throw new Error('Failed to generate secure token');
 
       const message = lang === 'en'
         ? (includePolicyCP
@@ -734,20 +764,102 @@ const ClientProfile = () => {
                 <PremiumPolicySwitch
                   id="include-policy-cp"
                   checked={includePolicyCP}
-                  onCheckedChange={setIncludePolicyCP}
+                  onCheckedChange={(v) => { setIncludePolicyCP(v); setGeneratedDeclLink(null); }}
                 />
               </div>
-              <button
-                onClick={sendHealthDeclarationWhatsApp}
-                disabled={sendingHealthForm}
-                className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 disabled:opacity-60"
-                style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
-              >
-                <Send className="w-4 h-4" />
-                {sendingHealthForm
-                  ? (lang === 'en' ? 'Sending...' : 'שולחת...')
-                  : (lang === 'en' ? 'Send Health Declaration via WhatsApp' : 'שלחי הצהרת בריאות בוואטסאפ')}
-              </button>
+              {!generatedDeclLink ? (
+                <button
+                  onClick={async () => {
+                    const resolvedClientDbId = client?.id || clientDbId;
+                    if (!resolvedArtistId || !resolvedClientDbId) {
+                      toast({ title: lang === 'en' ? 'Client must be saved first' : 'יש לשמור את הלקוחה לפני השליחה', variant: 'destructive' });
+                      return;
+                    }
+                    setGeneratingDeclLink(true);
+                    try {
+                      const link = await buildHealthDeclarationLink();
+                      if (!link) throw new Error('failed');
+                      setGeneratedDeclLink(link);
+                    } catch {
+                      toast({ title: lang === 'en' ? 'Failed to generate link' : 'שגיאה ביצירת קישור', variant: 'destructive' });
+                    } finally {
+                      setGeneratingDeclLink(false);
+                    }
+                  }}
+                  disabled={generatingDeclLink}
+                  className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 disabled:opacity-60"
+                  style={{ background: GOLD_GRADIENT, color: '#4a3636' }}
+                >
+                  <Send className="w-4 h-4" />
+                  {generatingDeclLink
+                    ? (lang === 'en' ? 'Generating...' : 'יוצרת קישור...')
+                    : (lang === 'en' ? 'Get Declaration Link' : 'קבלי קישור הצהרה')}
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  {/* Link display */}
+                  <div
+                    className="flex items-center gap-2 p-2.5 rounded-xl text-xs break-all"
+                    style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', color: '#5C400A' }}
+                  >
+                    <span className="flex-1 truncate">{generatedDeclLink}</span>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(generatedDeclLink);
+                          toast({ title: lang === 'en' ? 'Copied ✓' : 'הועתק ✓' });
+                        } catch {
+                          window.prompt('', generatedDeclLink);
+                        }
+                      }}
+                      className="flex-shrink-0 p-1 rounded-lg hover:bg-amber-100 transition-colors"
+                      title={lang === 'en' ? 'Copy' : 'העתק'}
+                    >
+                      <Copy className="w-3.5 h-3.5" style={{ color: '#B8860B' }} />
+                    </button>
+                  </div>
+                  {/* Share actions */}
+                  <div className="flex gap-2">
+                    <a
+                      href={`https://wa.me/${intlPhone}?text=${encodeURIComponent(
+                        lang === 'en'
+                          ? `Hi ${name} 💛\nPlease fill out the health declaration before your appointment 🩺✨\n${generatedDeclLink}`
+                          : `היי ${name} 💛\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺✨\n${generatedDeclLink}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-xl transition-all hover:opacity-90"
+                      style={{ background: 'linear-gradient(135deg, #1a8f4a 0%, #22c55e 100%)', color: '#fff' }}
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      WhatsApp
+                    </a>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(generatedDeclLink);
+                          toast({ title: lang === 'en' ? 'Link copied ✓' : 'קישור הועתק ✓' });
+                        } catch {
+                          window.prompt('', generatedDeclLink);
+                        }
+                      }}
+                      className="flex-1 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-xl transition-all hover:opacity-80"
+                      style={{ border: '1.5px solid rgba(212,175,55,0.4)', color: '#8B7355', background: 'rgba(212,175,55,0.06)' }}
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      {lang === 'en' ? 'Copy Link' : 'העתק קישור'}
+                    </button>
+                  </div>
+                  {/* Reset */}
+                  <button
+                    onClick={() => setGeneratedDeclLink(null)}
+                    className="w-full text-xs py-1.5 text-center transition-colors hover:underline"
+                    style={{ color: '#8B7355' }}
+                  >
+                    {lang === 'en' ? '← Generate new link' : '← צור קישור חדש'}
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             /* State B: Submitted */

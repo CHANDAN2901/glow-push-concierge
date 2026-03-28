@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { CheckCircle2, XCircle, FileText } from 'lucide-react';
+import { CheckCircle2, XCircle, FileText, ClipboardList } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 
 interface Props {
@@ -9,6 +9,9 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   clientId: string;
   artistProfileId: string;
+  /** If provided, shown as a CTA link when no declaration exists yet */
+  formCode?: string;
+  formToken?: string;
 }
 
 interface QuestionRow {
@@ -19,7 +22,7 @@ interface QuestionRow {
   icon: string;
 }
 
-export default function HealthDeclarationReadOnly({ open, onOpenChange, clientId, artistProfileId }: Props) {
+export default function HealthDeclarationReadOnly({ open, onOpenChange, clientId, artistProfileId, formCode, formToken }: Props) {
   const { lang } = useI18n();
   const [declaration, setDeclaration] = useState<any>(null);
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
@@ -95,8 +98,29 @@ export default function HealthDeclarationReadOnly({ open, onOpenChange, clientId
               <div className="animate-spin w-6 h-6 border-2 border-t-transparent rounded-full" style={{ borderColor: '#B8860B', borderTopColor: 'transparent' }} />
             </div>
           ) : !declaration ? (
-            <div className="text-center py-10" style={{ color: '#8B7355', fontFamily: "'Assistant', sans-serif" }}>
-              <p className="text-sm">{lang === 'en' ? 'No health declaration found.' : 'לא נמצאה הצהרת בריאות.'}</p>
+            <div className="text-center py-10 flex flex-col items-center gap-4" style={{ fontFamily: "'Assistant', sans-serif" }}>
+              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)', border: '1.5px solid rgba(212,175,55,0.25)' }}>
+                <ClipboardList className="w-7 h-7" style={{ color: '#B8860B' }} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold mb-1" style={{ color: '#5C400A' }}>
+                  {lang === 'en' ? 'Health declaration not filled yet' : 'הצהרת הבריאות טרם מולאה'}
+                </p>
+                <p className="text-xs" style={{ color: '#8B7355' }}>
+                  {lang === 'en' ? 'Please fill it before your appointment' : 'יש למלא לפני הטיפול'}
+                </p>
+              </div>
+              {formCode && formToken && (
+                <a
+                  href={`/f/${formCode}?token=${formToken}&client_id=${clientId}`}
+                  onClick={() => onOpenChange(false)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-bold transition-all hover:opacity-90 active:scale-[0.97]"
+                  style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F5C6D0 50%, #D4AF37 100%)', color: '#4a3636' }}
+                >
+                  <FileText className="w-4 h-4" />
+                  {lang === 'en' ? 'Fill Health Declaration' : 'מלאי הצהרת בריאות'}
+                </a>
+              )}
             </div>
           ) : (
             <>
