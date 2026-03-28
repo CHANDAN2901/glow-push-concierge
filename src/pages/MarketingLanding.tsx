@@ -33,8 +33,14 @@ const GOLD_SOFT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%,
 
 const MarketingLanding = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { lang, setLang } = useI18n();
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/artist', { replace: true });
+    }
+  }, [user, loading]);
   const isHe = lang === 'he';
   const dir = isHe ? 'rtl' : 'ltr';
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
