@@ -176,19 +176,29 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick, artistLogoUr
 /* ─── Push Notification Banner ─── */
 function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { clientId: string; clientName: string; artistProfileId: string; lang: 'en' | 'he' }) {
   const { toast } = useToast();
-  const [status, setStatus] = useState<'idle' | 'loading' | 'subscribed'>('idle');
   const validClientId = isUUID(clientId);
+  const lsKey = `gp-push-subscribed-${clientId}`;
+
+  const [status, setStatus] = useState<'checking' | 'idle' | 'loading' | 'subscribed'>(() => {
+    try { return localStorage.getItem(lsKey) === '1' ? 'subscribed' : 'checking'; } catch { return 'checking'; }
+  });
 
   useEffect(() => {
+    // localStorage already confirmed subscribed — skip DB round-trip
+    if (status === 'subscribed') return;
     let cancelled = false;
-    if (!validClientId) return;
+    if (!validClientId) { setStatus('idle'); return; }
     (async () => {
       try {
-        const { data, error } = await supabase.from('push_subscriptions').select('id').eq('client_id', clientId).limit(1);
+        const { data } = await supabase.from('push_subscriptions').select('id').eq('client_id', clientId).limit(1);
         if (cancelled) return;
-        if (error) { console.warn('[ClientPushBanner] check err:', error.message); return; }
-        if (data && data.length > 0) setStatus('subscribed');
-      } catch (err) { if (!cancelled) console.error('[ClientPushBanner] err:', err); }
+        if (data && data.length > 0) {
+          try { localStorage.setItem(lsKey, '1'); } catch {}
+          setStatus('subscribed');
+        } else {
+          setStatus('idle');
+        }
+      } catch { if (!cancelled) setStatus('idle'); }
     })();
     return () => { cancelled = true; };
   }, [clientId, validClientId]);
@@ -203,6 +213,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
       await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
       const result = await subscribeToPush({ clientId, clientName, artistProfileId });
       if (result.success) {
+        try { localStorage.setItem(lsKey, '1'); } catch {}
         setStatus('subscribed');
         toast({ title: lang === 'en' ? 'Notifications enabled! ✅' : 'התראות הופעלו בהצלחה! ✅' });
       } else {
@@ -216,6 +227,7 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
   };
 
   if (!clientId && !clientName) return null;
+  if (status === 'checking') return null;
 
   return (
     <button
@@ -492,6 +504,11 @@ const ClientHome = () => {
   const doneKey = `pmu-done-day-${viewingDay}`;
   const [isDone, setIsDone] = useState(() => localStorage.getItem(doneKey) === '1');
   const [glowRing, setGlowRing] = useState(false);
+
+  // Sync isDone when viewingDay changes (e.g. after dbTreatmentDate loads async)
+  useEffect(() => {
+    setIsDone(localStorage.getItem(`pmu-done-day-${viewingDay}`) === '1');
+  }, [viewingDay]);
 
   const handleDone = useCallback(() => {
     if (isDone) return;

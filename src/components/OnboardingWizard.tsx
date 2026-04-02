@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import {
@@ -23,6 +23,9 @@ interface Props {
   currentName: string;
   currentPhone: string;
   onProfileUpdated: () => void;
+  onOpenHealingEditor?: () => void;
+  onOpenHealthEditor?: () => void;
+  onOpenPolicyEditor?: () => void;
 }
 
 export default function OnboardingWizard({
@@ -34,6 +37,9 @@ export default function OnboardingWizard({
   currentName,
   currentPhone,
   onProfileUpdated,
+  onOpenHealingEditor,
+  onOpenHealthEditor,
+  onOpenPolicyEditor,
 }: Props) {
   const { lang } = useI18n();
   const navigate = useNavigate();
@@ -102,6 +108,24 @@ export default function OnboardingWizard({
   const [showImport, setShowImport] = useState(false);
 
   const totalSteps = 5;
+
+  // Fetch existing social link data when wizard opens
+  useEffect(() => {
+    if (!open || !userId) return;
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('instagram_url, facebook_url, waze_address, business_phone')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (data) {
+        if (data.instagram_url) setInstagram(data.instagram_url);
+        if (data.facebook_url) setFacebook(data.facebook_url);
+        if (data.waze_address) setWaze(data.waze_address);
+        if (data.business_phone) setCardPhone(data.business_phone);
+      }
+    })();
+  }, [open, userId]);
 
   if (!open) return null;
 
@@ -343,7 +367,7 @@ export default function OnboardingWizard({
           {isHe ? 'עורך מסע ההחלמה כולל עריכת שלבים, ציטוטים ותזמון' : 'Timeline editor lets you set phases, tips & notification timing'}
         </p>
         <Button
-          onClick={() => { navigate('/admin/timeline-settings'); onClose(); }}
+          onClick={() => { onOpenHealingEditor ? onOpenHealingEditor() : navigate('/admin/timeline-settings'); onClose(); }}
           className="w-full rounded-xl font-serif"
           style={{ background: '#ffffff', border: '2px solid #D4AF37', color: '#4a3636' }}>
           {isHe ? 'פתחי את עורך הטיימליין' : 'Open Timeline Editor'}
@@ -382,7 +406,7 @@ export default function OnboardingWizard({
               {isHe ? 'ערכי את השאלות הרפואיות שהלקוחות ימלאו' : 'Edit the health questions clients fill out'}
             </p>
             <button
-              onClick={() => { navigate('/artist?section=health-questions'); onClose(); }}
+              onClick={() => { onClose(); onOpenHealthEditor?.(); }}
               className="mt-2 text-xs font-medium underline"
               style={{ color: goldColor }}>
               {isHe ? 'עריכת שאלות ←' : 'Edit questions →'}
@@ -400,7 +424,7 @@ export default function OnboardingWizard({
               {isHe ? 'הגדירי את כתב ויתור שהלקוחות יחתמו' : 'Set the consent text clients sign'}
             </p>
             <button
-              onClick={() => { navigate('/artist?section=clinic-policy'); onClose(); }}
+              onClick={() => { onClose(); onOpenPolicyEditor?.(); }}
               className="mt-2 text-xs font-medium underline"
               style={{ color: goldColor }}>
               {isHe ? 'עריכת מדיניות ←' : 'Edit policy →'}

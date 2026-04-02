@@ -3611,6 +3611,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     setActiveTab(tab.id as any);
                     setSubScreen(null);
                     setHealingJourneyClient(null);
+                    setSelectedClient(null);
+                    if (searchParams.has('client')) setSearchParams({});
                   }
                 }}
                 className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 active:scale-95"
@@ -4057,6 +4059,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         currentName={artistName}
         currentPhone={artistPhone}
         onProfileUpdated={fetchProfileId}
+        onOpenHealingEditor={() => { setShowOnboarding(false); setShowHealingJourneyEditor(true); }}
+        onOpenHealthEditor={() => setShowHealthEditor(true)}
+        onOpenPolicyEditor={() => setShowPolicyEditor(true)}
       />
 
       {/* Delete Account Confirmation Dialog */}

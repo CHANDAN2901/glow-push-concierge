@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Save, Loader2, Sparkles, GripVertical } from 'lucide-react';
+import { Save, Loader2, Sparkles, GripVertical, Plus, Trash2 } from 'lucide-react';
 import healingCharsImg from '@/assets/healing-characters.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import { restSelect } from '@/lib/supabase-rest';
@@ -44,6 +44,7 @@ interface StepContent {
   default_instruction_he: string;
   default_instruction_en: string;
   dayLabel: string;
+  isCustom?: boolean;
 }
 
 interface Props {
@@ -138,7 +139,21 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
         };
       });
 
-      setSteps(merged);
+      // Load custom steps (step_index >= baseStepCount)
+      const customRows = ((rows as any[]) || []).filter((r: any) => r.step_index >= baseSteps.length);
+      const customSteps: StepContent[] = customRows.map((r: any) => ({
+        step_index: r.step_index,
+        dayLabel: '',
+        title_he: r.quote_he || '',
+        title_en: r.quote_en || '',
+        instruction_he: r.quote_he || '',
+        instruction_en: r.quote_en || '',
+        default_instruction_he: '',
+        default_instruction_en: '',
+        isCustom: true,
+      }));
+
+      setSteps([...merged, ...customSteps]);
     } catch (e) {
       console.error('Failed to load timeline settings:', e);
       setSteps([]);
@@ -156,6 +171,27 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
     setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, [field]: value } : s)));
   };
 
+  const addCustomStep = () => {
+    setSteps((prev) => [
+      ...prev,
+      {
+        step_index: baseStepCount + prev.filter((s) => s.isCustom).length,
+        dayLabel: '',
+        title_he: '',
+        title_en: '',
+        instruction_he: '',
+        instruction_en: '',
+        default_instruction_he: '',
+        default_instruction_en: '',
+        isCustom: true,
+      },
+    ]);
+  };
+
+  const removeCustomStep = (idx: number) => {
+    setSteps((prev) => prev.filter((_, i) => i !== idx));
+  };
+
   const handleSave = async () => {
     if (!profileId) {
       toast({ title: 'יש להתחבר כדי לשמור שינויים', variant: 'destructive' });
@@ -170,20 +206,22 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
         .eq('artist_profile_id', profileId)
         .gte('step_index', baseStepCount);
 
-      for (const step of steps.filter((s) => s.step_index < baseStepCount)) {
-        const currentHe = step.instruction_he.trim();
-        const currentEn = step.instruction_en.trim();
-        const defaultHe = step.default_instruction_he.trim();
-        const defaultEn = step.default_instruction_en.trim();
-        const isDefault = currentHe === defaultHe && currentEn === defaultEn;
+      for (const step of steps) {
+        if (!step.isCustom) {
+          const currentHe = step.instruction_he.trim();
+          const currentEn = step.instruction_en.trim();
+          const defaultHe = step.default_instruction_he.trim();
+          const defaultEn = step.default_instruction_en.trim();
+          const isDefault = currentHe === defaultHe && currentEn === defaultEn;
 
-        if (isDefault) {
-          await supabase
-            .from('timeline_content')
-            .delete()
-            .eq('artist_profile_id', profileId)
-            .eq('step_index', step.step_index);
-          continue;
+          if (isDefault) {
+            await supabase
+              .from('timeline_content')
+              .delete()
+              .eq('artist_profile_id', profileId)
+              .eq('step_index', step.step_index);
+            continue;
+          }
         }
 
         const { error: upsertError } = await (supabase as any)
@@ -192,8 +230,8 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
             {
               artist_profile_id: profileId,
               step_index: step.step_index,
-              quote_he: step.instruction_he,
-              quote_en: step.instruction_en,
+              quote_he: step.isCustom ? step.title_he : step.instruction_he,
+              quote_en: step.isCustom ? step.title_en : step.instruction_en,
               tip_he: '',
               tip_en: '',
             },
@@ -269,7 +307,7 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
                 >
                   <div className="flex items-center gap-2">
                     <GripVertical className="w-4 h-4 text-muted-foreground/40" />
-                    {idx < 6 && (
+                    {!step.isCustom && idx < 6 && (
                       <div
                         className="w-10 h-10 rounded-full overflow-hidden border-2 shrink-0"
                         style={{ borderColor: 'hsl(38 55% 58%)' }}
@@ -288,8 +326,19 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
                       className="px-3 py-1 rounded-full text-xs font-bold"
                       style={{ background: goldGradient, color: '#fff', boxShadow: '0 2px 8px hsl(38 55% 50% / 0.25)' }}
                     >
-                      {isHe ? step.dayLabel : step.dayLabel.replace('יום', 'Day').replace('ימים', 'Days')}
+                      {step.isCustom
+                        ? (isHe ? `שלב מותאם ${steps.filter(s => s.isCustom).indexOf(step) + 1}` : `Custom Step ${steps.filter(s => s.isCustom).indexOf(step) + 1}`)
+                        : (isHe ? step.dayLabel : step.dayLabel.replace('יום', 'Day').replace('ימים', 'Days'))}
                     </div>
+                    {step.isCustom && (
+                      <button
+                        onClick={() => removeCustomStep(idx)}
+                        className="mr-auto p-1.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
+                        title={isHe ? 'מחיקת שלב' : 'Delete step'}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -347,6 +396,18 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
                   </div>
                 </div>
               ))}
+
+              {/* Add Custom Step */}
+              <div className="flex justify-center pt-2">
+                <button
+                  onClick={addCustomStep}
+                  className="flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all hover:scale-105 active:scale-[0.98]"
+                  style={{ background: goldGradient, color: '#fff', boxShadow: '0 4px 16px hsl(38 55% 50% / 0.3)' }}
+                >
+                  <Plus className="w-5 h-5" />
+                  {isHe ? 'הוסיפי שלב מותאם אישית' : 'Add Custom Step'}
+                </button>
+              </div>
 
               {/* Save button */}
               <div className="flex justify-start pt-2 pb-2">
