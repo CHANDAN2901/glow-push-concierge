@@ -53,6 +53,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
+          <AuthRedirectHandler />
           <Header />
           <ErrorBoundary>
             <Routes>
