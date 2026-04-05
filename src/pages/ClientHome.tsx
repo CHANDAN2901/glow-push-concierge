@@ -365,13 +365,16 @@ const ClientHome = () => {
     })();
   }, [clientId, searchParams, navigate]);
 
-  // Referral code
+  // Referral code — always derived from the client UUID to avoid phone confusion
   const generatedReferralCode = useMemo(() => {
     const firstName = (clientName || '').split(' ')[0].toUpperCase();
-    const phoneSuffix = dbClientPhone ? dbClientPhone.replace(/\D/g, '').slice(-4) : '';
-    const idSuffix = clientId ? clientId.replace(/-/g, '').slice(0, 4).toUpperCase() : '';
-    return firstName + (phoneSuffix.length === 4 ? phoneSuffix : idSuffix);
-  }, [clientName, dbClientPhone, clientId]);
+    // Extract numeric digits from the UUID and take the last 4
+    const idDigits = clientId ? clientId.replace(/[^0-9]/g, '').slice(-4) : '';
+    // Fallback to first 4 hex chars if UUID has < 4 digit chars
+    const idFallback = clientId ? clientId.replace(/-/g, '').slice(0, 4).toUpperCase() : '';
+    const suffix = idDigits.length === 4 ? idDigits : idFallback;
+    return firstName + suffix;
+  }, [clientName, clientId]);
 
   const referralCode = generatedReferralCode;
 
