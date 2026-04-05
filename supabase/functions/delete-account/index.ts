@@ -78,6 +78,7 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from("push_subscriptions").delete().eq("artist_profile_id", profileId);
       await supabaseAdmin.from("products").delete().eq("artist_profile_id", profileId);
       await supabaseAdmin.from("referrals").delete().eq("referrer_profile_id", profileId);
+      await supabaseAdmin.from("referrals").delete().eq("referred_profile_id", profileId);
       await supabaseAdmin.from("form_links").delete().eq("artist_id", profileId);
 
       // Delete profile
