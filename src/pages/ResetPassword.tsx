@@ -27,6 +27,13 @@ const ResetPassword = () => {
     if (window.location.hash.includes('type=recovery')) {
       setReady(true);
     }
+    // If user already has a session (redirected here after recovery event fired),
+    // allow them to set a new password
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setReady(true);
+      }
+    });
     return () => subscription.unsubscribe();
   }, []);
 
