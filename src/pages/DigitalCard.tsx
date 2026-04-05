@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { Phone, MessageCircle, Instagram, Facebook } from 'lucide-react';
 import heroBg from '@/assets/card-hero-bg.jpg';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import defaultLogo from '@/assets/glowpush-logo.png';
 import { useI18n } from '@/lib/i18n';
+import { supabase } from '@/integrations/supabase/client';
 
 const WHATSAPP_NUMBER = '972508855329';
 const WHATSAPP_MESSAGE = 'היי! הגעתי דרך הכרטיס הדיגיטלי, אשמח לקבל פרטים ולתאם תור ✨';
@@ -22,15 +23,42 @@ interface DigitalCardProps {
 
 const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, previewIg, previewFacebook }: DigitalCardProps = {}) => {
   const [searchParams] = useSearchParams();
+  const { artistId } = useParams<{ artistId: string }>();
   const [profileError, setProfileError] = useState(false);
   const { lang } = useI18n();
   const isHe = lang === 'he';
 
-  const name = previewName || searchParams.get('name') || 'Orit Aharoni';
-  const phone = previewPhone || searchParams.get('phone') || WHATSAPP_NUMBER;
-  const ig = previewIg ?? searchParams.get('ig') ?? '';
-  const logo = previewLogo || searchParams.get('logo') || '';
-  const facebook = previewFacebook ?? searchParams.get('facebook') ?? '';
+  const [fetchedName, setFetchedName] = useState<string | null>(null);
+  const [fetchedPhone, setFetchedPhone] = useState<string | null>(null);
+  const [fetchedLogo, setFetchedLogo] = useState<string | null>(null);
+  const [fetchedIg, setFetchedIg] = useState<string | null>(null);
+  const [fetchedFacebook, setFetchedFacebook] = useState<string | null>(null);
+  const [loading, setLoading] = useState(!!artistId);
+
+  useEffect(() => {
+    if (!artistId) return;
+    supabase
+      .from('profiles')
+      .select('full_name, business_phone, logo_url, instagram_url, facebook_url')
+      .eq('id', artistId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setFetchedName(data.full_name);
+          setFetchedPhone(data.business_phone);
+          setFetchedLogo(data.logo_url);
+          setFetchedIg(data.instagram_url);
+          setFetchedFacebook(data.facebook_url);
+        }
+        setLoading(false);
+      });
+  }, [artistId]);
+
+  const name = previewName ?? fetchedName ?? searchParams.get('name') ?? 'Orit Aharoni';
+  const phone = previewPhone ?? fetchedPhone ?? searchParams.get('phone') ?? WHATSAPP_NUMBER;
+  const ig = previewIg ?? fetchedIg ?? searchParams.get('ig') ?? '';
+  const logo = previewLogo ?? fetchedLogo ?? searchParams.get('logo') ?? '';
+  const facebook = previewFacebook ?? fetchedFacebook ?? searchParams.get('facebook') ?? '';
 
   const cleanPhone = phone.replace(/[^0-9]/g, '');
   const intlPhone = cleanPhone.startsWith('0') ? `972${cleanPhone.slice(1)}` : cleanPhone;
@@ -39,6 +67,16 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
 
   const igUrl = ig ? (ig.startsWith('http') ? ig : `https://instagram.com/${ig}`) : '';
   const fbUrl = facebook ? (facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`) : '';
+
+  const shareUrl = `${window.location.origin}/digital-card/${artistId ?? ''}`;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center" dir="rtl" style={{ backgroundColor: '#FFFFFF' }}>
@@ -106,21 +144,23 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
 
 
       {/* ===== Share on WhatsApp Button ===== */}
-      <div className="w-full max-w-sm px-6 mt-4 mb-10">
-        <a
-          href={`https://wa.me/?text=${encodeURIComponent(`היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:\n${window.location.origin}/digital-card${window.location.search}`)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full py-3.5 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97] no-underline"
-          style={{
-            background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-            color: '#4a3636',
-          }}
-        >
-          <MessageCircle className="w-5 h-5" />
-          {isHe ? 'שתפי בוואטסאפ' : 'Share on WhatsApp'}
-        </a>
-      </div>
+      {!embedded && artistId && (
+        <div className="w-full max-w-sm px-6 mt-4 mb-10">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`היי אהובה! ✨ מזמינה אותך להציץ בכרטיס הדיגיטלי החדש של הסטודיו. כל הדרכים ליצור איתי קשר ולראות עבודות נמצאות כאן בקליק אחד:\n${shareUrl}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3.5 text-sm font-bold flex items-center justify-center gap-2 rounded-2xl transition-all hover:opacity-90 active:scale-[0.97] no-underline"
+            style={{
+              background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
+              color: '#4a3636',
+            }}
+          >
+            <MessageCircle className="w-5 h-5" />
+            {isHe ? 'שתפי בוואטסאפ' : 'Share on WhatsApp'}
+          </a>
+        </div>
+      )}
 
 
     </div>

@@ -2695,46 +2695,34 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   previewWaze={wazeAddress}
                 />
               </div>
-              <button
-                onClick={async () => {
-                  const BASE = 'https://glow-push-concierge.lovable.app/digital-card';
-                  const params = new URLSearchParams();
-                  if (artistName) params.set('name', artistName);
-                  const ph = artistPhone ? formatPhone(artistPhone) : '972508855329';
-                  params.set('phone', ph);
-                  if (logoUrl) params.set('logo', logoUrl);
-                  if (instagramUrl) params.set('ig', instagramUrl);
-                  if (facebookUrl) params.set('facebook', facebookUrl);
-                  if (wazeAddress) params.set('waze', wazeAddress);
-                  const qs = params.toString();
-                  const shareUrl = `${BASE}${qs ? `?${qs}` : ''}`;
-                  const shareTitle = t('artist.dashboard.digitalBusinessCard');
-                  const shareText = t('artist.dashboard.shareCardText');
-                  try {
-                    if (navigator.share) {
-                      await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
+              <div className="flex gap-3">
+                <button
+                  onClick={async () => {
+                    const shareUrl = `${window.location.origin}/digital-card/${userProfileId}`;
+                    try {
+                      await navigator.clipboard.writeText(shareUrl);
                       toast({ title: t('artist.dashboard.shareSuccess') });
-                    } else {
-                      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                      toast({ title: t('artist.dashboard.shareSuccess') });
+                    } catch {
+                      window.prompt(t('artist.dashboard.copyThisLink'), shareUrl);
                     }
-                  } catch (e: any) {
-                    if (e?.name !== 'AbortError') {
-                      try {
-                        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                        toast({ title: t('artist.dashboard.shareSuccess') });
-                      } catch {
-                        window.prompt(t('artist.dashboard.copyThisLink'), shareUrl);
-                      }
-                    }
-                  }
-                }}
-                className="preview-card-btn w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
-                style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
-              >
-                <Share2 className="w-5 h-5" />
-                {t('artist.dashboard.copyCardLink')}
-              </button>
+                  }}
+                  className="preview-card-btn flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
+                  style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
+                >
+                  <Share2 className="w-5 h-5" />
+                  {t('artist.dashboard.copyCardLink')}
+                </button>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`${t('artist.dashboard.shareCardText')}\n${window.location.origin}/digital-card/${userProfileId}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="preview-card-btn flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97] no-underline"
+                  style={{ background: '#25D366', color: '#fff', boxShadow: '0 4px 18px rgba(37,211,102,0.3)', border: 'none' }}
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  WhatsApp
+                </a>
+              </div>
             </div>
           </FeatureGate>
         )}
@@ -3891,47 +3879,35 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               />
             </div>
           </div>
-          {/* Share button below the phone frame */}
-          <button
-            onClick={async () => {
-              const BASE = 'https://glow-push-concierge.lovable.app/digital-card';
-              const params = new URLSearchParams();
-              if (artistName) params.set('name', artistName);
-              const ph = artistPhone ? formatPhone(artistPhone) : '972508855329';
-              params.set('phone', ph);
-              if (logoUrl) params.set('logo', logoUrl);
-              if (instagramUrl) params.set('ig', instagramUrl);
-              if (facebookUrl) params.set('facebook', facebookUrl);
-              if (wazeAddress) params.set('waze', wazeAddress);
-              const qs = params.toString();
-              const shareUrl = `${BASE}${qs ? `?${qs}` : ''}`;
-              const shareTitle = t('artist.dashboard.digitalBusinessCard');
-              const shareText = t('artist.dashboard.shareCardText');
-              try {
-                if (navigator.share) {
-                  await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
+          {/* Share buttons below the phone frame */}
+          <div className="mt-4 flex gap-3">
+            <button
+              onClick={async () => {
+                const shareUrl = `${window.location.origin}/digital-card/${userProfileId}`;
+                try {
+                  await navigator.clipboard.writeText(shareUrl);
                   toast({ title: t('artist.dashboard.shareSuccess') });
-                } else {
-                  await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                  toast({ title: t('artist.dashboard.shareSuccess') });
+                } catch {
+                  window.prompt(t('artist.dashboard.copyThisLink'), shareUrl);
                 }
-              } catch (e: any) {
-                if (e?.name !== 'AbortError') {
-                  try {
-                    await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                    toast({ title: t('artist.dashboard.shareSuccess') });
-                  } catch {
-                    window.prompt(t('artist.dashboard.copyThisLink'), shareUrl);
-                  }
-                }
-              }
-            }}
-            className="preview-card-btn mt-4 flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
-            style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
-          >
-            <Share2 className="w-5 h-5" />
-            {t('artist.dashboard.copyCardLink')}
-          </button>
+              }}
+              className="preview-card-btn flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97]"
+              style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)', color: '#4a3520', boxShadow: '0 4px 18px rgba(212,175,55,0.35)', border: 'none' }}
+            >
+              <Share2 className="w-5 h-5" />
+              {t('artist.dashboard.copyCardLink')}
+            </button>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`${t('artist.dashboard.shareCardText')}\n${window.location.origin}/digital-card/${userProfileId}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="preview-card-btn flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-base transition-all hover:opacity-90 active:scale-[0.97] no-underline"
+              style={{ background: '#25D366', color: '#fff', boxShadow: '0 4px 18px rgba(37,211,102,0.3)', border: 'none' }}
+            >
+              <MessageCircle className="w-5 h-5" />
+              WhatsApp
+            </a>
+          </div>
         </div>
         )}
 

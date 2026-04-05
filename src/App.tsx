@@ -64,7 +64,7 @@ const App = () => (
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/auth" element={<Auth />} />
 
-              <Route path="/digital-card" element={<RequireAuth><DigitalCard /></RequireAuth>} />
+              <Route path="/digital-card/:artistId" element={<DigitalCard />} />
               <Route path="/health-declaration" element={<HealthDeclarationPage />} />
               <Route path="/f/:code" element={<FormLinkResolver />} />
               <Route path="/admin/aftercare" element={<RequireAuth><RequireAdmin><AftercareEditorPage /></RequireAdmin></RequireAuth>} />
