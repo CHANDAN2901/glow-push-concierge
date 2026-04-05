@@ -40,6 +40,7 @@ import DevSwitcher from "./components/DevSwitcher";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ImpersonationBanner from "./components/ImpersonationBanner";
 import FeedbackFAB from "./components/FeedbackFAB";
+import AuthRedirectHandler from "./components/AuthRedirectHandler";
 
 
 const queryClient = new QueryClient();
