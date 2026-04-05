@@ -31,7 +31,7 @@ import ClientProfile from "./pages/ClientProfile";
 import NotFound from "./pages/NotFound";
 import FaqPage from "./pages/FaqPage";
 import FaqManager from "./pages/FaqManager";
-import Legal from "./pages/Legal";``
+import Legal from "./pages/Legal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
@@ -40,6 +40,7 @@ import DevSwitcher from "./components/DevSwitcher";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ImpersonationBanner from "./components/ImpersonationBanner";
 import FeedbackFAB from "./components/FeedbackFAB";
+import AuthRedirectHandler from "./components/AuthRedirectHandler";
 
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
+          <AuthRedirectHandler />
           <Header />
           <ErrorBoundary>
             <Routes>
