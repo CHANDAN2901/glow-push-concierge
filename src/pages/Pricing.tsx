@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Crown, Sparkles, Star, Flame, Receipt } from 'lucide-react';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, useVipTakenCount } from '@/hooks/usePricingPlans';
@@ -100,6 +100,7 @@ const tierLabelMap: Record<string, { he: string; en: string }> = {
 
 const Pricing = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { lang, t } = useI18n();
   const isHe = lang === 'he';
   const { toast } = useToast();
@@ -204,6 +205,15 @@ const Pricing = () => {
 
       {/* Spacer for fixed header */}
       <div className="pt-16" />
+
+      {/* Back button — only when navigated from inside the app */}
+      {(location.state as any)?.returnTab && (
+        <div className="px-4 pt-2 max-w-lg mx-auto">
+          <BackButton
+            onClick={() => navigate('/artist', { state: { returnTab: (location.state as any).returnTab } })}
+          />
+        </div>
+      )}
 
       {/* Personal Status Card */}
       {user && (

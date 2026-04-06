@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { TREATMENT_OPTIONS, getTreatmentLabel as getTreatmentLabelFn } from '@/lib/treatment-options';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import {
   Users, Upload, ToggleLeft, ToggleRight, Settings, FileText, Bell, Sparkles,
@@ -221,6 +221,7 @@ const ArtistDashboard = () => {
   const { t, lang, setLang } = useI18n();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, isAdmin } = useAuth();
   const { getMessageForDay, buildWhatsAppText, hasMessageForDay, getMatchingDayValue } = useAftercareTemplates();
@@ -297,7 +298,11 @@ const ArtistDashboard = () => {
   const setSelectedClient = setSelectedClientState;
   const setSelectedClientInternal = setSelectedClientState;
   type TabId = 'home' | 'clients' | 'calendar' | 'healing' | 'bonuses' | 'messages' | 'digital-card' | 'push' | 'profile';
-  const [activeTab, setActiveTab] = useState<TabId>('home');
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
+    const returnTab = (location.state as any)?.returnTab;
+    return (returnTab as TabId) || 'home';
+  });
+  const [previousTab, setPreviousTab] = useState<TabId>('home');
   const setActiveTabInternal = setActiveTab;
   const [includePolicyShare, setIncludePolicyShare] = useState(true);
 
@@ -1350,7 +1355,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   if (selectedClient) { setSelectedClient(null); }
                   else if (subScreen === 'Referrals' || subScreen === 'הפניות') { setSubScreen(null); setActiveTab('home'); }
                   else if (subScreen) { setSubScreen(null); }
-                  else { setActiveTab('home'); }
+                  else { setActiveTab(previousTab); setPreviousTab('home'); }
                 }}
               />
             ) : (
@@ -3436,7 +3441,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
                 {/* Notifications */}
                 <button
-                  onClick={() => { setActiveTab('push'); setSubScreen(null); }}
+                  onClick={() => { setPreviousTab(activeTab); setActiveTab('push'); setSubScreen(null); }}
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <Bell className="w-4 h-4 text-accent" />
@@ -3475,7 +3480,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 )}
                 {/* My Subscription & Upgrades */}
                 <button
-                  onClick={() => navigate('/pricing')}
+                  onClick={() => navigate('/pricing', { state: { returnTab: 'profile' } })}
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <Crown className="w-4 h-4 text-accent" />
@@ -3484,7 +3489,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 </button>
                 {/* Bonuses */}
                 <button
-                  onClick={() => setActiveTab('bonuses')}
+                  onClick={() => { setPreviousTab(activeTab); setActiveTab('bonuses'); }}
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <Gift className="w-4 h-4 text-accent" />
@@ -3493,7 +3498,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 </button>
                 {/* Help Center */}
                 <button
-                  onClick={() => setShowHelpCenter(true)}
+                  onClick={() => { setPreviousTab(activeTab); setSubScreen('helpCenter'); }}
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <HelpCircle className="w-4 h-4 text-accent" />
@@ -3502,7 +3507,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 </button>
                 {/* Refund Policy */}
                 <button
-                  onClick={() => navigate('/refund-policy')}
+                  onClick={() => navigate('/refund-policy', { state: { returnTab: 'profile' } })}
                   className="flex items-center gap-3 w-full py-3 border-b border-border text-start hover:bg-muted/50 rounded-lg px-1 transition-colors"
                 >
                   <ScrollText className="w-4 h-4 text-accent" />
@@ -3550,10 +3555,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           </div>
         )}
 
-        {/* ===== HELP CENTER ===== */}
-        {showHelpCenter && (
-          <div className="animate-fade-up" ref={(el) => { if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100); }}>
-            <HelpCenter onClose={() => setShowHelpCenter(false)} />
+        {/* ===== HELP CENTER SUB-SCREEN ===== */}
+        {subScreen === 'helpCenter' && (
+          <div className="space-y-4">
+            <HelpCenter onClose={() => setSubScreen(null)} />
           </div>
         )}
 

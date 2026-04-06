@@ -1,15 +1,35 @@
 import { useI18n } from '@/lib/i18n';
-import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ScrollText } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ChevronRight, ScrollText } from 'lucide-react';
 
 const RefundPolicy = () => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleBack = () => {
+    const returnTab = (location.state as any)?.returnTab;
+    if (returnTab) {
+      navigate('/artist', { state: { returnTab } });
+    } else {
+      navigate(-1);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background" dir={isHe ? 'rtl' : 'ltr'}>
       <div className="max-w-2xl mx-auto px-4 py-16">
+
+        {/* Back button */}
+        <button
+          onClick={handleBack}
+          className="inline-flex items-center gap-1.5 mb-6 text-sm font-medium transition-opacity hover:opacity-70"
+          style={{ color: 'hsl(38 55% 45%)' }}
+        >
+          <ChevronRight className="w-4 h-4" style={{ transform: 'rotate(180deg)' }} />
+          {isHe ? 'חזרה להגדרות' : 'Back to Settings'}
+        </button>
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
