@@ -124,6 +124,15 @@ Deno.serve(async (req) => {
 
     if (declErr) throw declErr;
 
+    // Update matching scheduled appointment health_form_status to 'signed'
+    await supabase
+      .from("appointments")
+      .update({ health_form_status: "signed", health_risk_level: "green" })
+      .eq("artist_profile_id", artistProfileId)
+      .eq("client_id", clientId)
+      .eq("status", "scheduled")
+      .eq("health_form_status", "pending");
+
     // VERY LAST step: burn token after successful save
     const { data: burned, error: burnErr } = await supabase
       .from("form_links")

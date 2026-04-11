@@ -68,7 +68,7 @@ export default function ClinicPolicyViewer({ open, onClose, artistProfileId }: C
   useEffect(() => {
     if (!open) return;
     loadContent();
-  }, [open, artistProfileId]);
+  }, [open, artistProfileId, lang]);
 
   const loadContent = async () => {
     setLoading(true);

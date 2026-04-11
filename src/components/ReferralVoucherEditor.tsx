@@ -14,8 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const DEFAULT_TEXT_HE = 'שלחי לחברה את הקוד שלך! היא תקבל 100 ש"ח הנחה לטיפול ראשון, ואת תקבלי 50 ש"ח קרדיט לטיפול החיזוק הבא שלך.';
 const DEFAULT_TEXT_EN = 'Send your code to a friend! She gets ₪100 off her first treatment, and you get ₪50 credit for your next touch-up.';
-const DEFAULT_WA_HE = 'היי אהובה! ✨\nרציתי לפרגן לך במתנה קטנה... קיבלתי קוד הטבה אישי אצל {{artist_name}}, המאפרת המהממת שלי!\nאם בא לך להתפנק בטיפול, תשתמשי בקוד שלי: [CODE] ותקבלי הנחה שווה על הטיפול הראשון שלך אצלה. מומלץ בחום! 🤍';
-const DEFAULT_WA_EN = 'Hey babe! ✨\nI wanted to treat you... I got a personal discount code for my amazing permanent makeup artist, {{artist_name}}!\nUse my code: [CODE] to get a discount on your first treatment with her. Highly recommended! 🤍';
+const DEFAULT_WA_HE = 'הי {{client_name}}, את חייבת לראות את Glow Push !\nזו אפליקציה שמיועדת רק לאיפור קבוע וכל מה שאנחנו צריכות נמצא שם, כולל הצהרת בריאות מעוצבת שמקפיצה התרעה אם יש בעיות בריאות, תיעוד קולי של טיפול, גלריה משותפת לך וללקוחה במקום סתם תמונות בוואטסאפ והכי מגניב -\nמסע החלמה דיגיטלי ללקוחה.\nהלקוחות שלי מקבלות התראות לטלפון לפי ימי ההחלמה שלהן וכך הן יודעות איך עליהן לטפל בכל יום, ואיך הגבות נראות בכל שלב במסע ההחלמה, מעבר לכל שזה ממש מגניב שבסוף טיפול אני שולחת להן אפליקציה במקום דף או קובץ בוואטסאפ.\nבקיצור תירשמי לניסיון מהלינק שלי ותקבלי חודש מתנה.\nעדכני אותי.\n{{artist_name}}';
+const DEFAULT_WA_EN = 'Hey {{client_name}}, you have to check out Glow Push!\nIt\'s an app made exclusively for permanent makeup artists and it has everything we need — a beautifully designed health declaration that alerts you if there are any health concerns, voice recording for treatments, a shared gallery for you and your client instead of just random WhatsApp photos, and the coolest part —\na digital healing journey for the client.\nMy clients get phone notifications based on their healing days so they know exactly how to care for themselves each day, and how their brows look at every stage of the healing journey. On top of all that, it\'s so cool that after a treatment I send them an app instead of a sheet or a file on WhatsApp.\nIn short — sign up for a free trial through my link and get your first month free.\nLet me know!\n{{artist_name}}';
 
 export const VOUCHER_DEFAULTS = {
   voucher_text_he: DEFAULT_TEXT_HE,
@@ -117,7 +117,7 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
               <div className="flex flex-wrap gap-1.5 mb-2">
                 <button
                   type="button"
-                  onClick={() => setWaHe('היי אהובה! ✨\nרציתי לפרגן לך במתנה קטנה... קיבלתי קוד הטבה אישי אצל {{artist_name}}, המאפרת המהממת שלי!\nאם בא לך להתפנק בטיפול, תשתמשי בקוד שלי: [CODE] ותקבלי הנחה שווה על הטיפול הראשון שלך אצלה. מומלץ בחום! 🤍')}
+                  onClick={() => setWaHe('הי {{client_name}}, את חייבת לראות את Glow Push !\nזו אפליקציה שמיועדת רק לאיפור קבוע וכל מה שאנחנו צריכות נמצא שם, כולל הצהרת בריאות מעוצבת שמקפיצה התרעה אם יש בעיות בריאות, תיעוד קולי של טיפול, גלריה משותפת לך וללקוחה במקום סתם תמונות בוואטסאפ והכי מגניב -\nמסע החלמה דיגיטלי ללקוחה.\nהלקוחות שלי מקבלות התראות לטלפון לפי ימי ההחלמה שלהן וכך הן יודעות איך עליהן לטפל בכל יום, ואיך הגבות נראות בכל שלב במסע ההחלמה, מעבר לכל שזה ממש מגניב שבסוף טיפול אני שולחת להן אפליקציה במקום דף או קובץ בוואטסאפ.\nבקיצור תירשמי לניסיון מהלינק שלי ותקבלי חודש מתנה.\nעדכני אותי.\n{{artist_name}}')}
                   className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all hover:scale-[1.03] active:scale-[0.97] border"
                   style={{
                     background: 'linear-gradient(135deg, hsl(38 50% 96%), hsl(38 45% 92%))',

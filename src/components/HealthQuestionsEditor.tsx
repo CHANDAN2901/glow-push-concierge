@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Trash2, Save, Loader2, AlertTriangle, Pencil, X, FileText, List, RotateCcw, Undo2 } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +45,7 @@ const DEFAULT_QUESTION_IDS = [
 ];
 
 export default function HealthQuestionsEditor() {
+  const { lang } = useI18n();
   const { toast } = useToast();
   const { questions: dbQuestions, loading, refetch } = useAllHealthQuestions();
   const [questions, setQuestions] = useState<HealthQuestion[]>([]);
@@ -234,7 +236,7 @@ export default function HealthQuestionsEditor() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl" dir="rtl">
+    <div className="space-y-6 max-w-3xl" dir={lang === 'en' ? 'ltr' : 'rtl'}>
       {/* Header */}
       <div className="rounded-xl p-6 border border-border/50 bg-card">
         <div className="flex items-center gap-2 mb-2">
@@ -418,7 +420,7 @@ export default function HealthQuestionsEditor() {
 
                         {/* Question Text & Meta */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground leading-snug">{q.question_he}</p>
+                          <p className="text-sm font-medium text-foreground leading-snug">{lang === 'en' && q.question_en ? q.question_en : q.question_he}</p>
                           {q.question_en && (
                             <p className="text-[11px] text-muted-foreground mt-0.5" dir="ltr">{q.question_en}</p>
                           )}

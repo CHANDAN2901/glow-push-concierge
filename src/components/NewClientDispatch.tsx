@@ -127,7 +127,7 @@ const NewClientDispatch = ({
 
   const buildMessage = (link: string) => {
     const senderName = artistName || 'המטפלת שלך';
-    return generateWhatsAppMessage(name.trim(), link, includePolicy, senderName);
+    return generateWhatsAppMessage(name.trim(), link, includePolicy, senderName, lang);
   };
 
   const markDispatched = (link: string) => {

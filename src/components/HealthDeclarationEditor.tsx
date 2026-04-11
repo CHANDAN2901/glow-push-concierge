@@ -196,7 +196,9 @@ export default function HealthDeclarationEditor({ open, onClose, artistProfileId
           <div className="space-y-2">
             {questions.map((q) => {
               const isEditing = editingId === q.id;
-              const displayText = q.is_custom ? q.question_he : (q.custom_text_he || q.question_he);
+              const displayText = !isHe
+                ? (q.is_custom ? (q.question_en || q.question_he) : (q.custom_text_en || q.question_en || q.custom_text_he || q.question_he))
+                : (q.is_custom ? q.question_he : (q.custom_text_he || q.question_he));
               const hasCustom = !q.is_custom && (!!q.custom_text_he || !!q.custom_text_en);
 
               return (

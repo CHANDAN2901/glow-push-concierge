@@ -927,7 +927,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     try {
       const artist = artistName || 'האמנית שלך';
       const link = await buildHealthShortLink(clientDbId, clientName, clientPhone, includePolicy);
-      const msg = generateWhatsAppMessage(clientName, link, includePolicy, artist);
+      const msg = generateWhatsAppMessage(clientName, link, includePolicy, artist, lang);
       const url = buildWhatsAppUrl(clientPhone, msg);
       window.open(url, '_blank');
       toast({ title: 'הודעה נשלחה בהצלחה ✉️' });
@@ -1994,7 +1994,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       return;
                     }
                     const formLink = await buildHealthShortLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone, includePolicyShare);
-                    const msg = generateWhatsAppMessage(selectedClient.name, formLink, includePolicyShare, artist);
+                    const msg = generateWhatsAppMessage(selectedClient.name, formLink, includePolicyShare, artist, lang);
                     window.open(buildWhatsAppUrl(cleanPhone, msg), '_blank');
                   };
 

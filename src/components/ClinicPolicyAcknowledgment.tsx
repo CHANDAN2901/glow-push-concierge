@@ -45,7 +45,7 @@ export default function ClinicPolicyAcknowledgment({ artistProfileId, lang, onAc
 
   useEffect(() => {
     loadContent();
-  }, [artistProfileId]);
+  }, [artistProfileId, lang]);
 
   const loadContent = async () => {
     try {
