@@ -605,6 +605,12 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     onTreatmentCompleted?.({ ...apt, status: 'completed' });
   };
 
+  const deleteAppointment = async (aptId: string) => {
+    setAppointments(prev => prev.filter(a => a.id !== aptId));
+    await db.from('appointments').delete().eq('id', aptId);
+    toast({ title: isHe ? 'התור נמחק בהצלחה' : 'Appointment deleted' });
+  };
+
   const monthLabel = viewMode === 'month'
     ? (isHe
         ? `${MONTHS_HE[displayMonth.getMonth()]} ${displayMonth.getFullYear()}`
