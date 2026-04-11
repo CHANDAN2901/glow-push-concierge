@@ -128,7 +128,7 @@ Deno.serve(async (req) => {
     await supabase
       .from("appointments")
       .update({ health_form_status: "signed", health_risk_level: "green" })
-      .eq("artist_profile_id", artistProfileId)
+      .eq("artist_id", artistProfileId)
       .eq("client_id", clientId)
       .eq("status", "scheduled")
       .eq("health_form_status", "pending");
