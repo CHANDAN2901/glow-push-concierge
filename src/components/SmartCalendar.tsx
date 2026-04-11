@@ -605,6 +605,12 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     onTreatmentCompleted?.({ ...apt, status: 'completed' });
   };
 
+  const deleteAppointment = async (aptId: string) => {
+    setAppointments(prev => prev.filter(a => a.id !== aptId));
+    await db.from('appointments').delete().eq('id', aptId);
+    toast({ title: isHe ? 'התור נמחק בהצלחה' : 'Appointment deleted' });
+  };
+
   const monthLabel = viewMode === 'month'
     ? (isHe
         ? `${MONTHS_HE[displayMonth.getMonth()]} ${displayMonth.getFullYear()}`
@@ -990,6 +996,19 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
                     >
                       <Check className="w-3.5 h-3.5" />
                       {isHe ? 'סמני כהושלם' : 'Mark Completed'}
+                    </button>
+                    {/* Delete appointment */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm(isHe ? `למחוק את התור של ${apt.clientName}?` : `Delete ${apt.clientName}'s appointment?`)) {
+                          deleteAppointment(apt.id);
+                        }
+                      }}
+                      className="w-10 h-10 rounded-full flex items-center justify-center border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 transition-colors shrink-0"
+                      title={isHe ? 'מחק תור' : 'Delete appointment'}
+                    >
+                      <X className="w-4 h-4 text-destructive" />
                     </button>
                     {/* WhatsApp health form send */}
                     {apt.clientPhone && apt.healthFormStatus === 'pending' && (

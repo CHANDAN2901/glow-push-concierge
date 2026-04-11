@@ -632,7 +632,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     }
     
     try {
-      // Delete from DB first
+      // Always delete related appointments when deleting a client
+      if (userProfileId) {
+        await (supabase as any).from('appointments').delete().eq('artist_id', userProfileId).eq('client_name', clientToDelete.name);
+      }
+
+      // Delete from DB
       const { error } = await supabase.from('clients').delete().eq('id', deleteId);
       if (error) throw error;
 
@@ -641,9 +646,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       if (selectedClient?.dbId === deleteId) {
         setSelectedClient(null);
       }
-      if (alsoDeleteAppointments) {
-        setRemoveClientFromCalendar(clientToDelete.name);
-      }
+      // Notify calendar to refresh
+      setRemoveClientFromCalendar(clientToDelete.name);
 
       toast({
         title: t('artist.dashboard.clientDeleted'),
