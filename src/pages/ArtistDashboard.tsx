@@ -422,19 +422,26 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   // Promo settings hook
   const { promo, savePromo } = usePromoSettings(userProfileId);
   const [promoTagText, setPromoTagText] = useState('');
+  const [promoTagTextEn, setPromoTagTextEn] = useState('');
   const [promoTitle, setPromoTitle] = useState('');
+  const [promoTitleEn, setPromoTitleEn] = useState('');
   const [promoDescription, setPromoDescription] = useState('');
+  const [promoDescriptionEn, setPromoDescriptionEn] = useState('');
   const [promoButtonText, setPromoButtonText] = useState('');
-  
+  const [promoButtonTextEn, setPromoButtonTextEn] = useState('');
+
   const [savingPromo, setSavingPromo] = useState(false);
 
   // Sync promo form fields when data loads
   useEffect(() => {
     setPromoTagText(promo.tag_text);
+    setPromoTagTextEn(promo.tag_text_en);
     setPromoTitle(promo.title);
+    setPromoTitleEn(promo.title_en);
     setPromoDescription(promo.description);
+    setPromoDescriptionEn(promo.description_en);
     setPromoButtonText(promo.button_text);
-    
+    setPromoButtonTextEn(promo.button_text_en);
   }, [promo]);
 
   // Appointment lookup for dynamic reminders
@@ -3222,50 +3229,62 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               </div>
               <div className="h-[2px] w-full mb-5" style={{ background: 'linear-gradient(90deg, transparent, hsl(38 55% 62%), transparent)' }} />
 
-              <div className="space-y-5" dir="rtl">
+              <div className="space-y-5">
+                {/* Tag Text */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.tagText')}</Label>
-                  <Input
-                    value={promoTagText}
-                    onChange={(e) => setPromoTagText(e.target.value)}
-                    dir={lang === 'he' ? 'rtl' : 'ltr'}
-                    placeholder={t('artist.dashboard.tagTextPlaceholder')}
-                    className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
-                    style={{ border: '1px solid hsl(38 55% 62%)' }}
-                  />
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇮🇱</span>
+                      <Input value={promoTagText} onChange={(e) => setPromoTagText(e.target.value)} dir="rtl" placeholder={t('artist.dashboard.tagTextPlaceholder')} className="h-12 rounded-full bg-white text-sm px-5 pr-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                    </div>
+                    <div className="flex-1 relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇺🇸</span>
+                      <Input value={promoTagTextEn} onChange={(e) => setPromoTagTextEn(e.target.value)} dir="ltr" placeholder="Exclusive for Returning Clients ✨" className="h-12 rounded-full bg-white text-sm px-5 pl-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                    </div>
+                  </div>
                 </div>
+                {/* Main Title */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.mainTitle')}</Label>
-                  <Input
-                    value={promoTitle}
-                    onChange={(e) => setPromoTitle(e.target.value)}
-                    dir={lang === 'he' ? 'rtl' : 'ltr'}
-                    placeholder={t('artist.dashboard.mainTitlePlaceholder')}
-                    className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
-                    style={{ border: '1px solid hsl(38 55% 62%)' }}
-                  />
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇮🇱</span>
+                      <Input value={promoTitle} onChange={(e) => setPromoTitle(e.target.value)} dir="rtl" placeholder={t('artist.dashboard.mainTitlePlaceholder')} className="h-12 rounded-full bg-white text-sm px-5 pr-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                    </div>
+                    <div className="flex-1 relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇺🇸</span>
+                      <Input value={promoTitleEn} onChange={(e) => setPromoTitleEn(e.target.value)} dir="ltr" placeholder="Complete Your Look" className="h-12 rounded-full bg-white text-sm px-5 pl-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                    </div>
+                  </div>
                 </div>
+                {/* Description */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.description')}</Label>
-                  <Textarea
-                    value={promoDescription}
-                    onChange={(e) => setPromoDescription(e.target.value)}
-                    dir={lang === 'he' ? 'rtl' : 'ltr'}
-                    rows={4}
-                    placeholder={t('artist.dashboard.promoDescriptionPlaceholder')}
-                    className="rounded-2xl bg-white text-sm px-4 py-3 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
-                    style={{ border: '1px solid hsl(38 55% 62%)' }}
-                  />
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <span className="absolute right-3 top-3 text-xs text-muted-foreground">🇮🇱</span>
+                      <Textarea value={promoDescription} onChange={(e) => setPromoDescription(e.target.value)} dir="rtl" rows={4} placeholder={t('artist.dashboard.promoDescriptionPlaceholder')} className="rounded-2xl bg-white text-sm px-4 pr-8 py-3 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                    </div>
+                    <div className="flex-1 relative">
+                      <span className="absolute left-3 top-3 text-xs text-muted-foreground">🇺🇸</span>
+                      <Textarea value={promoDescriptionEn} onChange={(e) => setPromoDescriptionEn(e.target.value)} dir="ltr" rows={4} placeholder="Love your new brows? Complete your look..." className="rounded-2xl bg-white text-sm px-4 pl-8 py-3 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                    </div>
+                  </div>
                 </div>
+                {/* Button Text */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.buttonText')}</Label>
-                  <Input
-                    value={promoButtonText}
-                    onChange={(e) => setPromoButtonText(e.target.value)}
-                    dir="rtl"
-                    className="h-12 rounded-full bg-white text-sm px-5 focus-visible:ring-accent/40 focus-visible:ring-offset-0"
-                    style={{ border: '1px solid hsl(38 55% 62%)' }}
-                  />
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇮🇱</span>
+                      <Input value={promoButtonText} onChange={(e) => setPromoButtonText(e.target.value)} dir="rtl" className="h-12 rounded-full bg-white text-sm px-5 pr-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                    </div>
+                    <div className="flex-1 relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇺🇸</span>
+                      <Input value={promoButtonTextEn} onChange={(e) => setPromoButtonTextEn(e.target.value)} dir="ltr" placeholder="Details & Booking 💋" className="h-12 rounded-full bg-white text-sm px-5 pl-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                    </div>
+                  </div>
                 </div>
 
                 <Button
@@ -3273,9 +3292,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     setSavingPromo(true);
                     const success = await savePromo({
                       tag_text: promoTagText,
+                      tag_text_en: promoTagTextEn,
                       title: promoTitle,
+                      title_en: promoTitleEn,
                       description: promoDescription,
+                      description_en: promoDescriptionEn,
                       button_text: promoButtonText,
+                      button_text_en: promoButtonTextEn,
                       button_url: '',
                       is_enabled: true,
                     });
@@ -3360,11 +3383,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                               boxShadow: '0 4px 12px rgba(115,92,0,0.3)',
                             }}
                           >
-                            {(() => {
-                              const v = promoTagText || 'פינוק ללקוחות חוזרות ✨';
-                              if (lang !== 'he' && (v === 'פינוק ללקוחות חוזרות ✨' || v === 'פינוק ללקוחות ✨')) return 'Exclusive for Returning Clients ✨';
-                              return v;
-                            })()}
+                            {lang === 'en' ? (promoTagTextEn || 'Exclusive for Returning Clients ✨') : (promoTagText || 'פינוק ללקוחות חוזרות ✨')}
                           </span>
                         </div>
                         {/* Sparkle deco */}
@@ -3391,22 +3410,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                               backgroundClip: 'text',
                             }}
                           >
-                            {(() => {
-                              const v = promoTitle || 'להשלמת המראה';
-                              if (lang !== 'he' && v === 'להשלמת המראה') return 'Complete Your Look';
-                              return v;
-                            })()}
+                            {lang === 'en' ? (promoTitleEn || 'Complete Your Look') : (promoTitle || 'להשלמת המראה')}
                           </h3>
                           {/* Description */}
                           <p
                             className="text-[11px] leading-relaxed mb-4 px-2"
                             style={{ color: '#4a3520' }}
                           >
-                            {(() => {
-                              const v = promoDescription || 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.';
-                              if (lang !== 'he' && (v.startsWith('אהבת את הגבות') || v === 'אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה')) return 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.';
-                              return v;
-                            })()}
+                            {lang === 'en' ? (promoDescriptionEn || 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.') : (promoDescription || 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.')}
                           </p>
                           {/* CTA Button */}
                           <div
@@ -3418,11 +3429,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                             }}
                           >
                             <Sparkles className="w-3.5 h-3.5" />
-                            {(() => {
-                              const v = promoButtonText || 'לפרטים ותיאום 💋';
-                              if (lang !== 'he' && (v === 'לפרטים ותיאום 💋' || v === 'הזמיני עכשיו')) return 'Details & Booking';
-                              return v;
-                            })()}
+                            {lang === 'en' ? (promoButtonTextEn || 'Details & Booking 💋') : (promoButtonText || 'לפרטים ותיאום 💋')}
                           </div>
                         </div>
                       </div>

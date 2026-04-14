@@ -3,18 +3,26 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface PromoSettings {
   tag_text: string;
+  tag_text_en: string;
   title: string;
+  title_en: string;
   description: string;
+  description_en: string;
   button_text: string;
+  button_text_en: string;
   button_url: string;
   is_enabled: boolean;
 }
 
 const DEFAULTS: PromoSettings = {
   tag_text: 'פינוק ללקוחות חוזרות ✨',
+  tag_text_en: 'Exclusive for Returning Clients ✨',
   title: 'להשלמת המראה',
+  title_en: 'Complete Your Look',
   description: 'אהבת את הגבות החדשות? השלימי את המראה עם פיגמנט שפתיים בטכניקת אקוורל עדינה! קבלי 15% הנחה לטיפול נוסף כלקוחה קיימת.',
+  description_en: 'Love your new brows? Complete your look with a delicate watercolor lip blush! Enjoy 15% off your next treatment as an existing client.',
   button_text: 'לפרטים ותיאום 💋',
+  button_text_en: 'Details & Booking 💋',
   button_url: '',
   is_enabled: true,
 };
@@ -28,15 +36,19 @@ export function usePromoSettings(artistProfileId: string | null | undefined) {
     try {
       const { data } = await supabase
         .from('promo_settings' as any)
-        .select('tag_text, title, description, button_text, button_url, is_enabled')
+        .select('tag_text, tag_text_en, title, title_en, description, description_en, button_text, button_text_en, button_url, is_enabled')
         .eq('artist_profile_id', artistProfileId)
         .maybeSingle();
       if (data) {
         setPromo({
           tag_text: (data as any).tag_text ?? DEFAULTS.tag_text,
+          tag_text_en: (data as any).tag_text_en ?? DEFAULTS.tag_text_en,
           title: (data as any).title ?? DEFAULTS.title,
+          title_en: (data as any).title_en ?? DEFAULTS.title_en,
           description: (data as any).description ?? DEFAULTS.description,
+          description_en: (data as any).description_en ?? DEFAULTS.description_en,
           button_text: (data as any).button_text ?? DEFAULTS.button_text,
+          button_text_en: (data as any).button_text_en ?? DEFAULTS.button_text_en,
           button_url: (data as any).button_url ?? DEFAULTS.button_url,
           is_enabled: (data as any).is_enabled ?? true,
         });

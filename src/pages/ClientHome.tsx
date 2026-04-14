@@ -399,6 +399,11 @@ const ClientHome = () => {
   const { promo } = usePromoSettings(artistProfileId || undefined);
   const [showPromoModal, setShowPromoModal] = useState(false);
 
+  const promoTagText = lang === 'en' ? (promo.tag_text_en || promo.tag_text) : promo.tag_text;
+  const promoTitle   = lang === 'en' ? (promo.title_en   || promo.title)   : promo.title;
+  const promoDesc    = lang === 'en' ? (promo.description_en || promo.description) : promo.description;
+  const promoBtn     = lang === 'en' ? (promo.button_text_en || promo.button_text) : promo.button_text;
+
   const validClientId = isUUID(clientId) ? clientId : undefined;
   const gallery = useClientGallery(validClientId, artistProfileId || undefined);
 
@@ -467,10 +472,10 @@ const ClientHome = () => {
         reader.readAsDataURL(file);
       });
       await gallery.uploadPhoto(base64, { photoType: 'healing', uploadedBy: 'client' });
-      toast({ title: 'התמונה הועלתה בהצלחה! 📸✨' });
+      toast({ title: lang === 'en' ? 'Photo uploaded successfully! 📸✨' : 'התמונה הועלתה בהצלחה! 📸✨' });
     } catch (err) {
       console.error('Bottom upload error:', err);
-      toast({ title: 'שגיאה בהעלאת התמונה', variant: 'destructive' });
+      toast({ title: lang === 'en' ? 'Failed to upload photo' : 'שגיאה בהעלאת התמונה', variant: 'destructive' });
     } finally {
       setBottomUploading(false);
       e.target.value = '';
@@ -558,7 +563,7 @@ const ClientHome = () => {
     const ics = [
       'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Glow Push//Recovery//EN', 'BEGIN:VEVENT',
       `DTSTART:${fmt(tomorrow)}`, `DTEND:${fmt(end)}`, 'RRULE:FREQ=DAILY;COUNT=30',
-      `SUMMARY:Glow Push: טיפול יומי 🎀`, `DESCRIPTION:היי! זה הזמן להיכנס לאפליקציה ולבדוק את ההנחיות להיום: ${url}`,
+      `SUMMARY:Glow Push: ${lang === 'en' ? 'Daily Care 🎀' : 'טיפול יומי 🎀'}`, `DESCRIPTION:${lang === 'en' ? `Hey! Time to check today's care instructions: ${url}` : `היי! זה הזמן להיכנס לאפליקציה ולבדוק את ההנחיות להיום: ${url}`}`,
       `URL:${url}`, 'END:VEVENT', 'END:VCALENDAR',
     ].join('\r\n');
     const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
@@ -584,7 +589,7 @@ const ClientHome = () => {
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#fcf9f8' }}>
         <div className="flex flex-col items-center gap-3">
           <div className="animate-spin w-8 h-8 border-3 rounded-full" style={{ borderColor: '#D4AF37', borderTopColor: 'transparent' }} />
-          <p className="text-sm" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>טוען...</p>
+          <p className="text-sm" style={{ color: '#5C400A', fontFamily: FBAHAVA }}>{lang === 'en' ? 'Loading...' : 'טוען...'}</p>
         </div>
       </div>
     );
@@ -594,7 +599,7 @@ const ClientHome = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#fcf9f8' }}>
         <div className="max-w-sm text-center p-6 rounded-2xl bg-white border border-destructive/30">
-          <p className="text-destructive font-medium mb-2">שגיאה בטעינת נתונים</p>
+          <p className="text-destructive font-medium mb-2">{lang === 'en' ? 'Error loading data' : 'שגיאה בטעינת נתונים'}</p>
           <p className="text-xs text-muted-foreground">{phasesError}</p>
         </div>
       </div>
@@ -635,7 +640,7 @@ const ClientHome = () => {
         onUnreadCountChange={handleUnreadCountChange}
       />
 
-      <div className="pt-28 max-w-md mx-auto px-4" dir="rtl">
+      <div className="pt-28 max-w-md mx-auto px-4" dir={lang === 'he' ? 'rtl' : 'ltr'}>
 
         {/* ─── PUSH BANNER ─── */}
         <ClientPushBanner clientId={clientId} clientName={clientName} artistProfileId={artistProfileId} lang={lang} />
@@ -712,7 +717,7 @@ const ClientHome = () => {
             boxShadow: '0 12px 40px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(212,175,55,0.12)',
           }}
         >
-          <div className="px-6 pt-8 pb-8 text-center" dir="rtl">
+          <div className="px-6 pt-8 pb-8 text-center" dir={lang === 'he' ? 'rtl' : 'ltr'}>
             {/* Phase title */}
             <h2 className="text-xl font-bold mb-3" style={{ fontFamily: TITLE_FONT }}>
               <GoldText>
@@ -849,15 +854,16 @@ const ClientHome = () => {
 
         {/* ─── UPSELL CARD (Dynamic from DB) ─── */}
         {promo.is_enabled && (
-        <div
-          className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden client-glass-card"
-        >
+          <div
+            className="rounded-3xl p-6 mb-5 animate-fade-up relative overflow-hidden client-glass-card"
+            dir={lang === 'he' ? 'rtl' : 'ltr'}
+          >
           {/* Illuminated glow border effect */}
           <div className="absolute inset-0 pointer-events-none rounded-3xl" style={{ boxShadow: 'inset 0 0 30px rgba(212,175,55,0.08)' }} />
           {/* Corner badge */}
-          <div className="absolute top-3 left-3">
+          <div className={`absolute top-3 ${lang === 'he' ? 'left-3' : 'right-3'}`}>
             <span className="px-4 py-1.5 rounded-full text-xs font-bold" style={{ background: 'linear-gradient(135deg, #d4af37 0%, #b8960b 40%, #e8d070 70%, #b8960b 90%, #d4af37 100%)', color: '#fff', fontFamily: FBAHAVA, boxShadow: '0 4px 12px rgba(115,92,0,0.35), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(115,92,0,0.2)', textShadow: '0 1px 2px rgba(0,0,0,0.15)' }}>
-              {promo.tag_text}
+              {promoTagText}
             </span>
           </div>
           {/* Sparkle decorations */}
@@ -868,10 +874,10 @@ const ClientHome = () => {
               <Gift className="w-8 h-8 text-white" strokeWidth={1.5} />
             </div>
             <h2 className="text-xl font-bold mb-2" style={{ fontFamily: TITLE_FONT }}>
-              <GoldText>{promo.title || (lang === 'en' ? 'Complete the Look Offer!' : 'מבצע להשלמת המראה!')}</GoldText>
+              <GoldText>{promoTitle}</GoldText>
             </h2>
             <p className="text-sm leading-relaxed mb-6" style={{ fontFamily: FBAHAVA, color: BODY_TEXT }}>
-              {promo.description}
+              {promoDesc}
             </p>
             <button
               onClick={() => setShowPromoModal(true)}
@@ -879,7 +885,7 @@ const ClientHome = () => {
               style={{ ...goldBtnStyle, fontFamily: FBAHAVA, border: 'none', fontSize: '15px' }}
             >
               <Sparkles className="w-4.5 h-4.5" />
-              {promo.button_text || (lang === 'en' ? 'Book Now' : 'הזמיני עכשיו')}
+              {promoBtn}
             </button>
           </div>
         </div>
@@ -924,7 +930,7 @@ const ClientHome = () => {
         </div>
 
         {/* ─── CONTACT & QUICK LINKS ─── */}
-        <div className="mb-5 animate-fade-up" dir="rtl">
+        <div className="mb-5 animate-fade-up" dir={lang === 'he' ? 'rtl' : 'ltr'}>
           <div className="grid grid-cols-4 gap-3">
             {/* Phone */}
             <a
@@ -988,7 +994,7 @@ const ClientHome = () => {
         <div id="gallery" className="scroll-mt-20" />
         <div
           className="rounded-3xl p-6 mb-8 animate-fade-up client-glass-card"
-          dir="rtl"
+          dir={lang === 'he' ? 'rtl' : 'ltr'}
         >
           {/* Premium Title */}
           <h2
@@ -1000,7 +1006,7 @@ const ClientHome = () => {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            ✨ הגלריה שלך ✨
+            {lang === 'en' ? '✨ Your Gallery ✨' : '✨ הגלריה שלך ✨'}
           </h2>
           {/* Delicate Subtitle */}
           <p
@@ -1234,7 +1240,7 @@ const ClientHome = () => {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
           <div
             className="relative w-full max-w-sm rounded-3xl p-7 animate-in fade-in zoom-in-95 duration-200"
-            dir="rtl"
+            dir={lang === 'he' ? 'rtl' : 'ltr'}
             onClick={(e) => e.stopPropagation()}
             style={{
               background: 'rgba(255,255,255,0.92)',
@@ -1257,10 +1263,10 @@ const ClientHome = () => {
                 <Sparkles className="w-7 h-7" style={{ color: '#B8860B' }} />
               </div>
               <h2 className="text-xl font-bold mb-3" style={{ fontFamily: TITLE_FONT }}>
-                <GoldText>{promo.title}</GoldText>
+                <GoldText>{promoTitle}</GoldText>
               </h2>
               <p className="text-sm leading-relaxed mb-7" style={{ fontFamily: FBAHAVA, color: '#8B7355' }}>
-                {promo.description}
+                {promoDesc}
               </p>
 
               <a
