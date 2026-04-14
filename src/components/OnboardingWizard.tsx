@@ -17,6 +17,7 @@ const goldColor = 'hsl(38, 55%, 62%)';
 interface Props {
   open: boolean;
   onClose: () => void;
+  onDismiss: () => void; // permanent dismiss (skip all)
   userId: string | null;
   userProfileId: string | null;
   currentLogoUrl: string;
@@ -26,11 +27,14 @@ interface Props {
   onOpenHealingEditor?: () => void;
   onOpenHealthEditor?: () => void;
   onOpenPolicyEditor?: () => void;
+  initialStep?: number;
+  onStepChange?: (step: number) => void;
 }
 
 export default function OnboardingWizard({
   open,
   onClose,
+  onDismiss,
   userId,
   userProfileId: initialProfileId,
   currentLogoUrl,
@@ -40,12 +44,25 @@ export default function OnboardingWizard({
   onOpenHealingEditor,
   onOpenHealthEditor,
   onOpenPolicyEditor,
+  initialStep = 0,
+  onStepChange,
 }: Props) {
   const { lang } = useI18n();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isHe = lang === 'he';
-  const [step, setStep] = useState(0);
+  const [step, setStepRaw] = useState(initialStep);
+
+  // Wrap setStep to also notify parent for persistence
+  const setStep = (s: number) => {
+    setStepRaw(s);
+    onStepChange?.(s);
+  };
+
+  // Sync if initialStep changes (e.g. loaded from DB after mount)
+  useEffect(() => {
+    setStepRaw(initialStep);
+  }, [initialStep]);
 
   // Resolved profile ID — starts from prop, falls back to DB lookup by userId
   const [resolvedProfileId, setResolvedProfileId] = useState<string | null>(initialProfileId);
@@ -202,14 +219,7 @@ export default function OnboardingWizard({
   };
 
   const finishOnboarding = async () => {
-    localStorage.setItem('gp-onboarding-done', '1');
-    const profileId = await getProfileId();
-    if (profileId) {
-      await supabase.from('profiles')
-        .update({ onboarding_checklist_dismissed: true })
-        .eq('id', profileId);
-    }
-    onClose();
+    onDismiss();
     toast({ title: isHe ? '🎉 הקליניקה הדיגיטלית שלך מוכנה!' : '🎉 Your digital clinic is ready!' });
   };
 
@@ -505,16 +515,9 @@ export default function OnboardingWizard({
             boxShadow: '0 20px 60px -10px hsla(38, 55%, 62%, 0.25)',
           }}
         >
-          {/* Close / skip all */}
+          {/* Close — session only, does NOT permanently dismiss */}
           <button
-            onClick={async () => {
-              localStorage.setItem('gp-onboarding-done', '1');
-              const pid = resolvedProfileId ?? (await getProfileId());
-              if (pid) {
-                await supabase.from('profiles').update({ onboarding_checklist_dismissed: true }).eq('id', pid);
-              }
-              onClose();
-            }}
+            onClick={() => onClose()}
             className="absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
           >
             <X className="w-4 h-4" />
@@ -559,6 +562,14 @@ export default function OnboardingWizard({
               {isHe ? '→ חזרה' : '← Back'}
             </button>
           )}
+
+          {/* Skip all — permanent dismiss */}
+          <button
+            onClick={() => onDismiss()}
+            className="mt-2 w-full text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+          >
+            {isHe ? 'דלגי על כל ההגדרות' : 'Skip all setup'}
+          </button>
         </div>
       </div>
 
