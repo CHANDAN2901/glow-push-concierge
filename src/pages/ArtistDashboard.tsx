@@ -804,10 +804,25 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   // localStorage before we decide to show the wizard (prevents it showing on every login).
   useEffect(() => {
     if (user && profileFetched && !localStorage.getItem('gp-onboarding-done') && !isNewSignupFlow) {
+      // Load saved step from onboarding_checklist_state
+      if (userProfileId) {
+        supabase.from('profiles').select('onboarding_checklist_state').eq('id', userProfileId).maybeSingle().then(({ data }) => {
+          const state = data?.onboarding_checklist_state as any;
+          if (state?.step != null) setOnboardingStep(state.step);
+        });
+      }
       const timer = setTimeout(() => setShowOnboarding(true), 800);
       return () => clearTimeout(timer);
     }
-  }, [user, profileFetched, isNewSignupFlow]);
+  }, [user, profileFetched, isNewSignupFlow, userProfileId]);
+
+  // Re-open wizard after returning from an editor
+  useEffect(() => {
+    if (onboardingReturning && !showHealingJourneyEditor && !showHealthEditor && !showPolicyEditor) {
+      setOnboardingReturning(false);
+      setShowOnboarding(true);
+    }
+  }, [onboardingReturning, showHealingJourneyEditor, showHealthEditor, showPolicyEditor]);
 
   // Show welcome tour after onboarding wizard is done (for first-time users)
   // userProfileId not required — just needs user to be logged in.
