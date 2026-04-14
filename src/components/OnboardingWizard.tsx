@@ -222,7 +222,6 @@ export default function OnboardingWizard({
     onDismiss();
     toast({ title: isHe ? '🎉 הקליניקה הדיגיטלית שלך מוכנה!' : '🎉 Your digital clinic is ready!' });
   };
-  };
 
   // ─── Step content ────────────────────────────────────────────────────────────
   const steps = [
@@ -563,6 +562,14 @@ export default function OnboardingWizard({
               {isHe ? '→ חזרה' : '← Back'}
             </button>
           )}
+
+          {/* Skip all — permanent dismiss */}
+          <button
+            onClick={() => onDismiss()}
+            className="mt-2 w-full text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+          >
+            {isHe ? 'דלגי על כל ההגדרות' : 'Skip all setup'}
+          </button>
         </div>
       </div>
 
