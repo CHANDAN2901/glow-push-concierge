@@ -17,6 +17,7 @@ const goldColor = 'hsl(38, 55%, 62%)';
 interface Props {
   open: boolean;
   onClose: () => void;
+  onDismiss: () => void; // permanent dismiss (skip all)
   userId: string | null;
   userProfileId: string | null;
   currentLogoUrl: string;
@@ -26,11 +27,14 @@ interface Props {
   onOpenHealingEditor?: () => void;
   onOpenHealthEditor?: () => void;
   onOpenPolicyEditor?: () => void;
+  initialStep?: number;
+  onStepChange?: (step: number) => void;
 }
 
 export default function OnboardingWizard({
   open,
   onClose,
+  onDismiss,
   userId,
   userProfileId: initialProfileId,
   currentLogoUrl,
@@ -40,12 +44,25 @@ export default function OnboardingWizard({
   onOpenHealingEditor,
   onOpenHealthEditor,
   onOpenPolicyEditor,
+  initialStep = 0,
+  onStepChange,
 }: Props) {
   const { lang } = useI18n();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isHe = lang === 'he';
-  const [step, setStep] = useState(0);
+  const [step, setStepRaw] = useState(initialStep);
+
+  // Wrap setStep to also notify parent for persistence
+  const setStep = (s: number) => {
+    setStepRaw(s);
+    onStepChange?.(s);
+  };
+
+  // Sync if initialStep changes (e.g. loaded from DB after mount)
+  useEffect(() => {
+    setStepRaw(initialStep);
+  }, [initialStep]);
 
   // Resolved profile ID — starts from prop, falls back to DB lookup by userId
   const [resolvedProfileId, setResolvedProfileId] = useState<string | null>(initialProfileId);
