@@ -1,86 +1,75 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { CheckCircle, Upload, UserPlus, CreditCard, Sparkles, MessageSquare } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Props {
   logoUrl: string;
   clients: { name: string }[];
   subscriptionTier: string;
-  onOpenDigitalCard: () => void;
+  hasDigitalCard?: boolean;
   onOpenAddClient: () => void;
-  onOpenTemplateEditor?: () => void;
+  onOpenProfile: () => void;
+  onOpenDigitalCard: () => void;
+  onOpenPush: () => void;
+  onOpenHealing: () => void;
   userProfileId?: string | null;
 }
 
-const COMPLETED_KEY = 'gp-onboarding-checklist-complete';
-
-interface CheckState {
-  logo: boolean;
-  client: boolean;
-  card: boolean;
-  pushMessages: boolean;
-  healing: boolean;
-}
-
-export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier, onOpenDigitalCard, onOpenAddClient, onOpenTemplateEditor, userProfileId }: Props) {
+export default function OnboardingChecklist({
+  logoUrl,
+  clients,
+  subscriptionTier,
+  hasDigitalCard,
+  onOpenAddClient,
+  onOpenProfile,
+  onOpenDigitalCard,
+  onOpenPush,
+  onOpenHealing,
+  userProfileId,
+}: Props) {
   const { lang } = useI18n();
-  const navigate = useNavigate();
   const isHe = lang === 'he';
 
   const [dismissed, setDismissed] = useState(false);
   const [planName, setPlanName] = useState('');
-  const [manualChecks, setManualChecks] = useState<Partial<CheckState>>({});
   const [loaded, setLoaded] = useState(false);
 
-  // Load checklist state from DB
+  // Re-check dismiss state whenever the real profileId becomes available
+  useEffect(() => {
+    if (!userProfileId) return;
+    const key = `gp-checklist-dismissed-${userProfileId}`;
+    if (localStorage.getItem(key) === '1') setDismissed(true);
+  }, [userProfileId]);
+
+  // Auto-detected states from DB
+  const [pushMessagesDone, setPushMessagesDone] = useState(false);
+  const [healingDone] = useState(true);
+
+  // Query DB to auto-detect push messages and healing completion
   useEffect(() => {
     if (!userProfileId) {
-      // Fallback to localStorage
-      try {
-        const raw = localStorage.getItem('gp-onboarding-checklist');
-        if (raw) setManualChecks(JSON.parse(raw));
-        setDismissed(!!localStorage.getItem(COMPLETED_KEY));
-      } catch {}
       setLoaded(true);
       return;
     }
-    const load = async () => {
-      const db = supabase as any;
-      const { data } = await db
-        .from('profiles')
-        .select('onboarding_checklist_state, onboarding_checklist_dismissed')
-        .eq('id', userProfileId)
-        .single();
-      if (data) {
-        if (data.onboarding_checklist_state && typeof data.onboarding_checklist_state === 'object') {
-          setManualChecks(data.onboarding_checklist_state);
-        }
-        if (data.onboarding_checklist_dismissed) {
-          setDismissed(true);
-        }
-      }
+
+    const detect = async () => {
+      // Check if artist has saved custom push message settings
+      const { data: msgData } = await (supabase as any)
+        .from('artist_message_settings')
+        .select('id')
+        .eq('artist_profile_id', userProfileId)
+        .maybeSingle();
+      if (msgData?.id) setPushMessagesDone(true);
+
+
       setLoaded(true);
     };
-    load();
+
+    detect();
   }, [userProfileId]);
 
-  // Persist checklist state to DB
-  const persistChecklist = useCallback(async (checks: Partial<CheckState>, isDismissed?: boolean) => {
-    if (!userProfileId) {
-      localStorage.setItem('gp-onboarding-checklist', JSON.stringify(checks));
-      if (isDismissed) localStorage.setItem(COMPLETED_KEY, '1');
-      return;
-    }
-    const db = supabase as any;
-    const update: any = { onboarding_checklist_state: checks };
-    if (isDismissed !== undefined) update.onboarding_checklist_dismissed = isDismissed;
-    await db.from('profiles').update(update).eq('id', userProfileId);
-  }, [userProfileId]);
-
-  // Fetch dynamic plan name from pricing_plans table
+  // Fetch dynamic plan name
   useEffect(() => {
     const slugMap: Record<string, string> = { lite: 'lite', professional: 'pro', master: 'elite' };
     const slug = slugMap[subscriptionTier] || subscriptionTier;
@@ -91,73 +80,52 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
       .then(({ data }) => {
         if (data) {
           const match = data.find(p => p.slug === slug) || data.find(p => p.slug.includes(subscriptionTier));
-          if (match) {
-            setPlanName(isHe ? match.name_he : match.name_en);
-          }
+          if (match) setPlanName(isHe ? match.name_he : match.name_en);
         }
       });
   }, [subscriptionTier, isHe]);
 
-  // Auto-detect completion
-  const checks: CheckState = useMemo(() => ({
-    logo: !!(logoUrl && logoUrl.length > 5) || !!manualChecks.logo,
-    client: clients.length > 0 || !!manualChecks.client,
-    card: !!manualChecks.card,
-    pushMessages: !!manualChecks.pushMessages,
-    healing: !!manualChecks.healing,
-  }), [logoUrl, clients.length, manualChecks]);
+  // All checks are auto-detected — no manual toggles
+  const checks = useMemo(() => ({
+    logo: !!(logoUrl && logoUrl.length > 5),
+    client: clients.length > 0,
+    card: !!hasDigitalCard,
+    pushMessages: pushMessagesDone,
+    healing: healingDone,
+  }), [logoUrl, clients.length, hasDigitalCard, pushMessagesDone, healingDone]);
 
   const allDone = Object.values(checks).every(Boolean);
   const completedCount = Object.values(checks).filter(Boolean).length;
   const totalSteps = 5;
 
-  // Fire confetti when all done
+  const persistDismiss = useCallback(() => {
+    if (userProfileId) localStorage.setItem(`gp-checklist-dismissed-${userProfileId}`, '1');
+    setDismissed(true);
+  }, [userProfileId]);
+
+  // Auto-dismiss permanently once all steps are complete — no need to show the success screen
   useEffect(() => {
-    if (allDone && !dismissed && loaded) {
-      persistChecklist(manualChecks, true);
-      // Gold confetti burst
-      const fire = (particleRatio: number, opts: confetti.Options) => {
-        confetti({
-          origin: { y: 0.6 },
-          colors: ['#D4AF37', '#F9F295', '#B8860B', '#FFF8DC', '#DAA520'],
-          ...opts,
-          particleCount: Math.floor(120 * particleRatio),
-        });
-      };
-      fire(0.25, { spread: 26, startVelocity: 55 });
-      fire(0.2, { spread: 60 });
-      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-      fire(0.1, { spread: 120, startVelocity: 45 });
+    if (allDone && loaded && !dismissed) {
+      persistDismiss();
     }
-  }, [allDone, dismissed]);
+  }, [allDone, loaded, dismissed, persistDismiss]);
 
   if (!loaded || dismissed) return null;
 
   const displayPlanName = planName || subscriptionTier;
 
-  const toggleCheck = (key: keyof CheckState) => {
-    try {
-      const updated = { ...manualChecks, [key]: !manualChecks[key] };
-      setManualChecks(updated);
-      persistChecklist(updated);
-    } catch (err) {
-      console.error('Failed to toggle checklist item:', err);
-    }
-  };
-
-  const steps: { key: keyof CheckState; icon: typeof Upload; label: string; tip?: string; action: () => void }[] = [
+  const steps: { key: keyof typeof checks; icon: typeof Upload; label: string; tip?: string; action: () => void }[] = [
     {
       key: 'logo',
       icon: Upload,
       label: isHe ? 'העלי לוגו לעסק ✨' : 'Upload your business logo ✨',
-      action: () => { navigate('/artist?tab=profile'); },
+      action: onOpenProfile,
     },
     {
       key: 'client',
       icon: UserPlus,
       label: isHe ? 'הוסיפי לקוחה ראשונה 👤' : 'Add your first client 👤',
-      action: () => { onOpenAddClient(); },
+      action: onOpenAddClient,
     },
     {
       key: 'card',
@@ -166,7 +134,7 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
       tip: isHe
         ? '💡 טיפ מ-Glow Push: כרטיס דיגיטלי מעוצב משדר יוקרה ועוזר ללקוחות להמליץ עלייך.'
         : '💡 Tip: A styled digital card projects luxury and helps clients recommend you.',
-      action: () => { navigate('/artist?tab=profile'); },
+      action: onOpenDigitalCard,
     },
     {
       key: 'pushMessages',
@@ -175,7 +143,7 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
       tip: isHe
         ? '💡 טיפ מ-Glow Push: ניסוח אישי של הפושים יגרום ללקוחות שלך להרגיש שאת מלווה אותן באמת!'
         : '💡 Tip: Personalized push messages make your clients feel truly cared for!',
-      action: () => { navigate('/artist?tab=push'); },
+      action: onOpenPush,
     },
     {
       key: 'healing',
@@ -184,7 +152,7 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
       tip: isHe
         ? '💡 טיפ מ-Glow Push: אוטומציה פה תחסוך לך 5 שעות של מענה בוואטסאפ בשבוע!'
         : '💡 Tip: Automation here saves you 5 hours of WhatsApp replies per week!',
-      action: () => { navigate('/admin/timeline-settings'); },
+      action: onOpenHealing,
     },
   ];
 
@@ -200,9 +168,7 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
       {/* Header */}
       <div
         className="px-5 pt-5 pb-4"
-        style={{
-          background: 'linear-gradient(135deg, hsl(38 55% 62% / 0.08), hsl(40 50% 72% / 0.15))',
-        }}
+        style={{ background: 'linear-gradient(135deg, hsl(38 55% 62% / 0.08), hsl(40 50% 72% / 0.15))' }}
       >
         <div className="flex items-center gap-2 mb-1.5">
           <h3 className="text-base font-bold font-serif text-foreground leading-snug">
@@ -228,55 +194,25 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
         </div>
       </div>
 
-      {/* Steps or success */}
+      {/* Steps */}
       <div className="px-5 pb-5 pt-2">
-        {allDone ? (
-          <div className="text-center py-6 animate-scale-in">
-            <div
-              className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3"
-              style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295)' }}
-            >
-              <CheckCircle className="w-8 h-8 text-white" />
-            </div>
-            <h4 className="text-lg font-bold font-serif text-foreground mb-2">
-              {isHe ? 'אלופה!' : 'Amazing!'}
-            </h4>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
-              {isHe
-                ? 'הקליניקה שלך עכשיו חכמה, ממותגת ומוכנה לעבוד על אוטומט 🚀'
-                : 'Your clinic is now smart, branded, and ready to run on autopilot 🚀'}
-            </p>
-            <button
-              onClick={() => {
-                setDismissed(true);
-                persistChecklist(manualChecks, true);
-              }}
-              className="mt-4 px-5 py-2 rounded-full text-sm font-serif font-semibold transition-all active:scale-95"
-              style={{
-                background: 'linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-                color: '#4a3636',
-              }}
-            >
-              {isHe ? 'סגרי את הצ׳קליסט' : 'Dismiss'}
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-2.5">
-            {steps.map((step) => {
+        <div className="space-y-2.5">
+          {steps.map((step) => {
               const done = checks[step.key];
               return (
                 <div key={step.key}>
-                  <div
-                    className="w-full flex items-center gap-3 p-3 rounded-2xl text-start transition-all"
+                  <button
+                    onClick={() => { if (!done) step.action(); }}
+                    className="w-full flex items-center gap-3 p-3 rounded-2xl text-start transition-all active:scale-[0.98]"
                     style={{
                       background: done ? 'hsl(38 55% 62% / 0.08)' : 'rgba(255,255,255,0.7)',
                       border: done ? '1px solid hsl(38 55% 62% / 0.25)' : '1px solid hsl(38 30% 85%)',
+                      cursor: done ? 'default' : 'pointer',
                     }}
                   >
-                    {/* Checkbox - toggles check state */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); toggleCheck(step.key); }}
-                      className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all active:scale-90"
+                    {/* Status indicator — display only, not clickable */}
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
                       style={{
                         background: done
                           ? 'linear-gradient(135deg, #B8860B, #D4AF37)'
@@ -285,23 +221,17 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
                       }}
                     >
                       {done && <CheckCircle className="w-4 h-4 text-white" strokeWidth={2.5} />}
-                    </button>
-                    {/* Row text + icon - navigates */}
-                    <button
-                      onClick={() => step.action()}
-                      className="flex items-center gap-2 flex-1 text-start active:scale-[0.98] transition-all"
+                    </div>
+                    <span
+                      className={`text-sm font-medium flex-1 transition-all ${done ? 'line-through opacity-60' : ''}`}
+                      style={{ color: done ? 'hsl(38 40% 50%)' : 'hsl(30 20% 20%)' }}
                     >
-                      <span
-                        className={`text-sm font-medium flex-1 transition-all ${done ? 'line-through opacity-60' : ''}`}
-                        style={{ color: done ? 'hsl(38 40% 50%)' : 'hsl(30 20% 20%)' }}
-                      >
-                        {step.label}
-                      </span>
-                      {!done && (
-                        <step.icon className="w-4 h-4 shrink-0" style={{ color: 'hsl(38 55% 62%)' }} />
-                      )}
-                    </button>
-                  </div>
+                      {step.label}
+                    </span>
+                    {!done && (
+                      <step.icon className="w-4 h-4 shrink-0" style={{ color: 'hsl(38 55% 62%)' }} />
+                    )}
+                  </button>
                   {step.tip && !done && (
                     <p className="text-[11px] text-muted-foreground pr-12 pl-3 mt-1 leading-relaxed">
                       {step.tip}
@@ -311,7 +241,6 @@ export default function OnboardingChecklist({ logoUrl, clients, subscriptionTier
               );
             })}
           </div>
-        )}
       </div>
     </div>
   );

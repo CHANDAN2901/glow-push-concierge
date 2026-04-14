@@ -1563,9 +1563,12 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               logoUrl={logoUrl}
               clients={clients}
               subscriptionTier={subscriptionTier}
-              onOpenDigitalCard={() => setShowDigitalCardPreview(true)}
+              hasDigitalCard={!!(instagramUrl || facebookUrl || wazeAddress)}
               onOpenAddClient={() => { setDispatchPrefill(null); setDispatchOpen(true); }}
-              onOpenTemplateEditor={() => setShowTemplateEditor(true)}
+              onOpenProfile={() => setActiveTab('profile')}
+              onOpenDigitalCard={() => setActiveTab('profile')}
+              onOpenPush={() => { setActiveTab('push'); setSubScreen(null); }}
+              onOpenHealing={() => setShowHealingJourneyEditor(true)}
               userProfileId={userProfileId}
             />
 

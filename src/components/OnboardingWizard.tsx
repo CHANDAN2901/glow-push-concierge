@@ -515,9 +515,9 @@ export default function OnboardingWizard({
             boxShadow: '0 20px 60px -10px hsla(38, 55%, 62%, 0.25)',
           }}
         >
-          {/* Close — session only, does NOT permanently dismiss */}
+          {/* Close — permanently dismisses the wizard */}
           <button
-            onClick={() => onClose()}
+            onClick={() => onDismiss()}
             className="absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
           >
             <X className="w-4 h-4" />
