@@ -4055,15 +4055,29 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       <OnboardingWizard
         open={showOnboarding}
         onClose={() => setShowOnboarding(false)}
+        onDismiss={async () => {
+          localStorage.setItem('gp-onboarding-done', '1');
+          if (userProfileId) {
+            await supabase.from('profiles').update({ onboarding_checklist_dismissed: true }).eq('id', userProfileId);
+          }
+          setShowOnboarding(false);
+        }}
         userId={user?.id ?? null}
         userProfileId={userProfileId}
         currentLogoUrl={logoUrl}
         currentName={artistName}
         currentPhone={artistPhone}
         onProfileUpdated={fetchProfileId}
-        onOpenHealingEditor={() => { setShowOnboarding(false); setShowHealingJourneyEditor(true); }}
-        onOpenHealthEditor={() => setShowHealthEditor(true)}
-        onOpenPolicyEditor={() => setShowPolicyEditor(true)}
+        initialStep={onboardingStep}
+        onStepChange={async (s) => {
+          setOnboardingStep(s);
+          if (userProfileId) {
+            await supabase.from('profiles').update({ onboarding_checklist_state: { step: s } as any }).eq('id', userProfileId);
+          }
+        }}
+        onOpenHealingEditor={() => { setShowOnboarding(false); setOnboardingReturning(true); setShowHealingJourneyEditor(true); }}
+        onOpenHealthEditor={() => { setShowOnboarding(false); setOnboardingReturning(true); setShowHealthEditor(true); }}
+        onOpenPolicyEditor={() => { setShowOnboarding(false); setOnboardingReturning(true); setShowPolicyEditor(true); }}
       />
 
       {/* Delete Account Confirmation Dialog */}
