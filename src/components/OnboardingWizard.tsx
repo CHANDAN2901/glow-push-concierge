@@ -522,16 +522,9 @@ export default function OnboardingWizard({
             boxShadow: '0 20px 60px -10px hsla(38, 55%, 62%, 0.25)',
           }}
         >
-          {/* Close / skip all */}
+          {/* Close — session only, does NOT permanently dismiss */}
           <button
-            onClick={async () => {
-              localStorage.setItem('gp-onboarding-done', '1');
-              const pid = resolvedProfileId ?? (await getProfileId());
-              if (pid) {
-                await supabase.from('profiles').update({ onboarding_checklist_dismissed: true }).eq('id', pid);
-              }
-              onClose();
-            }}
+            onClick={() => onClose()}
             className="absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
           >
             <X className="w-4 h-4" />
