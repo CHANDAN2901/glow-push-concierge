@@ -297,6 +297,7 @@ const ArtistDashboard = () => {
   const selectedClient = selectedClientState;
   const setSelectedClient = setSelectedClientState;
   const setSelectedClientInternal = setSelectedClientState;
+
   type TabId = 'home' | 'clients' | 'calendar' | 'healing' | 'bonuses' | 'messages' | 'digital-card' | 'push' | 'profile';
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     const returnTab = (location.state as any)?.returnTab;
@@ -1052,6 +1053,18 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   };
 
   const [clients, setClients] = useState<ClientEntry[]>([]);
+
+  // Keep selectedClient in sync with the clients array so treatment date
+  // is always fresh after any fetchClients call (e.g. after edit/delete).
+  useEffect(() => {
+    setSelectedClientState(prev => {
+      if (!prev?.dbId) return prev;
+      const fresh = clients.find(c => c.dbId === prev.dbId);
+      if (!fresh) return prev;
+      if (fresh.treatmentDate === prev.treatmentDate) return prev;
+      return { ...prev, treatmentDate: fresh.treatmentDate, day: fresh.day };
+    });
+  }, [clients]);
 
   // Clients with active (non-approved) red flags
   const redFlagClients = clients.filter(c => clientHasRedFlags(c.name) && !c.medicalExceptionApproved);

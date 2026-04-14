@@ -424,10 +424,11 @@ const ClientProfile = () => {
     if (!clientDbId && !clientName) return;
 
     const query = clientDbId
-      ? supabase.from('clients').select('*').eq('id', clientDbId).single()
+      ? supabase.from('clients').select('*').eq('id', clientDbId).maybeSingle()
       : supabase.from('clients').select('*').eq('full_name', clientName).limit(1).maybeSingle();
 
-    query.then(({ data }) => {
+    query.then(({ data, error }) => {
+      if (error) console.error('[ClientProfile] Failed to fetch client:', error);
       if (data) setClient(data as ClientRow);
     });
   }, [clientDbId, clientName]);
