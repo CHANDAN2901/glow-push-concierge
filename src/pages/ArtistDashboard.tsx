@@ -300,11 +300,18 @@ const ArtistDashboard = () => {
   type TabId = 'home' | 'clients' | 'calendar' | 'healing' | 'bonuses' | 'messages' | 'digital-card' | 'push' | 'profile';
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     const returnTab = (location.state as any)?.returnTab;
-    return (returnTab as TabId) || 'home';
+    if (returnTab) return returnTab as TabId;
+    // Fallback: restore tab when user presses browser back (location.state is lost in that case)
+    const saved = sessionStorage.getItem('artistActiveTab');
+    return (saved as TabId) || 'home';
   });
   const [previousTab, setPreviousTab] = useState<TabId>('home');
   const setActiveTabInternal = setActiveTab;
   const [includePolicyShare, setIncludePolicyShare] = useState(true);
+
+useEffect(() => {
+  sessionStorage.setItem('artistActiveTab', activeTab);
+}, [activeTab]);
 
 useEffect(() => {
   setIncludePolicyShare(true);
