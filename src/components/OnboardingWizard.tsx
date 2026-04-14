@@ -219,15 +219,9 @@ export default function OnboardingWizard({
   };
 
   const finishOnboarding = async () => {
-    localStorage.setItem('gp-onboarding-done', '1');
-    const profileId = await getProfileId();
-    if (profileId) {
-      await supabase.from('profiles')
-        .update({ onboarding_checklist_dismissed: true })
-        .eq('id', profileId);
-    }
-    onClose();
+    onDismiss();
     toast({ title: isHe ? '🎉 הקליניקה הדיגיטלית שלך מוכנה!' : '🎉 Your digital clinic is ready!' });
+  };
   };
 
   // ─── Step content ────────────────────────────────────────────────────────────
