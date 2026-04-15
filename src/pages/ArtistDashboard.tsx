@@ -261,6 +261,7 @@ const ArtistDashboard = () => {
   const [finishingTreatment, setFinishingTreatment] = useState(false);
   const [updatingTreatmentDate, setUpdatingTreatmentDate] = useState(false);
   const [manualTreatmentDate, setManualTreatmentDate] = useState('');
+  const [phasesCloned, setPhasesCloned] = useState(false);
   const [dismissedTouchup, setDismissedTouchup] = useState(() => !!localStorage.getItem('gp-dismiss-touchup'));
   const [medicalForm, setMedicalForm] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -319,6 +320,19 @@ useEffect(() => {
   const strictDone = hasRealTreatmentDate(selectedClient?.treatmentDate);
   setManualTreatmentDate(strictDone ? (selectedClient?.treatmentDate as string) : '');
 }, [selectedClient?.dbId, selectedClient?.treatmentDate]);
+
+useEffect(() => {
+  setPhasesCloned(false);
+  const clientId = selectedClient?.dbId;
+  if (!clientId) return;
+  supabase
+    .from('client_healing_phases')
+    .select('id', { count: 'exact', head: true })
+    .eq('client_id', clientId)
+    .then(({ count }) => {
+      setPhasesCloned((count ?? 0) > 0);
+    });
+}, [selectedClient?.dbId]);
 
 const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) => {
   const clientId = selectedClient?.dbId;
@@ -2109,6 +2123,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     onChange={(e) => {
                       const nextValue = e.target.value;
                       setManualTreatmentDate(nextValue);
+                      setPhasesCloned(false);
                       void updateSelectedTreatmentDate(nextValue || null);
                     }}
                   />
@@ -2201,7 +2216,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     : t('artist.dashboard.sendTestNotification')}
                 </button>
 
-                {/* ── Finish Treatment CTA ── */}
+                {/* ── Finish Treatment / Start Recovery Journey CTA ── */}
                 <button
                   type="button"
                   onClick={async () => {
@@ -2211,29 +2226,33 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       return;
                     }
                     setFinishingTreatment(true);
-                    const today = new Date().toISOString().split('T')[0];
                     try {
-                      const { error } = await supabase
-                        .from('clients')
-                        .update({ treatment_date: today })
-                        .eq('id', clientId);
-                      if (error) throw error;
+                      // Only set the treatment date if it hasn't been set yet
+                      if (!isTreatmentDone) {
+                        const today = new Date().toISOString().split('T')[0];
+                        const { error } = await supabase
+                          .from('clients')
+                          .update({ treatment_date: today })
+                          .eq('id', clientId);
+                        if (error) throw error;
+                        const nextDay = calcRecoveryDay(today);
+                        setManualTreatmentDate(today);
+                        setSelectedClient(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
+                        setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today, day: nextDay } : c));
+                      }
 
-                      // Clone global master template into client-specific record
+                      // Always clone global master template into client-specific records
                       const tt = selectedClient.treatment?.includes('שפתיים') || selectedClient.treatment?.toLowerCase().includes('lip') ? 'lips' : 'eyebrows';
                       try {
                         await supabase.rpc('clone_healing_phases_for_client', {
                           p_client_id: clientId,
                           p_treatment_type: tt,
                         });
+                        setPhasesCloned(true);
                       } catch (cloneErr) {
                         console.error('Failed to clone healing phases:', cloneErr);
                       }
 
-                      const nextDay = calcRecoveryDay(today);
-                      setManualTreatmentDate(today);
-                      setSelectedClient(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
-                      setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today, day: nextDay } : c));
                       toast({ title: t('artist.dashboard.recoveryStarted') });
                     } catch (error) {
                       console.error('Failed to set treatment date:', error);
@@ -2242,101 +2261,93 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                       setFinishingTreatment(false);
                     }
                   }}
-                  disabled={finishingTreatment || updatingTreatmentDate || isTreatmentDone}
+                  disabled={finishingTreatment || updatingTreatmentDate || phasesCloned}
                   className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold tracking-wide transition-all active:scale-[0.98] disabled:opacity-70"
                   style={{
-                    background: isTreatmentDone
-                      ? 'hsl(142 76% 36%)'
+                    background: phasesCloned
+                      ? 'transparent'
                       : 'linear-gradient(135deg, #D4AF37 0%, #F5C6D0 50%, #D4AF37 100%)',
-                    color: isTreatmentDone ? '#9ca3af' : '#4a3520',
-                    boxShadow: isTreatmentDone
-                      ? '0 4px 18px rgba(34,197,94,0.3)'
+                    color: phasesCloned ? 'transparent' : '#4a3520',
+                    boxShadow: phasesCloned
+                      ? 'none'
                       : '0 8px 32px rgba(212,175,55,0.35), 0 0 20px rgba(245,198,208,0.25)',
-                    border: '1px solid rgba(255,255,255,0.15)',
+                    border: phasesCloned ? 'none' : '1px solid rgba(255,255,255,0.15)',
+                    height: phasesCloned ? 0 : undefined,
+                    padding: phasesCloned ? 0 : undefined,
+                    overflow: 'hidden',
                   }}
                 >
                   {finishingTreatment ? (
                     <span className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
-                  ) : isTreatmentDone ? (
-                    <>{t('artist.dashboard.treatmentDone')}</>
                   ) : (
                     <>{t('artist.dashboard.finishTreatment')}</>
                   )}
                 </button>
 
-                {/* === Share Client Portal Link === */}
-                {(() => {
-                  const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
-                  const hasPhone = cleanPhone.length > 0;
-                  const firstName = (selectedClient.name || '').split(' ')[0] || 'מותק';
-                  const artistSig = artistName || 'אורית אהרוני';
-
-                  const handleSendPortalWhatsApp = async () => {
-                    const link = await buildClientZoneLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone);
-                    const waMsg = lang === 'en'
-                      ? `Hi ${firstName} ✨, so happy we finished the treatment!\n\nTo keep your results perfect, here's your personal recovery journey with all the instructions and reminders:\n\n${link}\n\nCan't wait to see the final result!\n\nWith love, ${artistSig} - Glow Push 🤍`
-                      : `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול!\n\nכדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות:\n\n${link}\n\nמחכה לראות את התוצאה הסופית!\n\nבאהבה, ${artistSig} - Glow Push 🤍`;
-                    const waUrl = buildWhatsAppUrl(cleanPhone, waMsg);
-                    window.open(waUrl, '_blank');
-                  };
-
-                  const handleCopyPortalLink = async () => {
-                    const link = await buildClientZoneLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone);
-                    try {
-                      await navigator.clipboard.writeText(link);
-                      toast({ title: t('artist.dashboard.linkCopied') });
-                    } catch {
-                      window.prompt(t('artist.dashboard.copyThisLink'), link);
-                    }
-                  };
-
-                  return (
-                    <div
-                      className="rounded-3xl overflow-hidden p-6 space-y-4 transition-all hover:shadow-xl"
+                {/* === Send Recovery Link (shown only after Finish Treatment is clicked) === */}
+                {phasesCloned && (
+                  <div className="flex items-center gap-2 px-1">
+                    <span className="text-lg">✅</span>
+                    <p className="text-sm font-semibold" style={{ color: '#5a3e00' }}>
+                      {lang === 'en' ? 'Treatment complete! Send the recovery journey to your client:' : '!הטיפול הסתיים! שלחי ללקוחה את מסע ההחלמה'}
+                    </p>
+                  </div>
+                )}
+                {phasesCloned && (
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const cleanPhone = selectedClient.phone ? formatPhone(selectedClient.phone) : '';
+                        if (!cleanPhone) {
+                          toast({ title: t('artist.dashboard.noPhone'), variant: 'destructive' });
+                          return;
+                        }
+                        const firstName = (selectedClient.name || '').split(' ')[0] || 'מותק';
+                        const artistSig = artistName || 'אורית אהרוני';
+                        const link = await buildClientZoneLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone);
+                        const waMsg = lang === 'en'
+                          ? `Hi ${firstName} ✨, so happy we finished the treatment!\n\nTo keep your results perfect, here's your personal recovery journey with all the instructions and reminders:\n\n${link}\n\nCan't wait to see the final result!\n\nWith love, ${artistSig} - Glow Push 🤍`
+                          : `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול!\n\nכדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות:\n\n${link}\n\nמחכה לראות את התוצאה הסופית!\n\nבאהבה, ${artistSig} - Glow Push 🤍`;
+                        window.open(buildWhatsAppUrl(cleanPhone, waMsg), '_blank');
+                      }}
+                      className="flex-1 flex items-center justify-center py-4 text-base font-bold transition-all active:scale-[0.98] hover:scale-[1.01]"
                       style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,252,248,0.80) 50%, rgba(255,255,255,0.75) 100%)',
-                        backdropFilter: 'blur(20px)',
-                        WebkitBackdropFilter: 'blur(20px)',
-                        border: '1.5px solid rgba(212, 175, 55, 0.35)',
-                        boxShadow: '0 8px 32px rgba(212, 175, 55, 0.10), 0 2px 8px rgba(0,0,0,0.04)',
+                        gap: '12px',
+                        borderRadius: '16px',
+                        background: 'linear-gradient(90deg, #7a5c00 0%, #b8860b 12%, #D4AF37 28%, #F0D060 48%, #F5E080 52%, #D4AF37 72%, #b8860b 88%, #7a5c00 100%)',
+                        color: '#2e1f00',
+                        boxShadow: '0 6px 24px rgba(180,140,0,0.45), 0 2px 6px rgba(0,0,0,0.15)',
                       }}
                     >
-                      <p className="text-xs font-bold tracking-widest text-center uppercase" style={{ color: '#B8860B', letterSpacing: '0.12em' }}>
-                        {t('artist.dashboard.clientPortalLink')}
-                      </p>
-                      <p className="text-sm text-center leading-relaxed" style={{ color: '#5a4a4a' }}>
-                        {t('artist.dashboard.clientPortalDesc')}
-                      </p>
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => {
-                            if (!hasPhone) {
-                              toast({ title: t('artist.dashboard.noPhone'), variant: 'destructive' });
-                              return;
-                            }
-                            handleSendPortalWhatsApp();
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97] hover:scale-[1.02]"
-                          style={{
-                            background: 'linear-gradient(135deg, #1a8f4a 0%, #22c55e 40%, #34d399 60%, #22c55e 100%)',
-                            color: '#ffffff',
-                            boxShadow: '0 6px 24px rgba(34, 197, 94, 0.35), 0 2px 6px rgba(0,0,0,0.08)',
-                          }}
-                        >
-                          <MessageCircle className="w-4 h-4" strokeWidth={2} />
-                          {t('artist.dashboard.whatsapp')}
-                        </button>
-                        <button
-                          onClick={handleCopyPortalLink}
-                          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.97] hover:scale-[1.02] btn-metallic-gold"
-                        >
-                          <Copy className="w-4 h-4" strokeWidth={2} />
-                          {t('artist.dashboard.copyLink')}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })()}
+                      <MessageCircle className="w-5 h-5" strokeWidth={2} />
+                      {lang === 'en' ? 'Send via WhatsApp' : 'שלחי בוואטסאפ'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const link = await buildClientZoneLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone);
+                        try {
+                          await navigator.clipboard.writeText(link);
+                          toast({ title: t('artist.dashboard.linkCopied') });
+                        } catch {
+                          window.prompt(t('artist.dashboard.copyThisLink'), link);
+                        }
+                      }}
+                      className="flex items-center justify-center rounded-full transition-all active:scale-[0.95] hover:scale-[1.05]"
+                      style={{
+                        width: '52px',
+                        height: '52px',
+                        flexShrink: 0,
+                        background: 'linear-gradient(135deg, #7a5c00 0%, #b8860b 20%, #D4AF37 40%, #F0D060 55%, #D4AF37 70%, #b8860b 85%, #7a5c00 100%)',
+                        color: '#2e1f00',
+                        boxShadow: '0 4px 16px rgba(180,140,0,0.45), 0 2px 4px rgba(0,0,0,0.15)',
+                      }}
+                    >
+                      <Copy className="w-5 h-5" strokeWidth={2} />
+                    </button>
+                  </div>
+                )}
 
                 {/* 3. AI Voice Treatment Record */}
                 <FeatureGate featureKey={FK.VOICE_NOTES} mode="badge">
