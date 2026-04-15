@@ -1138,37 +1138,49 @@ export type Database = {
         Row: {
           artist_profile_id: string
           button_text: string
+          button_text_en: string
           button_url: string | null
           created_at: string
           description: string
+          description_en: string
           id: string
           is_enabled: boolean
           tag_text: string
+          tag_text_en: string
           title: string
+          title_en: string
           updated_at: string
         }
         Insert: {
           artist_profile_id: string
           button_text?: string
+          button_text_en?: string
           button_url?: string | null
           created_at?: string
           description?: string
+          description_en?: string
           id?: string
           is_enabled?: boolean
           tag_text?: string
+          tag_text_en?: string
           title?: string
+          title_en?: string
           updated_at?: string
         }
         Update: {
           artist_profile_id?: string
           button_text?: string
+          button_text_en?: string
           button_url?: string | null
           created_at?: string
           description?: string
+          description_en?: string
           id?: string
           is_enabled?: boolean
           tag_text?: string
+          tag_text_en?: string
           title?: string
+          title_en?: string
           updated_at?: string
         }
         Relationships: [
