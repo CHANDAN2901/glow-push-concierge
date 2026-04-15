@@ -197,15 +197,11 @@ const HealthDeclarationPage = () => {
 
   // Show policy acknowledgment first if included
   if (!policyAcknowledged && includePolicy && artistId) {
+    const showBanner = isArtist || isPreview;
     return (
       <div className="relative">
         <LangToggle />
-        <ClinicPolicyAcknowledgment
-          artistProfileId={artistId}
-          lang={lang}
-          onAcknowledge={() => setPolicyAcknowledged(true)}
-        />
-        {(isArtist || isPreview) && (
+        {showBanner && (
           <div className="fixed top-0 left-0 right-0 z-[120] flex items-center justify-between px-4 py-3 pointer-events-auto" style={{ background: 'linear-gradient(135deg, rgba(216,180,180,0.95), rgba(201,160,160,0.95))', boxShadow: '0 2px 12px rgba(216,180,180,0.4)', backdropFilter: 'blur(12px)' }}>
             <button
               onClick={handlePreviewExit}
@@ -213,15 +209,22 @@ const HealthDeclarationPage = () => {
               style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
             >
               <span aria-hidden="true">✕</span>
-              <span>{isPreview ? 'סגור תצוגה מקדימה' : 'חזרה לדשבורד'}</span>
+              <span>{isPreview ? (lang === 'en' ? 'Close Preview' : 'סגור תצוגה מקדימה') : (lang === 'en' ? 'Back to Dashboard' : 'חזרה לדשבורד')}</span>
             </button>
             {isPreview && (
               <span className="text-[11px] font-medium tracking-widest uppercase" style={{ color: '#B8860B' }}>
-                👁️ תצוגה מקדימה
+                {lang === 'en' ? '👁️ Preview' : '👁️ תצוגה מקדימה'}
               </span>
             )}
           </div>
         )}
+        <div style={showBanner ? { paddingTop: '52px' } : undefined}>
+          <ClinicPolicyAcknowledgment
+            artistProfileId={artistId}
+            lang={lang}
+            onAcknowledge={() => setPolicyAcknowledged(true)}
+          />
+        </div>
       </div>
     );
   }
@@ -249,11 +252,11 @@ const HealthDeclarationPage = () => {
             style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
           >
             <span aria-hidden="true">✕</span>
-            <span>{isPreview ? 'סגור תצוגה מקדימה' : 'חזרה לדשבורד'}</span>
+            <span>{isPreview ? (lang === 'en' ? 'Close Preview' : 'סגור תצוגה מקדימה') : (lang === 'en' ? 'Back to Dashboard' : 'חזרה לדשבורד')}</span>
           </button>
           {isPreview && (
             <span className="text-[11px] font-medium tracking-widest uppercase" style={{ color: '#B8860B' }}>
-              👁️ תצוגה מקדימה
+              {lang === 'en' ? '👁️ Preview' : '👁️ תצוגה מקדימה'}
             </span>
           )}
         </div>

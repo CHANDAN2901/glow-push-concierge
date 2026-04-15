@@ -170,6 +170,7 @@ const Auth = () => {
           body: lang === 'en' ? "You're now signed in to your studio" : 'התחברת לסטודיו שלך',
         });
 
+        sessionStorage.removeItem('artistActiveTab');
         const from = (location.state as any)?.from?.pathname || '/artist';
         navigate(from, { replace: true });
       } else {
