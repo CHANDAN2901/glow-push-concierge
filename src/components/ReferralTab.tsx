@@ -86,12 +86,18 @@ const ReferralTab = ({ artistName = '', artistProfileId }: ReferralTabProps) => 
 
   const buildVoucherMessage = () => {
     const template = isHe ? voucherWaHe : voucherWaEn;
-    return template
+    let msg = template
       .replace(/\[CODE\]/gi, referralCode)
       .replace(/\{\{artist_name\}\}/gi, artistName || '')
-      .replace(/\{\{client_name\}\}/gi, '')
-      .replace(/\{\{link\}\}/gi, referralLink)
-      + (template.includes(referralLink) ? '' : `\n${referralLink}`);
+      .replace(/\{\{link\}\}/gi, referralLink);
+
+    // If no colleague name is available, remove the greeting placeholder cleanly
+    msg = msg
+      .replace(/הי \{\{client_name\}\},\s*/g, 'היי, ')
+      .replace(/Hey \{\{client_name\}\},\s*/g, 'Hey, ')
+      .replace(/\{\{client_name\}\}/gi, '');
+
+    return msg + (msg.includes(referralLink) ? '' : `\n${referralLink}`);
   };
 
   const copyLink = async () => {
