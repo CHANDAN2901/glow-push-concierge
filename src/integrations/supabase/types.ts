@@ -379,6 +379,7 @@ export type Database = {
           id: string
           medical_exception_approved: boolean
           phone: string | null
+          preferred_lang: string
           push_opted_in: boolean
           referral_code: string | null
           treatment_date: string | null
@@ -393,6 +394,7 @@ export type Database = {
           id?: string
           medical_exception_approved?: boolean
           phone?: string | null
+          preferred_lang?: string
           push_opted_in?: boolean
           referral_code?: string | null
           treatment_date?: string | null
@@ -407,6 +409,7 @@ export type Database = {
           id?: string
           medical_exception_approved?: boolean
           phone?: string | null
+          preferred_lang?: string
           push_opted_in?: boolean
           referral_code?: string | null
           treatment_date?: string | null

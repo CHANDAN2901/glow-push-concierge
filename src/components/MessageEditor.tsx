@@ -137,10 +137,6 @@ const getLegacyDraftFallback = (draftMap: Record<string, string>, templateId: st
   return draftMap[templateId];
 };
 
-const getTemplateDefaultText = (template: MessageTemplate, language: AppLanguage): string => {
-  return language === 'en' ? template.defaultTextEn : template.defaultTextHe;
-};
-
 interface SavedState {
   drafts: Record<string, string>;
   days: Record<string, number | null>;
@@ -184,13 +180,6 @@ const LipIcon = () => (
   </svg>
 );
 
-/* ── Helper to get label/text by lang ── */
-function tpl(template: MessageTemplate, field: 'label' | 'defaultText' | 'placeholders', lang: string) {
-  if (field === 'label') return lang === 'en' ? template.labelEn : template.labelHe;
-  if (field === 'defaultText') return lang === 'en' ? template.defaultTextEn : template.defaultTextHe;
-  return lang === 'en' ? template.placeholdersEn : template.placeholdersHe;
-}
-
 /* ── Stable day input that only commits on blur ── */
 function DayInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [local, setLocal] = useState(String(value));
@@ -230,7 +219,6 @@ export default function MessageEditor() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [profileId, setProfileId] = useState<string | null>(null);
-  const [dbLoaded, setDbLoaded] = useState(false);
 
   const [activeCategory, setActiveCategory] = useState<TreatmentCategory>('eyebrows');
   const [customTemplates, setCustomTemplates] = useState<MessageTemplate[]>(localSaved.customTemplates || []);
@@ -242,8 +230,6 @@ export default function MessageEditor() {
   };
 
   const allTemplatesForInit = [...SHARED_TEMPLATES, ...BROWS_TEMPLATES, ...LIPS_TEMPLATES, ...customTemplates];
-
-  const getDefaultText = (template: MessageTemplate, language: AppLanguage = currentLanguage) => getTemplateDefaultText(template, language);
 
   const [drafts, setDrafts] = useState<Record<string, string>>(() => {
     const savedDrafts = localSaved.drafts ?? {};
@@ -312,7 +298,6 @@ export default function MessageEditor() {
         if (s.days) setDays(prev => ({ ...prev, ...s.days }));
         if (s.sendTypes) setSendTypes(prev => ({ ...prev, ...s.sendTypes }));
       }
-      setDbLoaded(true);
     })();
   }, [user]);
 
@@ -459,14 +444,6 @@ export default function MessageEditor() {
     toast({ title: isEn ? 'Template restored to default 🔄' : 'הנוסח שוחזר לברירת המחדל 🔄' });
   }, [toast, isEn]);
 
-  const insertTag = useCallback((templateId: string, tag: string) => {
-    setDrafts(prev => {
-      const draftKey = getLanguageDraftKey(templateId, currentLanguage);
-      const current = prev[draftKey] ?? getLegacyDraftFallback(prev, templateId) ?? '';
-      return { ...prev, [draftKey]: `${current} ${tag}`.trim() };
-    });
-  }, [currentLanguage]);
-
   const addCustomMessage = useCallback(() => {
     const newId = `custom_${Date.now()}`;
     const newTemplate: MessageTemplate = {
@@ -607,9 +584,10 @@ export default function MessageEditor() {
         const day = days[template.id] ?? template.day;
         const type = sendTypes[template.id] || 'push';
         const label = isEn ? template.labelEn : template.labelHe;
-        const placeholders = isEn ? template.placeholdersEn : template.placeholdersHe;
-        const draftKey = getLanguageDraftKey(template.id, currentLanguage);
-        const draftValue = drafts[draftKey] ?? getDefaultText(template, currentLanguage);
+        const heKey = getLanguageDraftKey(template.id, 'he');
+        const enKey = getLanguageDraftKey(template.id, 'en');
+        const heValue = drafts[heKey] ?? template.defaultTextHe;
+        const enValue = drafts[enKey] ?? template.defaultTextEn;
         return (
           <div
             key={template.id}
@@ -706,15 +684,34 @@ export default function MessageEditor() {
               </div>
             </div>
 
-            {/* Textarea */}
-            <Textarea
-              ref={(el) => { textareaRefs.current[template.id] = el; }}
-              value={draftValue}
-              onChange={(e) => setDrafts(prev => ({ ...prev, [draftKey]: e.target.value }))}
-              rows={4}
-              dir={isEn ? 'ltr' : 'rtl'}
-              className="resize-y text-sm bg-background"
-            />
+            {/* Dual-language textareas */}
+            <div className="space-y-3">
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                  🇮🇱 <span>עברית</span>
+                </p>
+                <Textarea
+                  ref={(el) => { textareaRefs.current[template.id] = el; }}
+                  value={heValue}
+                  onChange={(e) => setDrafts(prev => ({ ...prev, [heKey]: e.target.value }))}
+                  rows={4}
+                  dir="rtl"
+                  className="resize-y text-sm bg-background"
+                />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                  🇬🇧 <span>English</span>
+                </p>
+                <Textarea
+                  value={enValue}
+                  onChange={(e) => setDrafts(prev => ({ ...prev, [enKey]: e.target.value }))}
+                  rows={4}
+                  dir="ltr"
+                  className="resize-y text-sm bg-background"
+                />
+              </div>
+            </div>
 
 
             {/* Per-card actions row */}

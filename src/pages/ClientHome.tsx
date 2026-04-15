@@ -327,7 +327,7 @@ const ClientHome = () => {
     if (!isUUID(clientId)) { setDbClientName(null); setDbClientPhone(null); setDbReferralCode(null); setDbTreatmentDate(null); setDbTreatmentType(null); setDbArtistId(null); return; }
     (async () => {
       try {
-        const { data, error } = await supabase.from('clients').select('full_name, phone, referral_code, treatment_date, treatment_type, artist_id').eq('id', clientId).maybeSingle();
+        const { data, error } = await supabase.from('clients').select('full_name, phone, referral_code, treatment_date, treatment_type, artist_id, preferred_lang').eq('id', clientId).maybeSingle();
         if (cancelled || error) return;
         if (data?.full_name) setDbClientName(data.full_name.split(' ')[0]);
         if (data?.phone) setDbClientPhone(data.phone);
@@ -335,10 +335,18 @@ const ClientHome = () => {
         if (data?.treatment_date) setDbTreatmentDate(data.treatment_date);
         if (data?.treatment_type) setDbTreatmentType(data.treatment_type);
         if (data?.artist_id) setDbArtistId(data.artist_id);
+        if (data?.preferred_lang === 'en' || data?.preferred_lang === 'he') setLang(data.preferred_lang);
       } catch (err) { if (!cancelled) console.error('[ClientHome] err:', err); }
     })();
     return () => { cancelled = true; };
   }, [clientId]);
+
+  const handleSetLang = async (newLang: 'en' | 'he') => {
+    setLang(newLang);
+    if (isUUID(clientId)) {
+      await supabase.from('clients').update({ preferred_lang: newLang }).eq('id', clientId);
+    }
+  };
 
   const clientName = dbClientName || urlClientName || identity.clientName || fallbackName;
 
@@ -623,7 +631,7 @@ const ClientHome = () => {
         }}
       >
         <div className="max-w-md mx-auto">
-          <LogoBrand lang={lang} setLang={setLang} hasUnread={unreadCount > 0} onBellClick={() => setNotifOpen(true)} artistLogoUrl={artistLogoUrl} />
+          <LogoBrand lang={lang} setLang={handleSetLang} hasUnread={unreadCount > 0} onBellClick={() => setNotifOpen(true)} artistLogoUrl={artistLogoUrl} />
         </div>
       </header>
 

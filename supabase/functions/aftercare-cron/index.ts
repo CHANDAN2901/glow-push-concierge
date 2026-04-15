@@ -6,25 +6,94 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// SECURITY: Authenticate the cron request using a secret token
-// This prevents anyone from manually triggering the cron job
 async function authenticateCronRequest(req: Request): Promise<boolean> {
-  // Check for secret cron token in authorization header
   const authHeader = req.headers.get("authorization");
   const cronSecret = Deno.env.get("CRON_SECRET_KEY");
-  
-  // If no CRON_SECRET_KEY is configured, deny all requests (secure by default)
   if (!cronSecret) {
     console.error("[aftercare-cron] CRON_SECRET_KEY not configured - denying access");
     return false;
   }
-  
-  // Check if authorization header matches the secret
-  if (authHeader === `Bearer ${cronSecret}`) {
-    return true;
+  return authHeader === `Bearer ${cronSecret}`;
+}
+
+type Lang = 'he' | 'en';
+
+const TREATMENT_PREFIX_MAP: Record<string, string> = {
+  'גבות': 'brows',
+  'eyebrows': 'brows',
+  'brows': 'brows',
+  'Brows': 'brows',
+  'שפתיים': 'lips',
+  'lips': 'lips',
+  'Lips': 'lips',
+};
+
+function getTreatmentPrefix(treatmentType: string | null): string | null {
+  if (!treatmentType) return null;
+  const normalized = treatmentType.trim().toLowerCase();
+  for (const [key, prefix] of Object.entries(TREATMENT_PREFIX_MAP)) {
+    if (key.toLowerCase() === normalized) return prefix;
   }
-  
-  return false;
+  if (normalized.includes('גבות') || normalized.includes('brow')) return 'brows';
+  if (normalized.includes('שפתיי') || normalized.includes('lip')) return 'lips';
+  return null;
+}
+
+interface ArtistSettings {
+  drafts?: Record<string, string>;
+  days?: Record<string, number | string | null>;
+}
+
+/**
+ * Resolve the message text for a given client from the artist's message settings.
+ * Priority: artist draft (lang-specific) → artist draft (legacy) → null
+ */
+function resolveFromArtistSettings(
+  settings: ArtistSettings,
+  daysSince: number,
+  lang: Lang,
+  treatmentPrefix: string | null,
+): string | null {
+  const drafts = settings.drafts ?? {};
+  const days = settings.days ?? {};
+
+  // Collect all base template IDs that match this day number
+  const matchingBaseIds = new Set<string>();
+
+  for (const [rawKey, dayValue] of Object.entries(days)) {
+    if (Number(dayValue) !== daysSince) continue;
+    // Strip __lang suffix to get the base ID
+    const baseId = rawKey.replace(/__(he|en)$/i, '');
+    matchingBaseIds.add(baseId);
+  }
+
+  for (const baseId of matchingBaseIds) {
+    // Filter by treatment prefix (skip if prefix doesn't match, allow custom_* always)
+    if (treatmentPrefix && !baseId.startsWith('custom_')) {
+      const keyPrefix = baseId.split('_')[0];
+      if (keyPrefix !== treatmentPrefix) continue;
+    }
+
+    // Language-specific draft first
+    const langDraft = drafts[`${baseId}__${lang}`];
+    if (langDraft?.trim()) return langDraft.trim();
+
+    // Legacy single-language draft as fallback
+    const legacyDraft = drafts[baseId];
+    if (legacyDraft?.trim()) return legacyDraft.trim();
+  }
+
+  return null;
+}
+
+const CLIENT_PLACEHOLDER_PATTERNS = [/\[ClientName\]/g, /\{שם_לקוחה\}/g, /\{Client_Name\}/g, /\[שם הלקוחה\]/g];
+const ARTIST_PLACEHOLDER_PATTERNS = [/\[ArtistName\]/g, /\{שם_אמנית\}/g, /\{Artist_Name\}/g];
+
+function replacePlaceholders(text: string, clientName: string, artistName: string): string {
+  let result = text;
+  CLIENT_PLACEHOLDER_PATTERNS.forEach(p => { result = result.replace(p, clientName); });
+  ARTIST_PLACEHOLDER_PATTERNS.forEach(p => { result = result.replace(p, artistName); });
+  return result;
 }
 
 serve(async (req: Request) => {
@@ -32,7 +101,6 @@ serve(async (req: Request) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // SECURITY: Require cron secret token
   const isAuthenticated = await authenticateCronRequest(req);
   if (!isAuthenticated) {
     return new Response(
@@ -48,7 +116,7 @@ serve(async (req: Request) => {
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    // 1. Fetch all aftercare message templates (the artist-editable messages)
+    // 1. Fallback: global message_templates (used when artist has no custom settings)
     const { data: templates, error: tplErr } = await supabase
       .from('message_templates')
       .select('template_key, default_text, label')
@@ -56,22 +124,39 @@ serve(async (req: Request) => {
       .order('template_key');
 
     if (tplErr) throw tplErr;
-    if (!templates || templates.length === 0) {
-      return new Response(JSON.stringify({ message: 'No aftercare templates found' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
 
-    // Parse day numbers from template keys (aftercare_day_1 → 1)
-    const dayMessages = templates.map(t => {
+    const fallbackDayMessages = (templates ?? []).map((t: { template_key: string; default_text: string; label: string }) => {
       const match = t.template_key.match(/aftercare_day_(\d+)/);
       return { day: match ? parseInt(match[1]) : 0, text: t.default_text, label: t.label };
-    }).filter(d => d.day > 0);
+    }).filter((d: { day: number }) => d.day > 0);
 
-    // 2. Fetch all clients with treatment_date set
+    // 2. Fetch all artist message settings keyed by artist_profile_id
+    const { data: allArtistSettings, error: settingsErr } = await supabase
+      .from('artist_message_settings')
+      .select('artist_profile_id, settings');
+
+    if (settingsErr) console.warn("[aftercare-cron] Could not fetch artist settings:", settingsErr.message);
+
+    const artistSettingsMap = new Map<string, ArtistSettings>(
+      (allArtistSettings ?? []).map((row: { artist_profile_id: string; settings: ArtistSettings }) => [
+        row.artist_profile_id,
+        row.settings as ArtistSettings,
+      ])
+    );
+
+    // 3. Fetch artist profile names (for placeholder replacement)
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name');
+
+    const profileNameMap = new Map<string, string>(
+      (profiles ?? []).map((p: { id: string; full_name: string }) => [p.id, p.full_name ?? ''])
+    );
+
+    // 4. Fetch all clients with treatment_date + preferred_lang
     const { data: clients, error: clientErr } = await supabase
       .from('clients')
-      .select('id, full_name, artist_id, treatment_date, push_opted_in')
+      .select('id, full_name, artist_id, treatment_date, treatment_type, push_opted_in, preferred_lang')
       .not('treatment_date', 'is', null);
 
     if (clientErr) throw clientErr;
@@ -86,24 +171,39 @@ serve(async (req: Request) => {
 
     let pushesSent = 0;
     let fallbacksCreated = 0;
-    const results: any[] = [];
+    const results: { client: string; day: number; action: string; lang: string }[] = [];
 
     for (const client of clients) {
       const treatmentDate = new Date(client.treatment_date);
       treatmentDate.setHours(0, 0, 0, 0);
       const daysSince = Math.floor((today.getTime() - treatmentDate.getTime()) / (1000 * 60 * 60 * 24));
 
-      // Check if today matches any aftercare day
-      const matchingMsg = dayMessages.find(d => d.day === daysSince);
-      if (!matchingMsg) continue;
+      const clientLang: Lang = client.preferred_lang === 'en' ? 'en' : 'he';
+      const treatmentPrefix = getTreatmentPrefix(client.treatment_type);
+      const artistName = profileNameMap.get(client.artist_id) ?? '';
 
-      // Replace placeholders
-      const messageText = matchingMsg.text
-        .replace(/\[ClientName\]/g, client.full_name)
-        .replace(/\[ArtistName\]/g, '');
+      // Resolve message: artist custom settings → global fallback
+      let messageText: string | null = null;
+      let messageLabel = '';
+
+      const artistSettings = artistSettingsMap.get(client.artist_id);
+      if (artistSettings) {
+        const resolved = resolveFromArtistSettings(artistSettings, daysSince, clientLang, treatmentPrefix);
+        if (resolved) {
+          messageText = replacePlaceholders(resolved, client.full_name, artistName);
+          messageLabel = clientLang === 'en' ? `Day ${daysSince}` : `יום ${daysSince}`;
+        }
+      }
+
+      // Fall back to global message_templates if artist has no matching template
+      if (!messageText) {
+        const fallback = fallbackDayMessages.find((d: { day: number }) => d.day === daysSince);
+        if (!fallback) continue; // No message for this day at all — skip client
+        messageText = replacePlaceholders(fallback.text, client.full_name, artistName);
+        messageLabel = fallback.label;
+      }
 
       if (client.push_opted_in) {
-        // Try to send push notification
         const { data: subs } = await supabase
           .from('push_subscriptions')
           .select('endpoint, p256dh, auth_key')
@@ -112,54 +212,44 @@ serve(async (req: Request) => {
         if (subs && subs.length > 0) {
           for (const sub of subs) {
             try {
-              // Call the existing send-push function
               const { error: pushErr } = await supabase.functions.invoke('send-push', {
                 body: {
                   subscription: {
                     endpoint: sub.endpoint,
                     keys: { p256dh: sub.p256dh, auth: sub.auth_key },
                   },
-                  title: `${matchingMsg.label} ✨`,
+                  title: `${messageLabel} ✨`,
                   body: messageText.substring(0, 200),
                   url: `/c/${client.id}`,
-                  day: matchingMsg.day,
+                  day: daysSince,
                 },
               });
               if (pushErr) {
                 console.error(`Push failed for ${client.full_name}:`, pushErr);
-                // Create fallback task on push failure
-                results.push({ client: client.full_name, day: daysSince, action: 'push_failed_fallback' });
+                results.push({ client: client.full_name, day: daysSince, action: 'push_failed_fallback', lang: clientLang });
                 fallbacksCreated++;
               } else {
                 pushesSent++;
-                results.push({ client: client.full_name, day: daysSince, action: 'push_sent' });
+                results.push({ client: client.full_name, day: daysSince, action: 'push_sent', lang: clientLang });
               }
             } catch (e) {
               console.error(`Push exception for ${client.full_name}:`, e);
-              results.push({ client: client.full_name, day: daysSince, action: 'push_error_fallback' });
+              results.push({ client: client.full_name, day: daysSince, action: 'push_error_fallback', lang: clientLang });
               fallbacksCreated++;
             }
           }
         } else {
-          // Opted in but no subscription found — fallback
-          results.push({ client: client.full_name, day: daysSince, action: 'no_subscription_fallback' });
+          results.push({ client: client.full_name, day: daysSince, action: 'no_subscription_fallback', lang: clientLang });
           fallbacksCreated++;
         }
       } else {
-        // Not opted in — create WhatsApp fallback task
-        results.push({ client: client.full_name, day: daysSince, action: 'whatsapp_fallback' });
+        results.push({ client: client.full_name, day: daysSince, action: 'whatsapp_fallback', lang: clientLang });
         fallbacksCreated++;
       }
     }
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        pushesSent,
-        fallbacksCreated,
-        totalClientsScanned: clients.length,
-        results,
-      }),
+      JSON.stringify({ success: true, pushesSent, fallbacksCreated, totalClientsScanned: clients.length, results }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
