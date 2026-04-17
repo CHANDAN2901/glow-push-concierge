@@ -296,8 +296,23 @@ const ArtistDashboard = () => {
   const selectedClientParam = searchParams.get('client');
   const [selectedClientState, setSelectedClientState] = useState<ClientEntry | null>(null);
   const selectedClient = selectedClientState;
-  const setSelectedClient = setSelectedClientState;
+  // Raw setter — used internally (restore effect, back button) where URL is managed separately
   const setSelectedClientInternal = setSelectedClientState;
+  // Public setter — always syncs URL so both navigation paths share the same URL shape
+  const setSelectedClient = useCallback((client: ClientEntry | null) => {
+    setSelectedClientState(client);
+    setSearchParams(prev => {
+      const p = new URLSearchParams(prev);
+      if (client) {
+        p.set('tab', 'clients');
+        p.set('client', client.dbId || client.name);
+      } else {
+        p.delete('client');
+        p.delete('tab');
+      }
+      return p;
+    }, { replace: true });
+  }, [setSearchParams]);
 
   type TabId = 'home' | 'clients' | 'calendar' | 'healing' | 'bonuses' | 'messages' | 'digital-card' | 'push' | 'profile';
   const [activeTab, setActiveTab] = useState<TabId>(() => {
@@ -308,6 +323,7 @@ const ArtistDashboard = () => {
     return (saved as TabId) || 'home';
   });
   const [previousTab, setPreviousTab] = useState<TabId>('home');
+  const [clientReturnTab, setClientReturnTab] = useState<TabId>('clients');
   const setActiveTabInternal = setActiveTab;
   const [includePolicyShare, setIncludePolicyShare] = useState(true);
 
@@ -1338,9 +1354,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Restore selected client from URL params after clients are loaded
   useEffect(() => {
-    if (!selectedClientParam || selectedClient) return;
+    if (!selectedClientParam) return;
+    if (selectedClient && (selectedClient.dbId === selectedClientParam || selectedClient.name === selectedClientParam)) return;
     const match = clients.find(c => c.dbId === selectedClientParam || c.name === selectedClientParam);
     if (match) {
+      setClientReturnTab(activeTab);
       setSelectedClientInternal(match);
       setActiveTabInternal('clients');
     }
@@ -1414,7 +1432,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           {(subScreen || selectedClient || activeTab !== 'home') ? (
               <BackButton
                 onClick={() => {
-                  if (selectedClient) { setSelectedClient(null); }
+                  if (selectedClient) { setSelectedClient(null); setActiveTab(clientReturnTab); setClientReturnTab('clients'); }
                   else if (subScreen === 'Referrals' || subScreen === 'הפניות') { setSubScreen(null); setActiveTab('home'); }
                   else if (subScreen) { setSubScreen(null); }
                   else { setActiveTab(previousTab); setPreviousTab('home'); }
