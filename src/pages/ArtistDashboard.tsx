@@ -301,7 +301,7 @@ const ArtistDashboard = () => {
   // Public setter — always syncs URL so both navigation paths share the same URL shape
   const setSelectedClient = useCallback((client: ClientEntry | null) => {
     setSelectedClientState(client);
-    setSearchParams(prev => {
+    setSearchParams((prev: URLSearchParams) => {
       const p = new URLSearchParams(prev);
       if (client) {
         p.set('tab', 'clients');
@@ -370,7 +370,7 @@ const updateSelectedTreatmentDate = useCallback(async (nextDate: string | null) 
     const strictDone = hasRealTreatmentDate(normalizedDate);
     const day = strictDone ? calcRecoveryDay(normalizedDate as string) : 0;
 
-    setSelectedClient(prev => prev && prev.dbId === clientId
+    setSelectedClientInternal(prev => prev && prev.dbId === clientId
       ? { ...prev, treatmentDate: normalizedDate, day }
       : prev
     );
@@ -1056,7 +1056,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
           : c
       ));
       if (selectedClient?.name === editingClient.name || (selectedClient?.dbId && selectedClient.dbId === editingClient.dbId)) {
-        setSelectedClient(prev => prev ? { ...prev, name: editName.trim(), phone: editPhone.trim(), treatment: editTreatment.trim() } : null);
+        setSelectedClientInternal(prev => prev ? { ...prev, name: editName.trim(), phone: editPhone.trim(), treatment: editTreatment.trim() } : null);
       }
       // Refetch from DB to ensure consistency
       await fetchClients();
@@ -2255,7 +2255,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         if (error) throw error;
                         const nextDay = calcRecoveryDay(today);
                         setManualTreatmentDate(today);
-                        setSelectedClient(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
+                        setSelectedClientInternal(prev => prev ? { ...prev, treatmentDate: today, day: nextDay } : null);
                         setClients(prev => prev.map(c => c.dbId === clientId ? { ...c, treatmentDate: today, day: nextDay } : c));
                       }
 
