@@ -49,6 +49,7 @@ export interface HealthFormAnswers {
 
 export interface Appointment {
   id: string;
+  clientId?: string;
   clientName: string;
   clientPhone: string;
   treatmentType: 'eyebrows' | 'lips' | 'eyeliner';
@@ -139,6 +140,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
         });
         setAppointments(unique.map((row: any) => ({
           id: row.id,
+          clientId: row.client_id ?? undefined,
           clientName: row.client_name,
           clientPhone: row.client_phone || '',
           treatmentType: row.treatment_type as 'eyebrows' | 'lips' | 'eyeliner',
@@ -527,22 +529,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
 
       if (aptError) throw aptError;
 
-      // 2. Add to local state
-      const apt: Appointment = {
-        id: insertedApt.id,
-        clientName: insertedApt.client_name,
-        clientPhone: insertedApt.client_phone || '',
-        treatmentType: insertedApt.treatment_type as 'eyebrows' | 'lips' | 'eyeliner',
-        date: insertedApt.date,
-        time: insertedApt.time,
-        healthFormStatus: 'pending',
-        healthRiskLevel: 'none',
-        status: 'scheduled',
-        autoSendHealth: insertedApt.auto_send_health,
-      };
-      setAppointments(prev => [...prev, apt]);
-
-      // 3. Link to existing client or auto-create new one
+      // 3. Link to existing client or auto-create new one (resolved before local state update)
       let clientId: string | null = null;
       if (selectedExistingClient) {
         clientId = selectedExistingClient.id;
@@ -576,6 +563,22 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
         await db.from('appointments').update({ client_id: clientId }).eq('id', insertedApt.id);
       }
 
+      // Add to local state now that clientId is resolved
+      const apt: Appointment = {
+        id: insertedApt.id,
+        clientId: clientId ?? undefined,
+        clientName: insertedApt.client_name,
+        clientPhone: insertedApt.client_phone || '',
+        treatmentType: insertedApt.treatment_type as 'eyebrows' | 'lips' | 'eyeliner',
+        date: insertedApt.date,
+        time: insertedApt.time,
+        healthFormStatus: 'pending',
+        healthRiskLevel: 'none',
+        status: 'scheduled',
+        autoSendHealth: insertedApt.auto_send_health,
+      };
+      setAppointments(prev => [...prev, apt]);
+
       setShowAddModal(false);
 
       if (newAutoHealth && newPhone.trim()) {
@@ -601,6 +604,24 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     if (navigator.vibrate) navigator.vibrate(50);
     setAppointments(prev => prev.map(a => a.id === apt.id ? { ...a, status: 'completed' as const } : a));
     await db.from('appointments').update({ status: 'completed' }).eq('id', apt.id);
+
+    // Sync treatment_date to client profile so recovery journey + push notifications start
+    if (apt.clientId) {
+      await supabase.from('clients').update({ treatment_date: apt.date }).eq('id', apt.clientId);
+    } else {
+      // Fallback: find client by name under this artist
+      const { data: matched } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('artist_id', artistProfileId!)
+        .eq('full_name', apt.clientName)
+        .limit(1)
+        .maybeSingle();
+      if (matched) {
+        await supabase.from('clients').update({ treatment_date: apt.date }).eq('id', matched.id);
+      }
+    }
+
     toast({ title: isHe ? `הטיפול של ${apt.clientName} הושלם! מסלול החלמה הופעל אוטומטית 🎉` : `${apt.clientName}'s treatment completed! Healing journey activated 🎉` });
     onTreatmentCompleted?.({ ...apt, status: 'completed' });
   };

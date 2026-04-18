@@ -3020,20 +3020,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               setDispatchOpen(true);
             }}
             onTreatmentCompleted={(apt) => {
-              // Auto-trigger healing journey for completed treatments
-              const newClient = {
-                name: apt.clientName,
-                phone: apt.clientPhone,
-                day: 1,
-                treatment: apt.treatmentType === 'eyebrows' ? t('artist.dashboard.treatmentTypeBrows') : apt.treatmentType === 'eyeliner' ? t('artist.dashboard.treatmentTypeEyeliner') : t('artist.dashboard.treatmentTypeLips'),
-                link: `${origin}/c/new?name=${encodeURIComponent(apt.clientName)}&treatment=${apt.treatmentType}&start=${apt.date}`,
-                beforeImg: '',
-                afterImg: '',
-              };
-              setClients(prev => {
-                if (prev.some(c => c.name === apt.clientName)) return prev;
-                return [newClient, ...prev];
-              });
+              // Refresh clients so treatment_date update is reflected in client profiles
+              fetchClients();
             }}
             removeClientName={removeClientFromCalendar}
             onClientRemoved={() => setRemoveClientFromCalendar(null)}
