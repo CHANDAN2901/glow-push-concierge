@@ -1,4 +1,12 @@
 // GlowPush Custom Service Worker for Push Notifications
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 self.addEventListener('push', (event) => {
   console.log('[SW] Push received:', event);
   let data = { title: 'Glow Push ✨', body: 'יש לך עדכון חדש!', icon: '/pwa-192.png', data: {} };
