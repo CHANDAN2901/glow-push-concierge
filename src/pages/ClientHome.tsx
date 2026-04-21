@@ -28,6 +28,7 @@ import HealingTimelineCarousel from '@/components/HealingTimelineCarousel';
 import { useClientGallery } from '@/hooks/useClientGallery';
 import type { SharedGalleryPhoto } from '@/hooks/useClientGallery';
 import { STUDIO_LOGO_URL, STUDIO_NAME } from '@/lib/branding';
+import { sendLocalPushNotification } from '@/lib/sendLocalPushNotification';
 import oritLogo from '@/assets/glowpush-logo.png';
 import heroLogo from '@/assets/glowpush-hero-logo.png';
 import pmuHeroPhoto from '@/assets/pmu-hero-closeup.jpg';
@@ -40,6 +41,7 @@ const LEGACY_LS_CLIENT_NAME = 'glow-client-name';
 const LS_START = 'glow-start';
 const LS_TREATMENT = 'glow-treatment';
 const LS_ARTIST_ID = 'glow-artist-id';
+const LS_FIRST_DASHBOARD_NOTIFICATION_PREFIX = 'glowpush-first-dashboard-notification';
 
 const getStoredClientIdentity = () => {
   try {
@@ -86,6 +88,26 @@ function getTimeGreeting(name: string, lang: 'en' | 'he' = 'he'): string {
 
 const MILESTONE_DAYS = [7, 14, 21, 30];
 const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+
+function buildFirstDashboardNotificationText(opts: {
+  lang: 'en' | 'he';
+  artistName: string;
+  clientName: string;
+}) {
+  const artistLabel = opts.artistName.trim() || (opts.lang === 'en' ? 'your makeup artist' : 'המאפרת שלך');
+
+  if (opts.lang === 'en') {
+    return {
+      title: 'Your declaration was received ✨',
+      body: `${artistLabel} received your health declaration. ${opts.clientName ? `${opts.clientName}, ` : ''}your healing dashboard is now ready for you.`,
+    };
+  }
+
+  return {
+    title: 'הצהרת הבריאות התקבלה ✨',
+    body: `${artistLabel} קיבלה את הצהרת הבריאות שלך. ${opts.clientName ? `${opts.clientName}, ` : ''}לוח ההחלמה שלך מוכן עכשיו עבורך.`,
+  };
+}
 
 /* ─── Shared style constants ─── */
 const METALLIC_GOLD_GRADIENT = 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)';
@@ -321,6 +343,7 @@ const ClientHome = () => {
   const [dbTreatmentDate, setDbTreatmentDate] = useState<string | null>(null);
   const [dbTreatmentType, setDbTreatmentType] = useState<string | null>(null);
   const [dbArtistId, setDbArtistId] = useState<string | null>(null);
+  const [latestDeclaration, setLatestDeclaration] = useState<{ id: string; createdAt: string } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -377,6 +400,38 @@ const ClientHome = () => {
       } catch {}
     })();
   }, [clientId, searchParams, navigate]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!isUUID(clientId)) {
+      setLatestDeclaration(null);
+      return;
+    }
+
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('health_declarations')
+          .select('id, created_at')
+          .eq('client_id', clientId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (cancelled || error) return;
+
+        if (data?.id && data?.created_at) {
+          setLatestDeclaration({ id: data.id, createdAt: data.created_at });
+        } else {
+          setLatestDeclaration(null);
+        }
+      } catch {
+        if (!cancelled) setLatestDeclaration(null);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [clientId]);
 
   // Referral code — always derived from the client UUID to avoid phone confusion
   const generatedReferralCode = useMemo(() => {
@@ -469,6 +524,47 @@ const ClientHome = () => {
       }
     })();
   }, [artistProfileId]);
+
+  const artistDisplayName = artistFullName || artistName || '';
+  const firstDashboardNotification = useMemo(() => {
+    if (!latestDeclaration || !artistDisplayName.trim()) return null;
+    const message = buildFirstDashboardNotificationText({
+      lang,
+      artistName: artistDisplayName,
+      clientName,
+    });
+
+    return {
+      id: `first-dashboard-${latestDeclaration.id}`,
+      day: 0,
+      title: message.title,
+      body: message.body,
+      timestamp: new Date(latestDeclaration.createdAt),
+    };
+  }, [latestDeclaration, lang, artistDisplayName, clientName]);
+
+  useEffect(() => {
+    if (!clientId || !latestDeclaration?.id || !artistDisplayName.trim()) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const storageKey = `${LS_FIRST_DASHBOARD_NOTIFICATION_PREFIX}:${clientId}:${latestDeclaration.id}`;
+    if (localStorage.getItem(storageKey) === '1') return;
+
+    const message = buildFirstDashboardNotificationText({
+      lang,
+      artistName: artistDisplayName,
+      clientName,
+    });
+
+    localStorage.setItem(storageKey, '1');
+    sendLocalPushNotification({
+      title: message.title,
+      body: message.body,
+      url: `/c/${clientId}`,
+    }).catch(() => {
+      localStorage.removeItem(storageKey);
+    });
+  }, [clientId, latestDeclaration, lang, artistDisplayName, clientName]);
 
   // Bottom-nav photo upload
   const bottomFileRef = useRef<HTMLInputElement>(null);
@@ -687,9 +783,11 @@ const ClientHome = () => {
         treatmentType={treatment}
         daysSinceTreatment={actualDay}
         clientName={clientName}
+        artistName={artistDisplayName}
         lang={lang}
         startDate={treatmentStartDate}
         onUnreadCountChange={handleUnreadCountChange}
+        seedNotifications={firstDashboardNotification ? [firstDashboardNotification] : []}
       />
 
       <div className="pt-28 max-w-md mx-auto px-4" dir={lang === 'he' ? 'rtl' : 'ltr'}>

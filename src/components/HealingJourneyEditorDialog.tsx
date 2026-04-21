@@ -134,8 +134,8 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
         if (!row || isLegacyTimelineOverride(row.quote_he, row.quote_en)) return base;
         return {
           ...base,
-          instruction_he: row.quote_he || base.instruction_he,
-          instruction_en: row.quote_en || base.instruction_en,
+          instruction_he: row.quote_he != null ? row.quote_he : base.instruction_he,
+          instruction_en: row.quote_en != null ? row.quote_en : base.instruction_en,
         };
       });
 

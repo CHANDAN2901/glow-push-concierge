@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
@@ -1080,247 +1081,203 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       </div>
 
       {/* Add Appointment Modal */}
-      {showAddModal && (
+      {showAddModal && createPortal(
         <div
-          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
           onClick={() => setShowAddModal(false)}
         >
-            <div
-              className="relative w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-card shadow-2xl animate-fade-up flex flex-col min-h-0"
-              style={{ maxHeight: '90vh' }}
-              onClick={(e) => e.stopPropagation()}
-            >
+          <div
+            className="relative w-full max-w-lg flex flex-col overflow-hidden animate-fade-up"
+            style={{
+              maxHeight: 'calc(100dvh - 32px)',
+              borderRadius: '28px',
+              background: 'hsl(0 0% 99%)',
+              boxShadow: '0 -8px 40px rgba(0,0,0,0.18)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pt-4 pb-3 flex-shrink-0">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                style={{ background: 'hsl(0 0% 94%)' }}
               >
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
-
-              {/* Header - Fixed */}
-              <div className="pt-8 pb-4 px-6 text-center border-b border-border flex-shrink-0">
-                <CalendarDays className="w-8 h-8 mx-auto mb-2 text-accent" />
-                <h2 className="font-serif font-bold text-lg">{isHe ? 'תור חדש' : 'New Appointment'}</h2>
+              <div className="flex items-center gap-2">
+                <CalendarDays className="w-4 h-4 text-accent" />
+                <h2 className="font-serif font-bold text-base" style={{ color: 'hsl(30 15% 18%)' }}>
+                  {isHe ? 'תור חדש' : 'New Appointment'}
+                </h2>
               </div>
+              <div className="w-8" />
+            </div>
 
-              {/* Scrollable Content */}
-              <div
-                className="flex-1 overflow-y-auto min-h-0 overscroll-contain p-6 space-y-4"
-                style={{ WebkitOverflowScrolling: 'touch' }}
-              >
-              {/* Client search / autocomplete */}
-              <div className="space-y-2 relative">
-                <Label className="text-xs font-medium">{isHe ? 'שם הלקוחה' : 'Client Name'}</Label>
-                <Input
-                  value={selectedExistingClient ? selectedExistingClient.name : clientSearch}
-                  onChange={(e) => {
-                    if (selectedExistingClient) {
-                      setSelectedExistingClient(null);
-                      setNewPhone('');
-                    }
-                    setClientSearch(e.target.value);
-                    setNewName(e.target.value);
-                    setShowClientDropdown(true);
-                  }}
-                  onFocus={() => setShowClientDropdown(true)}
-                  placeholder={isHe ? 'חפשי או הכניסי שם חדש...' : 'Search or enter new name...'}
-                  className={selectedExistingClient ? 'border-accent/50 bg-accent/5' : ''}
-                />
-                {selectedExistingClient && (
-                  <button
-                    onClick={() => {
-                      setSelectedExistingClient(null);
-                      setClientSearch('');
-                      setNewName('');
-                      setNewPhone('');
+            {/* Scrollable form */}
+            <div
+              className="flex-1 overflow-y-auto min-h-0 px-4 pb-3 space-y-3"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
+              {/* Client card */}
+              <div className="rounded-2xl p-4 space-y-2.5" style={{ background: 'hsl(38 40% 97%)', border: '1px solid hsl(38 40% 88%)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'hsl(36 40% 52%)' }}>
+                  {isHe ? 'פרטי לקוחה' : 'Client'}
+                </p>
+                <div className="relative">
+                  <Input
+                    value={selectedExistingClient ? selectedExistingClient.name : clientSearch}
+                    onChange={(e) => {
+                      if (selectedExistingClient) { setSelectedExistingClient(null); setNewPhone(''); }
+                      setClientSearch(e.target.value);
+                      setNewName(e.target.value);
+                      setShowClientDropdown(true);
                     }}
-                    className="absolute top-7 right-2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded"
-                  >
-                    ✕
-                  </button>
-                )}
-                {showClientDropdown &&
-                  !selectedExistingClient &&
-                  filteredClients.length > 0 &&
-                  clientSearch.trim().length > 0 && (
-                    <div className="absolute z-20 top-full mt-1 left-0 right-0 max-h-40 overflow-y-auto rounded-xl bg-card border border-border shadow-lg">
+                    onFocus={() => setShowClientDropdown(true)}
+                    placeholder={isHe ? 'חפשי או הכניסי שם חדש...' : 'Search or enter new name...'}
+                    className={`h-11 text-sm bg-white ${selectedExistingClient ? 'border-accent/60' : ''}`}
+                  />
+                  {selectedExistingClient && (
+                    <button
+                      onClick={() => { setSelectedExistingClient(null); setClientSearch(''); setNewName(''); setNewPhone(''); }}
+                      className="absolute top-1/2 -translate-y-1/2 right-3 text-xs text-muted-foreground hover:text-foreground"
+                    >✕</button>
+                  )}
+                  {showClientDropdown && !selectedExistingClient && filteredClients.length > 0 && clientSearch.trim().length > 0 && (
+                    <div className="absolute z-20 top-full mt-1 left-0 right-0 max-h-36 overflow-y-auto rounded-xl bg-card border border-border shadow-lg">
                       {filteredClients.map((c) => (
                         <button
                           key={c.id}
-                          onClick={() => {
-                            setSelectedExistingClient(c);
-                            setNewName(c.name);
-                            setNewPhone(c.phone || '');
-                            setClientSearch(c.name);
-                            setShowClientDropdown(false);
-                          }}
+                          onClick={() => { setSelectedExistingClient(c); setNewName(c.name); setNewPhone(c.phone || ''); setClientSearch(c.name); setShowClientDropdown(false); }}
                           className="w-full text-right px-4 py-2.5 text-sm hover:bg-muted/60 transition-colors flex items-center justify-between border-b border-border/50 last:border-0"
                         >
                           <span className="font-medium">{c.name}</span>
-                          {c.phone && (
-                            <span className="text-[10px] text-muted-foreground" dir="ltr">
-                              {c.phone}
-                            </span>
-                          )}
+                          {c.phone && <span className="text-[10px] text-muted-foreground" dir="ltr">{c.phone}</span>}
                         </button>
                       ))}
                     </div>
                   )}
-              </div>
-
-              {/* Phone — hidden when existing client is selected */}
-              {!selectedExistingClient && (
-                <div className="space-y-2">
-                  <Label className="text-xs font-medium">{isHe ? 'טלפון' : 'Phone'}</Label>
+                </div>
+                {!selectedExistingClient && (
                   <Input
                     value={newPhone}
                     onChange={(e) => setNewPhone(e.target.value)}
                     placeholder="050-0000000"
                     dir="ltr"
+                    className="h-11 text-sm bg-white"
                   />
-                </div>
-              )}
-
-              {/* Visit type — new / touch-up / consultation */}
-              <div className="space-y-2">
-                <Label className="text-xs font-medium">{isHe ? 'סוג ביקור' : 'Visit Type'}</Label>
-                <Select
-                  value={newVisitType}
-                  onValueChange={(v) => {
-                    setNewVisitType(v as any);
-                    if (v === 'touchup') setNewAutoHealth(false);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="new">{isHe ? '✨ טיפול חדש' : '✨ New Treatment'}</SelectItem>
-                    <SelectItem value="touchup">{isHe ? '🔄 טאצ׳ אפ / חיזוק' : '🔄 Touch-up'}</SelectItem>
-                    <SelectItem value="consultation">{isHe ? '💬 ייעוץ' : '💬 Consultation'}</SelectItem>
-                  </SelectContent>
-                </Select>
+                )}
               </div>
 
-              {/* Treatment area */}
-              <div className="space-y-2">
-                <Label className="text-xs font-medium">{isHe ? 'אזור טיפול' : 'Treatment Area'}</Label>
-                <Select value={newType} onValueChange={(v) => setNewType(v as any)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="eyebrows">{isHe ? '✨ גבות' : '✨ Brows'}</SelectItem>
-                    <SelectItem value="lips">{isHe ? '💋 שפתיים' : '💋 Lips'}</SelectItem>
-                    <SelectItem value="eyeliner">{isHe ? '👁️ אייליינר' : '👁️ Eyeliner'}</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Treatment card */}
+              <div className="rounded-2xl p-4 space-y-2.5" style={{ background: 'hsl(38 40% 97%)', border: '1px solid hsl(38 40% 88%)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'hsl(36 40% 52%)' }}>
+                  {isHe ? 'סוג טיפול' : 'Treatment'}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Select value={newVisitType} onValueChange={(v) => { setNewVisitType(v as any); if (v === 'touchup') setNewAutoHealth(false); }}>
+                    <SelectTrigger className="h-11 text-sm bg-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new">{isHe ? '✨ טיפול חדש' : '✨ New Treatment'}</SelectItem>
+                      <SelectItem value="touchup">{isHe ? '🔄 טאצ׳ אפ' : '🔄 Touch-up'}</SelectItem>
+                      <SelectItem value="consultation">{isHe ? '💬 ייעוץ' : '💬 Consultation'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={newType} onValueChange={(v) => setNewType(v as any)}>
+                    <SelectTrigger className="h-11 text-sm bg-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="eyebrows">{isHe ? '✨ גבות' : '✨ Brows'}</SelectItem>
+                      <SelectItem value="lips">{isHe ? '💋 שפתיים' : '💋 Lips'}</SelectItem>
+                      <SelectItem value="eyeliner">{isHe ? '👁️ אייליינר' : '👁️ Eyeliner'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label className="text-xs font-medium">{isHe ? 'תאריך' : 'Date'}</Label>
-                  <Input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} dir="ltr" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs font-medium">{isHe ? 'שעה' : 'Time'}</Label>
+              {/* Date & time card */}
+              <div className="rounded-2xl p-4 space-y-2.5" style={{ background: 'hsl(38 40% 97%)', border: '1px solid hsl(38 40% 88%)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'hsl(36 40% 52%)' }}>
+                  {isHe ? 'תאריך ושעה' : 'Date & Time'}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} dir="ltr" className="h-11 text-sm bg-white" />
                   <div className="flex items-center gap-1" dir="ltr">
-                    <Select
-                      value={newTime.split(':')[0] || '10'}
-                      onValueChange={(h) => setNewTime(`${h}:${newTime.split(':')[1] || '00'}`)}
-                    >
-                      <SelectTrigger className="w-[70px]">
-                        <SelectValue />
-                      </SelectTrigger>
+                    <Select value={newTime.split(':')[0] || '10'} onValueChange={(h) => setNewTime(`${h}:${newTime.split(':')[1] || '00'}`)}>
+                      <SelectTrigger className="h-11 text-sm flex-1 bg-white"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map((h) => (
-                          <SelectItem key={h} value={h}>
-                            {h}
-                          </SelectItem>
+                          <SelectItem key={h} value={h}>{h}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <span className="text-sm font-bold">:</span>
-                    <Select
-                      value={newTime.split(':')[1] || '00'}
-                      onValueChange={(m) => setNewTime(`${newTime.split(':')[0] || '10'}:${m}`)}
-                    >
-                      <SelectTrigger className="w-[70px]">
-                        <SelectValue />
-                      </SelectTrigger>
+                    <span className="text-sm font-bold text-muted-foreground">:</span>
+                    <Select value={newTime.split(':')[1] || '00'} onValueChange={(m) => setNewTime(`${newTime.split(':')[0] || '10'}:${m}`)}>
+                      <SelectTrigger className="h-11 text-sm flex-1 bg-white"><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {['00', '15', '30', '45'].map((m) => (
-                          <SelectItem key={m} value={m}>
-                            {m}
-                          </SelectItem>
-                        ))}
+                        {['00', '15', '30', '45'].map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
               </div>
 
-              {/* Auto health form checkbox — hidden for touch-ups */}
+              {/* WhatsApp card */}
               {newVisitType !== 'touchup' && (
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/50 border border-border">
-                  <Checkbox
-                    id="auto-health"
-                    checked={newAutoHealth}
-                    onCheckedChange={(checked) => setNewAutoHealth(checked === true)}
-                    className="mt-0.5"
-                  />
-                  <label htmlFor="auto-health" className="cursor-pointer">
-                    <p className="text-xs font-semibold">
-                      {isHe ? 'שלח אוטומטית הצהרת בריאות ומדיניות קליניקה בוואטסאפ' : 'Automatically send health declaration and clinic policy via WhatsApp'}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {isHe
-                        ? 'מיד עם שמירת התור, הלקוחה תקבל קישור למילוי הצהרת בריאות ומדיניות הקליניקה'
-                        : 'Immediately on booking, client receives the health declaration & clinic policy link'}
-                    </p>
+                <div className="rounded-2xl p-4" style={{ background: 'hsl(38 40% 97%)', border: '1px solid hsl(38 40% 88%)' }}>
+                  <label htmlFor="auto-health" className="flex items-start gap-3 cursor-pointer">
+                    <Checkbox
+                      id="auto-health"
+                      checked={newAutoHealth}
+                      onCheckedChange={(checked) => setNewAutoHealth(checked === true)}
+                      className="mt-0.5 flex-shrink-0"
+                    />
+                    <div>
+                      <p className="text-xs font-semibold leading-snug">
+                        {isHe ? 'שלח הצהרת בריאות בוואטסאפ אוטומטית' : 'Auto-send health declaration via WhatsApp'}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {isHe ? 'הלקוחה תקבל קישור מיד עם שמירת התור' : 'Client gets the link immediately on booking'}
+                      </p>
+                    </div>
                   </label>
-                </div>
-              )}
-
-              {/* Include clinic policy toggle — shown when auto-health is checked */}
-              {newAutoHealth && newVisitType !== 'touchup' && (
-                <div
-                  className="flex items-center justify-between gap-3 p-3 rounded-xl"
-                  style={{ background: 'hsl(38 30% 96%)', border: '1px solid hsl(38 50% 80% / 0.4)' }}
-                >
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <ScrollText className="w-4 h-4 flex-shrink-0" style={{ color: '#B8860B' }} />
-                    <label htmlFor="include-policy-cal" className="text-xs font-bold leading-snug cursor-pointer" style={{ color: '#B8860B' }}>
-                      {isHe ? 'צרפי גם את מדיניות הקליניקה והסכם הטיפול' : 'Include Clinic Policy & Treatment Agreement'}
-                    </label>
-                  </div>
-                  <PremiumPolicySwitch
-                    id="include-policy-cal"
-                    checked={newIncludePolicy}
-                    onCheckedChange={setNewIncludePolicy}
-                  />
+                  {newAutoHealth && (
+                    <div className="flex items-center justify-between gap-3 mt-3 pt-3" style={{ borderTop: '1px solid hsl(38 35% 86%)' }}>
+                      <div className="flex items-center gap-2">
+                        <ScrollText className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#B8860B' }} />
+                        <label htmlFor="include-policy-cal" className="text-[11px] font-semibold cursor-pointer" style={{ color: '#B8860B' }}>
+                          {isHe ? 'כלול מדיניות קליניקה' : 'Include Clinic Policy'}
+                        </label>
+                      </div>
+                      <PremiumPolicySwitch id="include-policy-cal" checked={newIncludePolicy} onCheckedChange={setNewIncludePolicy} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Footer - Fixed at bottom */}
-            <div className="px-6 py-4 border-t border-border flex-shrink-0 bg-card">
+            {/* CTA footer */}
+            <div className="px-4 py-4 flex-shrink-0" style={{ background: 'hsl(0 0% 99%)', borderTop: '1px solid hsl(0 0% 92%)' }}>
               <button
                 onClick={handleAdd}
                 disabled={!newName.trim()}
-                className="w-full py-3.5 rounded-full text-sm font-extrabold tracking-wide transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                className="w-full py-3.5 rounded-2xl text-sm font-bold tracking-wide transition-all active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none"
                 style={{
-                  background:
-                    'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
                   color: '#4a3636',
-                  boxShadow: '0 4px 20px rgba(212,175,55,0.45), inset 0 1px 0 rgba(249,242,149,0.6)',
+                  boxShadow: '0 4px 20px rgba(212,175,55,0.38), inset 0 1px 0 rgba(249,242,149,0.5)',
                 }}
               >
-                {isHe ? 'הוסיפי תור' : 'Add Appointment'}
+                {isHe ? 'הוסיפי תור ✨' : 'Add Appointment ✨'}
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Health Declaration Detail Modal (small) */}

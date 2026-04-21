@@ -19,6 +19,14 @@ interface ArtistSettings {
   days?: Record<string, number | string | null>;
 }
 
+interface SeedNotification {
+  id: string;
+  day: number;
+  title: string;
+  body: string;
+  timestamp: Date;
+}
+
 const LS_READ_KEY = 'glowpush_read_notifications';
 
 function getReadNotifications(): Set<string> {
@@ -40,14 +48,19 @@ function buildNotifications(
   treatmentType: string,
   daysSinceTreatment: number,
   clientName: string,
+  artistName: string,
   lang: 'he' | 'en',
   startDate: Date,
+  seedNotifications: SeedNotification[] = [],
 ): Notification[] {
   const drafts = settings.drafts ?? {};
   const days = settings.days ?? {};
   const readSet = getReadNotifications();
   const prefix = treatmentType === 'lips' ? 'lips' : 'brows';
-  const results: Notification[] = [];
+  const results: Notification[] = seedNotifications.map((notif) => ({
+    ...notif,
+    read: readSet.has(notif.id),
+  }));
 
   // Collect all template keys that belong to this treatment
   const relevantKeys = Object.keys(days).filter(key => {
@@ -76,9 +89,11 @@ function buildNotifications(
       .replace(/\{שם_לקוחה\}/g, clientName)
       .replace(/\{Client_Name\}/g, clientName)
       .replace(/\[שם הלקוחה\]/g, clientName)
-      .replace(/\[ArtistName\]/g, '')
-      .replace(/\{שם_אמנית\}/g, '')
-      .replace(/\{Artist_Name\}/g, '');
+      .replace(/\[ArtistName\]/g, artistName)
+      .replace(/\{שם_אמנית\}/g, artistName)
+      .replace(/\{Artist_Name\}/g, artistName)
+      .replace(/\{\{artist_name\}\}/gi, artistName)
+      .replace(/\{\{client_name\}\}/gi, clientName);
 
     const notifId = `aftercare_${key}_day${dayValue}`;
     const notifDate = new Date(startDate);
@@ -94,7 +109,11 @@ function buildNotifications(
     });
   }
 
-  return results.sort((a, b) => b.day - a.day);
+  return results.sort((a, b) => {
+    if (a.day === 0 && b.day !== 0) return -1;
+    if (b.day === 0 && a.day !== 0) return 1;
+    return b.day - a.day;
+  });
 }
 
 interface Props {
@@ -104,14 +123,16 @@ interface Props {
   treatmentType: string;
   daysSinceTreatment: number;
   clientName: string;
+  artistName: string;
   lang: 'he' | 'en';
   startDate: Date;
   onUnreadCountChange: (count: number) => void;
+  seedNotifications?: SeedNotification[];
 }
 
 export default function ClientNotificationCenter({
   isOpen, onClose, artistProfileId, treatmentType, daysSinceTreatment,
-  clientName, lang, startDate, onUnreadCountChange,
+  clientName, artistName, lang, startDate, onUnreadCountChange, seedNotifications = [],
 }: Props) {
   const [settings, setSettings] = useState<ArtistSettings | null>(null);
 
@@ -130,9 +151,15 @@ export default function ClientNotificationCenter({
   }, [artistProfileId]);
 
   const notifications = useMemo(() => {
-    if (!settings) return [];
-    return buildNotifications(settings, treatmentType, daysSinceTreatment, clientName, lang, startDate);
-  }, [settings, treatmentType, daysSinceTreatment, clientName, lang, startDate]);
+    if (!settings) {
+      const readSet = getReadNotifications();
+      return seedNotifications.map((notif) => ({
+        ...notif,
+        read: readSet.has(notif.id),
+      }));
+    }
+    return buildNotifications(settings, treatmentType, daysSinceTreatment, clientName, artistName, lang, startDate, seedNotifications);
+  }, [settings, treatmentType, daysSinceTreatment, clientName, artistName, lang, startDate, seedNotifications]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 

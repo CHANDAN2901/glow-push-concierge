@@ -53,8 +53,8 @@ export function useArtistHealthQuestionsEditor(artistProfileId: string | null) {
         return {
           ...q,
           is_included: override ? override.is_included : true,
-          custom_text_he: override?.custom_text_he || undefined,
-          custom_text_en: override?.custom_text_en || undefined,
+          custom_text_he: override?.custom_text_he ?? undefined,
+          custom_text_en: override?.custom_text_en ?? undefined,
           has_override: !!override,
           is_custom: false,
         } as ArtistHealthQuestion;
@@ -177,8 +177,8 @@ export function useClientHealthQuestions(artistId: string | null) {
             const override = overrideMap.get(q.id);
             return {
               ...q,
-              question_he: override?.custom_text_he || q.question_he,
-              question_en: override?.custom_text_en || q.question_en,
+              question_he: override?.custom_text_he != null ? override.custom_text_he : q.question_he,
+              question_en: override?.custom_text_en != null ? override.custom_text_en : q.question_en,
             } as HealthQuestion;
           });
 

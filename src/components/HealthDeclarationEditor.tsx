@@ -38,25 +38,51 @@ export default function HealthDeclarationEditor({ open, onClose, artistProfileId
 
   const startEdit = (q: ArtistHealthQuestion) => {
     setEditingId(q.id);
-    setEditText(q.custom_text_he || q.question_he);
-    setEditTextEn(q.custom_text_en || q.question_en);
+    setEditText(q.custom_text_he !== undefined ? q.custom_text_he : q.question_he);
+    setEditTextEn(q.custom_text_en !== undefined ? q.custom_text_en : q.question_en);
   };
 
-  const confirmEdit = (questionId: string) => {
-    setQuestions(prev =>
-      prev.map(q => {
-        if (q.id !== questionId) return q;
-        if (q.is_custom) {
-          return { ...q, question_he: editText.trim(), question_en: editTextEn.trim() };
-        }
-        const originalHe = q.question_he;
-        const originalEn = q.question_en;
-        const customHe = editText.trim() !== originalHe ? editText.trim() : undefined;
-        const customEn = editTextEn.trim() !== originalEn ? editTextEn.trim() : undefined;
-        return { ...q, custom_text_he: customHe, custom_text_en: customEn, has_override: true };
-      })
-    );
+  const confirmEdit = async (questionId: string) => {
+    if (!artistProfileId) return;
+    const q = questions.find(q => q.id === questionId);
+    if (!q) return;
+
+    let updatedQ: ArtistHealthQuestion;
+    if (q.is_custom) {
+      updatedQ = { ...q, question_he: editText.trim(), question_en: editTextEn.trim() };
+    } else {
+      const customHe = editText.trim() !== q.question_he ? editText.trim() : undefined;
+      const customEn = editTextEn.trim() !== q.question_en ? editTextEn.trim() : undefined;
+      updatedQ = { ...q, custom_text_he: customHe, custom_text_en: customEn, has_override: true };
+    }
+
+    setQuestions(prev => prev.map(item => item.id === questionId ? updatedQ : item));
     setEditingId(null);
+
+    try {
+      if (q.is_custom) {
+        // Custom questions are saved by temp ID until saveAll; skip DB for new unsaved ones
+        if (!questionId.startsWith('custom-')) {
+          await supabase
+            .from('artist_custom_health_questions' as any)
+            .update({ question_he: updatedQ.question_he, question_en: updatedQ.question_en })
+            .eq('id', questionId);
+        }
+      } else {
+        await supabase
+          .from('artist_health_question_overrides')
+          .upsert({
+            artist_profile_id: artistProfileId,
+            question_id: questionId,
+            is_included: updatedQ.is_included,
+            custom_text_he: updatedQ.custom_text_he ?? null,
+            custom_text_en: updatedQ.custom_text_en ?? null,
+          }, { onConflict: 'artist_profile_id,question_id' });
+      }
+      toast({ title: isHe ? 'השאלה עודכנה ✅' : 'Question updated ✅' });
+    } catch (err: any) {
+      toast({ title: isHe ? 'שגיאה בשמירה' : 'Save error', description: err.message, variant: 'destructive' });
+    }
   };
 
   const resetToAdmin = (questionId: string) => {
@@ -109,13 +135,13 @@ export default function HealthDeclarationEditor({ open, onClose, artistProfileId
 
       const adminQuestions = questions.filter(q => !q.is_custom);
       const overrides = adminQuestions
-        .filter(q => !q.is_included || q.custom_text_he || q.custom_text_en)
+        .filter(q => !q.is_included || q.custom_text_he !== undefined || q.custom_text_en !== undefined)
         .map((q, idx) => ({
           artist_profile_id: artistProfileId,
           question_id: q.id,
           is_included: q.is_included,
-          custom_text_he: q.custom_text_he || null,
-          custom_text_en: q.custom_text_en || null,
+          custom_text_he: q.custom_text_he ?? null,
+          custom_text_en: q.custom_text_en ?? null,
           sort_order: idx,
         }));
 
@@ -197,8 +223,8 @@ export default function HealthDeclarationEditor({ open, onClose, artistProfileId
             {questions.map((q) => {
               const isEditing = editingId === q.id;
               const displayText = !isHe
-                ? (q.is_custom ? (q.question_en || q.question_he) : (q.custom_text_en || q.question_en || q.custom_text_he || q.question_he))
-                : (q.is_custom ? q.question_he : (q.custom_text_he || q.question_he));
+                ? (q.is_custom ? (q.question_en || q.question_he) : (q.custom_text_en !== undefined ? q.custom_text_en : (q.question_en || (q.custom_text_he !== undefined ? q.custom_text_he : q.question_he))))
+                : (q.is_custom ? q.question_he : (q.custom_text_he !== undefined ? q.custom_text_he : q.question_he));
               const hasCustom = !q.is_custom && (!!q.custom_text_he || !!q.custom_text_en);
 
               return (

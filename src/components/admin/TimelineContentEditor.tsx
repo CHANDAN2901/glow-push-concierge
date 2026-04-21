@@ -112,8 +112,8 @@ export default function TimelineContentEditorPage() {
 
         return {
           ...base,
-          instruction_he: row.quote_he || base.instruction_he,
-          instruction_en: row.quote_en || base.instruction_en,
+          instruction_he: row.quote_he != null ? row.quote_he : base.instruction_he,
+          instruction_en: row.quote_en != null ? row.quote_en : base.instruction_en,
         };
       });
 

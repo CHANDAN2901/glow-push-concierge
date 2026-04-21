@@ -87,8 +87,8 @@ export default function HealingTimelineCarousel({ currentDay, artistProfileId, t
     if (!row || isLegacyTimelineOverride(row.quote_he, row.quote_en)) return s;
     return {
       ...s,
-      instruction: row.quote_he || s.instruction,
-      instructionEn: row.quote_en || s.instructionEn,
+      instruction: row.quote_he != null ? row.quote_he : s.instruction,
+      instructionEn: row.quote_en != null ? row.quote_en : s.instructionEn,
     };
   });
 
