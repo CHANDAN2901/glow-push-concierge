@@ -33,11 +33,13 @@ interface Props {
 
 export default function ReferralVoucherEditor({ open, onOpenChange, artistProfileId, lang }: Props) {
   const { toast } = useToast();
+  const isEn = lang === 'en';
   const [textHe, setTextHe] = useState(DEFAULT_TEXT_HE);
   const [textEn, setTextEn] = useState(DEFAULT_TEXT_EN);
   const [waHe, setWaHe] = useState(DEFAULT_WA_HE);
   const [waEn, setWaEn] = useState(DEFAULT_WA_EN);
   const [saving, setSaving] = useState(false);
+  const [showAllLanguages, setShowAllLanguages] = useState(false);
 
   useEffect(() => {
     if (!open || !artistProfileId) return;
@@ -111,9 +113,9 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
           {/* Referral WhatsApp message with presets */}
           <div>
             <Label className="text-sm font-semibold mb-1.5 block">
-              {lang === 'en' ? 'Referral WhatsApp Message (Hebrew)' : '💝 הודעת שובר - חברה מביאה חברה (עברית)'}
+              {isEn ? 'Referral WhatsApp Message (English)' : '💝 הודעת שובר - חברה מביאה חברה (עברית)'}
             </Label>
-            {lang === 'he' && (
+            {!isEn && (
               <div className="flex flex-wrap gap-1.5 mb-2">
                 <button
                   type="button"
@@ -142,10 +144,10 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
               </div>
             )}
             <Textarea
-              value={waHe}
-              onChange={e => setWaHe(e.target.value)}
-              rows={4}
-              dir="rtl"
+              value={isEn ? waEn : waHe}
+              onChange={e => isEn ? setWaEn(e.target.value) : setWaHe(e.target.value)}
+              rows={isEn ? 3 : 4}
+              dir={isEn ? 'ltr' : 'rtl'}
               className="text-sm"
             />
             <div className="flex flex-wrap gap-1.5 mt-1.5">
@@ -157,21 +159,33 @@ export default function ReferralVoucherEditor({ open, onOpenChange, artistProfil
             </div>
           </div>
 
-          <div>
-            <Label className="text-sm font-semibold mb-1.5 block">
-              {lang === 'en' ? 'Referral WhatsApp Message (English)' : 'הודעת שובר וואטסאפ (אנגלית)'}
-            </Label>
-            <Textarea
-              value={waEn}
-              onChange={e => setWaEn(e.target.value)}
-              rows={3}
-              dir="ltr"
-              className="text-sm"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {lang === 'en' ? 'Use [CODE] as placeholder for the referral code' : 'השתמשי ב-[CODE] כמקום לקוד ההפניה'}
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowAllLanguages(v => !v)}
+            className="text-[11px] font-semibold text-accent hover:underline underline-offset-2"
+          >
+            {showAllLanguages
+              ? (isEn ? 'Show selected language only' : 'הציגי רק את שפת המערכת')
+              : (isEn ? 'Edit both languages' : 'ערכי את שתי השפות')}
+          </button>
+
+          {showAllLanguages && (
+            <div>
+              <Label className="text-sm font-semibold mb-1.5 block">
+                {isEn ? 'הודעת שובר וואטסאפ (עברית)' : 'Referral WhatsApp Message (English)'}
+              </Label>
+              <Textarea
+                value={isEn ? waHe : waEn}
+                onChange={e => isEn ? setWaHe(e.target.value) : setWaEn(e.target.value)}
+                rows={isEn ? 4 : 3}
+                dir={isEn ? 'rtl' : 'ltr'}
+                className="text-sm"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {isEn ? 'Use [CODE] as placeholder for the referral code' : 'השתמשי ב-[CODE] כמקום לקוד ההפניה'}
+              </p>
+            </div>
+          )}
 
           <Button
             onClick={handleSave}

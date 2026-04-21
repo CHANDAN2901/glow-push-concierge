@@ -219,6 +219,7 @@ export default function MessageEditor() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [profileId, setProfileId] = useState<string | null>(null);
+  const [showAllLanguages, setShowAllLanguages] = useState<Record<string, boolean>>({});
 
   const [activeCategory, setActiveCategory] = useState<TreatmentCategory>('eyebrows');
   const [customTemplates, setCustomTemplates] = useState<MessageTemplate[]>(localSaved.customTemplates || []);
@@ -588,6 +589,15 @@ export default function MessageEditor() {
         const enKey = getLanguageDraftKey(template.id, 'en');
         const heValue = drafts[heKey] ?? template.defaultTextHe;
         const enValue = drafts[enKey] ?? template.defaultTextEn;
+        const primaryLanguageLabel = isEn ? 'English' : 'עברית';
+        const secondaryLanguageLabel = isEn ? 'עברית' : 'English';
+        const primaryValue = isEn ? enValue : heValue;
+        const secondaryValue = isEn ? heValue : enValue;
+        const primaryKey = isEn ? enKey : heKey;
+        const secondaryKey = isEn ? heKey : enKey;
+        const primaryDir = isEn ? 'ltr' : 'rtl';
+        const secondaryDir = isEn ? 'rtl' : 'ltr';
+        const showBoth = showAllLanguages[template.id] ?? false;
         return (
           <div
             key={template.id}
@@ -684,33 +694,46 @@ export default function MessageEditor() {
               </div>
             </div>
 
-            {/* Dual-language textareas */}
+            {/* Language-aware editor */}
             <div className="space-y-3">
               <div>
                 <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
-                  🇮🇱 <span>עברית</span>
+                  <span>{isEn ? '🇬🇧' : '🇮🇱'}</span>
+                  <span>{primaryLanguageLabel}</span>
                 </p>
                 <Textarea
                   ref={(el) => { textareaRefs.current[template.id] = el; }}
-                  value={heValue}
-                  onChange={(e) => setDrafts(prev => ({ ...prev, [heKey]: e.target.value }))}
+                  value={primaryValue}
+                  onChange={(e) => setDrafts(prev => ({ ...prev, [primaryKey]: e.target.value }))}
                   rows={4}
-                  dir="rtl"
+                  dir={primaryDir}
                   className="resize-y text-sm bg-background"
                 />
               </div>
-              <div>
-                <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
-                  🇬🇧 <span>English</span>
-                </p>
-                <Textarea
-                  value={enValue}
-                  onChange={(e) => setDrafts(prev => ({ ...prev, [enKey]: e.target.value }))}
-                  rows={4}
-                  dir="ltr"
-                  className="resize-y text-sm bg-background"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowAllLanguages(prev => ({ ...prev, [template.id]: !showBoth }))}
+                className="text-[11px] font-semibold text-accent hover:underline underline-offset-2"
+              >
+                {showBoth
+                  ? (isEn ? 'Show selected language only' : 'הציגי רק את שפת המערכת')
+                  : (isEn ? 'Edit both languages' : 'ערכי את שתי השפות')}
+              </button>
+              {showBoth && (
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                    <span>{isEn ? '🇮🇱' : '🇬🇧'}</span>
+                    <span>{secondaryLanguageLabel}</span>
+                  </p>
+                  <Textarea
+                    value={secondaryValue}
+                    onChange={(e) => setDrafts(prev => ({ ...prev, [secondaryKey]: e.target.value }))}
+                    rows={4}
+                    dir={secondaryDir}
+                    className="resize-y text-sm bg-background"
+                  />
+                </div>
+              )}
             </div>
 
 

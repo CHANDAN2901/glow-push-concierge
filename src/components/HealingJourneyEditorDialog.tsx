@@ -64,6 +64,7 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [baseStepCount, setBaseStepCount] = useState(0);
+  const [showAllLanguages, setShowAllLanguages] = useState<Record<number, boolean>>({});
 
   const loadTimelineSteps = useCallback(async () => {
     if (authLoading || !open) return;
@@ -341,58 +342,73 @@ export default function HealingJourneyEditorDialog({ open, onClose }: Props) {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-3">
                     <div>
                       <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                        📌 {isHe ? 'כותרת בעברית' : 'Hebrew Title'}
+                        📌 {isHe ? 'כותרת בעברית' : 'English Title'}
                       </label>
                       <Input
-                        value={step.title_he}
-                        onChange={(e) => updateStep(idx, 'title_he', e.target.value)}
-                        dir="rtl"
+                        value={isHe ? step.title_he : step.title_en}
+                        onChange={(e) => updateStep(idx, isHe ? 'title_he' : 'title_en', e.target.value)}
+                        dir={isHe ? 'rtl' : 'ltr'}
                         className="text-sm"
                         style={{ borderColor: 'hsl(38 40% 85%)' }}
                       />
                     </div>
-                    <div>
-                      <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                        📌 {isHe ? 'כותרת באנגלית' : 'English Title'}
-                      </label>
-                      <Input
-                        value={step.title_en}
-                        onChange={(e) => updateStep(idx, 'title_en', e.target.value)}
-                        dir="ltr"
-                        className="text-sm text-muted-foreground"
-                        style={{ borderColor: 'hsl(38 40% 85%)' }}
-                      />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                        📋 {isHe ? 'הנחיות בעברית' : 'Hebrew Instructions'}
+                        📋 {isHe ? 'הנחיות בעברית' : 'English Instructions'}
                       </label>
                       <Textarea
-                        value={step.instruction_he}
-                        onChange={(e) => updateStep(idx, 'instruction_he', e.target.value)}
-                        dir="rtl"
+                        value={isHe ? step.instruction_he : step.instruction_en}
+                        onChange={(e) => updateStep(idx, isHe ? 'instruction_he' : 'instruction_en', e.target.value)}
+                        dir={isHe ? 'rtl' : 'ltr'}
                         className="text-sm min-h-[80px]"
                         style={{ borderColor: 'hsl(38 40% 85%)' }}
                       />
                     </div>
-                    <div>
-                      <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
-                        📋 {isHe ? 'הנחיות באנגלית' : 'English Instructions'}
-                      </label>
-                      <Textarea
-                        value={step.instruction_en}
-                        onChange={(e) => updateStep(idx, 'instruction_en', e.target.value)}
-                        dir="ltr"
-                        className="text-sm min-h-[80px] text-muted-foreground"
-                        style={{ borderColor: 'hsl(38 40% 85%)' }}
-                      />
-                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowAllLanguages(prev => ({ ...prev, [step.step_index]: !prev[step.step_index] }))}
+                      className="text-[11px] font-semibold hover:underline underline-offset-2"
+                      style={{ color: 'hsl(36 50% 42%)' }}
+                    >
+                      {(showAllLanguages[step.step_index] ?? false)
+                        ? (isHe ? 'הציגי רק את שפת המערכת' : 'Show selected language only')
+                        : (isHe ? 'ערכי את שתי השפות' : 'Edit both languages')}
+                    </button>
+
+                    {(showAllLanguages[step.step_index] ?? false) && (
+                      <>
+                        <div>
+                          <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
+                            📌 {isHe ? 'English Title' : 'כותרת בעברית'}
+                          </label>
+                          <Input
+                            value={isHe ? step.title_en : step.title_he}
+                            onChange={(e) => updateStep(idx, isHe ? 'title_en' : 'title_he', e.target.value)}
+                            dir={isHe ? 'ltr' : 'rtl'}
+                            className="text-sm"
+                            style={{ borderColor: 'hsl(38 40% 85%)' }}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium mb-1 block" style={{ color: 'hsl(36 40% 30%)' }}>
+                            📋 {isHe ? 'English Instructions' : 'הנחיות בעברית'}
+                          </label>
+                          <Textarea
+                            value={isHe ? step.instruction_en : step.instruction_he}
+                            onChange={(e) => updateStep(idx, isHe ? 'instruction_en' : 'instruction_he', e.target.value)}
+                            dir={isHe ? 'ltr' : 'rtl'}
+                            className="text-sm min-h-[80px]"
+                            style={{ borderColor: 'hsl(38 40% 85%)' }}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
