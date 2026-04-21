@@ -467,6 +467,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [promoDescriptionEn, setPromoDescriptionEn] = useState('');
   const [promoButtonText, setPromoButtonText] = useState('');
   const [promoButtonTextEn, setPromoButtonTextEn] = useState('');
+  const [showAllPromoLanguages, setShowAllPromoLanguages] = useState(false);
 
   const [savingPromo, setSavingPromo] = useState(false);
 
@@ -3267,60 +3268,93 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
               <div className="h-[2px] w-full mb-5" style={{ background: 'linear-gradient(90deg, transparent, hsl(38 55% 62%), transparent)' }} />
 
               <div className="space-y-5">
+                <button
+                  type="button"
+                  onClick={() => setShowAllPromoLanguages((prev) => !prev)}
+                  className="text-[11px] font-semibold text-accent hover:underline underline-offset-2"
+                >
+                  {showAllPromoLanguages
+                    ? (lang === 'en' ? 'Show selected language only' : 'הציגי רק את שפת המערכת')
+                    : (lang === 'en' ? 'Edit both languages' : 'ערכי את שתי השפות')}
+                </button>
                 {/* Tag Text */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.tagText')}</Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇮🇱</span>
-                      <Input value={promoTagText} onChange={(e) => setPromoTagText(e.target.value)} dir="rtl" placeholder={t('artist.dashboard.tagTextPlaceholder')} className="h-12 rounded-full bg-white text-sm px-5 pr-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <span className={`absolute ${lang === 'en' ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-xs text-muted-foreground`}>
+                        {lang === 'en' ? '🇺🇸' : '🇮🇱'}
+                      </span>
+                      <Input value={lang === 'en' ? promoTagTextEn : promoTagText} onChange={(e) => lang === 'en' ? setPromoTagTextEn(e.target.value) : setPromoTagText(e.target.value)} dir={lang === 'en' ? 'ltr' : 'rtl'} placeholder={lang === 'en' ? 'Exclusive for Returning Clients ✨' : t('artist.dashboard.tagTextPlaceholder')} className={`h-12 rounded-full bg-white text-sm px-5 ${lang === 'en' ? 'pl-8' : 'pr-8'} focus-visible:ring-accent/40 focus-visible:ring-offset-0`} style={{ border: '1px solid hsl(38 55% 62%)' }} />
                     </div>
-                    <div className="flex-1 relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇺🇸</span>
-                      <Input value={promoTagTextEn} onChange={(e) => setPromoTagTextEn(e.target.value)} dir="ltr" placeholder="Exclusive for Returning Clients ✨" className="h-12 rounded-full bg-white text-sm px-5 pl-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
-                    </div>
+                    {showAllPromoLanguages && (
+                      <div className="relative">
+                        <span className={`absolute ${lang === 'en' ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-xs text-muted-foreground`}>
+                          {lang === 'en' ? '🇮🇱' : '🇺🇸'}
+                        </span>
+                        <Input value={lang === 'en' ? promoTagText : promoTagTextEn} onChange={(e) => lang === 'en' ? setPromoTagText(e.target.value) : setPromoTagTextEn(e.target.value)} dir={lang === 'en' ? 'rtl' : 'ltr'} placeholder={lang === 'en' ? t('artist.dashboard.tagTextPlaceholder') : 'Exclusive for Returning Clients ✨'} className={`h-12 rounded-full bg-white text-sm px-5 ${lang === 'en' ? 'pr-8' : 'pl-8'} focus-visible:ring-accent/40 focus-visible:ring-offset-0`} style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* Main Title */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.mainTitle')}</Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇮🇱</span>
-                      <Input value={promoTitle} onChange={(e) => setPromoTitle(e.target.value)} dir="rtl" placeholder={t('artist.dashboard.mainTitlePlaceholder')} className="h-12 rounded-full bg-white text-sm px-5 pr-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <span className={`absolute ${lang === 'en' ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-xs text-muted-foreground`}>
+                        {lang === 'en' ? '🇺🇸' : '🇮🇱'}
+                      </span>
+                      <Input value={lang === 'en' ? promoTitleEn : promoTitle} onChange={(e) => lang === 'en' ? setPromoTitleEn(e.target.value) : setPromoTitle(e.target.value)} dir={lang === 'en' ? 'ltr' : 'rtl'} placeholder={lang === 'en' ? 'Complete Your Look' : t('artist.dashboard.mainTitlePlaceholder')} className={`h-12 rounded-full bg-white text-sm px-5 ${lang === 'en' ? 'pl-8' : 'pr-8'} focus-visible:ring-accent/40 focus-visible:ring-offset-0`} style={{ border: '1px solid hsl(38 55% 62%)' }} />
                     </div>
-                    <div className="flex-1 relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇺🇸</span>
-                      <Input value={promoTitleEn} onChange={(e) => setPromoTitleEn(e.target.value)} dir="ltr" placeholder="Complete Your Look" className="h-12 rounded-full bg-white text-sm px-5 pl-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
-                    </div>
+                    {showAllPromoLanguages && (
+                      <div className="relative">
+                        <span className={`absolute ${lang === 'en' ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-xs text-muted-foreground`}>
+                          {lang === 'en' ? '🇮🇱' : '🇺🇸'}
+                        </span>
+                        <Input value={lang === 'en' ? promoTitle : promoTitleEn} onChange={(e) => lang === 'en' ? setPromoTitle(e.target.value) : setPromoTitleEn(e.target.value)} dir={lang === 'en' ? 'rtl' : 'ltr'} placeholder={lang === 'en' ? t('artist.dashboard.mainTitlePlaceholder') : 'Complete Your Look'} className={`h-12 rounded-full bg-white text-sm px-5 ${lang === 'en' ? 'pr-8' : 'pl-8'} focus-visible:ring-accent/40 focus-visible:ring-offset-0`} style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* Description */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.description')}</Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <span className="absolute right-3 top-3 text-xs text-muted-foreground">🇮🇱</span>
-                      <Textarea value={promoDescription} onChange={(e) => setPromoDescription(e.target.value)} dir="rtl" rows={4} placeholder={t('artist.dashboard.promoDescriptionPlaceholder')} className="rounded-2xl bg-white text-sm px-4 pr-8 py-3 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <span className={`absolute ${lang === 'en' ? 'left-3' : 'right-3'} top-3 text-xs text-muted-foreground`}>
+                        {lang === 'en' ? '🇺🇸' : '🇮🇱'}
+                      </span>
+                      <Textarea value={lang === 'en' ? promoDescriptionEn : promoDescription} onChange={(e) => lang === 'en' ? setPromoDescriptionEn(e.target.value) : setPromoDescription(e.target.value)} dir={lang === 'en' ? 'ltr' : 'rtl'} rows={4} placeholder={lang === 'en' ? 'Love your new brows? Complete your look...' : t('artist.dashboard.promoDescriptionPlaceholder')} className={`rounded-2xl bg-white text-sm px-4 py-3 ${lang === 'en' ? 'pl-8' : 'pr-8'} focus-visible:ring-accent/40 focus-visible:ring-offset-0`} style={{ border: '1px solid hsl(38 55% 62%)' }} />
                     </div>
-                    <div className="flex-1 relative">
-                      <span className="absolute left-3 top-3 text-xs text-muted-foreground">🇺🇸</span>
-                      <Textarea value={promoDescriptionEn} onChange={(e) => setPromoDescriptionEn(e.target.value)} dir="ltr" rows={4} placeholder="Love your new brows? Complete your look..." className="rounded-2xl bg-white text-sm px-4 pl-8 py-3 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
-                    </div>
+                    {showAllPromoLanguages && (
+                      <div className="relative">
+                        <span className={`absolute ${lang === 'en' ? 'right-3' : 'left-3'} top-3 text-xs text-muted-foreground`}>
+                          {lang === 'en' ? '🇮🇱' : '🇺🇸'}
+                        </span>
+                        <Textarea value={lang === 'en' ? promoDescription : promoDescriptionEn} onChange={(e) => lang === 'en' ? setPromoDescription(e.target.value) : setPromoDescriptionEn(e.target.value)} dir={lang === 'en' ? 'rtl' : 'ltr'} rows={4} placeholder={lang === 'en' ? t('artist.dashboard.promoDescriptionPlaceholder') : 'Love your new brows? Complete your look...'} className={`rounded-2xl bg-white text-sm px-4 py-3 ${lang === 'en' ? 'pr-8' : 'pl-8'} focus-visible:ring-accent/40 focus-visible:ring-offset-0`} style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* Button Text */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-foreground">{t('artist.dashboard.buttonText')}</Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇮🇱</span>
-                      <Input value={promoButtonText} onChange={(e) => setPromoButtonText(e.target.value)} dir="rtl" className="h-12 rounded-full bg-white text-sm px-5 pr-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <span className={`absolute ${lang === 'en' ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-xs text-muted-foreground`}>
+                        {lang === 'en' ? '🇺🇸' : '🇮🇱'}
+                      </span>
+                      <Input value={lang === 'en' ? promoButtonTextEn : promoButtonText} onChange={(e) => lang === 'en' ? setPromoButtonTextEn(e.target.value) : setPromoButtonText(e.target.value)} dir={lang === 'en' ? 'ltr' : 'rtl'} placeholder={lang === 'en' ? 'Details & Booking 💋' : ''} className={`h-12 rounded-full bg-white text-sm px-5 ${lang === 'en' ? 'pl-8' : 'pr-8'} focus-visible:ring-accent/40 focus-visible:ring-offset-0`} style={{ border: '1px solid hsl(38 55% 62%)' }} />
                     </div>
-                    <div className="flex-1 relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">🇺🇸</span>
-                      <Input value={promoButtonTextEn} onChange={(e) => setPromoButtonTextEn(e.target.value)} dir="ltr" placeholder="Details & Booking 💋" className="h-12 rounded-full bg-white text-sm px-5 pl-8 focus-visible:ring-accent/40 focus-visible:ring-offset-0" style={{ border: '1px solid hsl(38 55% 62%)' }} />
-                    </div>
+                    {showAllPromoLanguages && (
+                      <div className="relative">
+                        <span className={`absolute ${lang === 'en' ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-xs text-muted-foreground`}>
+                          {lang === 'en' ? '🇮🇱' : '🇺🇸'}
+                        </span>
+                        <Input value={lang === 'en' ? promoButtonText : promoButtonTextEn} onChange={(e) => lang === 'en' ? setPromoButtonText(e.target.value) : setPromoButtonTextEn(e.target.value)} dir={lang === 'en' ? 'rtl' : 'ltr'} placeholder={lang === 'en' ? '' : 'Details & Booking 💋'} className={`h-12 rounded-full bg-white text-sm px-5 ${lang === 'en' ? 'pr-8' : 'pl-8'} focus-visible:ring-accent/40 focus-visible:ring-offset-0`} style={{ border: '1px solid hsl(38 55% 62%)' }} />
+                      </div>
+                    )}
                   </div>
                 </div>
 
