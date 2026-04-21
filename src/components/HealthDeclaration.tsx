@@ -82,6 +82,8 @@ const STEPS = 3;
 export default function HealthDeclaration({ clientName = '', clientPhone = '', onComplete, onClose, readOnly = false, existingData, logoUrl, instagramUrl, wazeAddress, appointmentDate, appointmentTime, isPreview = false, artistId, onLangSupportReady }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
+  const poweredByText = isHe ? 'נוצר באמצעות' : 'Created with';
+  const footerSubtitle = isHe ? 'המערכת החכמה לניהול קליניקות' : 'The smart clinic management system';
 
   const { questions: dbQuestions, loading: questionsLoading, hasHe: qHasHe, hasEn: qHasEn } = useClientHealthQuestions(artistId || null);
 
@@ -542,7 +544,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
               ✨ Glow Push
             </p>
             <p className="text-[10px] mt-0.5" style={{ color: 'rgba(92,64,51,0.35)' }}>
-              {isHe ? 'המערכת החכמה לניהול קליניקות' : 'Smart clinic management system'}
+              {footerSubtitle}
             </p>
           </div>
 
@@ -1125,10 +1127,10 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
           className="inline-block group"
         >
           <p className="text-xs font-medium" style={{ color: 'rgba(92,64,51,0.6)' }}>
-            נוצר באמצעות <span className="font-semibold" style={{ color: '#A97142' }}>Glow Push</span> ✨
+            {poweredByText} <span className="font-semibold" style={{ color: '#A97142' }}>Glow Push</span> ✨
           </p>
           <p className="text-[10px] mt-0.5 group-hover:underline" style={{ color: 'rgba(92,64,51,0.45)' }}>
-            המערכת החכמה לניהול קליניקות
+            {footerSubtitle}
           </p>
         </a>
       </div>
