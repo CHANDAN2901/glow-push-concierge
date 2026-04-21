@@ -98,6 +98,8 @@ export function useArtistHealthQuestionsEditor(artistProfileId: string | null) {
 export function useClientHealthQuestions(artistId: string | null) {
   const [questions, setQuestions] = useState<HealthQuestion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasHe, setHasHe] = useState(true);
+  const [hasEn, setHasEn] = useState(true);
 
   useEffect(() => {
     const fetch = async () => {
@@ -123,7 +125,10 @@ export function useClientHealthQuestions(artistId: string | null) {
         }
 
         if (!artistId) {
-          setQuestions((adminQs || []) as HealthQuestion[]);
+          const qs = (adminQs || []) as HealthQuestion[];
+          setQuestions(qs);
+          setHasHe(qs.some(q => q.question_he?.trim()));
+          setHasEn(qs.some(q => q.question_en?.trim()));
           setLoading(false);
           return;
         }
@@ -153,6 +158,8 @@ export function useClientHealthQuestions(artistId: string | null) {
             } as HealthQuestion)),
           ];
           setQuestions(allQs);
+          setHasHe(allQs.some(q => q.question_he?.trim()));
+          setHasEn(allQs.some(q => q.question_en?.trim()));
           setLoading(false);
           return;
         }
@@ -190,6 +197,8 @@ export function useClientHealthQuestions(artistId: string | null) {
         }));
 
         setQuestions([...filtered, ...customMapped]);
+        setHasHe([...filtered, ...customMapped].some(q => q.question_he?.trim()));
+        setHasEn([...filtered, ...customMapped].some(q => q.question_en?.trim()));
       } catch (err) {
         console.error('Failed to fetch client health questions:', err);
       } finally {
@@ -199,5 +208,5 @@ export function useClientHealthQuestions(artistId: string | null) {
     fetch();
   }, [artistId]);
 
-  return { questions, loading };
+  return { questions, loading, hasHe, hasEn };
 }

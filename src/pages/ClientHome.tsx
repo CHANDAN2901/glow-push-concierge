@@ -342,6 +342,11 @@ const ClientHome = () => {
   }, [clientId]);
 
   const handleSetLang = async (newLang: 'en' | 'he') => {
+    const supported = newLang === 'en' ? hasEn : hasHe;
+    if (!phasesLoading && phases.length > 0 && !supported) {
+      setLangDenied(newLang);
+      return;
+    }
     setLang(newLang);
     if (isUUID(clientId)) {
       await supabase.from('clients').update({ preferred_lang: newLang }).eq('id', clientId);
@@ -579,6 +584,17 @@ const ClientHome = () => {
     toast({ description: lang === 'en' ? 'Your calendar is set! See you tomorrow morning ✨' : 'היומן שלך מסודר! נתראה מחר בבוקר ✨' });
   }, [lang, toast]);
 
+  /* ─── Language support check from phases ─── */
+  const [langDenied, setLangDenied] = useState<'he' | 'en' | null>(null);
+  const hasHe = phases.some(p => p.title_he?.trim() || p.steps_he?.some((s: string) => s?.trim()));
+  const hasEn = phases.some(p => p.title_en?.trim() || p.steps_en?.some((s: string) => s?.trim()));
+
+  useEffect(() => {
+    if (!langDenied) return;
+    const t = setTimeout(() => setLangDenied(null), 2500);
+    return () => clearTimeout(t);
+  }, [langDenied]);
+
   /* ─── Notification Center ─── */
   const [notifOpen, setNotifOpen] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
@@ -621,6 +637,34 @@ const ClientHome = () => {
     <div
       className="min-h-screen pb-32 client-premium-bg"
     >
+      {langDenied && (
+        <div className="fixed inset-0 z-[400] flex items-center justify-center px-6 pointer-events-none">
+          <div
+            className="pointer-events-auto max-w-xs w-full rounded-2xl px-6 py-5 shadow-2xl flex flex-col gap-3"
+            style={{ background: 'rgba(255,255,255,0.97)', border: '1.5px solid #D4AF37', backdropFilter: 'blur(12px)' }}
+            dir={lang === 'he' ? 'rtl' : 'ltr'}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-lg">⚠️</span>
+              <span className="text-sm font-semibold" style={{ color: '#B8860B' }}>
+                {lang === 'he'
+                  ? 'השפה האנגלית אינה זמינה עבור מטפל זה'
+                  : 'Hebrew is not available for this artist'}
+              </span>
+            </div>
+            <p className="text-xs" style={{ color: '#6b4a4a' }}>
+              {lang === 'he' ? 'ממשיכים בעברית.' : 'Staying in English.'}
+            </p>
+            <button
+              onClick={() => setLangDenied(null)}
+              className="self-end px-4 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
       {/* ─── HEADER ─── */}
       <header
         className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl"

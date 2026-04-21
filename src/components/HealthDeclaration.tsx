@@ -54,6 +54,7 @@ interface Props {
   appointmentTime?: string;
   isPreview?: boolean;
   artistId?: string;
+  onLangSupportReady?: (hasHe: boolean, hasEn: boolean) => void;
 }
 
 // Ultra-Luxury theme
@@ -78,11 +79,15 @@ const T = {
 
 const STEPS = 3;
 
-export default function HealthDeclaration({ clientName = '', clientPhone = '', onComplete, onClose, readOnly = false, existingData, logoUrl, instagramUrl, wazeAddress, appointmentDate, appointmentTime, isPreview = false, artistId }: Props) {
+export default function HealthDeclaration({ clientName = '', clientPhone = '', onComplete, onClose, readOnly = false, existingData, logoUrl, instagramUrl, wazeAddress, appointmentDate, appointmentTime, isPreview = false, artistId, onLangSupportReady }: Props) {
   const { lang } = useI18n();
   const isHe = lang === 'he';
 
-  const { questions: dbQuestions, loading: questionsLoading } = useClientHealthQuestions(artistId || null);
+  const { questions: dbQuestions, loading: questionsLoading, hasHe: qHasHe, hasEn: qHasEn } = useClientHealthQuestions(artistId || null);
+
+  useEffect(() => {
+    if (!questionsLoading) onLangSupportReady?.(qHasHe, qHasEn);
+  }, [questionsLoading, qHasHe, qHasEn]);
 
   const [showIntro, setShowIntro] = useState(!readOnly && !existingData);
   const [step, setStep] = useState(1);

@@ -7,11 +7,17 @@ import { subscribeToPush } from '@/lib/push-utils';
 import ClinicPolicyAcknowledgment from '@/components/ClinicPolicyAcknowledgment';
 import { useI18n } from '@/lib/i18n';
 
-const LangToggle = () => {
+const LangToggle = ({ hasHe, hasEn, onBlock }: { hasHe: boolean; hasEn: boolean; onBlock: (blockedLang: 'he' | 'en') => void }) => {
   const { lang, setLang } = useI18n();
+  const handleClick = () => {
+    const target = lang === 'he' ? 'en' : 'he';
+    const supported = target === 'en' ? hasEn : hasHe;
+    if (!supported) { onBlock(target); return; }
+    setLang(target);
+  };
   return (
     <button
-      onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
+      onClick={handleClick}
       className="fixed top-3 left-3 z-[200] flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md transition-all active:scale-95"
       style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid #D4AF37', color: '#B8860B', backdropFilter: 'blur(8px)' }}
       aria-label="Switch language"
@@ -39,6 +45,8 @@ const HealthDeclarationPage = () => {
 
   const [isArtist, setIsArtist] = useState(false);
   const [policyAcknowledged, setPolicyAcknowledged] = useState(!includePolicy);
+  const [langSupport, setLangSupport] = useState({ hasHe: true, hasEn: true });
+  const [langDenied, setLangDenied] = useState<'he' | 'en' | null>(null);
 
   // Token validation state
   const [tokenChecked, setTokenChecked] = useState(false);
@@ -87,6 +95,12 @@ const HealthDeclarationPage = () => {
 
     validate();
   }, [token, urlClientId, isPreview]);
+
+  useEffect(() => {
+    if (!langDenied) return;
+    const t = setTimeout(() => setLangDenied(null), 2500);
+    return () => clearTimeout(t);
+  }, [langDenied]);
 
   const requestPushSubscription = async (clientId: string) => {
     try {
@@ -231,7 +245,39 @@ const HealthDeclarationPage = () => {
 
   return (
     <div className="relative">
-      <LangToggle />
+      <LangToggle
+        hasHe={langSupport.hasHe}
+        hasEn={langSupport.hasEn}
+        onBlock={(blockedLang) => setLangDenied(blockedLang)}
+      />
+      {langDenied && (
+        <div className="fixed inset-0 z-[400] flex items-center justify-center px-6 pointer-events-none">
+          <div
+            className="pointer-events-auto max-w-xs w-full rounded-2xl px-6 py-5 shadow-2xl flex flex-col gap-3"
+            style={{ background: 'rgba(255,255,255,0.97)', border: '1.5px solid #D4AF37', backdropFilter: 'blur(12px)' }}
+            dir={lang === 'he' ? 'rtl' : 'ltr'}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-lg">⚠️</span>
+              <span className="text-sm font-semibold" style={{ color: '#B8860B' }}>
+                {lang === 'he'
+                  ? 'השפה האנגלית אינה זמינה עבור מטפל זה'
+                  : 'Hebrew is not available for this artist'}
+              </span>
+            </div>
+            <p className="text-xs" style={{ color: '#6b4a4a' }}>
+              {lang === 'he' ? 'ממשיכים בעברית.' : 'Staying in English.'}
+            </p>
+            <button
+              onClick={() => setLangDenied(null)}
+              className="self-end px-4 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', color: '#fff' }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
       <HealthDeclaration
         clientName={clientName}
         clientPhone={clientPhone}
@@ -242,6 +288,7 @@ const HealthDeclarationPage = () => {
         appointmentDate={appointmentDate}
         appointmentTime={appointmentTime}
         artistId={artistId}
+        onLangSupportReady={(hasHe, hasEn) => setLangSupport({ hasHe, hasEn })}
       />
 
       {(isArtist || isPreview) && (
