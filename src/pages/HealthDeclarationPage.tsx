@@ -214,7 +214,11 @@ const HealthDeclarationPage = () => {
     const showBanner = isArtist || isPreview;
     return (
       <div className="relative">
-        <LangToggle />
+        <LangToggle
+          hasHe={langSupport.hasHe}
+          hasEn={langSupport.hasEn}
+          onBlock={(blockedLang) => setLangDenied(blockedLang)}
+        />
         {showBanner && (
           <div className="fixed top-0 left-0 right-0 z-[120] flex items-center justify-between px-4 py-3 pointer-events-auto" style={{ background: 'linear-gradient(135deg, rgba(216,180,180,0.95), rgba(201,160,160,0.95))', boxShadow: '0 2px 12px rgba(216,180,180,0.4)', backdropFilter: 'blur(12px)' }}>
             <button

@@ -607,6 +607,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     await db.from('appointments').update({ status: 'completed' }).eq('id', apt.id);
 
     // Sync treatment_date to client profile so recovery journey + push notifications start
+    let resolvedClientId: string | null = apt.clientId ?? null;
     if (apt.clientId) {
       await supabase.from('clients').update({ treatment_date: apt.date }).eq('id', apt.clientId);
     } else {
@@ -619,12 +620,103 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
         .limit(1)
         .maybeSingle();
       if (matched) {
+        resolvedClientId = matched.id;
         await supabase.from('clients').update({ treatment_date: apt.date }).eq('id', matched.id);
       }
     }
 
+    // Send Day 0 push notification immediately upon treatment completion
+    if (resolvedClientId) {
+      sendDay0Notification(resolvedClientId, apt.clientName).catch(err =>
+        console.warn('[Day0Push] Failed to send Day 0 notification:', err)
+      );
+    }
+
     toast({ title: isHe ? `הטיפול של ${apt.clientName} הושלם! מסלול החלמה הופעל אוטומטית 🎉` : `${apt.clientName}'s treatment completed! Healing journey activated 🎉` });
     onTreatmentCompleted?.({ ...apt, status: 'completed' });
+  };
+
+  const sendDay0Notification = async (clientId: string, clientName: string) => {
+    // Fetch client push opt-in status and language preference
+    const { data: client } = await supabase
+      .from('clients')
+      .select('push_opted_in, preferred_lang, treatment_type')
+      .eq('id', clientId)
+      .maybeSingle();
+
+    if (!client?.push_opted_in) return;
+
+    const lang: 'he' | 'en' = client.preferred_lang === 'en' ? 'en' : 'he';
+
+    // Resolve Day 0 message from artist message settings
+    let messageText: string | null = null;
+    if (artistProfileId) {
+      const { data: settingsRow } = await supabase
+        .from('artist_message_settings')
+        .select('settings')
+        .eq('artist_profile_id', artistProfileId)
+        .maybeSingle();
+
+      if (settingsRow?.settings) {
+        const settings = settingsRow.settings as { drafts?: Record<string, string>; days?: Record<string, number | string | null> };
+        const drafts = settings.drafts ?? {};
+        const days = settings.days ?? {};
+        const treatmentPrefix = getTreatmentPrefixLocal(client.treatment_type);
+
+        for (const [rawKey, dayValue] of Object.entries(days)) {
+          if (Number(dayValue) !== 0) continue;
+          const baseId = rawKey.replace(/__(he|en)$/i, '');
+          if (treatmentPrefix && !baseId.startsWith('custom_')) {
+            const keyPrefix = baseId.split('_')[0];
+            if (keyPrefix !== treatmentPrefix) continue;
+          }
+          const langDraft = drafts[`${baseId}__${lang}`];
+          if (langDraft?.trim()) { messageText = langDraft.trim(); break; }
+          const legacyDraft = drafts[baseId];
+          if (legacyDraft?.trim()) { messageText = legacyDraft.trim(); break; }
+        }
+      }
+    }
+
+    // Fallback default Day 0 message if artist has no custom one
+    if (!messageText) {
+      messageText = lang === 'en'
+        ? `Hi ${clientName}! Your treatment is complete 🎉 Your healing journey starts now. Check the app for Day 0 care instructions.`
+        : `היי ${clientName}! הטיפול הסתיים 🎉 מסלול ההחלמה שלך מתחיל עכשיו. בדקי את האפליקציה להוראות טיפול ליום 0.`;
+    }
+
+    // Fetch push subscriptions for this client
+    const { data: subs } = await supabase
+      .from('push_subscriptions')
+      .select('endpoint, p256dh, auth_key')
+      .eq('client_id', clientId);
+
+    if (!subs || subs.length === 0) return;
+
+    const label = lang === 'en' ? 'Day 0 ✨' : 'יום 0 ✨';
+
+    for (const sub of subs) {
+      await supabase.functions.invoke('send-push', {
+        body: {
+          subscription: {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth_key },
+          },
+          title: label,
+          body: messageText.substring(0, 200),
+          url: `/c/${clientId}`,
+          day: 0,
+        },
+      });
+    }
+  };
+
+  const getTreatmentPrefixLocal = (treatmentType: string | null): string | null => {
+    if (!treatmentType) return null;
+    const n = treatmentType.trim().toLowerCase();
+    if (n.includes('גבות') || n.includes('brow')) return 'brows';
+    if (n.includes('שפתיי') || n.includes('lip')) return 'lips';
+    return null;
   };
 
   const deleteAppointment = async (aptId: string) => {

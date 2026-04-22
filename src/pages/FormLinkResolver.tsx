@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useI18n } from '@/lib/i18n';
 
 const FormLinkResolver = () => {
   const { code } = useParams<{ code: string }>();
@@ -8,6 +9,7 @@ const FormLinkResolver = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const { lang } = useI18n();
 
   useEffect(() => {
     if (!code) {
@@ -68,13 +70,16 @@ const FormLinkResolver = () => {
   }, [code, navigate, searchParams]);
 
   if (completed) {
+    const isHe = lang === 'he';
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6 text-center" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-background p-6 text-center" dir={isHe ? 'rtl' : 'ltr'}>
         <div className="max-w-sm mx-auto space-y-4">
           <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)' }}>
             <span className="text-2xl">✅</span>
           </div>
-          <h2 className="text-lg font-bold text-foreground">הטופס כבר מולא. לא ניתן למלא שוב.</h2>
+          <h2 className="text-lg font-bold text-foreground">
+            {isHe ? 'הטופס כבר מולא. לא ניתן למלא שוב.' : 'Form already submitted. Cannot be filled again.'}
+          </h2>
         </div>
       </div>
     );

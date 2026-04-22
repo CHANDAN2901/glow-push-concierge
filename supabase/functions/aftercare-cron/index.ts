@@ -125,6 +125,7 @@ serve(async (req: Request) => {
 
     if (tplErr) throw tplErr;
 
+    // Day 0 is sent immediately on treatment completion (from SmartCalendar), so exclude it here
     const fallbackDayMessages = (templates ?? []).map((t: { template_key: string; default_text: string; label: string }) => {
       const match = t.template_key.match(/aftercare_day_(\d+)/);
       return { day: match ? parseInt(match[1]) : 0, text: t.default_text, label: t.label };
@@ -177,6 +178,9 @@ serve(async (req: Request) => {
       const treatmentDate = new Date(client.treatment_date);
       treatmentDate.setHours(0, 0, 0, 0);
       const daysSince = Math.floor((today.getTime() - treatmentDate.getTime()) / (1000 * 60 * 60 * 24));
+
+      // Day 0 is handled immediately on treatment completion — skip it here
+      if (daysSince === 0) continue;
 
       const clientLang: Lang = client.preferred_lang === 'en' ? 'en' : 'he';
       const treatmentPrefix = getTreatmentPrefix(client.treatment_type);
