@@ -632,19 +632,38 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
       );
     }
 
+    // Always notify the artist instantly (local + server push) so they get immediate feedback
+    try {
+      const { sendAuthNotification } = await import('@/lib/sendServerPushNotification');
+      await sendAuthNotification({
+        type: 'login_success',
+        title: isHe ? '✅ טיפול הושלם' : '✅ Treatment completed',
+        body: isHe
+          ? `${apt.clientName} — מסע ההחלמה הופעל`
+          : `${apt.clientName} — recovery journey started`,
+      });
+    } catch (err) {
+      console.warn('[ArtistPush] Failed to notify artist:', err);
+    }
+
     toast({ title: isHe ? `הטיפול של ${apt.clientName} הושלם! מסלול החלמה הופעל אוטומטית 🎉` : `${apt.clientName}'s treatment completed! Healing journey activated 🎉` });
     onTreatmentCompleted?.({ ...apt, status: 'completed' });
   };
 
   const sendDay0Notification = async (clientId: string, clientName: string) => {
-    // Fetch client push opt-in status and language preference
+    console.log('[Day0Push] Starting Day 0 notification for client:', clientId, clientName);
+
+    // Fetch client preferences (do not gate on push_opted_in — if subscriptions exist, deliver)
     const { data: client } = await supabase
       .from('clients')
       .select('push_opted_in, preferred_lang, treatment_type')
       .eq('id', clientId)
       .maybeSingle();
 
-    if (!client?.push_opted_in) return;
+    if (!client) {
+      console.warn('[Day0Push] Client not found:', clientId);
+      return;
+    }
 
     const lang: 'he' | 'en' = client.preferred_lang === 'en' ? 'en' : 'he';
 
@@ -686,17 +705,26 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     }
 
     // Fetch push subscriptions for this client
-    const { data: subs } = await supabase
+    const { data: subs, error: subsErr } = await supabase
       .from('push_subscriptions')
       .select('endpoint, p256dh, auth_key')
       .eq('client_id', clientId);
 
-    if (!subs || subs.length === 0) return;
+    if (subsErr) {
+      console.warn('[Day0Push] Failed to fetch subscriptions:', subsErr.message);
+      return;
+    }
 
+    if (!subs || subs.length === 0) {
+      console.log(`[Day0Push] No push subscriptions for client ${clientName} — they have not opened their portal & enabled notifications yet. Skipping push delivery.`);
+      return;
+    }
+
+    console.log(`[Day0Push] Sending Day 0 push to ${subs.length} subscription(s) for ${clientName}`);
     const label = lang === 'en' ? 'Day 0 ✨' : 'יום 0 ✨';
 
     for (const sub of subs) {
-      await supabase.functions.invoke('send-push', {
+      const { error: pushErr } = await supabase.functions.invoke('send-push', {
         body: {
           subscription: {
             endpoint: sub.endpoint,
@@ -708,6 +736,8 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
           day: 0,
         },
       });
+      if (pushErr) console.warn('[Day0Push] send-push error:', pushErr.message);
+      else console.log('[Day0Push] ✅ Push delivered');
     }
   };
 
