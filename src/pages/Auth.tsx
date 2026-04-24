@@ -39,6 +39,42 @@ const Auth = () => {
   const [studioName, setStudioName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState('');
+  const [verificationExisting, setVerificationExisting] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  // Resend cooldown ticker
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setInterval(() => setResendCooldown(c => Math.max(0, c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [resendCooldown]);
+
+  const handleResendVerification = async () => {
+    if (!verificationEmail || resendCooldown > 0) return;
+    setResendLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: verificationEmail,
+      options: { emailRedirectTo: window.location.origin },
+    });
+    setResendLoading(false);
+    if (error) {
+      toast({
+        title: lang === 'en' ? 'Could not resend' : 'לא ניתן לשלוח שוב',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      setResendCooldown(60);
+      toast({
+        title: lang === 'en' ? 'Verification email sent!' : 'מייל אימות נשלח!',
+        description: lang === 'en' ? 'Please check your inbox.' : 'אנא בדקי את תיבת הדואר.',
+      });
+    }
+  };
 
   // Promo / referral state
   const [promoCode, setPromoCode] = useState('');
