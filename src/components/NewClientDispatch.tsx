@@ -69,11 +69,18 @@ const NewClientDispatch = ({
 
   const treatmentOptions = TREATMENT_OPTIONS;
 
-  const isDuplicate = phone.trim().length >= 7 && sentPhones.some(p => {
+  // Compare last 9 digits (Israeli local mobile length) for exact tail match
+  // to avoid false positives across different real phone numbers.
+  const isDuplicate = (() => {
     const norm = normalizePhone(phone);
-    const sentNorm = normalizePhone(p);
-    return norm.length >= 7 && sentNorm.length >= 7 && (sentNorm.endsWith(norm) || norm.endsWith(sentNorm));
-  });
+    if (norm.length < 9) return false;
+    const tail = norm.slice(-9);
+    return sentPhones.some(p => {
+      const sentNorm = normalizePhone(p);
+      if (sentNorm.length < 9) return false;
+      return sentNorm.slice(-9) === tail;
+    });
+  })();
 
   /** Insert client to DB and return the new ID */
   const ensureClientInDb = async (): Promise<string | undefined> => {
