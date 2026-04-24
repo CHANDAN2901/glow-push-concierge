@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, Building2, ArrowRight, Gift, Check, X, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Building2, ArrowRight, Gift, Check, X, Loader2, Eye, EyeOff, MailCheck, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import glowpushLogo from '@/assets/glowpush-logo.png';
 import PostSignupInstallPrompt from '@/components/PostSignupInstallPrompt';
