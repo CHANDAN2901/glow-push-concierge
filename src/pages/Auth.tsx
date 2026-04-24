@@ -234,6 +234,18 @@ const Auth = () => {
           throw error;
         }
 
+        // Detect "user already exists but not yet confirmed":
+        // Supabase returns a user with empty identities[] and no session in this case.
+        const identities = (signUpData?.user as any)?.identities;
+        const alreadyExists = !!signUpData?.user && Array.isArray(identities) && identities.length === 0 && !signUpData?.session;
+
+        if (alreadyExists) {
+          setVerificationEmail(email);
+          setVerificationExisting(true);
+          setVerificationSent(true);
+          return;
+        }
+
         // 🔔 Push notification on SIGNUP SUCCESS
         void sendAuthNotification({
           type: 'signup_success',
@@ -241,9 +253,19 @@ const Auth = () => {
           body: lang === 'en' ? 'Your account has been created successfully!' : 'החשבון שלך נוצר בהצלחה!',
         });
 
-        // Referral/promo benefits are now applied server-side by the handle_new_user
-        // trigger which reads referral_code from user metadata. No client-side RPC needed.
+        // If no session was returned, email confirmation is required → show verification screen
+        if (!signUpData?.session) {
+          setVerificationEmail(email);
+          setVerificationExisting(false);
+          setVerificationSent(true);
+          // Signal dashboard to show install prompt + reset onboarding for new user
+          sessionStorage.setItem('gp-show-install-prompt', '1');
+          localStorage.removeItem('gp-onboarding-done');
+          localStorage.removeItem('gp-welcome-tour-done');
+          return;
+        }
 
+        // Session exists (auto-confirm enabled) — fall through to existing toast/redirect
         const hasPromo = promoStatus === 'valid_referral' || promoStatus === 'valid_academy';
         toast({
           title: hasPromo
@@ -254,7 +276,6 @@ const Auth = () => {
             : (lang === 'en' ? 'We sent a confirmation link to your email.' : 'שלחנו לך קישור אישור למייל.'),
         });
 
-        // Signal dashboard to show install prompt + reset onboarding for new user
         sessionStorage.setItem('gp-show-install-prompt', '1');
         localStorage.removeItem('gp-onboarding-done');
         localStorage.removeItem('gp-welcome-tour-done');
