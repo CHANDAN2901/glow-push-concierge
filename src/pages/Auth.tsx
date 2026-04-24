@@ -22,16 +22,21 @@ const Auth = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAdmin, roleLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup');
 
-  // Redirect already-logged-in users away from auth page
+  // Redirect already-logged-in users away from auth page (admins → /super-admin, artists → /artist)
   useEffect(() => {
-    if (!authLoading && user) {
-      const from = (location.state as any)?.from?.pathname || '/artist';
-      navigate(from, { replace: true });
+    if (!authLoading && !roleLoading && user) {
+      const requested = (location.state as any)?.from?.pathname;
+      const fallback = isAdmin ? '/super-admin' : '/artist';
+      // Don't honor a requested artist route for admins, or vice versa
+      let dest = requested || fallback;
+      if (isAdmin && dest === '/artist') dest = '/super-admin';
+      if (!isAdmin && dest === '/super-admin') dest = '/artist';
+      navigate(dest, { replace: true });
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, isAdmin, roleLoading]);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
