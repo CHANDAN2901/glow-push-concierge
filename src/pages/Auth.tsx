@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, Building2, ArrowRight, Gift, Check, X, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Building2, ArrowRight, Gift, Check, X, Loader2, Eye, EyeOff, MailCheck, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import glowpushLogo from '@/assets/glowpush-logo.png';
 import PostSignupInstallPrompt from '@/components/PostSignupInstallPrompt';
@@ -39,6 +39,42 @@ const Auth = () => {
   const [studioName, setStudioName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState('');
+  const [verificationExisting, setVerificationExisting] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  // Resend cooldown ticker
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setInterval(() => setResendCooldown(c => Math.max(0, c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [resendCooldown]);
+
+  const handleResendVerification = async () => {
+    if (!verificationEmail || resendCooldown > 0) return;
+    setResendLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: verificationEmail,
+      options: { emailRedirectTo: window.location.origin },
+    });
+    setResendLoading(false);
+    if (error) {
+      toast({
+        title: lang === 'en' ? 'Could not resend' : 'לא ניתן לשלוח שוב',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      setResendCooldown(60);
+      toast({
+        title: lang === 'en' ? 'Verification email sent!' : 'מייל אימות נשלח!',
+        description: lang === 'en' ? 'Please check your inbox.' : 'אנא בדקי את תיבת הדואר.',
+      });
+    }
+  };
 
   // Promo / referral state
   const [promoCode, setPromoCode] = useState('');
@@ -198,6 +234,18 @@ const Auth = () => {
           throw error;
         }
 
+        // Detect "user already exists but not yet confirmed":
+        // Supabase returns a user with empty identities[] and no session in this case.
+        const identities = (signUpData?.user as any)?.identities;
+        const alreadyExists = !!signUpData?.user && Array.isArray(identities) && identities.length === 0 && !signUpData?.session;
+
+        if (alreadyExists) {
+          setVerificationEmail(email);
+          setVerificationExisting(true);
+          setVerificationSent(true);
+          return;
+        }
+
         // 🔔 Push notification on SIGNUP SUCCESS
         void sendAuthNotification({
           type: 'signup_success',
@@ -205,9 +253,19 @@ const Auth = () => {
           body: lang === 'en' ? 'Your account has been created successfully!' : 'החשבון שלך נוצר בהצלחה!',
         });
 
-        // Referral/promo benefits are now applied server-side by the handle_new_user
-        // trigger which reads referral_code from user metadata. No client-side RPC needed.
+        // If no session was returned, email confirmation is required → show verification screen
+        if (!signUpData?.session) {
+          setVerificationEmail(email);
+          setVerificationExisting(false);
+          setVerificationSent(true);
+          // Signal dashboard to show install prompt + reset onboarding for new user
+          sessionStorage.setItem('gp-show-install-prompt', '1');
+          localStorage.removeItem('gp-onboarding-done');
+          localStorage.removeItem('gp-welcome-tour-done');
+          return;
+        }
 
+        // Session exists (auto-confirm enabled) — fall through to existing toast/redirect
         const hasPromo = promoStatus === 'valid_referral' || promoStatus === 'valid_academy';
         toast({
           title: hasPromo
@@ -218,7 +276,6 @@ const Auth = () => {
             : (lang === 'en' ? 'We sent a confirmation link to your email.' : 'שלחנו לך קישור אישור למייל.'),
         });
 
-        // Signal dashboard to show install prompt + reset onboarding for new user
         sessionStorage.setItem('gp-show-install-prompt', '1');
         localStorage.removeItem('gp-onboarding-done');
         localStorage.removeItem('gp-welcome-tour-done');
@@ -297,6 +354,105 @@ const Auth = () => {
         return null;
     }
   };
+
+  if (verificationSent) {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center px-4"
+        style={{ background: 'linear-gradient(145deg, #fcf9f8 0%, #f6f3f2 40%, #f0edec 100%)' }}
+      >
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="mx-auto mb-6 flex items-center justify-center">
+              <img
+                src={glowpushLogo}
+                alt="Glow Push"
+                className="h-16 object-contain drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]"
+              />
+            </div>
+          </div>
+
+          <div
+            className="rounded-3xl p-8 text-center"
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid hsl(38 40% 82%)',
+              boxShadow: '0 8px 40px -12px hsla(38, 55%, 62%, 0.12)',
+            }}
+          >
+            <div
+              className="w-16 h-16 mx-auto mb-5 rounded-full flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, hsl(38 55% 62% / 0.18), hsl(40 50% 72% / 0.18))' }}
+            >
+              <MailCheck className="w-8 h-8" style={{ color: '#B8860B' }} />
+            </div>
+
+            <h2 className="text-xl font-serif mb-2" style={{ fontWeight: 400, color: 'hsl(0 0% 15%)' }}>
+              {verificationExisting
+                ? (lang === 'en' ? 'Email already registered' : 'האימייל כבר רשום')
+                : (lang === 'en' ? 'Check your email' : 'בדקי את המייל שלך')}
+            </h2>
+
+            <p className="text-sm mb-1" style={{ color: 'hsl(38 40% 45%)', fontWeight: 300 }}>
+              {verificationExisting
+                ? (lang === 'en'
+                    ? 'This email is already registered but not yet verified.'
+                    : 'האימייל כבר רשום אך טרם אומת.')
+                : (lang === 'en'
+                    ? 'We sent a verification link to:'
+                    : 'שלחנו קישור אימות אל:')}
+            </p>
+            <p className="text-sm font-medium mb-5" style={{ color: 'hsl(0 0% 15%)' }}>
+              {verificationEmail}
+            </p>
+            <p className="text-xs mb-6" style={{ color: 'hsl(38 40% 45%)', fontWeight: 300 }}>
+              {lang === 'en'
+                ? 'Click the link in the email to activate your account. Be sure to check your spam folder.'
+                : 'לחצי על הקישור במייל כדי להפעיל את חשבונך. בדקי גם בתיקיית הספאם.'}
+            </p>
+
+            <Button
+              type="button"
+              onClick={handleResendVerification}
+              disabled={resendLoading || resendCooldown > 0}
+              className="w-full h-12 rounded-2xl text-sm font-serif tracking-wide border-none mb-3"
+              style={{
+                background: 'linear-gradient(135deg, hsl(38 55% 62%), hsl(40 50% 72%))',
+                color: '#4a3636',
+                fontWeight: 400,
+                letterSpacing: '0.04em',
+                boxShadow: '0 4px 20px -4px hsl(38 55% 62% / 0.4)',
+              }}
+            >
+              {resendLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  {resendCooldown > 0
+                    ? (lang === 'en' ? `Resend in ${resendCooldown}s` : `שלחי שוב בעוד ${resendCooldown} שניות`)
+                    : (lang === 'en' ? 'Resend verification email' : 'שלחי שוב מייל אימות')}
+                </>
+              )}
+            </Button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setVerificationSent(false);
+                setVerificationExisting(false);
+                setIsLogin(true);
+              }}
+              className="text-sm font-serif transition-colors"
+              style={{ color: 'hsl(38 40% 45%)', fontWeight: 400 }}
+            >
+              {lang === 'en' ? 'Back to sign in' : 'חזרה להתחברות'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
