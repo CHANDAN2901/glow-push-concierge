@@ -25,12 +25,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-const RISK_OPTIONS = [
-  { value: 'red', label: '🔴 קריטי (אדום)', color: '#DC2626' },
-  { value: 'yellow', label: '🟡 דורש תשומת לב (צהוב)', color: '#D97706' },
-  { value: 'green', label: '🟢 תקין (ירוק)', color: '#16A34A' },
-];
-
 const ICON_OPTIONS = ['🤰', '⚠️', '🏥', '💊', '🩸', '💉', '🧴', '🛡️', '🧬', '👁️', '❓', '🫀', '🦷', '🧠', '💗'];
 
 const DEFAULT_QUESTION_IDS = [
@@ -46,6 +40,7 @@ const DEFAULT_QUESTION_IDS = [
 
 export default function HealthQuestionsEditor() {
   const { lang } = useI18n();
+  const isHe = lang === 'he';
   const { toast } = useToast();
   const { questions: dbQuestions, loading, refetch } = useAllHealthQuestions();
   const [questions, setQuestions] = useState<HealthQuestion[]>([]);
@@ -64,6 +59,12 @@ export default function HealthQuestionsEditor() {
   useEffect(() => {
     setQuestions(dbQuestions);
   }, [dbQuestions]);
+
+  const riskOptions = [
+    { value: 'red', label: isHe ? '🔴 קריטי (אדום)' : '🔴 Critical (Red)', color: '#DC2626' },
+    { value: 'yellow', label: isHe ? '🟡 דורש תשומת לב (צהוב)' : '🟡 Needs Attention (Yellow)', color: '#D97706' },
+    { value: 'green', label: isHe ? '🟢 תקין (ירוק)' : '🟢 Clear (Green)', color: '#16A34A' },
+  ] as const;
 
   const addQuestion = async () => {
     if (!newQuestionHe.trim()) return;
@@ -90,9 +91,13 @@ export default function HealthQuestionsEditor() {
       setNewRisk('yellow');
       setNewIcon('❓');
       setNewHasDetail(false);
-      toast({ title: 'השאלה נוספה בהצלחה ✅' });
-    } catch (err: any) {
-      toast({ title: 'שגיאה בהוספת שאלה', description: err.message, variant: 'destructive' });
+      toast({ title: isHe ? 'השאלה נוספה בהצלחה ✅' : 'Question added successfully ✅' });
+    } catch (err: unknown) {
+      toast({
+        title: isHe ? 'שגיאה בהוספת שאלה' : 'Error adding question',
+        description: err instanceof Error ? err.message : undefined,
+        variant: 'destructive',
+      });
     } finally {
       setAdding(false);
     }
@@ -106,8 +111,12 @@ export default function HealthQuestionsEditor() {
         .update(updates)
         .eq('id', id);
       if (error) throw error;
-    } catch (err: any) {
-      toast({ title: 'שגיאה בעדכון', description: err.message, variant: 'destructive' });
+    } catch (err: unknown) {
+      toast({
+        title: isHe ? 'שגיאה בעדכון' : 'Update failed',
+        description: err instanceof Error ? err.message : undefined,
+        variant: 'destructive',
+      });
       refetch();
     }
   };
@@ -133,8 +142,8 @@ export default function HealthQuestionsEditor() {
       
       // Show toast with undo option
       toast({
-        title: 'השאלה נמחקה',
-        description: 'לחצי על \'ביטול\' לשחזור',
+        title: isHe ? 'השאלה נמחקה' : 'Question deleted',
+        description: isHe ? 'לחצי על \'ביטול\' לשחזור' : 'Click Undo to restore it',
         action: (
           <Button
             variant="outline"
@@ -143,13 +152,17 @@ export default function HealthQuestionsEditor() {
             onClick={() => restoreQuestion(deletedQuestion)}
           >
             <Undo2 className="w-3 h-3" />
-            ביטול
+            {isHe ? 'ביטול' : 'Undo'}
           </Button>
         ),
         duration: 8000,
       });
-    } catch (err: any) {
-      toast({ title: 'שגיאה במחיקה', description: err.message, variant: 'destructive' });
+    } catch (err: unknown) {
+      toast({
+        title: isHe ? 'שגיאה במחיקה' : 'Delete failed',
+        description: err instanceof Error ? err.message : undefined,
+        variant: 'destructive',
+      });
       refetch();
     }
   };
@@ -172,9 +185,13 @@ export default function HealthQuestionsEditor() {
         });
       if (error) throw error;
       await refetch();
-      toast({ title: 'השאלה שוחזרה בהצלחה ✅' });
-    } catch (err: any) {
-      toast({ title: 'שגיאה בשחזור', description: err.message, variant: 'destructive' });
+      toast({ title: isHe ? 'השאלה שוחזרה בהצלחה ✅' : 'Question restored successfully ✅' });
+    } catch (err: unknown) {
+      toast({
+        title: isHe ? 'שגיאה בשחזור' : 'Restore failed',
+        description: err instanceof Error ? err.message : undefined,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -190,26 +207,18 @@ export default function HealthQuestionsEditor() {
           .eq('id', id);
       }
       await refetch();
-      toast({ title: '8 שאלות ברירת המחדל שוחזרו ✅', description: 'כל שאלות ברירת המחדל מסומנות כפעילות.' });
-    } catch (err: any) {
-      toast({ title: 'שגיאה בשחזור ברירת מחדל', description: err.message, variant: 'destructive' });
+      toast({
+        title: isHe ? '8 שאלות ברירת המחדל שוחזרו ✅' : '8 default questions restored ✅',
+        description: isHe ? 'כל שאלות ברירת המחדל מסומנות כפעילות.' : 'All default questions are active now.',
+      });
+    } catch (err: unknown) {
+      toast({
+        title: isHe ? 'שגיאה בשחזור ברירת מחדל' : 'Default restore failed',
+        description: err instanceof Error ? err.message : undefined,
+        variant: 'destructive',
+      });
     } finally {
       setRestoring(false);
-    }
-  };
-
-  const deleteQuestion = async (id: string) => {
-    setQuestions(prev => prev.filter(q => q.id !== id));
-    try {
-      const { error } = await supabase
-        .from('health_questions')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-      toast({ title: 'השאלה נמחקה ✅' });
-    } catch (err: any) {
-      toast({ title: 'שגיאה במחיקה', description: err.message, variant: 'destructive' });
-      refetch();
     }
   };
 
@@ -221,7 +230,10 @@ export default function HealthQuestionsEditor() {
     setSaving(true);
     try {
       await new Promise(r => setTimeout(r, 600));
-      toast({ title: 'כל השינויים נשמרו בהצלחה ✅', description: 'השאלות מעודכנות ומסונכרנות עם הטופס שהלקוחות רואות.' });
+      toast({
+        title: isHe ? 'כל השינויים נשמרו בהצלחה ✅' : 'All changes saved successfully ✅',
+        description: isHe ? 'השאלות מעודכנות ומסונכרנות עם הטופס שהלקוחות רואות.' : 'Questions are updated and synced with the form clients see.',
+      });
     } finally {
       setSaving(false);
     }
@@ -241,10 +253,12 @@ export default function HealthQuestionsEditor() {
       <div className="rounded-xl p-6 border border-border/50 bg-card">
         <div className="flex items-center gap-2 mb-2">
           <AlertTriangle className="w-5 h-5 text-accent" />
-          <h2 className="font-serif font-semibold text-lg text-foreground">ניהול שאלות הצהרת בריאות</h2>
+          <h2 className="font-serif font-semibold text-lg text-foreground">{isHe ? 'ניהול שאלות הצהרת בריאות' : 'Manage Health Declaration Questions'}</h2>
         </div>
         <p className="text-xs text-muted-foreground">
-          הוסיפי, ערכי או מחקי שאלות מהטופס. כל שינוי ישפיע בזמן אמת על הטופס שהלקוחות רואות.
+          {isHe
+            ? 'הוסיפי, ערכי או מחקי שאלות מהטופס. כל שינוי ישפיע בזמן אמת על הטופס שהלקוחות רואות.'
+            : 'Add, edit, or delete questions from the form. Every change affects the form clients see in real time.'}
         </p>
       </div>
 
@@ -252,31 +266,31 @@ export default function HealthQuestionsEditor() {
       <div className="rounded-xl p-5 space-y-3 border-2 border-dashed border-accent/40 bg-accent/5">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Plus className="w-4 h-4 text-accent" />
-          הוספת שאלה חדשה
+          {isHe ? 'הוספת שאלה חדשה' : 'Add New Question'}
         </h3>
 
         <Input
           value={newQuestionHe}
           onChange={(e) => setNewQuestionHe(e.target.value)}
-          placeholder="שאלה בעברית..."
+          placeholder={isHe ? 'שאלה בעברית...' : 'Question in Hebrew...'}
           dir="rtl"
           className="border-accent/20"
         />
         <Input
           value={newQuestionEn}
           onChange={(e) => setNewQuestionEn(e.target.value)}
-          placeholder="Question in English (optional)..."
+          placeholder={isHe ? 'שאלה באנגלית (לא חובה)...' : 'Question in English (optional)...'}
           dir="ltr"
           className="border-accent/20"
         />
 
         <div className="flex items-center gap-3 flex-wrap relative z-[100]">
-          <Select value={newRisk} onValueChange={(v) => setNewRisk(v as any)}>
+          <Select value={newRisk} onValueChange={(v) => setNewRisk(v as 'red' | 'yellow' | 'green')}>
             <SelectTrigger className="w-52 text-xs h-9 border-accent/30 bg-background">
-              <SelectValue placeholder="רמת דחיפות" />
+              <SelectValue placeholder={isHe ? 'רמת דחיפות' : 'Priority level'} />
             </SelectTrigger>
             <SelectContent className="z-[200] bg-popover border border-border shadow-xl">
-              {RISK_OPTIONS.map(r => (
+              {riskOptions.map(r => (
                 <SelectItem key={r.value} value={r.value} className="text-xs cursor-pointer">
                   {r.label}
                 </SelectItem>
@@ -297,7 +311,7 @@ export default function HealthQuestionsEditor() {
 
           <label className="flex items-center gap-1.5 text-xs cursor-pointer">
             <Checkbox checked={newHasDetail} onCheckedChange={(c) => setNewHasDetail(c === true)} />
-            שדה פירוט
+            {isHe ? 'שדה פירוט' : 'Detail field'}
           </label>
         </div>
 
@@ -308,7 +322,7 @@ export default function HealthQuestionsEditor() {
           className="h-10"
         >
           {adding ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : <Plus className="w-4 h-4 ml-2" />}
-          הוספת שאלה
+          {isHe ? 'הוספת שאלה' : 'Add Question'}
         </Button>
       </div>
 
@@ -316,22 +330,22 @@ export default function HealthQuestionsEditor() {
       <div className="rounded-xl border border-border/50 overflow-hidden bg-card">
         <div className="px-5 py-4 flex items-center gap-2">
           <List className="w-5 h-5 text-accent" />
-          <h3 className="font-serif font-semibold text-base text-foreground">השאלון הקיים שלך</h3>
+          <h3 className="font-serif font-semibold text-base text-foreground">{isHe ? 'השאלון הקיים שלך' : 'Your Current Questionnaire'}</h3>
           <span className="mr-auto text-xs text-muted-foreground rounded-full px-2 py-0.5 bg-background/60">
-            {questions.length} שאלות
+            {questions.length} {isHe ? 'שאלות' : 'questions'}
           </span>
         </div>
 
         {questions.length === 0 ? (
           <div className="px-5 pb-6 text-center">
-            <p className="text-sm text-muted-foreground py-8">אין שאלות עדיין. הוסיפי שאלה חדשה למעלה.</p>
+            <p className="text-sm text-muted-foreground py-8">{isHe ? 'אין שאלות עדיין. הוסיפי שאלה חדשה למעלה.' : 'No questions yet. Add a new question above.'}</p>
           </div>
         ) : (
           <div className="bg-card mx-3 mb-3 rounded-xl overflow-hidden border border-border/30">
             {questions.map((q, idx) => {
-              const riskOpt = RISK_OPTIONS.find(r => r.value === q.risk_level);
+              const riskOpt = riskOptions.find(r => r.value === q.risk_level);
               const isEditing = editingId === q.id;
-              const questionType = q.has_detail_field ? 'טקסט חופשי' : 'כן / לא';
+              const questionType = q.has_detail_field ? (isHe ? 'טקסט חופשי' : 'Free text') : (isHe ? 'כן / לא' : 'Yes / No');
               return (
                 <div key={q.id}>
                   {idx > 0 && <div className="h-px bg-border/50 mx-4" />}
@@ -350,18 +364,18 @@ export default function HealthQuestionsEditor() {
                           onChange={(e) => updateQuestion(q.id, { question_en: e.target.value })}
                           className="text-xs border-accent/30"
                           dir="ltr"
-                          placeholder="English translation (optional)"
+                          placeholder={isHe ? 'תרגום לאנגלית (לא חובה)' : 'English translation (optional)'}
                         />
                         <div className="flex items-center gap-3 flex-wrap relative z-[100]">
                           <Select
                             value={q.risk_level}
-                            onValueChange={(v) => updateQuestion(q.id, { risk_level: v as any })}
+                            onValueChange={(v) => updateQuestion(q.id, { risk_level: v as HealthQuestion['risk_level'] })}
                           >
                             <SelectTrigger className="w-52 text-xs h-8 border-accent/30 bg-background">
-                              <SelectValue placeholder="רמת דחיפות" />
+                              <SelectValue placeholder={isHe ? 'רמת דחיפות' : 'Priority level'} />
                             </SelectTrigger>
                             <SelectContent className="z-[200] bg-popover border border-border shadow-xl">
-                              {RISK_OPTIONS.map(r => (
+                              {riskOptions.map(r => (
                                 <SelectItem key={r.value} value={r.value} className="text-xs cursor-pointer">
                                   {r.label}
                                 </SelectItem>
@@ -388,21 +402,21 @@ export default function HealthQuestionsEditor() {
                               checked={q.has_detail_field}
                               onCheckedChange={(c) => updateQuestion(q.id, { has_detail_field: c === true })}
                             />
-                            שדה פירוט
+                            {isHe ? 'שדה פירוט' : 'Detail field'}
                           </label>
                           <label className="flex items-center gap-1.5 text-xs cursor-pointer">
                             <Checkbox
                               checked={q.is_active}
                               onCheckedChange={() => toggleActive(q.id, q.is_active)}
                             />
-                            פעיל
+                            {isHe ? 'פעיל' : 'Active'}
                           </label>
                         </div>
                         <button
                           onClick={() => setEditingId(null)}
                           className="text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
                         >
-                          ✓ סיום עריכה
+                          {isHe ? '✓ סיום עריכה' : '✓ Done Editing'}
                         </button>
                       </div>
                     ) : (
@@ -431,7 +445,7 @@ export default function HealthQuestionsEditor() {
                             </span>
                             {!q.is_active && (
                               <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">
-                                לא פעיל
+                                {isHe ? 'לא פעיל' : 'Inactive'}
                               </span>
                             )}
                           </div>
@@ -442,14 +456,14 @@ export default function HealthQuestionsEditor() {
                           <button
                             onClick={() => setEditingId(q.id)}
                             className="p-2 rounded-lg transition-all hover:bg-accent/10 active:scale-95 border border-transparent hover:border-accent/20"
-                            title="עריכה"
+                            title={isHe ? 'עריכה' : 'Edit'}
                           >
                             <Pencil className="w-3.5 h-3.5 text-accent" />
                           </button>
                           <button
                             onClick={() => confirmDelete(q)}
                             className="p-2 rounded-lg transition-all hover:bg-destructive/10 active:scale-95 border border-transparent hover:border-destructive/20"
-                            title="מחיקה"
+                            title={isHe ? 'מחיקה' : 'Delete'}
                           >
                             <Trash2 className="w-3.5 h-3.5 text-destructive" />
                           </button>
@@ -473,7 +487,7 @@ export default function HealthQuestionsEditor() {
           className="gap-2 border-accent/30 text-accent hover:bg-accent/10"
         >
           {restoring ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
-          שחזור שאלות ברירת מחדל
+          {isHe ? 'שחזור שאלות ברירת מחדל' : 'Restore Default Questions'}
         </Button>
       </div>
 
@@ -486,45 +500,47 @@ export default function HealthQuestionsEditor() {
           variant="gold"
         >
           {saving ? <Loader2 className="w-5 h-5 animate-spin ml-2" /> : <Save className="w-5 h-5 ml-2" />}
-          שמירת שינויים
+          {isHe ? 'שמירת שינויים' : 'Save Changes'}
         </Button>
-        <p className="text-xs text-muted-foreground text-center mt-2">השינויים נשמרים אוטומטית בכל עריכה</p>
+        <p className="text-xs text-muted-foreground text-center mt-2">{isHe ? 'השינויים נשמרים אוטומטית בכל עריכה' : 'Changes are saved automatically as you edit'}</p>
       </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <AlertDialogContent dir="rtl" className="rounded-2xl">
+        <AlertDialogContent dir={isHe ? 'rtl' : 'ltr'} className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>למחוק את השאלה?</AlertDialogTitle>
+            <AlertDialogTitle>{isHe ? 'למחוק את השאלה?' : 'Delete this question?'}</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteTarget?.question_he}
+              {lang === 'en' && deleteTarget?.question_en ? deleteTarget.question_en : deleteTarget?.question_he}
               <br />
-              <span className="text-xs mt-1 block">ניתן יהיה לשחזר באמצעות כפתור ׳ביטול׳ בהודעה שתופיע.</span>
+              <span className="text-xs mt-1 block">{isHe ? 'ניתן יהיה לשחזר באמצעות כפתור ׳ביטול׳ בהודעה שתופיע.' : 'You can restore it with the Undo button in the next message.'}</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row-reverse gap-2">
             <AlertDialogAction onClick={executeDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              מחיקה
+              {isHe ? 'מחיקה' : 'Delete'}
             </AlertDialogAction>
-            <AlertDialogCancel>ביטול</AlertDialogCancel>
+            <AlertDialogCancel>{isHe ? 'ביטול' : 'Cancel'}</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       {/* Restore Defaults Dialog */}
       <AlertDialog open={showRestoreDialog} onOpenChange={setShowRestoreDialog}>
-        <AlertDialogContent dir="rtl" className="rounded-2xl">
+        <AlertDialogContent dir={isHe ? 'rtl' : 'ltr'} className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>שחזור שאלות ברירת מחדל?</AlertDialogTitle>
+            <AlertDialogTitle>{isHe ? 'שחזור שאלות ברירת מחדל?' : 'Restore default questions?'}</AlertDialogTitle>
             <AlertDialogDescription>
-              8 שאלות ברירת המחדל שהוגדרו על ידי המערכת ישוחזרו כפעילות. שאלות מותאמות אישית שהוספת לא יימחקו.
+              {isHe
+                ? '8 שאלות ברירת המחדל שהוגדרו על ידי המערכת ישוחזרו כפעילות. שאלות מותאמות אישית שהוספת לא יימחקו.'
+                : 'The 8 default system questions will be restored as active. Custom questions you added will not be deleted.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row-reverse gap-2">
             <AlertDialogAction onClick={restoreDefaults} className="bg-accent text-accent-foreground hover:bg-accent/90">
-              שחזור
+              {isHe ? 'שחזור' : 'Restore'}
             </AlertDialogAction>
-            <AlertDialogCancel>ביטול</AlertDialogCancel>
+            <AlertDialogCancel>{isHe ? 'ביטול' : 'Cancel'}</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

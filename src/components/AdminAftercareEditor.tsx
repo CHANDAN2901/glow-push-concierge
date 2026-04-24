@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useI18n } from '@/lib/i18n';
 
 interface AftercareTemplate {
   id: string;
@@ -36,7 +37,9 @@ const FALLBACK_TEMPLATES: AftercareTemplate[] = [
 ];
 
 export default function AdminAftercareEditor() {
+  const { lang } = useI18n();
   const { toast } = useToast();
+  const isHe = lang === 'he';
   const [templates, setTemplates] = useState<AftercareTemplate[]>(FALLBACK_TEMPLATES);
   const [drafts, setDrafts] = useState<Record<string, string>>(() => {
     const d: Record<string, string> = {};
@@ -63,10 +66,10 @@ export default function AdminAftercareEditor() {
           data.forEach((t) => (d[t.id] = t.default_text));
           setDrafts(d);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (!cancelled) {
           setLoading(false);
-          console.error('Fetch aftercare failed:', e?.message);
+          console.error('Fetch aftercare failed:', e instanceof Error ? e.message : e);
         }
       }
     })();
@@ -96,10 +99,18 @@ export default function AdminAftercareEditor() {
         }
       }
       await fetchTemplates();
-      toast({ title: 'השינויים נשמרו בהצלחה במסד הנתונים ✅', className: 'bg-green-600 text-white border-green-700' });
-    } catch (err: any) {
+      toast({
+        title: isHe ? 'השינויים נשמרו בהצלחה במסד הנתונים ✅' : 'Changes saved successfully to the database ✅',
+        className: 'bg-green-600 text-white border-green-700',
+      });
+    } catch (err: unknown) {
       console.error('Save failed:', err);
-      toast({ title: 'שגיאה בשמירה: ' + (err?.message || 'Unknown error'), variant: 'destructive' });
+      toast({
+        title: isHe
+          ? 'שגיאה בשמירה: ' + (err instanceof Error ? err.message : 'Unknown error')
+          : 'Save failed: ' + (err instanceof Error ? err.message : 'Unknown error'),
+        variant: 'destructive',
+      });
     }
     setSaving(false);
   };
@@ -113,14 +124,16 @@ export default function AdminAftercareEditor() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl relative pb-20" dir="rtl">
+    <div className="space-y-6 max-w-3xl relative pb-20" dir={isHe ? 'rtl' : 'ltr'}>
       <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-center gap-2 mb-2">
           <Heart className="w-5 h-5 text-accent" />
-          <h2 className="font-serif font-semibold text-lg">ניהול הודעות החלמה</h2>
+          <h2 className="font-serif font-semibold text-lg">{isHe ? 'ניהול הודעות החלמה' : 'Manage Aftercare Messages'}</h2>
         </div>
         <p className="text-sm text-muted-foreground mb-6">
-          הגדירי את רצף ההודעות האוטומטיות שנשלחות ללקוחות לפי ימי ההחלמה. שינויים כאן מתעדכנים מיידית עבור כל האמניות.
+          {isHe
+            ? 'הגדירי את רצף ההודעות האוטומטיות שנשלחות ללקוחות לפי ימי ההחלמה. שינויים כאן מתעדכנים מיידית עבור כל האמניות.'
+            : 'Set the automatic message sequence sent to clients by recovery day. Changes here update immediately for all artists.'}
         </p>
 
         <div className="space-y-6">
@@ -140,7 +153,7 @@ export default function AdminAftercareEditor() {
                         <TooltipTrigger asChild>
                           <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent side="left" className="max-w-xs text-xs" dir="rtl">
+                        <TooltipContent side="left" className="max-w-xs text-xs" dir={isHe ? 'rtl' : 'ltr'}>
                           <p>{desc}</p>
                         </TooltipContent>
                       </Tooltip>
@@ -180,7 +193,7 @@ export default function AdminAftercareEditor() {
         {templates.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">לא נמצאו תבניות החלמה. הוסיפי תבניות דרך מסד הנתונים.</p>
+            <p className="text-sm">{isHe ? 'לא נמצאו תבניות החלמה. הוסיפי תבניות דרך מסד הנתונים.' : 'No aftercare templates found. Add templates through the database.'}</p>
           </div>
         )}
       </div>
@@ -193,7 +206,7 @@ export default function AdminAftercareEditor() {
           disabled={saving || templates.length === 0}
         >
           {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
-          {saving ? 'שומר…' : 'שמור תבניות החלמה'}
+          {saving ? (isHe ? 'שומר…' : 'Saving…') : (isHe ? 'שמור תבניות החלמה' : 'Save Aftercare Templates')}
         </Button>
       </div>
     </div>

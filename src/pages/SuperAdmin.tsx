@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, DollarSign, TrendingUp, UserPlus,
@@ -32,9 +32,12 @@ import HealthQuestionsEditor from '@/components/HealthQuestionsEditor';
 import { useAllHealthQuestions } from '@/hooks/useHealthQuestions';
 import CouponManager from '@/components/CouponManager';
 import AdminPolicyEditor from '@/components/AdminPolicyEditor';
+import FaqPage from '@/pages/FaqPage';
+import FaqManager from '@/pages/FaqManager';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useI18n } from '@/lib/i18n';
 
 type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'clinic-policy' | 'faq' | 'faq-manager' | 'settings';
 
@@ -48,15 +51,6 @@ interface ArtistRow {
   profileId: string;
 }
 
-const revenueChart = [
-  { month: 'Sep', revenue: 6200 },
-  { month: 'Oct', revenue: 8400 },
-  { month: 'Nov', revenue: 9100 },
-  { month: 'Dec', revenue: 11300 },
-  { month: 'Jan', revenue: 13800 },
-  { month: 'Feb', revenue: 15400 },
-];
-
 const recentSignups = [
   { name: 'Noa Ben David', date: '02/01/2025' },
   { name: 'Orit Hadad', date: '28/11/2024' },
@@ -66,27 +60,32 @@ const recentSignups = [
 ];
 
 /* ── helpers ── */
-const planBadge = (plan: string, plans: import('@/hooks/usePricingPlans').PricingPlan[] = []) => {
+const planBadge = (
+  plan: string,
+  lang: 'en' | 'he',
+  plans: import('@/hooks/usePricingPlans').PricingPlan[] = [],
+) => {
   const styles: Record<string, string> = {
     lite: 'bg-muted text-muted-foreground',
     professional: 'bg-accent/10 text-accent',
     master: 'bg-foreground text-background',
   };
   const dbPlan = plans.find(p => p.slug === plan);
-  const label = dbPlan?.name_he ?? plan;
+  const label = (lang === 'he' ? dbPlan?.name_he : dbPlan?.name_en) ?? plan;
   return <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${styles[plan] || 'bg-muted text-muted-foreground'}`}>{label}</span>;
 };
 
-const statusBadge = (status: string) => (
+const statusBadge = (status: string, activeLabel: string, suspendedLabel: string) => (
   <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
     status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'
   }`}>
-    {status === 'active' ? 'פעילה' : 'מושעית'}
+    {status === 'active' ? activeLabel : suspendedLabel}
   </span>
 );
 
 /* ── component ── */
 const SuperAdmin = () => {
+  const { t, lang, dir } = useI18n();
   const { toast } = useToast();
   const { isAdmin, loading, roleLoading } = useAuth();
   const navigate = useNavigate();
@@ -104,9 +103,15 @@ const SuperAdmin = () => {
   const queryClient = useQueryClient();
   const { questions: healthQuestions, refetch: refetchHealthQuestions } = useAllHealthQuestions();
 
+  useEffect(() => {
+    if (!loading && !roleLoading && !isAdmin) {
+      navigate('/');
+    }
+  }, [isAdmin, loading, roleLoading, navigate]);
+
   // Fetch real users from database
-  const { data: artistList = [], isLoading: usersLoading } = useQuery({
-    queryKey: ['superAdminUsers'],
+  const { data: artistList = [] } = useQuery({
+    queryKey: ['superAdminUsers', lang],
     queryFn: async (): Promise<ArtistRow[]> => {
       const { data, error } = await supabase
         .from('profiles')
@@ -116,11 +121,11 @@ const SuperAdmin = () => {
       return (data || []).map(p => ({
         id: p.user_id,
         profileId: p.id,
-        name: p.full_name || 'ללא שם',
-        studio: p.studio_name || '—',
+        name: p.full_name || t('superAdmin.noName'),
+        studio: p.studio_name || t('superAdmin.noStudio'),
         plan: p.subscription_tier || 'lite',
         status: p.subscription_status === 'canceled' ? 'suspended' : 'active',
-        joinDate: new Date(p.created_at).toLocaleDateString('he-IL'),
+        joinDate: new Date(p.created_at).toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-US'),
       }));
     },
   });
@@ -132,7 +137,7 @@ const SuperAdmin = () => {
       const cleanTier = String(newTier).replace(/"/g, '').trim();
       const { error } = await supabase
         .from('profiles')
-        .update({ subscription_tier: cleanTier } as any)
+        .update({ subscription_tier: cleanTier })
         .eq('id', profileId);
       if (error) throw error;
     },
@@ -144,43 +149,52 @@ const SuperAdmin = () => {
   // Mutation to seed test users via SECURITY DEFINER RPC (bypasses RLS)
   const seedUsersMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.rpc('seed_mock_users' as any);
+      const { error } = await supabase.rpc('seed_mock_users');
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['superAdminUsers'] });
-      toast({ title: '4 משתמשות טסט נוספו בהצלחה!' });
+      toast({ title: t('superAdmin.users.seedSuccess') });
     },
     onError: (err) => {
-      toast({ title: 'שגיאה ביצירת משתמשות', description: (err as Error).message, variant: 'destructive' });
+      toast({ title: t('superAdmin.users.seedError'), description: (err as Error).message, variant: 'destructive' });
     },
   });
 
   if (loading || roleLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3" dir={dir}>
         <div className="animate-spin w-8 h-8 border-4 border-accent border-t-transparent rounded-full" />
+        <p className="text-sm text-muted-foreground">{t('superAdmin.loading')}</p>
       </div>
     );
   }
 
   if (!isAdmin) {
-    navigate('/');
     return null;
   }
 
   const dashboardStats = [
-    { icon: DollarSign, label: 'Total Revenue', value: '₪15,400', color: 'text-accent' },
-    { icon: Users, label: 'Active Artists', value: '120', color: 'text-accent' },
-    { icon: UserPlus, label: 'New This Month', value: '15', color: 'text-green-500' },
-    { icon: TrendingUp, label: 'Total Referrals', value: '45', color: 'text-blue-500' },
+    { icon: DollarSign, label: t('superAdmin.stats.totalRevenue'), value: '₪15,400', color: 'text-accent' },
+    { icon: Users, label: t('superAdmin.stats.activeArtists'), value: '120', color: 'text-accent' },
+    { icon: UserPlus, label: t('superAdmin.stats.newThisMonth'), value: '15', color: 'text-green-500' },
+    { icon: TrendingUp, label: t('superAdmin.stats.totalReferrals'), value: '45', color: 'text-blue-500' },
+  ];
+
+  const revenueData = [
+    { month: t('superAdmin.chart.month.sep'), revenue: 6200 },
+    { month: t('superAdmin.chart.month.oct'), revenue: 8400 },
+    { month: t('superAdmin.chart.month.nov'), revenue: 9100 },
+    { month: t('superAdmin.chart.month.dec'), revenue: 11300 },
+    { month: t('superAdmin.chart.month.jan'), revenue: 13800 },
+    { month: t('superAdmin.chart.month.feb'), revenue: 15400 },
   ];
 
   /* ── Dashboard View ── */
   const renderDashboard = () => (
     <>
       {/* stats cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" dir={dir}>
         {dashboardStats.map((s, i) => (
           <div key={i} className="rounded-xl p-5" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
             <div className="flex items-center gap-2 mb-2">
@@ -192,12 +206,12 @@ const SuperAdmin = () => {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-6" dir={dir}>
         {/* revenue chart */}
         <div className="lg:col-span-2 rounded-xl p-5" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
-          <h2 className="font-serif font-bold text-lg mb-4" style={{ color: '#4a3636' }}>Revenue Growth</h2>
+          <h2 className="font-serif font-bold text-lg mb-4" style={{ color: '#4a3636' }}>{t('superAdmin.chart.revenueGrowth')}</h2>
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={revenueChart}>
+            <BarChart data={revenueData}>
               <defs>
                 <linearGradient id="goldBronzeGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#F9F295" />
@@ -206,7 +220,7 @@ const SuperAdmin = () => {
               </defs>
               <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'hsl(0 0% 12%)' }} stroke="hsl(0 0% 12%)" />
               <YAxis tick={{ fontSize: 12, fill: 'hsl(0 0% 12%)' }} stroke="hsl(0 0% 12%)" tickFormatter={(v) => `₪${(v / 1000).toFixed(0)}k`} />
-              <RechartsTooltip formatter={(v: number) => [`₪${v.toLocaleString()}`, 'Revenue']} />
+              <RechartsTooltip formatter={(v: number) => [`₪${v.toLocaleString()}`, t('superAdmin.chart.revenue')]} />
               <Bar dataKey="revenue" fill="url(#goldBronzeGradient)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -214,7 +228,7 @@ const SuperAdmin = () => {
 
         {/* recent signups */}
         <div className="rounded-xl p-5" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
-          <h2 className="font-serif font-semibold text-lg mb-4" style={{ color: '#4a3636' }}>Last 5 Signups</h2>
+          <h2 className="font-serif font-semibold text-lg mb-4" style={{ color: '#4a3636' }}>{t('superAdmin.recentSignups')}</h2>
           <div className="space-y-3">
             {recentSignups.map((s, i) => (
               <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
@@ -238,9 +252,9 @@ const SuperAdmin = () => {
   /* ── Users View ── */
   const renderUsers = () => (
     <>
-      <div dir="rtl" className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
+      <div dir={dir} className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
         <div className="p-5 flex items-center justify-between gap-2 flex-wrap" style={{ borderBottom: '1px solid rgba(216,180,180,0.3)' }}>
-          <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>ניהול משתמשות</h2>
+          <h2 className="font-serif font-semibold text-lg" style={{ color: '#4a3636' }}>{t('superAdmin.users.title')}</h2>
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="outline"
@@ -249,49 +263,49 @@ const SuperAdmin = () => {
               onClick={() => seedUsersMutation.mutate()}
             >
               <UserPlus className="w-3.5 h-3.5 ml-1" />
-              {seedUsersMutation.isPending ? 'יוצרת...' : 'הוספת משתמשות טסט'}
+              {seedUsersMutation.isPending ? t('superAdmin.users.seeding') : t('superAdmin.users.seed')}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={async () => {
-                const { error } = await supabase.rpc('upgrade_self_to_master' as any);
+                const { error } = await supabase.rpc('upgrade_self_to_master');
                 if (error) {
-                  toast({ title: 'שגיאה', description: error.message, variant: 'destructive' });
+                  toast({ title: t('superAdmin.users.savePlanError'), description: error.message, variant: 'destructive' });
                 } else {
                   queryClient.invalidateQueries({ queryKey: ['superAdminUsers'] });
-                  toast({ title: 'החבילה שלך שודרגה ל-Master! 👑' });
+                  toast({ title: t('superAdmin.users.upgradeSelfSuccess') });
                 }
               }}
             >
-              👑 שדרוג עצמי ל-Master
+              👑 {t('superAdmin.users.upgradeSelf')}
             </Button>
-            <span className="text-xs" style={{ color: '#8c6a6a' }}>{artistList.length} משתמשות</span>
+            <span className="text-xs" style={{ color: '#8c6a6a' }}>{artistList.length} {t('superAdmin.users.count')}</span>
           </div>
         </div>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                 <TableHead className="text-right">אמנית וסטודיו</TableHead>
-                <TableHead className="text-right">חבילה</TableHead>
-                <TableHead className="text-right">סטטוס</TableHead>
-                <TableHead className="text-right">תאריך הצטרפות</TableHead>
-                <TableHead className="text-right">פעולות</TableHead>
+                 <TableHead className={lang === 'he' ? 'text-right' : 'text-left'}>{t('superAdmin.users.artistStudio')}</TableHead>
+                <TableHead className={lang === 'he' ? 'text-right' : 'text-left'}>{t('superAdmin.users.plan')}</TableHead>
+                <TableHead className={lang === 'he' ? 'text-right' : 'text-left'}>{t('superAdmin.users.status')}</TableHead>
+                <TableHead className={lang === 'he' ? 'text-right' : 'text-left'}>{t('superAdmin.users.joinDate')}</TableHead>
+                <TableHead className={lang === 'he' ? 'text-right' : 'text-left'}>{t('superAdmin.users.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {artistList.map(u => (
                 <TableRow key={u.id}>
-                  <TableCell className="text-right">
+                  <TableCell className={lang === 'he' ? 'text-right' : 'text-left'}>
                     <p className="font-medium text-sm">{u.name}</p>
                     <p className="text-xs text-muted-foreground">{u.studio}</p>
                   </TableCell>
-                  <TableCell className="text-right">{planBadge(u.plan, dbPlans)}</TableCell>
-                  <TableCell className="text-right">{statusBadge(u.status)}</TableCell>
-                  <TableCell className="text-right text-sm text-muted-foreground">{u.joinDate}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center gap-1 justify-end">
+                  <TableCell className={lang === 'he' ? 'text-right' : 'text-left'}>{planBadge(u.plan, lang, dbPlans)}</TableCell>
+                  <TableCell className={lang === 'he' ? 'text-right' : 'text-left'}>{statusBadge(u.status, t('superAdmin.status.active'), t('superAdmin.status.suspended'))}</TableCell>
+                  <TableCell className={`${lang === 'he' ? 'text-right' : 'text-left'} text-sm text-muted-foreground`}>{u.joinDate}</TableCell>
+                  <TableCell className={lang === 'he' ? 'text-right' : 'text-left'}>
+                    <div className={`flex items-center gap-1 ${lang === 'he' ? 'justify-end' : 'justify-start'}`}>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => {
@@ -303,7 +317,7 @@ const SuperAdmin = () => {
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>כניסה כמשתמשת זו</TooltipContent>
+                        <TooltipContent>{t('superAdmin.users.impersonate')}</TooltipContent>
                       </Tooltip>
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingUser(u); setEditTier(u.plan as TierSlug); }}><Pencil className="w-3.5 h-3.5" /></Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"><Ban className="w-3.5 h-3.5" /></Button>
@@ -317,9 +331,9 @@ const SuperAdmin = () => {
       </div>
 
       <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
-        <DialogContent className="max-w-md" dir="rtl">
+        <DialogContent className="max-w-md" dir={dir}>
           <DialogHeader>
-            <DialogTitle className="font-serif text-lg">עריכת משתמשת</DialogTitle>
+            <DialogTitle className="font-serif text-lg">{t('superAdmin.users.editTitle')}</DialogTitle>
           </DialogHeader>
           {editingUser && (
             <div className="space-y-5 py-2">
@@ -334,7 +348,7 @@ const SuperAdmin = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">חבילת מנוי</Label>
+                <Label className="text-sm font-medium">{t('superAdmin.users.subscriptionPlan')}</Label>
                 <Select value={editTier} onValueChange={(v) => setEditTier(v as TierSlug)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -342,7 +356,7 @@ const SuperAdmin = () => {
                   <SelectContent>
                     {dbPlans.map(p => (
                       <SelectItem key={p.slug} value={p.slug}>
-                        {p.name_he} — {p.price_monthly === 0 ? 'חינם' : `₪${p.price_monthly}/חודש`}
+                        {(lang === 'he' ? p.name_he : p.name_en)} — {p.price_monthly === 0 ? t('superAdmin.free') : `₪${p.price_monthly}/${lang === 'he' ? 'חודש' : 'month'}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -351,7 +365,7 @@ const SuperAdmin = () => {
             </div>
           )}
           <DialogFooter className="flex-row-reverse gap-2">
-            <Button variant="outline" onClick={() => setEditingUser(null)}>ביטול</Button>
+            <Button variant="outline" onClick={() => setEditingUser(null)}>{t('superAdmin.users.cancel')}</Button>
             <Button
               disabled={updateTierMutation.isPending}
               onClick={() => {
@@ -360,17 +374,23 @@ const SuperAdmin = () => {
                   { profileId: editingUser.profileId, newTier: editTier },
                   {
                     onSuccess: () => {
-                      toast({ title: `החבילה של ${editingUser.name} עודכנה ל-${dbPlans.find(p => p.slug === editTier)?.name_he ?? editTier}` });
+                      const selectedPlan = dbPlans.find(p => p.slug === editTier);
+                      const planName = lang === 'he' ? selectedPlan?.name_he : selectedPlan?.name_en;
+                      toast({
+                        title: lang === 'he'
+                          ? `${t('superAdmin.users.planUpdatedPrefix')} ${editingUser.name} ${t('superAdmin.users.planUpdatedSuffix')}${planName ?? editTier}`
+                          : `${t('superAdmin.users.planUpdatedPrefix')} ${editingUser.name} ${t('superAdmin.users.planUpdatedSuffix')} ${planName ?? editTier}`,
+                      });
                       setEditingUser(null);
                     },
                     onError: (err) => {
-                      toast({ title: 'שגיאה בשמירת החבילה', description: (err as Error).message, variant: 'destructive' });
+                      toast({ title: t('superAdmin.users.savePlanError'), description: (err as Error).message, variant: 'destructive' });
                     },
                   }
                 );
               }}
             >
-              <Save className="w-4 h-4 ml-1" /> שמירה
+              <Save className="w-4 h-4 ml-1" /> {t('superAdmin.users.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -379,13 +399,13 @@ const SuperAdmin = () => {
   );
   /* ── Announcements View ── */
   const renderAnnouncements = () => (
-    <div className="rounded-xl p-6 max-w-2xl" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
-      <h2 className="font-serif font-semibold text-lg mb-4" style={{ color: '#4a3636' }}>Send System Message</h2>
+    <div dir={dir} className="rounded-xl p-6 max-w-2xl" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
+      <h2 className="font-serif font-semibold text-lg mb-4" style={{ color: '#4a3636' }}>{t('superAdmin.announcements.title')}</h2>
       <div className="space-y-4">
-        <Input placeholder="Announcement title" />
-        <Textarea placeholder="Message content (optional)" rows={4} />
+        <Input placeholder={t('superAdmin.announcements.titlePlaceholder')} />
+        <Textarea placeholder={t('superAdmin.announcements.messagePlaceholder')} rows={4} />
         <Button className="bg-accent text-accent-foreground hover:bg-accent/90">
-          <Send className="w-4 h-4 mr-2" /> Send to All Artists
+          <Send className="w-4 h-4 mr-2" /> {t('superAdmin.announcements.sendAll')}
         </Button>
       </div>
     </div>
@@ -411,9 +431,13 @@ const SuperAdmin = () => {
       if (error) throw error;
       setNewQuestion('');
       await refetchHealthQuestions();
-      toast({ title: 'השאלה נוספה ✅' });
-    } catch (err: any) {
-      toast({ title: 'שגיאה בהוספת שאלה', description: err.message, variant: 'destructive' });
+      toast({ title: t('superAdmin.settings.questionAdded') });
+    } catch (err: unknown) {
+      toast({
+        title: t('superAdmin.settings.questionAddError'),
+        description: err instanceof Error ? err.message : t('superAdmin.settings.questionAddError'),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -425,9 +449,13 @@ const SuperAdmin = () => {
         .eq('id', id);
       if (error) throw error;
       await refetchHealthQuestions();
-      toast({ title: 'השאלה נמחקה ✅' });
-    } catch (err: any) {
-      toast({ title: 'שגיאה במחיקת שאלה', description: err.message, variant: 'destructive' });
+      toast({ title: t('superAdmin.settings.questionDeleted') });
+    } catch (err: unknown) {
+      toast({
+        title: t('superAdmin.settings.questionDeleteError'),
+        description: err instanceof Error ? err.message : t('superAdmin.settings.questionDeleteError'),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -438,19 +466,19 @@ const SuperAdmin = () => {
 
       {/* Card B: Legal & Forms */}
       <div className="rounded-xl p-6" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
-        <div className="flex items-center gap-2 mb-5">
+        <div className="flex items-center gap-2 mb-5" dir={dir}>
           <Settings className="w-5 h-5 text-accent" />
-          <h2 className="font-serif font-semibold text-lg">ניהול טפסים ומשפטי</h2>
+          <h2 className="font-serif font-semibold text-lg">{t('superAdmin.settings.formsTitle')}</h2>
         </div>
 
-        <div className="space-y-5" dir="rtl">
+        <div className="space-y-5" dir={dir}>
           <div>
-            <label className="text-sm font-medium mb-2 block">נוסח תקנון (ברירת מחדל)</label>
-            <Textarea value={termsText} onChange={(e) => setTermsText(e.target.value)} rows={5} className="resize-y" dir="rtl" />
+            <label className="text-sm font-medium mb-2 block">{t('superAdmin.settings.termsLabel')}</label>
+            <Textarea value={termsText} onChange={(e) => setTermsText(e.target.value)} rows={5} className="resize-y" dir={dir} />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">שאלות הצהרת בריאות (ברירת מחדל)</label>
+            <label className="text-sm font-medium mb-2 block">{t('superAdmin.settings.healthQuestionsLabel')}</label>
             <div className="space-y-2 mb-3">
               {healthQuestions.map((q) => (
                 <div key={q.id} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
@@ -462,7 +490,7 @@ const SuperAdmin = () => {
               ))}
             </div>
             <div className="flex gap-2">
-              <Input placeholder="הוסיפי שאלה חדשה…" value={newQuestion} onChange={(e) => setNewQuestion(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addQuestion()} dir="rtl" />
+              <Input placeholder={t('superAdmin.settings.newQuestionPlaceholder')} value={newQuestion} onChange={(e) => setNewQuestion(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addQuestion()} dir={dir} />
               <Button variant="outline" size="icon" onClick={addQuestion}><Plus className="w-4 h-4" /></Button>
             </div>
           </div>
@@ -471,55 +499,55 @@ const SuperAdmin = () => {
 
       {/* Card C: Upsell Management */}
       <div className="rounded-xl p-6" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
-        <div className="flex items-center gap-2 mb-5">
+        <div className="flex items-center gap-2 mb-5" dir={dir}>
           <Gift className="w-5 h-5 text-accent" />
-          <h2 className="font-serif font-semibold text-lg">ניהול פינוק והטבות</h2>
+          <h2 className="font-serif font-semibold text-lg">{t('superAdmin.settings.upsellTitle')}</h2>
         </div>
 
-        <div className="space-y-5" dir="rtl">
+        <div className="space-y-5" dir={dir}>
           <div className="flex items-center justify-between gap-3 bg-muted/30 rounded-lg px-4 py-3">
-            <label className="text-sm font-medium">הצג כרטיסיית הטבה באפליקציית הלקוחה</label>
+            <label className="text-sm font-medium">{t('superAdmin.settings.upsellToggle')}</label>
             <Switch checked={upsellEnabled} onCheckedChange={setUpsellEnabled} className="data-[state=checked]:bg-accent" />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1.5 block">כותרת ההטבה</label>
-            <Input value={upsellTitle} onChange={(e) => setUpsellTitle(e.target.value)} dir="rtl" placeholder="להשלמת המראה" />
+            <label className="text-sm font-medium mb-1.5 block">{t('superAdmin.settings.upsellHeadline')}</label>
+            <Input value={upsellTitle} onChange={(e) => setUpsellTitle(e.target.value)} dir={dir} placeholder={t('superAdmin.settings.upsellHeadlinePlaceholder')} />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1.5 block">תיאור ההטבה</label>
-            <Textarea value={upsellDescription} onChange={(e) => setUpsellDescription(e.target.value)} rows={3} className="resize-y" dir="rtl" placeholder="אהבת את הגבות? הוסיפי הצללת אייליינר ב-15% הנחה" />
+            <label className="text-sm font-medium mb-1.5 block">{t('superAdmin.settings.upsellDescription')}</label>
+            <Textarea value={upsellDescription} onChange={(e) => setUpsellDescription(e.target.value)} rows={3} className="resize-y" dir={dir} placeholder={t('superAdmin.settings.upsellDescriptionPlaceholder')} />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1.5 block">טקסט על כפתור המימוש</label>
-            <Input value={upsellButtonText} onChange={(e) => setUpsellButtonText(e.target.value)} dir="rtl" placeholder="למימוש ההטבה" />
+            <label className="text-sm font-medium mb-1.5 block">{t('superAdmin.settings.upsellButton')}</label>
+            <Input value={upsellButtonText} onChange={(e) => setUpsellButtonText(e.target.value)} dir={dir} placeholder={t('superAdmin.settings.upsellButtonPlaceholder')} />
           </div>
         </div>
       </div>
 
       {/* Sticky Save */}
       <div className="sticky bottom-6 flex justify-end">
-        <Button className="bg-accent text-accent-foreground hover:bg-accent/90 h-12 px-8 text-base shadow-lg" onClick={() => toast({ title: 'System settings updated successfully' })}>
-          <Save className="w-4 h-4 ml-2" /> שמור שינויים
+        <Button className="bg-accent text-accent-foreground hover:bg-accent/90 h-12 px-8 text-base shadow-lg" onClick={() => toast({ title: t('superAdmin.settings.saveSuccess') })}>
+          <Save className="w-4 h-4 ml-2" /> {t('superAdmin.settings.save')}
         </Button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-background flex pt-16">
+    <div className="min-h-screen bg-background flex pt-16" dir={dir}>
       <AdminSidebar active={view} onNavigate={setView} isAdmin={isAdmin} />
 
       <nav className="md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-[420px] pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-center justify-between px-2 py-2">
           {([
-            { id: 'dashboard' as AdminView, icon: Shield, label: 'דאשבורד' },
-            { id: 'users' as AdminView, icon: Users, label: 'משתמשים' },
-            { id: 'pricing' as AdminView, icon: DollarSign, label: 'תמחור' },
-            { id: 'messages' as AdminView, icon: MessageSquareText, label: 'הודעות' },
-            { id: 'settings' as AdminView, icon: Settings, label: 'הגדרות' },
+            { id: 'dashboard' as AdminView, icon: Shield, label: t('superAdmin.nav.dashboard') },
+            { id: 'users' as AdminView, icon: Users, label: t('superAdmin.nav.users') },
+            { id: 'pricing' as AdminView, icon: DollarSign, label: t('superAdmin.nav.pricing') },
+            { id: 'messages' as AdminView, icon: MessageSquareText, label: t('superAdmin.nav.messages') },
+            { id: 'settings' as AdminView, icon: Settings, label: t('superAdmin.nav.settings') },
           ]).map((tab) => {
             const isActive = view === tab.id;
             return (
@@ -569,8 +597,8 @@ const SuperAdmin = () => {
               <Shield className="w-5 h-5 text-background" />
             </div>
             <div>
-              <h1 className="text-2xl font-serif font-bold">Super Admin</h1>
-              <p className="text-xs text-muted-foreground">Platform management dashboard</p>
+              <h1 className="text-2xl font-serif font-bold">{t('superAdmin.title')}</h1>
+              <p className="text-xs text-muted-foreground">{t('superAdmin.subtitle')}</p>
             </div>
           </div>
 
@@ -583,6 +611,8 @@ const SuperAdmin = () => {
           {view === 'aftercare' && <AdminAftercareEditor />}
           {view === 'health-questions' && <HealthQuestionsEditor />}
           {view === 'clinic-policy' && <AdminPolicyEditor />}
+          {view === 'faq' && <FaqPage />}
+          {view === 'faq-manager' && <FaqManager />}
           {view === 'settings' && renderSettings()}
         </div>
       </main>

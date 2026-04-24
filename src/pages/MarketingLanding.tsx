@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
+import { getRoleHomePath } from '@/lib/role-routing';
 import { Sparkles, Users, Shield, BookOpen, Check, ChevronDown } from 'lucide-react';
 
 import heroLogo from '@/assets/glowpush-hero-logo.png';
@@ -33,14 +34,15 @@ const GOLD_SOFT = 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%,
 
 const MarketingLanding = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin, roleLoading } = useAuth();
   const { lang, setLang } = useI18n();
+  const authenticatedHome = getRoleHomePath(isAdmin);
 
   useEffect(() => {
-    if (!loading && user) {
-      navigate('/artist', { replace: true });
+    if (!loading && !roleLoading && user) {
+      navigate(authenticatedHome, { replace: true });
     }
-  }, [user, loading]);
+  }, [user, loading, roleLoading, authenticatedHome, navigate]);
   const isHe = lang === 'he';
   const dir = isHe ? 'rtl' : 'ltr';
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
@@ -143,7 +145,7 @@ const MarketingLanding = () => {
 
             {/* Auth / CTA */}
             <button
-              onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
+              onClick={() => navigate(user ? authenticatedHome : '/auth?mode=signup')}
               className="hidden sm:block px-5 py-2 rounded-lg text-sm font-bold transition-all hover:opacity-90 active:scale-95"
               style={{ background: GOLD, color: '#fff', boxShadow: '0 4px 14px rgba(115,92,0,0.3)' }}
             >
@@ -177,7 +179,7 @@ const MarketingLanding = () => {
               </button>
             ))}
             <button
-              onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
+              onClick={() => navigate(user ? authenticatedHome : '/auth?mode=signup')}
               className="mt-2 px-5 py-3 rounded-lg text-sm font-bold text-white"
               style={{ background: GOLD }}
             >
@@ -233,7 +235,7 @@ const MarketingLanding = () => {
 
             <div className={`flex gap-3 ${isHe ? 'justify-end' : 'justify-start'}`}>
               <button
-                onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
+                onClick={() => navigate(user ? authenticatedHome : '/auth?mode=signup')}
                 className="flex-1 sm:flex-none px-6 sm:px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold transition-all hover:opacity-90 active:scale-95 shadow-xl"
                 style={{ background: GOLD, color: '#fff', boxShadow: '0 8px 24px rgba(115,92,0,0.3)' }}
               >
@@ -323,7 +325,7 @@ const MarketingLanding = () => {
                 </div>
                 <div className="mt-4">
                   <button
-                    onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
+                    onClick={() => navigate(user ? authenticatedHome : '/auth?mode=signup')}
                     className="text-sm font-bold flex items-center gap-2 hover:opacity-70 transition-opacity"
                     style={{ color: '#735c00' }}
                   >
@@ -451,7 +453,7 @@ const MarketingLanding = () => {
                 </ul>
 
                 <button
-                  onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
+                  onClick={() => navigate(user ? authenticatedHome : '/auth?mode=signup')}
                   className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-95"
                   style={plan.popular ? {
                     background: GOLD,
@@ -591,7 +593,7 @@ const MarketingLanding = () => {
                 : "Don't let admin work slow down your art. Let GlowPush run your studio while you create beauty."}
             </p>
             <button
-              onClick={() => navigate(user ? '/artist' : '/auth?mode=signup')}
+              onClick={() => navigate(user ? authenticatedHome : '/auth?mode=signup')}
               className="px-10 py-4 rounded-xl text-lg font-bold transition-all hover:scale-[1.03] active:scale-95 shadow-xl"
               style={{ background: '#fff', color: '#735c00' }}
             >

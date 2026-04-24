@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import { resolveIsAdmin } from '@/lib/admin-auth';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -11,11 +12,12 @@ export function useAuth() {
   useEffect(() => {
     let isMounted = true;
 
-    const checkAdmin = async (userId: string) => {
+    const checkAdmin = async (currentUser: User) => {
       setRoleLoading(true);
-      const { data } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' as const });
+      const { data } = await supabase.rpc('has_role', { _user_id: currentUser.id, _role: 'admin' as const });
       if (!isMounted) return;
-      setIsAdmin(!!data);
+      const resolvedIsAdmin = resolveIsAdmin(currentUser, !!data);
+      setIsAdmin(resolvedIsAdmin);
       setRoleLoading(false);
     };
 
@@ -26,7 +28,7 @@ export function useAuth() {
 
         if (session?.user) {
           setTimeout(() => {
-            void checkAdmin(session.user.id);
+            void checkAdmin(session.user);
           }, 0);
         } else {
           setIsAdmin(false);
@@ -40,7 +42,7 @@ export function useAuth() {
       setUser(session?.user ?? null);
       setLoading(false);
       if (session?.user) {
-        void checkAdmin(session.user.id);
+        void checkAdmin(session.user);
       } else {
         setIsAdmin(false);
         setRoleLoading(false);

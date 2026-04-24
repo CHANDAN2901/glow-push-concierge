@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import AdminSidebar from '@/components/AdminSidebar';
 import { Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/lib/i18n';
 
 interface HealingPhaseRow {
   id: string;
@@ -32,7 +33,9 @@ interface StepContent {
 }
 
 export default function TimelineContentEditorPage() {
+  const { lang, dir } = useI18n();
   const { toast } = useToast();
+  const isHe = lang === 'he';
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [steps, setSteps] = useState<StepContent[]>([]);
@@ -62,8 +65,8 @@ export default function TimelineContentEditorPage() {
 
       const baseSteps: StepContent[] = globalPhases.map((phase, i) => {
         const dayLabel = phase.day_start === phase.day_end
-          ? `יום ${phase.day_start}`
-          : `ימים ${phase.day_start}-${phase.day_end}`;
+          ? (isHe ? `יום ${phase.day_start}` : `Day ${phase.day_start}`)
+          : (isHe ? `ימים ${phase.day_start}-${phase.day_end}` : `Days ${phase.day_start}-${phase.day_end}`);
 
         const defaultInstructionHe = phase.steps_he.join('\n') || phase.title_he;
         const defaultInstructionEn = phase.steps_en.join('\n') || phase.title_en;
@@ -95,7 +98,7 @@ export default function TimelineContentEditorPage() {
       setProfileId(profile.id);
 
       const { data: rows, error: rowsError } = await supabase
-        .from('timeline_content' as any)
+        .from('timeline_content')
         .select('step_index, quote_he, quote_en')
         .eq('artist_profile_id', profile.id)
         .order('step_index');
@@ -103,7 +106,7 @@ export default function TimelineContentEditorPage() {
       if (rowsError) throw rowsError;
 
       const overridesByIndex = new Map<number, { quote_he: string | null; quote_en: string | null }>(
-        ((rows as any[]) || []).map((row: any) => [row.step_index, { quote_he: row.quote_he, quote_en: row.quote_en }])
+        ((rows as Array<{ step_index: number; quote_he: string | null; quote_en: string | null }>) || []).map((row) => [row.step_index, { quote_he: row.quote_he, quote_en: row.quote_en }])
       );
 
       const merged = baseSteps.map((base) => {
@@ -121,11 +124,11 @@ export default function TimelineContentEditorPage() {
     } catch (error) {
       console.error('Failed to load timeline content editor data:', error);
       setSteps([]);
-      toast({ title: 'שגיאה בטעינת מסע ההחלמה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בטעינת מסע ההחלמה' : 'Failed to load healing journey', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
-  }, [authLoading, user, toast]);
+  }, [authLoading, isHe, user, toast]);
 
   useEffect(() => {
     loadData();
@@ -163,7 +166,7 @@ export default function TimelineContentEditorPage() {
           continue;
         }
 
-        const { error: upsertError } = await (supabase as any)
+        const { error: upsertError } = await supabase
           .from('timeline_content')
           .upsert(
             {
@@ -181,18 +184,26 @@ export default function TimelineContentEditorPage() {
       }
 
       await loadData();
-      toast({ title: 'התוכן עודכן בהצלחה ויוצג ללקוחותייך ✅', className: 'bg-green-600 text-white border-green-700' });
-    } catch (err: any) {
+      toast({
+        title: isHe ? 'התוכן עודכן בהצלחה ויוצג ללקוחותייך ✅' : 'Content updated successfully and will be shown to your clients ✅',
+        className: 'bg-green-600 text-white border-green-700',
+      });
+    } catch (err: unknown) {
       console.error('Save failed:', err);
-      toast({ title: 'שגיאה בשמירה: ' + (err?.message || 'Unknown'), variant: 'destructive' });
+      toast({
+        title: isHe
+          ? 'שגיאה בשמירה: ' + (err instanceof Error ? err.message : 'Unknown')
+          : 'Save failed: ' + (err instanceof Error ? err.message : 'Unknown'),
+        variant: 'destructive',
+      });
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background flex pt-16">
-      <AdminSidebar active={'timeline' as any} onNavigate={(v) => {
+    <div className="min-h-screen bg-background flex pt-16" dir={dir}>
+      <AdminSidebar active={'timeline'} onNavigate={(v) => {
         if (v === 'timeline') return;
         if (v === 'aftercare') return navigate('/admin/aftercare');
         return navigate('/super-admin', { state: { view: v } });
@@ -204,8 +215,8 @@ export default function TimelineContentEditorPage() {
               <Shield className="w-5 h-5 text-background" />
             </div>
             <div>
-              <h1 className="text-2xl font-serif font-bold">ניהול תכני החלמה</h1>
-              <p className="text-xs text-muted-foreground">עריכת ההנחיות שמוצגות ללקוחות בכל שלב של מסע ההחלמה</p>
+              <h1 className="text-2xl font-serif font-bold">{isHe ? 'ניהול תכני החלמה' : 'Manage Healing Content'}</h1>
+              <p className="text-xs text-muted-foreground">{isHe ? 'עריכת ההנחיות שמוצגות ללקוחות בכל שלב של מסע ההחלמה' : 'Edit the instructions shown to clients at each stage of the healing journey'}</p>
             </div>
           </div>
 
@@ -214,14 +225,14 @@ export default function TimelineContentEditorPage() {
               <Loader2 className="w-6 h-6 animate-spin text-accent" />
             </div>
           ) : (
-            <div className="space-y-4 relative pb-20" dir="rtl">
+            <div className="space-y-4 relative pb-20" dir={dir}>
               <div className="bg-card border border-border rounded-xl p-6">
                 <div className="flex items-center gap-2 mb-5">
                   <Sparkles className="w-5 h-5 text-accent" />
-                  <h2 className="font-serif font-semibold text-lg">הנחיות ללקוחה — לפי שלב</h2>
+                  <h2 className="font-serif font-semibold text-lg">{isHe ? 'הנחיות ללקוחה — לפי שלב' : 'Client Instructions by Stage'}</h2>
                 </div>
                 <p className="text-sm text-muted-foreground mb-6">
-                  כתבי הנחיה אחת לכל שלב. הלקוחה תראה אותה מתחת לתמונת ההחלמה.
+                  {isHe ? 'כתבי הנחיה אחת לכל שלב. הלקוחה תראה אותה מתחת לתמונת ההחלמה.' : 'Write one instruction for each stage. The client will see it below the healing image.'}
                 </p>
 
                 <div className="space-y-5">
@@ -239,7 +250,7 @@ export default function TimelineContentEditorPage() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                          <label className="text-xs font-medium mb-1 block">📋 הנחיות ללקוחה בעברית</label>
+                          <label className="text-xs font-medium mb-1 block">{isHe ? '📋 הנחיות ללקוחה בעברית' : '📋 Instructions in Hebrew'}</label>
                           <Textarea
                             value={step.instruction_he}
                             onChange={(e) => updateStep(idx, 'instruction_he', e.target.value)}
@@ -249,7 +260,7 @@ export default function TimelineContentEditorPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-xs font-medium mb-1 block">📋 Instructions in English</label>
+                          <label className="text-xs font-medium mb-1 block">{isHe ? '📋 הנחיות ללקוחה באנגלית' : '📋 Instructions in English'}</label>
                           <Textarea
                             value={step.instruction_en}
                             onChange={(e) => updateStep(idx, 'instruction_en', e.target.value)}
@@ -271,7 +282,7 @@ export default function TimelineContentEditorPage() {
                   disabled={saving}
                 >
                   {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
-                  {saving ? 'שומר…' : 'שמור שינויים'}
+                  {saving ? (isHe ? 'שומר…' : 'Saving…') : (isHe ? 'שמור שינויים' : 'Save Changes')}
                 </Button>
               </div>
             </div>

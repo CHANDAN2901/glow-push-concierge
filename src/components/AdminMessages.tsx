@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/lib/i18n';
 
 interface HealingPhase {
   id: string;
@@ -58,19 +59,20 @@ function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
 
 
 const PUSH_EVENTS = [
-  { key: 'appointment_reminder', label: 'תזכורת תור', icon: '📅', defaultText: 'היי {{client_name}}, תזכורת מהקליניקה — קבענו לתאריך {{date}} בשעה {{time}}. מחכה לראותך! ✨' },
-  { key: 'post_treatment_followup', label: 'מעקב אחרי טיפול', icon: '💌', defaultText: 'היי {{client_name}}, איך את מרגישה? 💕 היום מתחיל מסע ההחלמה שלך. נא לעקוב אחרי ההנחיות באפליקציה ולפנות אליי בכל שאלה!' },
-  { key: 'birthday_greeting', label: 'הודעת יום הולדת', icon: '🎂', defaultText: 'יום הולדת שמח {{client_name}}! 🎉🎂 מאחלת לך שנה מלאה ביופי ובאושר 💕 כמתנה — קבלי 10% הנחה על הטיפול הבא!' },
-  { key: 'review_request', label: 'בקשת ביקורת', icon: '⭐', defaultText: 'היי {{client_name}}, נשמח מאוד לביקורת שלך ⭐ זה עוזר לנו להמשיך לתת שירות מעולה! {{review_link}}' },
-  { key: 'healing_day_notification', label: 'הודעת מסע החלמה', icon: '💧', defaultText: 'היי {{client_name}}, יום {{day_number}} במסע ההחלמה שלך 💧 הנה ההנחיות להיום — פתחי את האפליקציה לפרטים!' },
-  { key: 'renewal_reminder', label: 'תזכורת חידוש', icon: '🔄', defaultText: 'היי {{client_name}}, עברו כבר כמה חודשים מהטיפול האחרון 🔄 הגיע הזמן לחידוש! נקבע תור?' },
+  { key: 'appointment_reminder', labelHe: 'תזכורת תור', labelEn: 'Appointment Reminder', icon: '📅', defaultText: 'היי {{client_name}}, תזכורת מהקליניקה — קבענו לתאריך {{date}} בשעה {{time}}. מחכה לראותך! ✨' },
+  { key: 'post_treatment_followup', labelHe: 'מעקב אחרי טיפול', labelEn: 'Post-Treatment Follow-up', icon: '💌', defaultText: 'היי {{client_name}}, איך את מרגישה? 💕 היום מתחיל מסע ההחלמה שלך. נא לעקוב אחרי ההנחיות באפליקציה ולפנות אליי בכל שאלה!' },
+  { key: 'birthday_greeting', labelHe: 'הודעת יום הולדת', labelEn: 'Birthday Message', icon: '🎂', defaultText: 'יום הולדת שמח {{client_name}}! 🎉🎂 מאחלת לך שנה מלאה ביופי ובאושר 💕 כמתנה — קבלי 10% הנחה על הטיפול הבא!' },
+  { key: 'review_request', labelHe: 'בקשת ביקורת', labelEn: 'Review Request', icon: '⭐', defaultText: 'היי {{client_name}}, נשמח מאוד לביקורת שלך ⭐ זה עוזר לנו להמשיך לתת שירות מעולה! {{review_link}}' },
+  { key: 'healing_day_notification', labelHe: 'הודעת מסע החלמה', labelEn: 'Healing Journey Update', icon: '💧', defaultText: 'היי {{client_name}}, יום {{day_number}} במסע ההחלמה שלך 💧 הנה ההנחיות להיום — פתחי את האפליקציה לפרטים!' },
+  { key: 'renewal_reminder', labelHe: 'תזכורת חידוש', labelEn: 'Renewal Reminder', icon: '🔄', defaultText: 'היי {{client_name}}, עברו כבר כמה חודשים מהטיפול האחרון 🔄 הגיע הזמן לחידוש! נקבע תור?' },
 ];
 
 // Auto-expanding textarea
-function AutoTextarea({ value, onChange, placeholder }: {
+function AutoTextarea({ value, onChange, placeholder, dir }: {
   value: string;
   onChange: (val: string) => void;
   placeholder: string;
+  dir?: 'rtl' | 'ltr';
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const resize = useCallback(() => {
@@ -88,7 +90,7 @@ function AutoTextarea({ value, onChange, placeholder }: {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      dir="rtl"
+      dir={dir}
       className="w-full rounded-[10px] px-3 py-2 text-sm resize-none transition-all duration-200 focus:outline-none focus:ring-2"
       style={{
         background: '#FFFFFF',
@@ -109,10 +111,12 @@ function AutoTextarea({ value, onChange, placeholder }: {
 }
 
 // Image upload thumbnail component
-function PhaseImageUploader({ currentUrl, previewUrl, onFileSelect }: {
+function PhaseImageUploader({ currentUrl, previewUrl, onFileSelect, replaceLabel, uploadLabel }: {
   currentUrl: string;
   previewUrl?: string;
   onFileSelect: (file: File) => void;
+  replaceLabel: string;
+  uploadLabel: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const displayUrl = previewUrl || currentUrl;
@@ -143,7 +147,7 @@ function PhaseImageUploader({ currentUrl, previewUrl, onFileSelect }: {
         }}
       >
         <Upload className="w-3.5 h-3.5" />
-        {displayUrl ? 'החלף תמונה' : 'העלה תמונה'}
+        {displayUrl ? replaceLabel : uploadLabel}
       </button>
       <input
         ref={inputRef}
@@ -160,7 +164,9 @@ function PhaseImageUploader({ currentUrl, previewUrl, onFileSelect }: {
 }
 
 export default function AdminMessages() {
+  const { lang } = useI18n();
   const { toast } = useToast();
+  const isHe = lang === 'he';
   const [activeTab, setActiveTab] = useState<'healing' | 'push'>('healing');
   const [activeTreatment, setActiveTreatment] = useState<'eyebrows' | 'lips'>('eyebrows');
 
@@ -280,24 +286,24 @@ export default function AdminMessages() {
           }
         }
       }
-      toast({ title: 'התבניות נשמרו בהצלחה ✅' });
+      toast({ title: isHe ? 'התבניות נשמרו בהצלחה ✅' : 'Templates saved successfully ✅' });
     } catch (err) {
       console.error('Save error:', err);
-      toast({ title: 'שגיאה בשמירה', variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה בשמירה' : 'Save failed', variant: 'destructive' });
     }
     setSaving(false);
   };
 
   const handleBroadcast = async () => {
     if (!broadcastText.trim()) {
-      toast({ title: 'נא להזין הודעה לשידור', variant: 'destructive' });
+      toast({ title: isHe ? 'נא להזין הודעה לשידור' : 'Please enter a broadcast message', variant: 'destructive' });
       return;
     }
     setBroadcasting(true);
     await new Promise((r) => setTimeout(r, 1200));
     setBroadcasting(false);
     setBroadcastText('');
-    toast({ title: 'ההודעה נשלחה לכל המשתמשות ✅' });
+    toast({ title: isHe ? 'ההודעה נשלחה לכל המשתמשות ✅' : 'Message sent to all users ✅' });
   };
 
   const tabStyle = (isActive: boolean) => ({
@@ -317,7 +323,7 @@ export default function AdminMessages() {
 
 
   return (
-    <div className="space-y-4 max-w-3xl relative pb-28" dir="rtl">
+    <div className="space-y-4 max-w-3xl relative pb-28" dir={isHe ? 'rtl' : 'ltr'}>
       {/* Main Editor Card */}
       <div
         className="rounded-2xl overflow-hidden"
@@ -330,18 +336,18 @@ export default function AdminMessages() {
         <div className="px-5 pt-5 pb-3 flex items-center gap-2">
           <MessageSquareText className="w-5 h-5" style={{ color: '#D4AF37' }} strokeWidth={1.5} />
           <h2 className="font-serif font-bold text-lg" style={{ color: '#4a2020' }}>
-            ניהול הודעות ותבניות
+            {isHe ? 'ניהול הודעות ותבניות' : 'Manage Messages & Templates'}
           </h2>
         </div>
 
         <div className="flex gap-0 px-5" style={{ borderBottom: '1px solid rgba(216, 180, 180, 0.2)' }}>
           <button style={tabStyle(activeTab === 'healing')} onClick={() => setActiveTab('healing')}>
             <Heart className="w-4 h-4 inline ml-1.5" style={{ color: activeTab === 'healing' ? '#D4AF37' : '#b8a090' }} />
-            מסע החלמה
+            {isHe ? 'מסע החלמה' : 'Healing Journey'}
           </button>
           <button style={tabStyle(activeTab === 'push')} onClick={() => setActiveTab('push')}>
             <Bell className="w-4 h-4 inline ml-1.5" style={{ color: activeTab === 'push' ? '#D4AF37' : '#b8a090' }} />
-            הודעות Push
+            {isHe ? 'הודעות Push' : 'Push Messages'}
           </button>
         </div>
 
@@ -349,7 +355,9 @@ export default function AdminMessages() {
           {activeTab === 'healing' ? (
             <div className="space-y-4">
               <p className="text-xs mb-2" style={{ color: '#8c6a6a' }}>
-                ערכי את כותרות, תמונות והנחיות מסע ההחלמה. השינויים ישפיעו על כל הלקוחות בזמן אמת.
+                {isHe
+                  ? 'ערכי את כותרות, תמונות והנחיות מסע ההחלמה. השינויים ישפיעו על כל הלקוחות בזמן אמת.'
+                  : 'Edit healing journey titles, images, and instructions. Changes will affect all clients in real time.'}
               </p>
               {/* Treatment type toggle */}
               <div className="flex gap-2 mb-2">
@@ -364,12 +372,12 @@ export default function AdminMessages() {
                       border: activeTreatment === t ? '1.5px solid rgba(212, 175, 55, 0.5)' : '1.5px solid rgba(216, 180, 180, 0.25)',
                     }}
                   >
-                    {t === 'eyebrows' ? '✍️ גבות' : '👄 שפתיים'}
+                    {t === 'eyebrows' ? (isHe ? '✍️ גבות' : '✍️ Eyebrows') : (isHe ? '👄 שפתיים' : '👄 Lips')}
                   </button>
                 ))}
               </div>
               {loadingPhases ? (
-                <div className="text-center py-8" style={{ color: '#b8a090' }}>טוען...</div>
+                <div className="text-center py-8" style={{ color: '#b8a090' }}>{isHe ? 'טוען...' : 'Loading...'}</div>
               ) : (
                 <div className="space-y-5">
                   {phases.map((phase) => {
@@ -418,14 +426,14 @@ export default function AdminMessages() {
                             background: phase.severity === 'high' ? 'rgba(239,68,68,0.1)' : phase.severity === 'medium' ? 'rgba(234,179,8,0.1)' : 'rgba(34,197,94,0.1)',
                             color: phase.severity === 'high' ? '#dc2626' : phase.severity === 'medium' ? '#ca8a04' : '#16a34a',
                           }}>
-                            {phase.severity === 'high' ? '🔴 חשוב' : phase.severity === 'medium' ? '🟡 בינוני' : '🟢 קל'}
+                            {phase.severity === 'high' ? (isHe ? '🔴 חשוב' : '🔴 High') : phase.severity === 'medium' ? (isHe ? '🟡 בינוני' : '🟡 Medium') : (isHe ? '🟢 קל' : '🟢 Low')}
                           </span>
                         </div>
 
                         {/* Titles */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="space-y-1">
-                            <label className="text-xs font-bold" style={{ color: '#4a2020' }}>🇮🇱 כותרת בעברית</label>
+                            <label className="text-xs font-bold" style={{ color: '#4a2020' }}>{isHe ? '🇮🇱 כותרת בעברית' : '🇮🇱 Title in Hebrew'}</label>
                             <Input
                               value={draft.title_he}
                               onChange={(e) => setPhaseDrafts(prev => ({
@@ -439,7 +447,7 @@ export default function AdminMessages() {
                           </div>
                           <div className="space-y-1">
                             <label className="text-xs font-bold flex items-center gap-1" style={{ color: '#4a2020' }}>
-                              <Globe className="w-3 h-3" /> Title in English
+                              <Globe className="w-3 h-3" /> {isHe ? 'כותרת באנגלית' : 'Title in English'}
                             </label>
                             <Input
                               value={draft.title_en}
@@ -459,23 +467,26 @@ export default function AdminMessages() {
                           currentUrl={draft.image_url}
                           previewUrl={draft.imagePreview}
                           onFileSelect={(file) => handleImageSelect(phase.id, file)}
+                          replaceLabel={isHe ? 'החלף תמונה' : 'Replace Image'}
+                          uploadLabel={isHe ? 'העלה תמונה' : 'Upload Image'}
                         />
 
                         {/* Instructions per stage */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="space-y-1">
-                            <label className="text-xs font-bold" style={{ color: '#4a2020' }}>📋 הנחיות בעברית</label>
+                            <label className="text-xs font-bold" style={{ color: '#4a2020' }}>{isHe ? '📋 הנחיות בעברית' : '📋 Instructions in Hebrew'}</label>
                             <AutoTextarea
                               value={draft.steps_he}
                               onChange={(val) => setPhaseDrafts(prev => ({
                                 ...prev,
                                 [phase.id]: { ...prev[phase.id], steps_he: val },
                               }))}
-                              placeholder="הנחיות ללקוחה בעברית (שורה לכל הנחיה)…"
+                              placeholder={isHe ? 'הנחיות ללקוחה בעברית (שורה לכל הנחיה)…' : 'Instructions in Hebrew (one per line)…'}
+                              dir={isHe ? 'rtl' : 'ltr'}
                             />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-xs font-bold" style={{ color: '#4a2020' }}>📋 Instructions in English</label>
+                            <label className="text-xs font-bold" style={{ color: '#4a2020' }}>{isHe ? '📋 הנחיות באנגלית' : '📋 Instructions in English'}</label>
                             <AutoTextarea
                               value={draft.steps_en}
                               onChange={(val) => setPhaseDrafts(prev => ({
@@ -483,6 +494,7 @@ export default function AdminMessages() {
                                 [phase.id]: { ...prev[phase.id], steps_en: val },
                               }))}
                               placeholder="Instructions in English (one per line)…"
+                              dir="ltr"
                             />
                           </div>
                         </div>
@@ -495,20 +507,23 @@ export default function AdminMessages() {
           ) : (
             <div className="space-y-4">
               <p className="text-xs mb-2" style={{ color: '#8c6a6a' }}>
-                ערכי את תבניות הודעות ה-Push. התגיות בסוגריים מעוגלים יוחלפו בערכים אמיתיים.
+                {isHe
+                  ? 'ערכי את תבניות הודעות ה-Push. התגיות בסוגריים מעוגלים יוחלפו בערכים אמיתיים.'
+                  : 'Edit the push message templates. Placeholders in brackets will be replaced with real values.'}
               </p>
               {PUSH_EVENTS.map(ev => (
                 <div key={ev.key} className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{ev.icon}</span>
                     <label className="text-sm font-bold" style={{ color: '#4a2020' }}>
-                      {ev.label}
+                      {isHe ? ev.labelHe : ev.labelEn}
                     </label>
                   </div>
                   <AutoTextarea
                     value={pushDrafts[ev.key] ?? ''}
                     onChange={(val) => setPushDrafts(prev => ({ ...prev, [ev.key]: val }))}
                     placeholder={ev.defaultText}
+                    dir={isHe ? 'rtl' : 'ltr'}
                   />
                 </div>
               ))}
@@ -534,7 +549,7 @@ export default function AdminMessages() {
             disabled={saving}
           >
             <Save className="w-4 h-4 ml-2" />
-            {saving ? 'שומר…' : 'שמור תבניות גלובליות'}
+            {saving ? (isHe ? 'שומר…' : 'Saving…') : (isHe ? 'שמור תבניות גלובליות' : 'Save Global Templates')}
           </Button>
         </div>
       </div>
@@ -551,16 +566,17 @@ export default function AdminMessages() {
         <div className="flex items-center gap-2 mb-3">
           <Send className="w-5 h-5" style={{ color: '#D4AF37' }} strokeWidth={1.5} />
           <h2 className="font-serif font-bold text-lg" style={{ color: '#4a2020' }}>
-            שידור הודעה גלובלית
+            {isHe ? 'שידור הודעה גלובלית' : 'Broadcast Global Message'}
           </h2>
         </div>
         <p className="text-xs mb-3" style={{ color: '#8c6a6a' }}>
-          כתבי הודעה שתישלח לכל המשתמשות הרשומות במערכת בו-זמנית.
+          {isHe ? 'כתבי הודעה שתישלח לכל המשתמשות הרשומות במערכת בו-זמנית.' : 'Write a message that will be sent to all registered users at once.'}
         </p>
         <AutoTextarea
           value={broadcastText}
           onChange={setBroadcastText}
-          placeholder="כתבי את ההודעה כאן..."
+          placeholder={isHe ? 'כתבי את ההודעה כאן...' : 'Write your message here...'}
+          dir={isHe ? 'rtl' : 'ltr'}
         />
         <div className="mt-3">
           <Button
@@ -576,7 +592,7 @@ export default function AdminMessages() {
             disabled={broadcasting}
           >
             <Send className="w-4 h-4 ml-2" style={{ color: '#D4AF37' }} />
-            {broadcasting ? 'שולחת...' : 'שלח הודעה לכל המשתמשות'}
+            {broadcasting ? (isHe ? 'שולחת...' : 'Sending...') : (isHe ? 'שלח הודעה לכל המשתמשות' : 'Send Message to All Users')}
           </Button>
         </div>
       </div>

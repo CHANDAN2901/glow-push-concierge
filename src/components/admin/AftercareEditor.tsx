@@ -2,14 +2,16 @@ import AdminAftercareEditor from '@/components/AdminAftercareEditor';
 import AdminSidebar from '@/components/AdminSidebar';
 import { Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/lib/i18n';
 
 const adminViewFromPath = 'aftercare' as const;
 
 export default function AftercareEditorPage() {
+  const { t, dir } = useI18n();
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex pt-16">
+    <div className="min-h-screen bg-background flex pt-16" dir={dir}>
       <AdminSidebar active={adminViewFromPath} onNavigate={(v) => {
         if (v === 'aftercare') return;
         if (v === 'timeline') return navigate('/admin/timeline');
@@ -22,8 +24,10 @@ export default function AftercareEditorPage() {
               <Shield className="w-5 h-5 text-background" />
             </div>
             <div>
-              <h1 className="text-2xl font-serif font-bold">ADMIN EDITOR — Aftercare</h1>
-              <p className="text-xs text-muted-foreground">Manage aftercare recovery messages</p>
+              <h1 className="text-2xl font-serif font-bold">{t('superAdmin.sidebar.aftercare')}</h1>
+              <p className="text-xs text-muted-foreground">
+                {dir === 'rtl' ? 'ניהול הודעות החלמה ושלבי התאוששות' : 'Manage aftercare recovery messages'}
+              </p>
             </div>
           </div>
           <AdminAftercareEditor />

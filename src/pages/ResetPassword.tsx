@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Crown } from 'lucide-react';
+import { getRoleHomePath } from '@/lib/role-routing';
+import { resolveIsAdmin } from '@/lib/admin-auth';
 
 const ResetPassword = () => {
   const { lang } = useI18n();
@@ -44,8 +46,19 @@ const ResetPassword = () => {
     if (error) {
       toast({ title: lang === 'en' ? 'Error' : 'שגיאה', description: error.message, variant: 'destructive' });
     } else {
+      const { data: { user } } = await supabase.auth.getUser();
+      let isAdmin = resolveIsAdmin(user ?? null, false);
+
+      if (user?.id) {
+        const { data: hasAdminRole } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin' as const,
+        });
+        isAdmin = resolveIsAdmin(user, !!hasAdminRole);
+      }
+
       toast({ title: lang === 'en' ? 'Password updated!' : 'הסיסמה עודכנה!' });
-      navigate('/artist');
+      navigate(getRoleHomePath(isAdmin), { replace: true });
     }
     setLoading(false);
   };

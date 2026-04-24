@@ -14,6 +14,7 @@ import {
 } from '@/hooks/usePricingFeatureBank';
 import { FEATURES } from '@/lib/subscriptionConfig';
 import { getAccessToken, restDeleteWhere, restInsert, restSelect } from '@/lib/supabase-rest';
+import { useI18n } from '@/lib/i18n';
 
 interface PlanFeatureLinkInsert {
   plan_id: string;
@@ -32,7 +33,9 @@ function featureLabel(key: string, feature?: PricingFeature): string {
 }
 
 export default function AdminPricingEditor() {
+  const { lang } = useI18n();
   const { toast } = useToast();
+  const isHe = lang === 'he';
   const { data: fetchedPlans = [], isLoading: loading } = usePricingPlans();
   const { data: masterFeatures = [], isLoading: loadingFeatureBank } = useMasterPricingFeatures();
   const invalidatePlans = useInvalidatePricingPlans();
@@ -50,7 +53,7 @@ export default function AdminPricingEditor() {
     setPlans(fetchedPlans);
   }, [fetchedPlans]);
 
-  const updatePlan = (id: string, field: keyof PricingPlan, value: any) => {
+  const updatePlan = (id: string, field: keyof PricingPlan, value: PricingPlan[keyof PricingPlan]) => {
     setPlans((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
   };
 
@@ -173,7 +176,7 @@ export default function AdminPricingEditor() {
               total_promo_spots: plan.total_promo_spots,
               original_price_monthly: plan.original_price_monthly,
               original_price_usd: plan.original_price_usd,
-            } as any)
+            })
             .eq('id', plan.id);
 
           if (error) throw error;
@@ -208,23 +211,25 @@ export default function AdminPricingEditor() {
     }
 
     toast({
-      title: hasError ? 'שגיאה בשמירה' : 'החבילות עודכנו בהצלחה! ✨',
+      title: hasError ? (isHe ? 'שגיאה בשמירה' : 'Save failed') : (isHe ? 'החבילות עודכנו בהצלחה! ✨' : 'Plans updated successfully! ✨'),
       variant: hasError ? 'destructive' : 'default',
     });
   };
 
   if (loading || loadingFeatureBank) {
-    return <div className="text-center py-12 text-muted-foreground">טוען חבילות...</div>;
+    return <div className="text-center py-12 text-muted-foreground">{isHe ? 'טוען חבילות...' : 'Loading plans...'}</div>;
   }
 
   return (
-    <div className="space-y-6 max-w-4xl relative pb-20" dir="rtl">
+    <div className="space-y-6 max-w-4xl relative pb-20" dir={isHe ? 'rtl' : 'ltr'}>
       <div className="flex items-center gap-2 mb-2">
         <CreditCard className="w-5 h-5 text-accent" />
-        <h2 className="font-serif font-semibold text-lg">ניהול חבילות ומחירים</h2>
+        <h2 className="font-serif font-semibold text-lg">{isHe ? 'ניהול חבילות ומחירים' : 'Manage Plans & Pricing'}</h2>
       </div>
       <p className="text-sm text-muted-foreground">
-        עדכני את שמות החבילות, המחירים והפיצ׳רים. הפיצ׳רים המערכתיים מנוהלים כעת כמסד Master קבוע + קישורי Tier.
+        {isHe
+          ? 'עדכני את שמות החבילות, המחירים והפיצ׳רים. הפיצ׳רים המערכתיים מנוהלים כעת כמסד Master קבוע + קישורי Tier.'
+          : 'Update plan names, prices, and features. System features are managed as a fixed master bank with tier links.'}
       </p>
 
       {plans.map((plan) => {
@@ -236,9 +241,9 @@ export default function AdminPricingEditor() {
             className={`bg-card border rounded-xl p-6 space-y-4 ${plan.is_highlighted ? 'border-accent shadow-gold' : 'border-border'}`}
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-serif font-bold text-lg">{plan.name_he || plan.name_en}</h3>
+              <h3 className="font-serif font-bold text-lg">{isHe ? (plan.name_he || plan.name_en) : (plan.name_en || plan.name_he)}</h3>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">מודגשת</span>
+                <span className="text-muted-foreground">{isHe ? 'מודגשת' : 'Highlighted'}</span>
                 <Switch checked={plan.is_highlighted} onCheckedChange={(v) => updatePlan(plan.id, 'is_highlighted', v)} />
               </div>
             </div>
@@ -249,11 +254,11 @@ export default function AdminPricingEditor() {
                 <Input value={plan.name_he} onChange={(e) => updatePlan(plan.id, 'name_he', e.target.value)} dir="rtl" />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Name (English)</label>
+                <label className="text-sm font-medium mb-1 block">{isHe ? 'שם (אנגלית)' : 'Name (English)'}</label>
                 <Input value={plan.name_en} onChange={(e) => updatePlan(plan.id, 'name_en', e.target.value)} />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">מחיר כולל לתקופה (₪)</label>
+                <label className="text-sm font-medium mb-1 block">{isHe ? 'מחיר כולל לתקופה (₪)' : 'Total Price (₪)'}</label>
                 <Input
                   type="number"
                   value={plan.price_monthly}
@@ -261,7 +266,7 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Total Price ($)</label>
+                <label className="text-sm font-medium mb-1 block">{isHe ? 'מחיר כולל לתקופה ($)' : 'Total Price ($)'}</label>
                 <Input
                   type="number"
                   value={plan.price_usd}
@@ -269,7 +274,7 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">💰 מחיר כולל מקורי / מחוק (₪)</label>
+                <label className="text-sm font-medium mb-1 block">{isHe ? '💰 מחיר כולל מקורי / מחוק (₪)' : '💰 Original / Strikethrough Price (₪)'}</label>
                 <Input
                   type="number"
                   value={plan.original_price_monthly}
@@ -278,7 +283,7 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">💰 Original Total Price ($)</label>
+                <label className="text-sm font-medium mb-1 block">{isHe ? '💰 מחיר כולל מקורי / מחוק ($)' : '💰 Original Total Price ($)'}</label>
                 <Input
                   type="number"
                   value={plan.original_price_usd}
@@ -287,7 +292,7 @@ export default function AdminPricingEditor() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">סדר תצוגה</label>
+                <label className="text-sm font-medium mb-1 block">{isHe ? 'סדר תצוגה' : 'Display Order'}</label>
                 <Input
                   type="number"
                   value={plan.sort_order}
@@ -296,7 +301,7 @@ export default function AdminPricingEditor() {
               </div>
               {plan.slug === 'vip-3year' && (
                 <div>
-                  <label className="text-sm font-medium mb-1 block">🔥 סה״כ מקומות פרומו</label>
+                  <label className="text-sm font-medium mb-1 block">{isHe ? '🔥 סה״כ מקומות פרומו' : '🔥 Total Promo Spots'}</label>
                   <Input
                     type="number"
                     value={plan.total_promo_spots}
@@ -310,16 +315,16 @@ export default function AdminPricingEditor() {
             {plan.is_highlighted && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">תגית (עברית)</label>
+                  <label className="text-sm font-medium mb-1 block">{isHe ? 'תגית (עברית)' : 'Badge (Hebrew)'}</label>
                   <Input
                     value={plan.badge_he || ''}
                     onChange={(e) => updatePlan(plan.id, 'badge_he', e.target.value)}
                     dir="rtl"
-                    placeholder="הכי פופולרי"
+                    placeholder={isHe ? 'הכי פופולרי' : 'Most Popular in Hebrew'}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Badge (English)</label>
+                  <label className="text-sm font-medium mb-1 block">{isHe ? 'תגית (אנגלית)' : 'Badge (English)'}</label>
                   <Input
                     value={plan.badge_en || ''}
                     onChange={(e) => updatePlan(plan.id, 'badge_en', e.target.value)}
@@ -331,20 +336,20 @@ export default function AdminPricingEditor() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-1 block">כפתור CTA (עברית)</label>
+                <label className="text-sm font-medium mb-1 block">{isHe ? 'כפתור CTA (עברית)' : 'CTA Button (Hebrew)'}</label>
                 <Input value={plan.cta_he} onChange={(e) => updatePlan(plan.id, 'cta_he', e.target.value)} dir="rtl" />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">CTA Button (English)</label>
+                <label className="text-sm font-medium mb-1 block">{isHe ? 'כפתור CTA (אנגלית)' : 'CTA Button (English)'}</label>
                 <Input value={plan.cta_en} onChange={(e) => updatePlan(plan.id, 'cta_en', e.target.value)} />
               </div>
             </div>
 
             {/* Feature Keys (M:N linkage) */}
             <div>
-              <label className="text-sm font-medium mb-2 block">🔑 פיצ׳רים מערכתיים (Master Feature Bank)</label>
+              <label className="text-sm font-medium mb-2 block">{isHe ? '🔑 פיצ׳רים מערכתיים (Master Feature Bank)' : '🔑 System Features (Master Feature Bank)'}</label>
               <p className="text-xs text-muted-foreground mb-2">
-                הסרה מנתקת את הקשר לחבילה בלבד — לא מוחקת את הפיצ׳ר מהמערכת.
+                {isHe ? 'הסרה מנתקת את הקשר לחבילה בלבד — לא מוחקת את הפיצ׳ר מהמערכת.' : 'Removing only unlinks the feature from this plan and does not delete it from the system.'}
               </p>
               <div className="flex flex-wrap gap-2 mb-2">
                 {planKeys.map((key) => (
@@ -362,14 +367,14 @@ export default function AdminPricingEditor() {
 
               <Select onValueChange={(val) => addFeatureKey(plan.id, val)}>
                 <SelectTrigger className="w-72 h-9 text-sm">
-                  <SelectValue placeholder="הוסיפי פיצ׳ר ממאגר ה-Master..." />
+                  <SelectValue placeholder={isHe ? 'הוסיפי פיצ׳ר ממאגר ה-Master...' : 'Add a feature from the master bank...'} />
                 </SelectTrigger>
                 <SelectContent>
                   {masterFeatures.map((feature) => {
                     const alreadyLinked = planKeys.includes(feature.key);
                     return (
                       <SelectItem key={feature.key} value={feature.key} disabled={alreadyLinked}>
-                        {featureLabel(feature.key, feature)}{alreadyLinked ? ' (כבר משויך)' : ''}
+                        {featureLabel(feature.key, feature)}{alreadyLinked ? (isHe ? ' (כבר משויך)' : ' (already linked)') : ''}
                       </SelectItem>
                     );
                   })}
@@ -379,21 +384,21 @@ export default function AdminPricingEditor() {
 
             {/* Display Features (marketing copy) */}
             <div>
-              <label className="text-sm font-medium mb-2 block">📝 פיצ׳רים לתצוגה (טקסט שיווקי)</label>
+              <label className="text-sm font-medium mb-2 block">{isHe ? '📝 פיצ׳רים לתצוגה (טקסט שיווקי)' : '📝 Display Features (Marketing Copy)'}</label>
               <div className="space-y-2">
                 {plan.features_he.map((feat, idx) => (
                   <div key={idx} className="flex items-center gap-2">
                     <Input
                       value={feat}
                       onChange={(e) => updateFeature(plan.id, 'he', idx, e.target.value)}
-                      placeholder="פיצ׳ר בעברית"
+                      placeholder={isHe ? 'פיצ׳ר בעברית' : 'Feature in Hebrew'}
                       dir="rtl"
                       className="flex-1"
                     />
                     <Input
                       value={plan.features_en[idx] || ''}
                       onChange={(e) => updateFeature(plan.id, 'en', idx, e.target.value)}
-                      placeholder="Feature in English"
+                      placeholder={isHe ? 'פיצ׳ר באנגלית' : 'Feature in English'}
                       className="flex-1"
                     />
                     <Button
@@ -408,7 +413,7 @@ export default function AdminPricingEditor() {
                 ))}
               </div>
               <Button variant="outline" size="sm" className="mt-2" onClick={() => addFeature(plan.id)}>
-                <Plus className="w-3.5 h-3.5 ml-1" /> הוסיפי טקסט תצוגה
+                <Plus className="w-3.5 h-3.5 ml-1" /> {isHe ? 'הוסיפי טקסט תצוגה' : 'Add Display Text'}
               </Button>
             </div>
           </div>
@@ -423,7 +428,7 @@ export default function AdminPricingEditor() {
           disabled={saving}
         >
           <Save className="w-4 h-4 ml-2" />
-          {saving ? 'שומר...' : 'שמור שינויים'}
+          {saving ? (isHe ? 'שומר...' : 'Saving...') : (isHe ? 'שמור שינויים' : 'Save Changes')}
         </Button>
       </div>
     </div>

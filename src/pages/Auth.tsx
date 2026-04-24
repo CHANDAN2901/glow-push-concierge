@@ -12,6 +12,8 @@ import { Link } from 'react-router-dom';
 import glowpushLogo from '@/assets/glowpush-logo.png';
 import PostSignupInstallPrompt from '@/components/PostSignupInstallPrompt';
 import { sendAuthNotification } from '@/lib/sendServerPushNotification';
+import { sanitizeRoleDestination } from '@/lib/role-routing';
+import { resolveIsAdmin } from '@/lib/admin-auth';
 
 type PromoStatus = 'idle' | 'checking' | 'valid_referral' | 'valid_academy' | 'invalid';
 type PromoCodeType = 'ACADEMY' | 'GRADUATE' | 'INFLUENCERS' | 'generic' | null;
@@ -29,14 +31,10 @@ const Auth = () => {
   useEffect(() => {
     if (!authLoading && !roleLoading && user) {
       const requested = (location.state as any)?.from?.pathname;
-      const fallback = isAdmin ? '/super-admin' : '/artist';
-      // Don't honor a requested artist route for admins, or vice versa
-      let dest = requested || fallback;
-      if (isAdmin && dest === '/artist') dest = '/super-admin';
-      if (!isAdmin && dest === '/super-admin') dest = '/artist';
-      navigate(dest, { replace: true });
+      const destination = sanitizeRoleDestination(requested, isAdmin);
+      navigate(destination, { replace: true });
     }
-  }, [user, authLoading, isAdmin, roleLoading]);
+  }, [user, authLoading, isAdmin, roleLoading, location.state, navigate]);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -191,7 +189,7 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
           // 🔔 Push notification on LOGIN FAILURE
           void sendAuthNotification({
@@ -212,8 +210,24 @@ const Auth = () => {
         });
 
         sessionStorage.removeItem('artistActiveTab');
-        const from = (location.state as any)?.from?.pathname || '/artist';
-        navigate(from, { replace: true });
+        const requested = (location.state as any)?.from?.pathname;
+        let signedInIsAdmin = resolveIsAdmin(signInData.user ?? null, false);
+
+        if (signInData.user?.id) {
+          const { data: hasAdminRole, error: roleError } = await supabase.rpc('has_role', {
+            _user_id: signInData.user.id,
+            _role: 'admin' as const,
+          });
+
+          if (roleError) {
+            console.warn('Failed to resolve role during login redirect:', roleError);
+          } else {
+            signedInIsAdmin = resolveIsAdmin(signInData.user, !!hasAdminRole);
+          }
+        }
+
+        const destination = sanitizeRoleDestination(requested, signedInIsAdmin);
+        navigate(destination, { replace: true });
       } else {
         const hasValidCode = promoStatus === 'valid_referral' || promoStatus === 'valid_academy';
         const { data: signUpData, error } = await supabase.auth.signUp({

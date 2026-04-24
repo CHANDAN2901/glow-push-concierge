@@ -17,6 +17,17 @@ const CATEGORIES: { key: FaqCategory; tKey: string }[] = [
   { key: 'photos', tKey: 'faq.cat.photos' },
 ];
 
+const normalizeFaqCategory = (category?: string | null, question = ''): FaqCategory => {
+  if (!category) return categorizeFaq(question);
+
+  const normalized = category.trim().toLowerCase();
+  if (normalized === 'client_app' || normalized === 'אפליקציית הלקוחות') return 'client_app';
+  if (normalized === 'general' || normalized === 'שימוש שוטף') return 'general';
+  if (normalized === 'photos' || normalized === "תמונות וקולאז'") return 'photos';
+
+  return categorizeFaq(question);
+};
+
 const categorizeFaq = (q: string): FaqCategory => {
   const lower = q.toLowerCase();
   if (lower.includes('לקוח') || lower.includes('client') || lower.includes('אפליקציה') || lower.includes('app') || lower.includes('קישור') || lower.includes('link') || lower.includes('התחבר') || lower.includes('connect') || lower.includes('הורד') || lower.includes('download') || lower.includes('פוש') || lower.includes('push') || lower.includes('התראות') || lower.includes('notification'))
@@ -31,7 +42,7 @@ interface FaqItem {
   q_en: string;
   a_he: string;
   a_en: string;
-  cat?: string;
+  cat?: FaqCategory;
 }
 
 const FALLBACK_FAQ: FaqItem[] = [
@@ -69,7 +80,7 @@ export default function FaqPage() {
             q_en: f.question_en || f.question_he,
             a_he: f.answer_he,
             a_en: f.answer_en || f.answer_he,
-            cat: f.category,
+            cat: normalizeFaqCategory(f.category, f.question_he),
           }))
         );
       }
@@ -84,7 +95,7 @@ export default function FaqPage() {
   const getA = (item: FaqItem) => isHe ? item.a_he : item.a_en;
 
   const filtered = faqItems
-    .filter((item) => (item.cat ? item.cat === activeCategory : categorizeFaq(item.q_he) === activeCategory))
+    .filter((item) => (item.cat ?? categorizeFaq(item.q_he)) === activeCategory)
     .filter(
       (item) =>
         !search || getQ(item).toLowerCase().includes(search.toLowerCase()) ||

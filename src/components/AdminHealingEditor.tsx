@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/lib/i18n';
 
 interface HealingPhaseRow {
   id: string;
@@ -21,7 +22,9 @@ interface HealingPhaseRow {
 }
 
 export default function AdminHealingEditor() {
+  const { lang } = useI18n();
   const { toast } = useToast();
+  const isHe = lang === 'he';
   const [phases, setPhases] = useState<HealingPhaseRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -32,8 +35,8 @@ export default function AdminHealingEditor() {
     try {
       const data = await restSelect<HealingPhaseRow>('healing_phases', 'order=sort_order.asc');
       setPhases(data);
-    } catch (e: any) {
-      console.error('Failed to fetch healing phases:', e?.message);
+    } catch (e: unknown) {
+      console.error('Failed to fetch healing phases:', e instanceof Error ? e.message : e);
     }
     setLoading(false);
   };
@@ -42,7 +45,7 @@ export default function AdminHealingEditor() {
 
   const filtered = phases.filter(p => p.treatment_type === activeTreatment);
 
-  const updateField = (id: string, field: keyof HealingPhaseRow, value: any) => {
+  const updateField = (id: string, field: keyof HealingPhaseRow, value: HealingPhaseRow[keyof HealingPhaseRow]) => {
     setPhases(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
   };
 
@@ -91,10 +94,21 @@ export default function AdminHealingEditor() {
       }
       await fetchPhases();
       toast({ title: 'השינויים נשמרו בהצלחה במסד הנתונים ✅', className: 'bg-green-600 text-white border-green-700' });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Save failed:', err);
-      toast({ title: 'שגיאה בשמירה: ' + (err?.message || 'Unknown error'), variant: 'destructive' });
+      toast({
+        title: isHe
+          ? 'שגיאה בשמירה: ' + (err instanceof Error ? err.message : 'Unknown error')
+          : 'Save failed: ' + (err instanceof Error ? err.message : 'Unknown error'),
+        variant: 'destructive',
+      });
+      setSaving(false);
+      return;
     }
+    toast({
+      title: isHe ? 'השינויים נשמרו בהצלחה במסד הנתונים ✅' : 'Changes saved successfully to the database ✅',
+      className: 'bg-green-600 text-white border-green-700',
+    });
     setSaving(false);
   };
 
@@ -107,15 +121,17 @@ export default function AdminHealingEditor() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl relative pb-20" dir="rtl">
+    <div className="space-y-6 max-w-3xl relative pb-20" dir={isHe ? 'rtl' : 'ltr'}>
       <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-center gap-2 mb-5">
           <Heart className="w-5 h-5 text-accent" />
-          <h2 className="font-serif font-semibold text-lg">עריכת תוכן טיימליין ההחלמה</h2>
+          <h2 className="font-serif font-semibold text-lg">{isHe ? 'עריכת תוכן טיימליין ההחלמה' : 'Edit Healing Timeline Content'}</h2>
         </div>
 
         <p className="text-sm text-muted-foreground mb-4">
-          ערכי את הטקסטים שהלקוחה רואה בכל שלב של מסע ההחלמה. השינויים מתעדכנים מיידית.
+          {isHe
+            ? 'ערכי את הטקסטים שהלקוחה רואה בכל שלב של מסע ההחלמה. השינויים מתעדכנים מיידית.'
+            : 'Edit the text the client sees at each stage of the healing journey. Changes update immediately.'}
         </p>
 
         {/* Treatment toggle */}
@@ -130,7 +146,7 @@ export default function AdminHealingEditor() {
                   : 'border-border text-muted-foreground hover:border-accent/30'
               }`}
             >
-              {t === 'eyebrows' ? '✍️ גבות' : '👄 שפתיים'}
+              {t === 'eyebrows' ? (isHe ? '✍️ גבות' : '✍️ Eyebrows') : (isHe ? '👄 שפתיים' : '👄 Lips')}
             </button>
           ))}
         </div>
@@ -148,7 +164,7 @@ export default function AdminHealingEditor() {
                 />
                 <div className="flex-1 grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-xs text-muted-foreground">מיום</label>
+                    <label className="text-xs text-muted-foreground">{isHe ? 'מיום' : 'From day'}</label>
                     <Input
                       type="number"
                       value={phase.day_start}
@@ -158,7 +174,7 @@ export default function AdminHealingEditor() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground">עד יום</label>
+                    <label className="text-xs text-muted-foreground">{isHe ? 'עד יום' : 'To day'}</label>
                     <Input
                       type="number"
                       value={phase.day_end}
@@ -173,16 +189,16 @@ export default function AdminHealingEditor() {
                   onChange={(e) => updateField(phase.id, 'severity', e.target.value)}
                   className="text-xs rounded-lg border border-border bg-background px-3 py-2"
                 >
-                  <option value="high">🔴 חשוב</option>
-                  <option value="medium">🟡 בינוני</option>
-                  <option value="low">🟢 קל</option>
+                  <option value="high">{isHe ? '🔴 חשוב' : '🔴 High priority'}</option>
+                  <option value="medium">{isHe ? '🟡 בינוני' : '🟡 Medium'}</option>
+                  <option value="low">{isHe ? '🟢 קל' : '🟢 Low'}</option>
                 </select>
               </div>
 
               {/* Titles */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium mb-1 block">כותרת בעברית</label>
+                  <label className="text-xs font-medium mb-1 block">{isHe ? 'כותרת בעברית' : 'Title in Hebrew'}</label>
                   <Input
                     value={phase.title_he}
                     onChange={(e) => updateField(phase.id, 'title_he', e.target.value)}
@@ -190,7 +206,7 @@ export default function AdminHealingEditor() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium mb-1 block">כותרת באנגלית</label>
+                  <label className="text-xs font-medium mb-1 block">{isHe ? 'כותרת באנגלית' : 'Title in English'}</label>
                   <Input
                     value={phase.title_en}
                     onChange={(e) => updateField(phase.id, 'title_en', e.target.value)}
@@ -201,23 +217,23 @@ export default function AdminHealingEditor() {
 
               {/* Consolidated instruction */}
               <div>
-                <label className="text-xs font-medium mb-2 block">📋 הנחיות ללקוחה</label>
+                <label className="text-xs font-medium mb-2 block">{isHe ? '📋 הנחיות ללקוחה' : '📋 Client Instructions'}</label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">בעברית</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">{isHe ? 'בעברית' : 'In Hebrew'}</label>
                     <Textarea
                       value={phase.steps_he.join('\n')}
                       onChange={(e) => {
                         const lines = e.target.value.split('\n').filter(l => l.trim());
                         updateField(phase.id, 'steps_he', lines);
                       }}
-                      placeholder="הנחיות ללקוחה בעברית (שורה לכל הנחיה)…"
-                      dir="rtl"
+                      placeholder={isHe ? 'הנחיות ללקוחה בעברית (שורה לכל הנחיה)…' : 'Hebrew instructions for the client (one per line)…'}
+                      dir={isHe ? 'rtl' : 'ltr'}
                       className="text-sm min-h-[100px]"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">In English</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">{isHe ? 'באנגלית' : 'In English'}</label>
                     <Textarea
                       value={phase.steps_en.join('\n')}
                       onChange={(e) => {
@@ -244,7 +260,7 @@ export default function AdminHealingEditor() {
           disabled={saving}
         >
           {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
-          {saving ? 'שומר…' : 'שמור שינויים בטיימליין'}
+          {saving ? (isHe ? 'שומר…' : 'Saving…') : (isHe ? 'שמור שינויים בטיימליין' : 'Save Timeline Changes')}
         </Button>
       </div>
     </div>

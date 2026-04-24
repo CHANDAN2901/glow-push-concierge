@@ -17,6 +17,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { CalendarIcon, Plus, Trash2, Ticket } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 interface Coupon {
   id: string;
@@ -34,7 +35,9 @@ interface Coupon {
 }
 
 export default function CouponManager() {
+  const { lang } = useI18n();
   const { toast } = useToast();
+  const isHe = lang === 'he';
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +65,7 @@ export default function CouponManager() {
 
   const handleCreate = async () => {
     if (!code.trim()) {
-      toast({ title: 'יש להזין קוד קופון', variant: 'destructive' });
+      toast({ title: isHe ? 'יש להזין קוד קופון' : 'Please enter a coupon code', variant: 'destructive' });
       return;
     }
     setCreating(true);
@@ -79,11 +82,11 @@ export default function CouponManager() {
       current_uses: 0,
     };
 
-    const { error } = await supabase.from('promo_codes').insert(payload as any);
+    const { error } = await supabase.from('promo_codes').insert(payload);
     if (error) {
-      toast({ title: 'שגיאה ביצירת קופון', description: error.message, variant: 'destructive' });
+      toast({ title: isHe ? 'שגיאה ביצירת קופון' : 'Error creating coupon', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'קופון נוצר בהצלחה ✨' });
+      toast({ title: isHe ? 'קופון נוצר בהצלחה ✨' : 'Coupon created successfully ✨' });
       setCode(''); setLabel(''); setDiscountPercent(''); setFreeMonths('');
       setExpirationDate(undefined); setMaxUses(''); setDiscountType('percentage');
       setNewUsersOnly(false);
@@ -99,7 +102,7 @@ export default function CouponManager() {
 
   const deleteCoupon = async (id: string) => {
     await supabase.from('promo_codes').delete().eq('id', id);
-    toast({ title: 'קופון נמחק' });
+    toast({ title: isHe ? 'קופון נמחק' : 'Coupon deleted' });
     fetchCoupons();
   };
 
@@ -109,17 +112,17 @@ export default function CouponManager() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl" dir="rtl">
+    <div className="space-y-6 max-w-5xl" dir={isHe ? 'rtl' : 'ltr'}>
       {/* Create Form */}
       <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-center gap-2 mb-5">
           <Ticket className="w-5 h-5 text-accent" />
-          <h2 className="font-serif font-semibold text-lg">יצירת קופון חדש</h2>
+          <h2 className="font-serif font-semibold text-lg">{isHe ? 'יצירת קופון חדש' : 'Create New Coupon'}</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label className="mb-1.5 block">קוד קופון</Label>
+            <Label className="mb-1.5 block">{isHe ? 'קוד קופון' : 'Coupon Code'}</Label>
             <Input
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -129,26 +132,26 @@ export default function CouponManager() {
             />
           </div>
           <div>
-            <Label className="mb-1.5 block">תיאור / תווית</Label>
-            <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="הנחה לתערוכה" />
+            <Label className="mb-1.5 block">{isHe ? 'תיאור / תווית' : 'Description / Label'}</Label>
+            <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder={isHe ? 'הנחה לתערוכה' : 'Expo discount'} />
           </div>
 
           <div>
-            <Label className="mb-1.5 block">סוג הנחה</Label>
+            <Label className="mb-1.5 block">{isHe ? 'סוג הנחה' : 'Discount Type'}</Label>
             <Select value={discountType} onValueChange={setDiscountType}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="percentage">% אחוז הנחה</SelectItem>
-                <SelectItem value="free_months">חודשים חינם</SelectItem>
+                <SelectItem value="percentage">{isHe ? '% אחוז הנחה' : '% Percentage Discount'}</SelectItem>
+                <SelectItem value="free_months">{isHe ? 'חודשים חינם' : 'Free Months'}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {discountType === 'percentage' ? (
             <div>
-              <Label className="mb-1.5 block">אחוז הנחה</Label>
+              <Label className="mb-1.5 block">{isHe ? 'אחוז הנחה' : 'Discount Percent'}</Label>
               <Input
                 type="number"
                 min="1"
@@ -161,7 +164,7 @@ export default function CouponManager() {
             </div>
           ) : (
             <div>
-              <Label className="mb-1.5 block">מספר חודשים חינם</Label>
+              <Label className="mb-1.5 block">{isHe ? 'מספר חודשים חינם' : 'Number of Free Months'}</Label>
               <Input
                 type="number"
                 min="1"
@@ -175,18 +178,18 @@ export default function CouponManager() {
           )}
 
           <div>
-            <Label className="mb-1.5 block">תאריך תפוגה</Label>
+            <Label className="mb-1.5 block">{isHe ? 'תאריך תפוגה' : 'Expiration Date'}</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    'w-full justify-start text-right font-normal',
+                    `w-full justify-start ${isHe ? 'text-right' : 'text-left'} font-normal`,
                     !expirationDate && 'text-muted-foreground'
                   )}
                 >
                   <CalendarIcon className="ml-2 h-4 w-4" />
-                  {expirationDate ? format(expirationDate, 'dd/MM/yyyy') : 'ללא הגבלה'}
+                  {expirationDate ? format(expirationDate, 'dd/MM/yyyy') : (isHe ? 'ללא הגבלה' : 'No limit')}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -203,13 +206,13 @@ export default function CouponManager() {
           </div>
 
           <div>
-            <Label className="mb-1.5 block">מגבלת שימושים</Label>
+            <Label className="mb-1.5 block">{isHe ? 'מגבלת שימושים' : 'Usage Limit'}</Label>
             <Input
               type="number"
               min="1"
               value={maxUses}
               onChange={(e) => setMaxUses(e.target.value)}
-              placeholder="ללא הגבלה"
+              placeholder={isHe ? 'ללא הגבלה' : 'No limit'}
               dir="ltr"
             />
           </div>
@@ -217,8 +220,10 @@ export default function CouponManager() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center justify-between gap-3 bg-muted/30 rounded-lg px-4 py-3">
               <div>
-                <Label className="block">למשתמשות חדשות בלבד</Label>
-                <span className="text-xs text-muted-foreground">הקופון יהיה זמין רק לאמניות שנרשמות לראשונה</span>
+                <Label className="block">{isHe ? 'למשתמשות חדשות בלבד' : 'New Users Only'}</Label>
+                <span className="text-xs text-muted-foreground">
+                  {isHe ? 'הקופון יהיה זמין רק לאמניות שנרשמות לראשונה' : 'The coupon will only be available for artists signing up for the first time'}
+                </span>
               </div>
               <Switch checked={newUsersOnly} onCheckedChange={setNewUsersOnly} className="data-[state=checked]:bg-accent" />
             </div>
@@ -231,14 +236,14 @@ export default function CouponManager() {
           className="mt-5"
         >
           <Plus className="w-4 h-4 ml-1" />
-          צור קופון
+          {isHe ? 'צור קופון' : 'Create Coupon'}
         </Button>
       </div>
 
       {/* Active Coupons Table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="p-5 border-b border-border">
-          <h2 className="font-serif font-semibold text-lg">קופונים קיימים</h2>
+          <h2 className="font-serif font-semibold text-lg">{isHe ? 'קופונים קיימים' : 'Existing Coupons'}</h2>
         </div>
 
         {loading ? (
@@ -247,21 +252,21 @@ export default function CouponManager() {
           </div>
         ) : coupons.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
-            אין קופונים עדיין. צרי את הראשון! 🎫
+            {isHe ? 'אין קופונים עדיין. צרי את הראשון! 🎫' : 'No coupons yet. Create the first one! 🎫'}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead>קוד</TableHead>
-                  <TableHead>תיאור</TableHead>
-                  <TableHead>הנחה</TableHead>
-                  <TableHead>תפוגה</TableHead>
-                  <TableHead className="text-center">שימושים</TableHead>
-                  <TableHead className="text-center">חדשות בלבד</TableHead>
-                  <TableHead className="text-center">סטטוס</TableHead>
-                  <TableHead>פעולות</TableHead>
+                  <TableHead>{isHe ? 'קוד' : 'Code'}</TableHead>
+                  <TableHead>{isHe ? 'תיאור' : 'Description'}</TableHead>
+                  <TableHead>{isHe ? 'הנחה' : 'Discount'}</TableHead>
+                  <TableHead>{isHe ? 'תפוגה' : 'Expiry'}</TableHead>
+                  <TableHead className="text-center">{isHe ? 'שימושים' : 'Uses'}</TableHead>
+                  <TableHead className="text-center">{isHe ? 'חדשות בלבד' : 'New Only'}</TableHead>
+                  <TableHead className="text-center">{isHe ? 'סטטוס' : 'Status'}</TableHead>
+                  <TableHead>{isHe ? 'פעולות' : 'Actions'}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -278,20 +283,20 @@ export default function CouponManager() {
                       <TableCell className="text-sm">{c.label}</TableCell>
                       <TableCell className="text-sm">
                         {c.discount_type === 'free_months'
-                          ? `${c.free_months || 0} חודשים חינם`
+                          ? `${c.free_months || 0} ${isHe ? 'חודשים חינם' : 'free months'}`
                           : `${c.discount_percent || 0}%`}
                       </TableCell>
                       <TableCell className="text-sm">
                         {c.expiration_date
                           ? format(new Date(c.expiration_date), 'dd/MM/yyyy')
-                          : '—'}
+                          : (isHe ? '—' : '—')}
                       </TableCell>
                       <TableCell className="text-center text-sm font-medium">
                         {c.current_uses}{c.max_uses !== null ? `/${c.max_uses}` : ''}
                       </TableCell>
                       <TableCell className="text-center text-sm">
                         {c.new_users_only ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">✓ כן</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">✓ {isHe ? 'כן' : 'Yes'}</span>
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}
@@ -304,10 +309,10 @@ export default function CouponManager() {
                           effectiveStatus === 'limit' && 'bg-orange-500/10 text-orange-600',
                           effectiveStatus === 'inactive' && 'bg-muted text-muted-foreground',
                         )}>
-                          {effectiveStatus === 'active' && 'פעיל'}
-                          {effectiveStatus === 'expired' && 'פג תוקף'}
-                          {effectiveStatus === 'limit' && 'מוצה'}
-                          {effectiveStatus === 'inactive' && 'מושבת'}
+                          {effectiveStatus === 'active' && (isHe ? 'פעיל' : 'Active')}
+                          {effectiveStatus === 'expired' && (isHe ? 'פג תוקף' : 'Expired')}
+                          {effectiveStatus === 'limit' && (isHe ? 'מוצה' : 'Limit Reached')}
+                          {effectiveStatus === 'inactive' && (isHe ? 'מושבת' : 'Disabled')}
                         </span>
                       </TableCell>
                       <TableCell>

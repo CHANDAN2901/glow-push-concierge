@@ -2,14 +2,16 @@ import AdminHealingEditor from '@/components/AdminHealingEditor';
 import AdminSidebar from '@/components/AdminSidebar';
 import { Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/lib/i18n';
 
 const adminViewFromPath = 'timeline' as const;
 
 export default function TimelineEditorPage() {
+  const { t, dir } = useI18n();
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex pt-16">
+    <div className="min-h-screen bg-background flex pt-16" dir={dir}>
       <AdminSidebar active={adminViewFromPath} onNavigate={(v) => {
         if (v === 'timeline') return;
         if (v === 'aftercare') return navigate('/admin/aftercare');
@@ -22,8 +24,10 @@ export default function TimelineEditorPage() {
               <Shield className="w-5 h-5 text-background" />
             </div>
             <div>
-              <h1 className="text-2xl font-serif font-bold">ADMIN EDITOR — Timeline</h1>
-              <p className="text-xs text-muted-foreground">Manage healing phase timeline</p>
+              <h1 className="text-2xl font-serif font-bold">{t('superAdmin.sidebar.timeline')}</h1>
+              <p className="text-xs text-muted-foreground">
+                {dir === 'rtl' ? 'ניהול ציר הזמן של שלבי ההחלמה' : 'Manage healing phase timeline'}
+              </p>
             </div>
           </div>
           <AdminHealingEditor />
