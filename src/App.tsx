@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RequireAuth from "@/components/RequireAuth";
 import RequireAdmin from "@/components/RequireAdmin";
+import RequireNonAdmin from "@/components/RequireNonAdmin";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { I18nProvider } from "@/components/I18nProvider";
 import Header from "@/components/Header";
@@ -60,7 +61,7 @@ const App = () => (
               <Route path="/" element={<MarketingLanding />} />
               <Route path="/c/:clientId" element={<ClientHome />} />
               <Route path="/client" element={<ClientHome />} />
-              <Route path="/artist" element={<RequireAuth><ArtistDashboard /></RequireAuth>} />
+              <Route path="/artist" element={<RequireAuth><RequireNonAdmin><ArtistDashboard /></RequireNonAdmin></RequireAuth>} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/auth" element={<Auth />} />
 
@@ -73,7 +74,7 @@ const App = () => (
               <Route path="/admin/timeline-settings" element={<RequireAuth><ProtectedRoute featureId="healing_timeline"><TimelineSettings /></ProtectedRoute></RequireAuth>} />
               <Route path="/admin/faq" element={<RequireAuth><FaqPage /></RequireAuth>} />
               <Route path="/admin/faq-manager" element={<RequireAuth><RequireAdmin><FaqManager /></RequireAdmin></RequireAuth>} />
-              <Route path="/super-admin" element={<RequireAuth><SuperAdmin /></RequireAuth>} />
+              <Route path="/super-admin" element={<RequireAuth><RequireAdmin><SuperAdmin /></RequireAdmin></RequireAuth>} />
               <Route path="/debug-test" element={<DebugTest />} />
               <Route path="/client-profile" element={<RequireAuth><ClientProfile /></RequireAuth>} />
               <Route path="/reset-password" element={<ResetPassword />} />
