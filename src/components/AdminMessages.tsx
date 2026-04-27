@@ -279,7 +279,7 @@ export default function AdminMessages() {
           } else {
             await supabase.from('message_templates').insert({
               template_key: ev.key,
-              label: ev.label,
+              label: isHe ? ev.labelHe : ev.labelEn,
               default_text: text,
               placeholders: [],
             });
