@@ -1,7 +1,8 @@
-import { LayoutDashboard, Users, Megaphone, Settings, MessageSquareText, Heart, Stethoscope, CreditCard, ClipboardList, Sparkles, Pencil, HelpCircle, Crown, ListChecks, ScrollText } from 'lucide-react';
+import { LayoutDashboard, Users, Megaphone, Settings, MessageSquareText, Heart, Stethoscope, CreditCard, ClipboardList, Sparkles, Pencil, HelpCircle, Crown, ListChecks, ScrollText, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'clinic-policy' | 'faq' | 'faq-manager' | 'settings';
 
@@ -70,6 +71,20 @@ export default function AdminSidebar({ active, onNavigate, isAdmin }: AdminSideb
             </button>
           );
         })}
+
+        {/* Logout */}
+        <button
+          onClick={async () => {
+            localStorage.clear();
+            sessionStorage.clear();
+            await supabase.auth.signOut();
+            window.location.href = '/auth';
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-muted-foreground hover:bg-destructive/10 hover:text-destructive mt-2"
+        >
+          <LogOut className="w-4 h-4" />
+          {t('superAdmin.sidebar.logout')}
+        </button>
 
         {/* Premium Upgrade Link */}
         <Link

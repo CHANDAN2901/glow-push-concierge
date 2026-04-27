@@ -426,6 +426,7 @@ export const translations: Record<string, Record<Language, string>> = {
   'superAdmin.nav.settings': { en: 'Settings', he: 'הגדרות' },
   'superAdmin.sidebar.brand': { en: 'GlowPush Admin', he: 'GlowPush Admin' },
   'superAdmin.sidebar.upgrade': { en: 'Upgrade Plan', he: 'שדרוג מסלול' },
+  'superAdmin.sidebar.logout': { en: 'Log Out', he: 'התנתקות' },
   'superAdmin.sidebar.dashboard': { en: 'Dashboard', he: 'לוח בקרה' },
   'superAdmin.sidebar.users': { en: 'Users', he: 'משתמשים' },
   'superAdmin.sidebar.announcements': { en: 'Announcements', he: 'הודעות' },
