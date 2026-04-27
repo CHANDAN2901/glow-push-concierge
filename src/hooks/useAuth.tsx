@@ -56,7 +56,42 @@ export function useAuth() {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn('[signOut] supabase signOut failed', e);
+    }
+
+    // Clear local + session storage so no stale auth/role/cache survives
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn('[signOut] storage clear failed', e);
+    }
+
+    // Unregister service workers so the next load fetches fresh JS
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+    } catch (e) {
+      console.warn('[signOut] sw unregister failed', e);
+    }
+
+    // Wipe Cache Storage (PWA / workbox caches holding old bundles)
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+    } catch (e) {
+      console.warn('[signOut] cache clear failed', e);
+    }
+
+    // Force a full reload bypassing the bfcache so the new bundle loads
+    window.location.replace('/auth');
   };
 
   return { user, loading, isAdmin, roleLoading, signOut };
