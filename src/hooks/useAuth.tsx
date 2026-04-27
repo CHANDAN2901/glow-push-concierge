@@ -62,35 +62,33 @@ export function useAuth() {
       console.warn('[signOut] supabase signOut failed', e);
     }
 
-    // Clear local + session storage so no stale auth/role/cache survives
+    // Clear storage but PRESERVE push notification state so the user keeps
+    // receiving notifications (e.g. appointment reminders) after logout.
     try {
+      const PRESERVE_PREFIXES = ['push_', 'notif_', 'vapid', 'subscription_'];
+      const preserved: Record<string, string> = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && PRESERVE_PREFIXES.some((p) => key.toLowerCase().includes(p))) {
+          const v = localStorage.getItem(key);
+          if (v !== null) preserved[key] = v;
+        }
+      }
       localStorage.clear();
       sessionStorage.clear();
+      for (const [k, v] of Object.entries(preserved)) {
+        localStorage.setItem(k, v);
+      }
     } catch (e) {
       console.warn('[signOut] storage clear failed', e);
     }
 
-    // Unregister service workers so the next load fetches fresh JS
-    try {
-      if ('serviceWorker' in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map((r) => r.unregister()));
-      }
-    } catch (e) {
-      console.warn('[signOut] sw unregister failed', e);
-    }
+    // DO NOT unregister the service worker — it powers Web Push notifications.
+    // DO NOT delete Cache Storage either, as the SW relies on its caches.
+    // The next load will still pick up the latest JS via normal HTTP cache
+    // headers; if the user needs the absolute latest bundle they can hard-refresh.
 
-    // Wipe Cache Storage (PWA / workbox caches holding old bundles)
-    try {
-      if ('caches' in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map((k) => caches.delete(k)));
-      }
-    } catch (e) {
-      console.warn('[signOut] cache clear failed', e);
-    }
-
-    // Force a full reload bypassing the bfcache so the new bundle loads
+    // Force a full reload bypassing the bfcache so auth state is fresh
     window.location.replace('/auth');
   };
 
