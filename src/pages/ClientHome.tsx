@@ -360,7 +360,11 @@ const ClientHome = () => {
         if (data?.treatment_date) setDbTreatmentDate(data.treatment_date);
         if (data?.treatment_type) setDbTreatmentType(data.treatment_type);
         if (data?.artist_id) setDbArtistId(data.artist_id);
-        if (data?.preferred_lang === 'en' || data?.preferred_lang === 'he') setLang(data.preferred_lang);
+        // Only apply DB preference on a fresh device (no saved choice). If localStorage
+        // already has a value — either from a URL param or a previous manual toggle — keep it.
+        if (!localStorage.getItem('glow-lang') && (data?.preferred_lang === 'en' || data?.preferred_lang === 'he')) {
+          setLang(data.preferred_lang);
+        }
       } catch (err) { if (!cancelled) console.error('[ClientHome] err:', err); }
     })();
     return () => { cancelled = true; };

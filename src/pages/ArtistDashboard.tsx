@@ -934,11 +934,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         } as any).select('code, form_token').single();
         const token = (data as any)?.form_token as string | undefined;
         if (!error && data?.code && token) {
-          return `${base}?form_code=${data.code}&form_token=${token}`;
+          return lang === 'en'
+            ? `${base}?form_code=${data.code}&form_token=${token}&lang=en`
+            : `${base}?form_code=${data.code}&form_token=${token}`;
         }
       }
     } catch {}
-    return base;
+    return lang === 'en' ? `${base}?lang=en` : base;
   };
 
   // Build short health declaration link via tokenized form_links table
@@ -1144,6 +1146,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       if (artistName) params.set('artist', artistName);
       if (artistPhone) params.set('phone', formatPhone(artistPhone));
       if (shopProducts.length > 0) params.set('shop', encodeShopForUrl(shopProducts));
+      if (lang === 'en') params.set('lang', 'en');
       return `${origin}/c/new?${params.toString()}`;
     } catch { return ''; }
   };
@@ -2890,7 +2893,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <button
                     onClick={() => {
                       try {
-                        const link = `${origin}/c/${encodeURIComponent((healingJourneyClient as any)?.dbId ?? '')}?name=${encodeURIComponent(healingJourneyClient?.name ?? '')}&treatment=${encodeURIComponent(healingJourneyClient?.treatment ?? '')}&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}`;
+                        const link = `${origin}/c/${encodeURIComponent((healingJourneyClient as any)?.dbId ?? '')}?name=${encodeURIComponent(healingJourneyClient?.name ?? '')}&treatment=${encodeURIComponent(healingJourneyClient?.treatment ?? '')}&start=${new Date().toISOString().split('T')[0]}&artist_id=${encodeURIComponent(userProfileId || '')}${lang === 'en' ? '&lang=en' : ''}`;
                         openWhatsApp(healingJourneyClient?.phone ?? '', healingJourneyClient?.name ?? '', link);
                         toast({ title: isHe ? '✨ מסע ההחלמה הופעל בהצלחה! ההודעות מתוזמנות.' : '✨ Healing journey activated! Messages are scheduled.' });
                       } catch (err) {
@@ -3630,7 +3633,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 {/* Logout */}
                 <button
                   onClick={async () => {
+                    const savedLang = localStorage.getItem('glow-lang');
                     localStorage.clear();
+                    if (savedLang) localStorage.setItem('glow-lang', savedLang);
                     await supabase.auth.signOut();
                     window.location.href = '/auth';
                   }}
@@ -4192,7 +4197,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   const { error } = await supabase.functions.invoke('delete-account');
                   if (error) throw error;
                   await supabase.auth.signOut();
+                  const savedLang = localStorage.getItem('glow-lang');
                   localStorage.clear();
+                  if (savedLang) localStorage.setItem('glow-lang', savedLang);
                   window.location.href = '/marketing';
                 } catch (err: any) {
                   toast({ title: t('artist.dashboard.deleteAccountFailed'), description: err?.message, variant: 'destructive' });

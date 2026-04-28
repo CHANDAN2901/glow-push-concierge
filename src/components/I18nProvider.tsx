@@ -2,6 +2,14 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { I18nContext, Language, translate } from '@/lib/i18n';
 
 const getDefaultLanguage = (): Language => {
+  // URL param takes highest priority — artist can pass ?lang=en in client links
+  try {
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang === 'en' || urlLang === 'he') {
+      localStorage.setItem('glow-lang', urlLang);
+      return urlLang;
+    }
+  } catch {}
   const saved = localStorage.getItem('glow-lang');
   if (saved === 'en' || saved === 'he') return saved;
   return 'he'; // Force Hebrew by default

@@ -75,8 +75,10 @@ export default function AdminSidebar({ active, onNavigate, isAdmin }: AdminSideb
         {/* Logout */}
         <button
           onClick={async () => {
+            const savedLang = localStorage.getItem('glow-lang');
             localStorage.clear();
             sessionStorage.clear();
+            if (savedLang) localStorage.setItem('glow-lang', savedLang);
             await supabase.auth.signOut();
             window.location.href = '/auth';
           }}

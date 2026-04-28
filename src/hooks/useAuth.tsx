@@ -65,7 +65,7 @@ export function useAuth() {
     // Clear storage but PRESERVE push notification state so the user keeps
     // receiving notifications (e.g. appointment reminders) after logout.
     try {
-      const PRESERVE_PREFIXES = ['push_', 'notif_', 'vapid', 'subscription_'];
+      const PRESERVE_PREFIXES = ['push_', 'notif_', 'vapid', 'subscription_', 'glow-lang'];
       const preserved: Record<string, string> = {};
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
