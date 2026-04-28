@@ -24,7 +24,11 @@ const NOTIF_PROMPTED_KEY = 'glow-notif-prompted';
 
 type Step = 'install' | 'notifications' | 'done';
 
-const InstallBanner = forwardRef<HTMLDivElement>((_, ref) => {
+interface InstallBannerProps {
+  onEnableNotifications?: () => Promise<void>;
+}
+
+const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnableNotifications }, ref) => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const [visible, setVisible] = useState(false);
@@ -86,36 +90,37 @@ const InstallBanner = forwardRef<HTMLDivElement>((_, ref) => {
   };
 
   const handleEnableNotifications = async () => {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      setStep('done');
-      localStorage.setItem(NOTIF_PROMPTED_KEY, '1');
-      return;
-    }
+    if (onEnableNotifications) {
+      // Use the caller-provided subscribe flow (e.g. ClientHome's proper client subscribe)
+      try { await onEnableNotifications(); } catch {}
+    } else {
+      if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+        setStep('done');
+        localStorage.setItem(NOTIF_PROMPTED_KEY, '1');
+        return;
+      }
 
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      // Subscribe to push
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-        
-        if (vapidPublicKey) {
-          const subscription = await (registration as any).pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-          });
-
-          const json = subscription.toJSON();
-          // Save subscription to database
-          await supabase.from('push_subscriptions').insert({
-            endpoint: json.endpoint!,
-            p256dh: json.keys!.p256dh!,
-            auth_key: json.keys!.auth!,
-            client_name: 'web-client',
-          });
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+          if (vapidPublicKey) {
+            const subscription = await (registration as any).pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+            });
+            const json = subscription.toJSON();
+            await supabase.from('push_subscriptions').insert({
+              endpoint: json.endpoint!,
+              p256dh: json.keys!.p256dh!,
+              auth_key: json.keys!.auth!,
+              client_name: 'web-client',
+            });
+          }
+        } catch (err) {
+          console.warn('Push subscription failed:', err);
         }
-      } catch (err) {
-        console.warn('Push subscription failed:', err);
       }
     }
 

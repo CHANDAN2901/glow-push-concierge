@@ -197,8 +197,8 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick, artistLogoUr
   </div>
 );
 
-/* ─── Push Notification Banner ─── */
-function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { clientId: string; clientName: string; artistProfileId: string; lang: 'en' | 'he' }) {
+/* ─── Push Notification hook — shared between banner and install modal ─── */
+function usePushSubscription({ clientId, clientName, artistProfileId, lang }: { clientId: string; clientName: string; artistProfileId: string; lang: 'en' | 'he' }) {
   const { toast } = useToast();
   const validClientId = isUUID(clientId);
   const lsKey = `gp-push-subscribed-${clientId}`;
@@ -208,7 +208,6 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
   });
 
   useEffect(() => {
-    // localStorage already confirmed subscribed — skip DB round-trip
     if (status === 'subscribed') return;
     let cancelled = false;
     if (!validClientId) { setStatus('idle'); return; }
@@ -250,12 +249,16 @@ function ClientPushBanner({ clientId, clientName, artistProfileId, lang }: { cli
     }
   };
 
-  if (!clientId && !clientName) return null;
+  return { status, handleSubscribe };
+}
+
+/* ─── Push Notification Banner ─── */
+function ClientPushBanner({ status, onSubscribe, lang }: { status: 'checking' | 'idle' | 'loading' | 'subscribed'; onSubscribe: () => Promise<void>; lang: 'en' | 'he' }) {
   if (status === 'checking') return null;
 
   return (
     <button
-      onClick={handleSubscribe}
+      onClick={onSubscribe}
       disabled={status === 'loading'}
       className="w-full mb-5 py-3 rounded-2xl text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.97] disabled:opacity-50 animate-fade-up client-glass-card"
       style={{
@@ -468,6 +471,8 @@ const ClientHome = () => {
   const artistProfileId = dbArtistId || searchParams.get('artist_id') || localStorage.getItem(LS_ARTIST_ID) || '';
 
 
+
+  const { status: pushStatus, handleSubscribe: handlePushSubscribe } = usePushSubscription({ clientId, clientName, artistProfileId, lang });
 
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useClientHealingPhases(isUUID(clientId) ? clientId : null, treatment);
   const { promo } = usePromoSettings(artistProfileId || undefined);
@@ -799,7 +804,7 @@ const ClientHome = () => {
       <div className="pt-28 max-w-md mx-auto px-4" dir={lang === 'he' ? 'rtl' : 'ltr'}>
 
         {/* ─── PUSH BANNER ─── */}
-        <ClientPushBanner clientId={clientId} clientName={clientName} artistProfileId={artistProfileId} lang={lang} />
+        <ClientPushBanner status={pushStatus} onSubscribe={handlePushSubscribe} lang={lang} />
 
         {/* ─── GREETING CARD ─── */}
         <div className="relative mb-6">
@@ -1386,7 +1391,7 @@ const ClientHome = () => {
               <span>{lang === 'en' ? 'FAQ' : 'שאלות נפוצות'}</span>
             </a>
           </div>
-          <InstallBanner />
+          <InstallBanner onEnableNotifications={handlePushSubscribe} />
         </div>
       </div>
 
