@@ -67,6 +67,8 @@ try {
   if (cid) {
     localStorage.setItem(LS_CLIENT_ID, cid);
     if (cname) localStorage.setItem(LS_CLIENT_NAME, cname);
+    // Remember the full client URL so the installed PWA reopens here instead of the landing page
+    localStorage.setItem('glow-pwa-start-url', url.pathname + url.search);
   }
   if (cstart) localStorage.setItem(LS_START, cstart);
   if (ctreat) localStorage.setItem(LS_TREATMENT, ctreat);

@@ -38,6 +38,21 @@ const MarketingLanding = () => {
   const { lang, setLang } = useI18n();
   const authenticatedHome = getRoleHomePath(isAdmin);
 
+  // When the PWA is launched from the home screen it always opens "/" due to the static
+  // start_url in the manifest. If the user originally installed from a client page, redirect
+  // them back there so they land on their healing journey instead of the marketing page.
+  useEffect(() => {
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (navigator as any).standalone === true;
+    if (isStandalone && !loading && !user) {
+      const savedUrl = localStorage.getItem('glow-pwa-start-url');
+      if (savedUrl && savedUrl !== '/') {
+        navigate(savedUrl, { replace: true });
+      }
+    }
+  }, [loading, user, navigate]);
+
   useEffect(() => {
     if (!loading && !roleLoading && user) {
       navigate(authenticatedHome, { replace: true });
