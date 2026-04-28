@@ -397,6 +397,26 @@ serve(async (req: Request) => {
         }),
       );
 
+      // Auto-cleanup stale subscriptions so they don't keep failing
+      if (failureReason === "subscription_expired") {
+        try {
+          const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+          const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+          const adminClient = createClient(supabaseUrl, serviceRoleKey);
+          const { error: deleteErr } = await adminClient
+            .from("push_subscriptions")
+            .delete()
+            .eq("endpoint", subscription.endpoint);
+          if (deleteErr) {
+            console.warn("[send-push] Failed to delete stale subscription:", deleteErr.message);
+          } else {
+            console.log("[send-push] ✅ Stale subscription deleted from DB");
+          }
+        } catch (cleanupErr: any) {
+          console.warn("[send-push] Cleanup error:", cleanupErr?.message);
+        }
+      }
+
       return new Response(
         JSON.stringify({
           error:

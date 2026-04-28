@@ -208,17 +208,54 @@ function usePushSubscription({ clientId, clientName, artistProfileId, lang }: { 
   });
 
   useEffect(() => {
-    if (status === 'subscribed') return;
     let cancelled = false;
     if (!validClientId) { setStatus('idle'); return; }
     (async () => {
       try {
+        // Check browser's current push subscription state
+        let browserHasSub = false;
+        const canPush = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+        const permissionGranted = canPush && Notification.permission === 'granted';
+
+        if (canPush) {
+          try {
+            const reg = await navigator.serviceWorker.ready;
+            const browserSub = await (reg as any).pushManager.getSubscription();
+            browserHasSub = !!browserSub;
+          } catch { /* ignore */ }
+        }
+
         const { data } = await supabase.from('push_subscriptions').select('id').eq('client_id', clientId).limit(1);
         if (cancelled) return;
-        if (data && data.length > 0) {
+        const dbHasSub = !!(data && data.length > 0);
+
+        if (browserHasSub && dbHasSub) {
+          // Everything in sync — subscribed
           try { localStorage.setItem(lsKey, '1'); } catch {}
           setStatus('subscribed');
+        } else if (permissionGranted && !browserHasSub) {
+          // Permission already granted but browser lost its subscription (restart/update/expiry)
+          // Silently re-subscribe in the background — user should never have to do this manually again
+          console.log('[Push] Permission granted but browser lost subscription — silently re-subscribing...');
+          const result = await subscribeToPush({ clientId, clientName, artistProfileId });
+          if (cancelled) return;
+          if (result.success) {
+            try { localStorage.setItem(lsKey, '1'); } catch {}
+            setStatus('subscribed');
+          } else {
+            // Silent re-subscribe failed (e.g. VAPID mismatch) — fall back to showing the banner
+            console.warn('[Push] Silent re-subscribe failed:', result.error);
+            try { localStorage.removeItem(lsKey); } catch {}
+            setStatus('idle');
+          }
+        } else if (dbHasSub && !browserHasSub) {
+          // DB has a record but browser has no subscription and permission wasn't granted
+          // Stale DB record — clean it up and show the banner
+          await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
+          try { localStorage.removeItem(lsKey); } catch {}
+          setStatus('idle');
         } else {
+          try { localStorage.removeItem(lsKey); } catch {}
           setStatus('idle');
         }
       } catch { if (!cancelled) setStatus('idle'); }
