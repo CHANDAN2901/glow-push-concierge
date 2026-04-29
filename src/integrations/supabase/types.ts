@@ -1196,6 +1196,32 @@ export type Database = {
           },
         ]
       }
+      push_notification_log: {
+        Row: {
+          client_id: string
+          day: number
+          sent_at: string
+        }
+        Insert: {
+          client_id: string
+          day: number
+          sent_at?: string
+        }
+        Update: {
+          client_id?: string
+          day?: number
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_notification_log_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           artist_profile_id: string | null
