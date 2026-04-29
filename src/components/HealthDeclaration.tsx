@@ -276,54 +276,40 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
   const hasAnyYellow = dbQuestions.some(q => q.risk_level === 'yellow' && answers[q.id]);
 
   // ═══════════════ THANK YOU — VIP GOLDEN TICKET ═══════════════
+  const handleAddToCalendar = () => {
+    if (!appointmentDate) return;
+    const [year, month, day] = appointmentDate.split('-').map(Number);
+    const [hours, minutes] = (appointmentTime || '10:00').split(':').map(Number);
+    const start = new Date(year, month - 1, day, hours, minutes);
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+    const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(isHe ? 'טיפול איפור קבוע' : 'Permanent Makeup Treatment')}&dates=${fmt(start)}/${fmt(end)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleWaze = () => {
+    if (!wazeAddress) return;
+    window.open(`https://waze.com/ul?q=${encodeURIComponent(wazeAddress)}`, '_blank');
+  };
+
+  const recoveryLinkParams = new URLSearchParams();
+  const recoveryLink = resultClientId ? `/c/${resultClientId}` : '';
+
+  const prepTips = isHe
+    ? [
+        { icon: '🚿', text: 'אל תרחצי את האזור 24 שעות לפני הטיפול' },
+        { icon: '☕', text: 'הימנעי מקפה ואלכוהול ביום הטיפול' },
+        { icon: '💊', text: 'הימנעי ממדללי דם (אספירין, איבופרופן) 48 שעות לפני' },
+        { icon: '🌿', text: 'הגיעי עם עור נקי ללא קרמים או איפור באזור' },
+      ]
+    : [
+        { icon: '🚿', text: 'Do not wash the area 24 hours before treatment' },
+        { icon: '☕', text: 'Avoid coffee and alcohol on the day of treatment' },
+        { icon: '💊', text: 'Avoid blood thinners (aspirin, ibuprofen) 48 hours before' },
+        { icon: '🌿', text: 'Arrive with clean skin, no creams or makeup on the area' },
+      ];
+
   if (isSubmitted) {
-    const handleAddToCalendar = () => {
-      const dateStr = appointmentDate || new Date().toISOString().split('T')[0];
-      const timeStr = appointmentTime || '10:00';
-      const [year, month, day] = dateStr.split('-');
-      const [hour, minute] = timeStr.split(':');
-      const startDt = `${year}${month}${day}T${hour}${minute}00`;
-      const endH = String(Number(hour) + 1).padStart(2, '0');
-      const endDt = `${year}${month}${day}T${endH}${minute}00`;
-      const icsContent = [
-        'BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT',
-        `DTSTART:${startDt}`, `DTEND:${endDt}`,
-        `SUMMARY:${isHe ? 'תור לאיפור קבוע' : 'PMU Appointment'}`,
-        `DESCRIPTION:${isHe ? 'תור לטיפול איפור קבוע' : 'Permanent makeup appointment'}`,
-        wazeAddress ? `LOCATION:${wazeAddress}` : '',
-        'END:VEVENT', 'END:VCALENDAR',
-      ].filter(Boolean).join('\n');
-      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'appointment.ics'; a.click();
-      URL.revokeObjectURL(url);
-    };
-
-    const handleWaze = () => {
-      if (wazeAddress) window.open(`https://waze.com/ul?q=${encodeURIComponent(wazeAddress)}`, '_blank');
-    };
-
-    const recoveryLinkParams = new URLSearchParams();
-    if (appointmentDate) recoveryLinkParams.set('start', appointmentDate);
-    if (artistId) recoveryLinkParams.set('artist_id', artistId);
-    const recoveryLink = resultClientId
-      ? `/c/${resultClientId}${recoveryLinkParams.toString() ? `?${recoveryLinkParams.toString()}` : ''}`
-      : '';
-
-    const prepTips = isHe
-      ? [
-          { icon: '☕', text: 'הימנעי מקפאין 24 שעות לפני הטיפול' },
-          { icon: '🍷', text: 'הימנעי מאלכוהול 48 שעות לפני' },
-          { icon: '💊', text: 'הימנעי מאספירין ומדללי דם' },
-          { icon: '😴', text: 'הגיעי עם שינה טובה ואכילה קלה' },
-        ]
-      : [
-          { icon: '☕', text: 'Avoid caffeine 24 hours before' },
-          { icon: '🍷', text: 'No alcohol 48 hours before' },
-          { icon: '💊', text: 'Avoid aspirin & blood thinners' },
-          { icon: '😴', text: 'Get good sleep & eat a light meal' },
-        ];
 
     return (
       <div className="fixed inset-0 z-[130] overflow-y-auto" style={{ background: T.bg }}>
