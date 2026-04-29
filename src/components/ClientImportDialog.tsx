@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Upload, X, FileText, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Upload, X, FileText, CheckCircle, AlertTriangle, Download } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -207,6 +207,16 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
               </p>
             </div>
             <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleFile} />
+            <a
+              href="/sample-clients-import.csv"
+              download="sample-clients-import.csv"
+              className="flex items-center justify-center gap-2 text-xs font-semibold rounded-lg px-4 py-2 transition-all active:scale-[0.97]"
+              style={{ background: 'hsl(38 65% 55% / 0.12)', color: 'hsl(38, 55%, 42%)', border: '1px dashed hsl(38 55% 60%)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <Download className="w-3.5 h-3.5" />
+              {he ? 'הורידי קובץ דוגמה לייבוא' : 'Download sample CSV'}
+            </a>
           </div>
         )}
 
