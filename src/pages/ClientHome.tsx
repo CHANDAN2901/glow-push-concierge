@@ -711,7 +711,7 @@ const ClientHome = () => {
       return {
         title: dbPhase.title_he, titleEn: dbPhase.title_en,
         icon: dbPhase.icon, severity: dbPhase.severity as 'high' | 'medium' | 'low',
-        steps: dbPhase.steps_he.map((he, i) => ({ he, en: dbPhase.steps_en[i] || he })),
+        steps: (dbPhase.steps_he ?? []).map((he, i) => ({ he, en: (dbPhase.steps_en ?? [])[i] || he })),
       };
     }
     return { title: 'החשיפה הסופית ✨', titleEn: 'Final Result ✨', icon: '✨', severity: 'low' as const, steps: [{ he: '✨ הצבע מתייצב.', en: '✨ The color is stabilizing.' }] };
