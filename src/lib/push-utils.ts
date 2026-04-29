@@ -108,37 +108,52 @@ export async function subscribeToPush(opts: {
       return { success: false, error: `שגיאת VAPID: ${vapidErr.message}` };
     }
 
-    // 4. Unsubscribe existing push subscription (forces new one with current VAPID key)
-    console.log('[Push] Checking for existing subscription to unsubscribe...');
+    const normalizedVapidKey = vapidPublicKey.trim();
+    if (!isLikelyVapidPublicKey(normalizedVapidKey)) {
+      return {
+        success: false,
+        error: `מפתח VAPID לא תקין בשרת (אורך: ${normalizedVapidKey.length}). יש לעדכן את מפתחות ההתראות ב-Lovable Cloud.`,
+      };
+    }
+
+    // 4. Reuse existing browser subscription if the VAPID key matches — avoid unnecessary churn.
+    //    Only force a new subscription if no existing one is found or the key has changed.
+    console.log('[Push] Checking for existing browser subscription...');
+    let subscription: PushSubscription;
     try {
       const existingSub = await (registration as any).pushManager.getSubscription();
       if (existingSub) {
-        console.log('[Push] Found existing subscription, unsubscribing...');
-        await existingSub.unsubscribe();
-        console.log('[Push] Old subscription removed');
-      }
-    } catch (unsubErr: any) {
-      console.warn('[Push] Failed to unsubscribe old:', unsubErr.message);
-    }
+        // Compare the applicationServerKey stored in the existing subscription to the current VAPID key.
+        // If they match, reuse it — no need to unsubscribe.
+        const existingKeyBytes = existingSub.options?.applicationServerKey
+          ? new Uint8Array(existingSub.options.applicationServerKey as ArrayBuffer)
+          : null;
+        const currentKeyBytes = urlBase64ToUint8Array(normalizedVapidKey);
+        const keysMatch = existingKeyBytes &&
+          existingKeyBytes.length === currentKeyBytes.length &&
+          existingKeyBytes.every((b, i) => b === currentKeyBytes[i]);
 
-    // 5. Subscribe to push with current VAPID key
-    console.log('[Push] Subscribing to push manager...');
-    let subscription: PushSubscription;
-    try {
-      const normalizedVapidKey = vapidPublicKey.trim();
-      if (!isLikelyVapidPublicKey(normalizedVapidKey)) {
-        return {
-          success: false,
-          error: `מפתח VAPID לא תקין בשרת (אורך: ${normalizedVapidKey.length}). יש לעדכן את מפתחות ההתראות ב-Lovable Cloud.`,
-        };
+        if (keysMatch) {
+          console.log('[Push] Reusing existing subscription (VAPID key unchanged):', existingSub.endpoint);
+          subscription = existingSub;
+        } else {
+          console.log('[Push] VAPID key changed — unsubscribing old subscription...');
+          await existingSub.unsubscribe();
+          subscription = await (registration as any).pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: currentKeyBytes,
+          });
+          console.log('[Push] New subscription created after key change:', subscription.endpoint);
+        }
+      } else {
+        console.log('[Push] No existing subscription — creating new one...');
+        const applicationServerKey = urlBase64ToUint8Array(normalizedVapidKey);
+        subscription = await (registration as any).pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey,
+        });
+        console.log('[Push] New push subscription created:', subscription.endpoint);
       }
-
-      const applicationServerKey = urlBase64ToUint8Array(normalizedVapidKey);
-      subscription = await (registration as any).pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey,
-      });
-      console.log('[Push] NEW push subscription created:', subscription.endpoint);
     } catch (subErr: any) {
       console.error('[Push] pushManager.subscribe failed:', subErr);
       return { success: false, error: `שגיאת הרשמה: ${subErr.message}` };
@@ -154,12 +169,12 @@ export async function subscribeToPush(opts: {
     const cleanClientId = uuidMatch ? uuidMatch[1] : opts.clientId;
     console.log('[Push] Clean clientId:', cleanClientId, '(original length:', opts.clientId.length, ')');
 
-    // 6. Delete any existing subscription for this client (to avoid duplicates)
-    //    Note: RLS now restricts anon DELETE by endpoint match, so we delete by endpoint
-    console.log('[Push] Removing old subscriptions by endpoint...');
+    // 6. Delete any existing DB record for this endpoint only — after we have a valid subscription.
+    //    This prevents a gap where the old record is deleted but the new insert hasn't happened yet.
+    console.log('[Push] Removing old DB record for this endpoint...');
     await supabase.from('push_subscriptions').delete().eq('endpoint', subJson.endpoint!);
 
-    // 6. Save to Supabase
+    // 7. Save to Supabase
     console.log('[Push] Saving subscription to database...');
     const insertPayload = {
       client_name: opts.clientName || 'Unknown',

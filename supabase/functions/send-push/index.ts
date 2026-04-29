@@ -80,9 +80,13 @@ function summarizeSubscription(subscription: any) {
   };
 }
 
-function classifyProviderFailure(status: number, bodyText: string): "subscription_expired" | "provider_error" {
-  if (status === 404 || status === 410) return "subscription_expired";
-  if (/expired|unsubscribed|not.?registered|gone/i.test(bodyText)) return "subscription_expired";
+type FailureClass = "subscription_gone" | "subscription_transient" | "provider_error";
+
+function classifyProviderFailure(status: number, bodyText: string): FailureClass {
+  if (status === 410) return "subscription_gone";
+  if (/unsubscribed|not.?registered|gone/i.test(bodyText)) return "subscription_gone";
+  if (status === 404) return "subscription_transient";
+  if (/expired/i.test(bodyText)) return "subscription_transient";
   return "provider_error";
 }
 
@@ -397,20 +401,41 @@ serve(async (req: Request) => {
         }),
       );
 
-      // Auto-cleanup stale subscriptions so they don't keep failing
-      if (failureReason === "subscription_expired") {
+      // Cleanup stale subscriptions based on failure type:
+      // - 410 Gone → permanently unsubscribed, delete immediately
+      // - 404      → may be transient; increment fail_count, delete only after 3+ failures
+      if (failureReason === "subscription_gone" || failureReason === "subscription_transient") {
         try {
           const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
           const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
           const adminClient = createClient(supabaseUrl, serviceRoleKey);
-          const { error: deleteErr } = await adminClient
-            .from("push_subscriptions")
-            .delete()
-            .eq("endpoint", subscription.endpoint);
-          if (deleteErr) {
-            console.warn("[send-push] Failed to delete stale subscription:", deleteErr.message);
+
+          if (failureReason === "subscription_gone") {
+            const { error: deleteErr } = await adminClient
+              .from("push_subscriptions")
+              .delete()
+              .eq("endpoint", subscription.endpoint);
+            if (deleteErr) console.warn("[send-push] Failed to delete gone subscription:", deleteErr.message);
+            else console.log("[send-push] ✅ Subscription permanently gone — deleted from DB");
           } else {
-            console.log("[send-push] ✅ Stale subscription deleted from DB");
+            // Increment fail_count; delete only if it reaches 3
+            const { data: rows, error: fetchErr } = await adminClient
+              .from("push_subscriptions")
+              .select("id, fail_count")
+              .eq("endpoint", subscription.endpoint)
+              .limit(1);
+
+            if (!fetchErr && rows && rows.length > 0) {
+              const row = rows[0];
+              const newCount = (row.fail_count ?? 0) + 1;
+              if (newCount >= 3) {
+                await adminClient.from("push_subscriptions").delete().eq("id", row.id);
+                console.log(`[send-push] ✅ Subscription hit ${newCount} transient failures — deleted from DB`);
+              } else {
+                await adminClient.from("push_subscriptions").update({ fail_count: newCount }).eq("id", row.id);
+                console.log(`[send-push] Transient failure recorded (fail_count: ${newCount}/3)`);
+              }
+            }
           }
         } catch (cleanupErr: any) {
           console.warn("[send-push] Cleanup error:", cleanupErr?.message);
@@ -420,8 +445,10 @@ serve(async (req: Request) => {
       return new Response(
         JSON.stringify({
           error:
-            failureReason === "subscription_expired"
-              ? "Push subscription expired or unsubscribed"
+            failureReason === "subscription_gone"
+              ? "Push subscription permanently unsubscribed (410)"
+              : failureReason === "subscription_transient"
+              ? "Push subscription transiently unreachable (404)"
               : "Push delivery failed",
           failure_reason: failureReason,
           provider_status: response.status,

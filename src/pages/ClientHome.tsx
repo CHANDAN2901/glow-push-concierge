@@ -251,7 +251,6 @@ function usePushSubscription({ clientId, clientName, artistProfileId, lang }: { 
     }
     setStatus('loading');
     try {
-      await supabase.from('push_subscriptions').delete().eq('client_id', clientId);
       const result = await subscribeToPush({ clientId, clientName, artistProfileId });
       if (result.success) {
         try { localStorage.setItem(lsKey, '1'); } catch {}

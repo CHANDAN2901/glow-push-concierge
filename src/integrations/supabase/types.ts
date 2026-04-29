@@ -1230,6 +1230,7 @@ export type Database = {
           client_name: string
           created_at: string
           endpoint: string
+          fail_count: number
           id: string
           p256dh: string
           treatment_start: string
@@ -1242,6 +1243,7 @@ export type Database = {
           client_name: string
           created_at?: string
           endpoint: string
+          fail_count?: number
           id?: string
           p256dh: string
           treatment_start?: string
@@ -1254,6 +1256,7 @@ export type Database = {
           client_name?: string
           created_at?: string
           endpoint?: string
+          fail_count?: number
           id?: string
           p256dh?: string
           treatment_start?: string
