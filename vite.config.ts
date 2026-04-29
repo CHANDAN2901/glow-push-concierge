@@ -12,12 +12,17 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    allowedHosts: [".ngrok-free.app"],
   },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
+      devOptions: {
+        enabled: true,
+        type: "module",
+      },
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
         importScripts: ['/custom-sw.js'],
@@ -62,5 +67,8 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: ["react", "react-dom", "react/jsx-runtime", "@tanstack/react-query", "@use-gesture/react"],
+  },
+  build: {
+    minify: 'esbuild',
   },
 }));
