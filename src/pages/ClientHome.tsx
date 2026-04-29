@@ -391,18 +391,6 @@ const ClientHome = () => {
     return () => { cancelled = true; };
   }, [clientId]);
 
-  const handleSetLang = async (newLang: 'en' | 'he') => {
-    const supported = newLang === 'en' ? hasEn : hasHe;
-    if (!phasesLoading && phases.length > 0 && !supported) {
-      setLangDenied(newLang);
-      return;
-    }
-    setLang(newLang);
-    if (isUUID(clientId)) {
-      await supabase.from('clients').update({ preferred_lang: newLang }).eq('id', clientId);
-    }
-  };
-
   const clientName = dbClientName || urlClientName || identity.clientName || fallbackName;
 
   // Auto-open health declaration form if not yet filled
@@ -488,7 +476,16 @@ const ClientHome = () => {
   const artistPhone = searchParams.get('phone') || '';
   const artistProfileId = dbArtistId || searchParams.get('artist_id') || localStorage.getItem(LS_ARTIST_ID) || '';
 
-
+  const calculatedDay = useMemo(() => {
+    if (!startDateParam) return 0;
+    const start = new Date(startDateParam);
+    if (Number.isNaN(start.getTime())) return 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    const diff = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, Math.min(30, diff));
+  }, [startDateParam]);
 
   const { status: pushStatus, handleSubscribe: handlePushSubscribe } = usePushSubscription({ clientId, clientName, artistProfileId, lang });
 
@@ -646,17 +643,6 @@ const ClientHome = () => {
     }
   }, [gallery.uploadPhoto, toast]);
 
-  const calculatedDay = useMemo(() => {
-    if (!startDateParam) return 0;
-    const start = new Date(startDateParam);
-    if (Number.isNaN(start.getTime())) return 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    start.setHours(0, 0, 0, 0);
-    const diff = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    return Math.max(0, Math.min(30, diff));
-  }, [startDateParam]);
-
   const actualDay = calculatedDay;
   const pushDay = searchParams.get('day');
   const parsedPushDay = pushDay ? Number.parseInt(pushDay, 10) : Number.NaN;
@@ -757,6 +743,18 @@ const ClientHome = () => {
     return Number.isNaN(d.getTime()) ? new Date() : d;
   }, [startDateParam]);
   const handleUnreadCountChange = useCallback((count: number) => setUnreadCount(count), []);
+
+  const handleSetLang = async (newLang: 'en' | 'he') => {
+    const supported = newLang === 'en' ? hasEn : hasHe;
+    if (!phasesLoading && phases.length > 0 && !supported) {
+      setLangDenied(newLang);
+      return;
+    }
+    setLang(newLang);
+    if (isUUID(clientId)) {
+      await supabase.from('clients').update({ preferred_lang: newLang }).eq('id', clientId);
+    }
+  };
 
   /* ─── Loading / Error ─── */
   if (phasesLoading) {
