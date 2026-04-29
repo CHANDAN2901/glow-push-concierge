@@ -167,6 +167,17 @@ serve(async (req: Request) => {
       });
     }
 
+    // 5. Fetch all already-sent notification days keyed by client_id
+    const { data: sentLogs } = await supabase
+      .from('push_notification_log')
+      .select('client_id, day');
+
+    const sentDaysMap = new Map<string, Set<number>>();
+    for (const row of (sentLogs ?? [])) {
+      if (!sentDaysMap.has(row.client_id)) sentDaysMap.set(row.client_id, new Set());
+      sentDaysMap.get(row.client_id)!.add(row.day);
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -174,81 +185,119 @@ serve(async (req: Request) => {
     let fallbacksCreated = 0;
     const results: { client: string; day: number; action: string; lang: string }[] = [];
 
+    // Helper: resolve message for a given day
+    const resolveMessage = (
+      client: { id: string; full_name: string; artist_id: string; treatment_type: string; preferred_lang: string },
+      dayNum: number,
+    ): { text: string; label: string } | null => {
+      const clientLang: Lang = client.preferred_lang === 'en' ? 'en' : 'he';
+      const treatmentPrefix = getTreatmentPrefix(client.treatment_type);
+      const artistName = profileNameMap.get(client.artist_id) ?? '';
+
+      const artistSettings = artistSettingsMap.get(client.artist_id);
+      if (artistSettings) {
+        const resolved = resolveFromArtistSettings(artistSettings, dayNum, clientLang, treatmentPrefix);
+        if (resolved) {
+          return {
+            text: replacePlaceholders(resolved, client.full_name, artistName),
+            label: clientLang === 'en' ? `Day ${dayNum}` : `יום ${dayNum}`,
+          };
+        }
+      }
+
+      const fallback = fallbackDayMessages.find((d: { day: number }) => d.day === dayNum);
+      if (!fallback) return null;
+      return {
+        text: replacePlaceholders(fallback.text, client.full_name, artistName),
+        label: fallback.label,
+      };
+    };
+
+    // Helper: send a push for one client + day and log it on success
+    const sendAndLog = async (
+      client: { id: string; full_name: string; push_opted_in: boolean; preferred_lang: string; artist_id: string; treatment_type: string },
+      dayNum: number,
+    ): Promise<{ action: string }> => {
+      const clientLang: Lang = client.preferred_lang === 'en' ? 'en' : 'he';
+      const msg = resolveMessage(client, dayNum);
+      if (!msg) return { action: 'no_message' };
+
+      if (!client.push_opted_in) return { action: 'whatsapp_fallback' };
+
+      const { data: subs } = await supabase
+        .from('push_subscriptions')
+        .select('endpoint, p256dh, auth_key')
+        .eq('client_id', client.id);
+
+      if (!subs || subs.length === 0) return { action: 'no_subscription_fallback' };
+
+      let anySuccess = false;
+      for (const sub of subs) {
+        try {
+          const { error: pushErr } = await supabase.functions.invoke('send-push', {
+            body: {
+              subscription: { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth_key } },
+              title: `${msg.label} ✨`,
+              body: msg.text.substring(0, 200),
+              url: `/c/${client.id}`,
+              day: dayNum,
+            },
+          });
+          if (!pushErr) anySuccess = true;
+          else console.error(`Push failed for ${client.full_name} day ${dayNum}:`, pushErr);
+        } catch (e) {
+          console.error(`Push exception for ${client.full_name} day ${dayNum}:`, e);
+        }
+      }
+
+      if (anySuccess) {
+        // Log the send so we never re-send this day
+        await supabase.from('push_notification_log').upsert(
+          { client_id: client.id, day: dayNum, sent_at: new Date().toISOString() },
+          { onConflict: 'client_id,day' },
+        );
+        if (!sentDaysMap.has(client.id)) sentDaysMap.set(client.id, new Set());
+        sentDaysMap.get(client.id)!.add(dayNum);
+        return { action: 'push_sent' };
+      }
+
+      return { action: 'push_failed_fallback' };
+    };
+
     for (const client of clients) {
       const treatmentDate = new Date(client.treatment_date);
       treatmentDate.setHours(0, 0, 0, 0);
       const daysSince = Math.floor((today.getTime() - treatmentDate.getTime()) / (1000 * 60 * 60 * 24));
 
       // Day 0 is handled immediately on treatment completion — skip it here
-      if (daysSince === 0) continue;
+      if (daysSince <= 0) continue;
 
       const clientLang: Lang = client.preferred_lang === 'en' ? 'en' : 'he';
-      const treatmentPrefix = getTreatmentPrefix(client.treatment_type);
-      const artistName = profileNameMap.get(client.artist_id) ?? '';
+      const alreadySent = sentDaysMap.get(client.id) ?? new Set<number>();
 
-      // Resolve message: artist custom settings → global fallback
-      let messageText: string | null = null;
-      let messageLabel = '';
+      // Determine which days need to be sent:
+      // 1. Today's scheduled notification (if not already sent)
+      // 2. Most recent missed day (if today was already sent or there's a gap)
+      const daysToSend: number[] = [];
 
-      const artistSettings = artistSettingsMap.get(client.artist_id);
-      if (artistSettings) {
-        const resolved = resolveFromArtistSettings(artistSettings, daysSince, clientLang, treatmentPrefix);
-        if (resolved) {
-          messageText = replacePlaceholders(resolved, client.full_name, artistName);
-          messageLabel = clientLang === 'en' ? `Day ${daysSince}` : `יום ${daysSince}`;
+      // Find the most recent missed day (scanning backwards from today-1)
+      for (let d = daysSince - 1; d >= 1; d--) {
+        if (!alreadySent.has(d) && resolveMessage(client, d) !== null) {
+          daysToSend.push(d); // only the most recent missed day to avoid spam
+          break;
         }
       }
 
-      // Fall back to global message_templates if artist has no matching template
-      if (!messageText) {
-        const fallback = fallbackDayMessages.find((d: { day: number }) => d.day === daysSince);
-        if (!fallback) continue; // No message for this day at all — skip client
-        messageText = replacePlaceholders(fallback.text, client.full_name, artistName);
-        messageLabel = fallback.label;
+      // Add today if not yet sent
+      if (!alreadySent.has(daysSince)) {
+        daysToSend.push(daysSince);
       }
 
-      if (client.push_opted_in) {
-        const { data: subs } = await supabase
-          .from('push_subscriptions')
-          .select('endpoint, p256dh, auth_key')
-          .eq('client_id', client.id);
-
-        if (subs && subs.length > 0) {
-          for (const sub of subs) {
-            try {
-              const { error: pushErr } = await supabase.functions.invoke('send-push', {
-                body: {
-                  subscription: {
-                    endpoint: sub.endpoint,
-                    keys: { p256dh: sub.p256dh, auth: sub.auth_key },
-                  },
-                  title: `${messageLabel} ✨`,
-                  body: messageText.substring(0, 200),
-                  url: `/c/${client.id}`,
-                  day: daysSince,
-                },
-              });
-              if (pushErr) {
-                console.error(`Push failed for ${client.full_name}:`, pushErr);
-                results.push({ client: client.full_name, day: daysSince, action: 'push_failed_fallback', lang: clientLang });
-                fallbacksCreated++;
-              } else {
-                pushesSent++;
-                results.push({ client: client.full_name, day: daysSince, action: 'push_sent', lang: clientLang });
-              }
-            } catch (e) {
-              console.error(`Push exception for ${client.full_name}:`, e);
-              results.push({ client: client.full_name, day: daysSince, action: 'push_error_fallback', lang: clientLang });
-              fallbacksCreated++;
-            }
-          }
-        } else {
-          results.push({ client: client.full_name, day: daysSince, action: 'no_subscription_fallback', lang: clientLang });
-          fallbacksCreated++;
-        }
-      } else {
-        results.push({ client: client.full_name, day: daysSince, action: 'whatsapp_fallback', lang: clientLang });
-        fallbacksCreated++;
+      for (const dayNum of daysToSend) {
+        const { action } = await sendAndLog(client, dayNum);
+        results.push({ client: client.full_name, day: dayNum, action, lang: clientLang });
+        if (action === 'push_sent') pushesSent++;
+        else if (action !== 'no_message') fallbacksCreated++;
       }
     }
 

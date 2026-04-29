@@ -614,6 +614,32 @@ const ClientHome = () => {
     });
   }, [clientId, latestDeclaration, lang, artistDisplayName, clientName]);
 
+  // Catch-up in-app notification: if the scheduled push was missed, show it when the client opens the app
+  useEffect(() => {
+    if (!clientId || !isUUID(clientId) || calculatedDay <= 0) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const seenKey = `gp-aftercare-seen-${clientId}-day-${calculatedDay}`;
+    if (localStorage.getItem(seenKey) === '1') return;
+
+    // Mark seen immediately so we don't re-fire on re-renders
+    localStorage.setItem(seenKey, '1');
+
+    const dayLabel = lang === 'en' ? `Day ${calculatedDay}` : `יום ${calculatedDay}`;
+    const body = lang === 'en'
+      ? 'Open the app to see today\'s healing tips ✨'
+      : 'פתחי את האפליקציה לטיפים של היום ✨';
+
+    sendLocalPushNotification({
+      title: `${dayLabel} ✨`,
+      body,
+      url: `/c/${clientId}`,
+    }).catch(() => {
+      // If delivery fails, clear the seen flag so it retries next time
+      localStorage.removeItem(seenKey);
+    });
+  }, [clientId, calculatedDay, lang]);
+
   // Bottom-nav photo upload
   const bottomFileRef = useRef<HTMLInputElement>(null);
   const [bottomUploading, setBottomUploading] = useState(false);
