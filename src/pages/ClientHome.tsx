@@ -391,18 +391,6 @@ const ClientHome = () => {
     return () => { cancelled = true; };
   }, [clientId]);
 
-  const handleSetLang = async (newLang: 'en' | 'he') => {
-    const supported = newLang === 'en' ? hasEn : hasHe;
-    if (!phasesLoading && phases.length > 0 && !supported) {
-      setLangDenied(newLang);
-      return;
-    }
-    setLang(newLang);
-    if (isUUID(clientId)) {
-      await supabase.from('clients').update({ preferred_lang: newLang }).eq('id', clientId);
-    }
-  };
-
   const clientName = dbClientName || urlClientName || identity.clientName || fallbackName;
 
   // Auto-open health declaration form if not yet filled
@@ -755,6 +743,18 @@ const ClientHome = () => {
     return Number.isNaN(d.getTime()) ? new Date() : d;
   }, [startDateParam]);
   const handleUnreadCountChange = useCallback((count: number) => setUnreadCount(count), []);
+
+  const handleSetLang = async (newLang: 'en' | 'he') => {
+    const supported = newLang === 'en' ? hasEn : hasHe;
+    if (!phasesLoading && phases.length > 0 && !supported) {
+      setLangDenied(newLang);
+      return;
+    }
+    setLang(newLang);
+    if (isUUID(clientId)) {
+      await supabase.from('clients').update({ preferred_lang: newLang }).eq('id', clientId);
+    }
+  };
 
   /* ─── Loading / Error ─── */
   if (phasesLoading) {
