@@ -210,8 +210,8 @@ const HealthDeclarationPage = () => {
   }
 
   // Show policy acknowledgment first if included
+  const showBanner = isArtist || isPreview;
   if (!policyAcknowledged && includePolicy && artistId) {
-    const showBanner = isArtist || isPreview;
     return (
       <div className="relative">
         <LangToggle

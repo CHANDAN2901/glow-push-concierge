@@ -69,8 +69,9 @@ const FormLinkResolver = () => {
     resolve();
   }, [code, navigate, searchParams]);
 
+  const isHe = lang === 'he';
+
   if (completed) {
-    const isHe = lang === 'he';
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-6 text-center" dir={isHe ? 'rtl' : 'ltr'}>
         <div className="max-w-sm mx-auto space-y-4">
