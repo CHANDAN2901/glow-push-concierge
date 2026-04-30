@@ -41,7 +41,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { planSlug, amountIls, lang } = await req.json();
+    const { planSlug, amountIls } = await req.json();
 
     if (!planSlug || !amountIls) {
       return new Response(JSON.stringify({ error: "planSlug and amountIls are required" }), {
@@ -50,9 +50,7 @@ serve(async (req: Request) => {
       });
     }
 
-    const tranzillaLang = lang === "he" ? "il" : "en";
-
-    console.log(`[create-payment-session] TERMINAL_NAME="${TERMINAL_NAME}" TERMINAL_PW_set=${!!TERMINAL_PW} lang=${tranzillaLang}`);
+    console.log(`[create-payment-session] TERMINAL_NAME="${TERMINAL_NAME}" TERMINAL_PW_set=${!!TERMINAL_PW}`);
 
     if (!TERMINAL_NAME || !TERMINAL_PW) {
       console.error("[create-payment-session] Missing TRANZILA_TERMINAL_TOKENS or TRANZILA_TERMINAL_TOKENS_PW secrets");
@@ -73,7 +71,7 @@ serve(async (req: Request) => {
       currency: "1",         // 1 = ILS
       cred_type: "1",        // regular credit
       tranmode: "VK",        // charge + tokenise
-      lang: tranzillaLang,
+      lang: "il",
       trButtonColor: "D4AF37",
       notify_url_address: `${supabaseUrl}/functions/v1/tranzilla-webhook`,
       success_url_address: `${appUrl}/payment-success?plan=${planSlug}`,
