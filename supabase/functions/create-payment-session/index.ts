@@ -8,8 +8,8 @@ const corsHeaders = {
 };
 
 // Tranzilla token terminal credentials — set these in Supabase Dashboard → Settings → Edge Functions → Secrets
-const TERMINAL_NAME = Deno.env.get("TRANZILLA_TOKEN_TERMINAL_NAME")!;
-const TERMINAL_PW = Deno.env.get("TRANZILLA_TOKEN_TERMINAL_PW")!;
+const TERMINAL_NAME = Deno.env.get("TRANZILA_TERMINAL_TOKENS")!;
+const TERMINAL_PW = Deno.env.get("TRANZILA_TERMINAL_TOKENS_PW")!;
 
 async function authenticateRequest(req: Request): Promise<{ userId: string } | null> {
   const authHeader = req.headers.get("authorization");
