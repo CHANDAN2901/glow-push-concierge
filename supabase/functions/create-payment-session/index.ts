@@ -7,9 +7,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-// Tranzilla token terminal credentials — set these in Supabase Dashboard → Settings → Edge Functions → Secrets
-const TERMINAL_NAME = Deno.env.get("TRANZILA_TERMINAL_TOKENS")!;
-const TERMINAL_PW = Deno.env.get("TRANZILA_TERMINAL_TOKENS_PW")!;
+// Main terminal used for the iframe (VK mode charges + saves token in one step)
+const TERMINAL_NAME = Deno.env.get("TRANZILA_TERMINAL_MAIN")!;
+const TERMINAL_PW = Deno.env.get("TRANZILA_TERMINAL_MAIN_PW")!;
 
 async function authenticateRequest(req: Request): Promise<{ userId: string } | null> {
   const authHeader = req.headers.get("authorization");
@@ -52,15 +52,15 @@ serve(async (req: Request) => {
 
     const tranzillaLang = lang === "he" ? "il" : "en";
 
+    console.log(`[create-payment-session] TERMINAL_NAME="${TERMINAL_NAME}" TERMINAL_PW_set=${!!TERMINAL_PW} lang=${tranzillaLang}`);
+
     if (!TERMINAL_NAME || !TERMINAL_PW) {
-      console.error("[create-payment-session] Missing TRANZILLA_TOKEN_TERMINAL_NAME or TRANZILLA_TOKEN_TERMINAL_PW secrets");
-      return new Response(JSON.stringify({ error: "Payment gateway not configured" }), {
+      console.error("[create-payment-session] Missing TRANZILA_TERMINAL_TOKENS or TRANZILA_TERMINAL_TOKENS_PW secrets");
+      return new Response(JSON.stringify({ error: "Payment gateway not configured — secrets missing" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    console.log(`[create-payment-session] terminal=${TERMINAL_NAME} lang=${tranzillaLang}`);
     const appUrl = Deno.env.get("APP_URL") || "https://app.glowpush.co.il";
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 
