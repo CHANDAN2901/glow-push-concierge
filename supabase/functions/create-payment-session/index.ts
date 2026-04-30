@@ -81,7 +81,9 @@ serve(async (req: Request) => {
       remarks: planSlug,     // plan slug passed through
     });
 
-    const iframeUrl = `https://direct.tranzila.com/${TERMINAL_NAME}/iframenew.php?${params.toString()}`;
+    // iframenew.php doesn't reliably support lang=en; use iframe.php for English
+    const endpoint = lang === 'en' ? 'iframe.php' : 'iframenew.php';
+    const iframeUrl = `https://direct.tranzila.com/${TERMINAL_NAME}/${endpoint}?${params.toString()}`;
 
     console.log(`[create-payment-session] userId=${auth.userId} plan=${planSlug} amount=₪${amountIls}`);
 
