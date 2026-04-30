@@ -2,8 +2,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Token terminal credentials — set these in Supabase Dashboard → Settings → Edge Functions → Secrets
-const TERMINAL_NAME = Deno.env.get("TRANZILA_TERMINAL_TOKENS")!;
-const CREDIT_PASSWORD = Deno.env.get("TRANZILA_TERMINAL_TOKENS_CREDIT_PW")!;
+const TERMINAL_NAME = Deno.env.get("TRANZILLA_TOKEN_TERMINAL_NAME")!;
+const CREDIT_PASSWORD = Deno.env.get("TRANZILLA_TOKEN_CREDIT_PW")!;
 
 interface Profile {
   user_id: string;
