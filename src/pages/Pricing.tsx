@@ -169,7 +169,7 @@ const Pricing = () => {
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
-        body: { planSlug, amountIls: priceIls },
+        body: { planSlug, amountIls: priceIls, lang: isHe ? 'il' : 'en' },
       });
       if (error || !data?.iframeUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
