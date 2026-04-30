@@ -41,7 +41,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { planSlug, amountIls } = await req.json();
+    const { planSlug, amountIls, lang } = await req.json();
 
     if (!planSlug || !amountIls) {
       return new Response(JSON.stringify({ error: "planSlug and amountIls are required" }), {
@@ -49,6 +49,8 @@ serve(async (req: Request) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const tranzillaLang = lang === "he" ? "il" : "en";
 
     const appUrl = Deno.env.get("APP_URL") || "https://app.glowpush.co.il";
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -62,7 +64,7 @@ serve(async (req: Request) => {
       currency: "1",         // 1 = ILS
       cred_type: "1",        // regular credit
       tranmode: "VK",        // charge + tokenise
-      lang: "il",            // Hebrew UI
+      lang: tranzillaLang,
       trButtonColor: "D4AF37",
       notify_url_address: `${supabaseUrl}/functions/v1/tranzilla-webhook`,
       success_url_address: `${appUrl}/payment-success?plan=${planSlug}`,

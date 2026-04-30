@@ -137,21 +137,51 @@ const Pricing = () => {
 
   const [artistName, setArtistName] = useState('');
   const [currentTier, setCurrentTier] = useState('lite');
+  const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
+  const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     supabase
       .from('profiles')
-      .select('full_name, subscription_tier')
+      .select('full_name, subscription_tier, subscription_end_date')
       .eq('user_id', user.id)
       .single()
       .then(({ data }) => {
         if (data) {
           setArtistName(data.full_name || '');
           setCurrentTier(data.subscription_tier || 'lite');
+          setSubscriptionEndDate((data as any).subscription_end_date || null);
         }
       });
   }, [user]);
+
+  const handleUpgrade = async (planSlug: string, priceIls: number) => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    if (priceIls === 0) {
+      toast({ title: isHe ? 'תוכנית זו כלולה במנוי שלך' : 'This plan is already included' });
+      return;
+    }
+    setIsLoadingPayment(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-payment-session', {
+        body: { planSlug, amountIls: priceIls, lang },
+      });
+      if (error || !data?.iframeUrl) {
+        toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
+        return;
+      }
+      setPaymentIframeUrl(data.iframeUrl);
+    } catch {
+      toast({ title: isHe ? 'שגיאה בלתי צפויה' : 'Unexpected error', variant: 'destructive' });
+    } finally {
+      setIsLoadingPayment(false);
+    }
+  };
 
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier]?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
@@ -165,11 +195,62 @@ const Pricing = () => {
     { size: 120, top: '35%', left: '78%', color: 'rgba(201,149,108,0.2)', blur: 60, delay: 3 },
   ];
 
+  const validUntilText = (() => {
+    if (!subscriptionEndDate) return isHe ? '—' : '—';
+    const d = new Date(subscriptionEndDate);
+    return d.toLocaleDateString(isHe ? 'he-IL' : 'en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  })();
+
+  // Slugs that correspond to the user's current tier
+  const tierSlugs: Record<string, string[]> = {
+    lite: ['lite', 'pro'],
+    professional: ['professional', 'elite'],
+    master: ['master', 'vip-3year'],
+  };
+  const activeSlugs = tierSlugs[currentTier] || [];
+
   return (
     <div
       className="min-h-screen relative overflow-hidden font-['fbahava',sans-serif]"
       dir={isHe ? 'rtl' : 'ltr'}
     >
+      {/* Tranzilla Payment Modal — full-screen on mobile */}
+      {paymentIframeUrl && (
+        <div
+          className="fixed inset-0 z-[100] flex flex-col"
+          style={{ background: 'rgba(0,0,0,0.85)' }}
+        >
+          {/* Header bar */}
+          <div
+            className="flex items-center justify-between px-5 py-4 shrink-0"
+            style={{ background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 50%, #8B6508 100%)' }}
+          >
+            <span className="text-white font-bold text-base">
+              {isHe ? '🔒 תשלום מאובטח' : '🔒 Secure Payment'}
+            </span>
+            <button
+              onClick={() => setPaymentIframeUrl(null)}
+              className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/20 transition-all text-white text-xl font-bold"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Iframe — fills all remaining height */}
+          <iframe
+            src={paymentIframeUrl}
+            title={isHe ? 'תשלום מאובטח' : 'Secure Payment'}
+            className="w-full flex-1"
+            style={{ border: 'none', background: '#fff' }}
+            allow="payment"
+          />
+
+          {/* Footer note */}
+          <div className="shrink-0 bg-white text-center text-[11px] text-gray-400 py-2 px-4">
+            {isHe ? 'תשלום מאובטח על ידי Tranzila. פרטי הכרטיס אינם נשמרים אצלנו.' : 'Secure payment powered by Tranzila. Card details are not stored by us.'}
+          </div>
+        </div>
+      )}
       {/* Bokeh floating circles */}
       {BOKEH_CIRCLES.map((b, i) => (
         <div
@@ -241,7 +322,7 @@ const Pricing = () => {
                 {t('sub.currentPlan').replace('{plan}', tierLabel)}
               </p>
               <p className="text-sm font-medium" style={{ color: TEXT_DARK }}>
-                {t('sub.validUntil')}
+                {isHe ? `בתוקף עד: ${validUntilText}` : `Valid until: ${validUntilText}`}
               </p>
             </div>
             <button
@@ -483,20 +564,35 @@ const Pricing = () => {
               </p>
 
               {/* Pill CTA button */}
-              <Link
-                to="/auth"
-                className="w-full inline-flex items-center justify-center py-4 text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:translate-y-[-2px]"
-                style={{
-                  background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
-                  color: '#4a3636',
-                  borderRadius: '50px',
-                  border: '2px solid #D4AF37',
-                  boxShadow: '0 8px 24px rgba(212, 175, 55, 0.4), 0 0 16px rgba(212, 175, 55, 0.2)',
-                  textShadow: '0 1px 0 rgba(255,255,255,0.3)',
-                }}
-              >
-                {cta}
-              </Link>
+              {activeSlugs.includes(plan.slug) ? (
+                <div
+                  className="w-full inline-flex items-center justify-center py-4 text-base font-bold"
+                  style={{
+                    background: 'rgba(212,175,55,0.12)',
+                    color: ROSE_GOLD_METALLIC,
+                    borderRadius: '50px',
+                    border: `2px solid ${ROSE_GOLD_METALLIC}`,
+                  }}
+                >
+                  ✓ {isHe ? 'המסלול הנוכחי שלך' : 'Your Current Plan'}
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleUpgrade(plan.slug, plan.price.ils)}
+                  disabled={isLoadingPayment}
+                  className="w-full inline-flex items-center justify-center py-4 text-base font-bold transition-all duration-300 active:scale-[0.97] hover:shadow-xl hover:scale-[1.02] hover:translate-y-[-2px] disabled:opacity-70 disabled:cursor-not-allowed"
+                  style={{
+                    background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 30%, #F9F295 50%, #D4AF37 70%, #B8860B 100%)',
+                    color: '#4a3636',
+                    borderRadius: '50px',
+                    border: '2px solid #D4AF37',
+                    boxShadow: '0 8px 24px rgba(212, 175, 55, 0.4), 0 0 16px rgba(212, 175, 55, 0.2)',
+                    textShadow: '0 1px 0 rgba(255,255,255,0.3)',
+                  }}
+                >
+                  {isLoadingPayment ? (isHe ? 'טוען...' : 'Loading...') : cta}
+                </button>
+              )}
               </div>
             </>
           );
