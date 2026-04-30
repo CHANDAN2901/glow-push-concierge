@@ -1011,6 +1011,8 @@ export type Database = {
           has_whatsapp_automation: boolean
           id: string
           instagram_url: string | null
+          last_charge_at: string | null
+          last_charge_confirmation: string | null
           logo_url: string | null
           onboarding_checklist_dismissed: boolean
           onboarding_checklist_state: Json
@@ -1021,8 +1023,13 @@ export type Database = {
           referral_credit: number | null
           referred_by_profile_id: string | null
           studio_name: string | null
+          subscription_end_date: string | null
           subscription_status: string
           subscription_tier: string
+          tranzilla_amount_agorot: number | null
+          tranzilla_expiry: string | null
+          tranzilla_plan_slug: string | null
+          tranzilla_token: string | null
           trial_ends_at: string | null
           trial_source: string | null
           updated_at: string
@@ -1040,6 +1047,8 @@ export type Database = {
           has_whatsapp_automation?: boolean
           id?: string
           instagram_url?: string | null
+          last_charge_at?: string | null
+          last_charge_confirmation?: string | null
           logo_url?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
@@ -1050,8 +1059,13 @@ export type Database = {
           referral_credit?: number | null
           referred_by_profile_id?: string | null
           studio_name?: string | null
+          subscription_end_date?: string | null
           subscription_status?: string
           subscription_tier?: string
+          tranzilla_amount_agorot?: number | null
+          tranzilla_expiry?: string | null
+          tranzilla_plan_slug?: string | null
+          tranzilla_token?: string | null
           trial_ends_at?: string | null
           trial_source?: string | null
           updated_at?: string
@@ -1069,6 +1083,8 @@ export type Database = {
           has_whatsapp_automation?: boolean
           id?: string
           instagram_url?: string | null
+          last_charge_at?: string | null
+          last_charge_confirmation?: string | null
           logo_url?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
@@ -1079,8 +1095,13 @@ export type Database = {
           referral_credit?: number | null
           referred_by_profile_id?: string | null
           studio_name?: string | null
+          subscription_end_date?: string | null
           subscription_status?: string
           subscription_tier?: string
+          tranzilla_amount_agorot?: number | null
+          tranzilla_expiry?: string | null
+          tranzilla_plan_slug?: string | null
+          tranzilla_token?: string | null
           trial_ends_at?: string | null
           trial_source?: string | null
           updated_at?: string
