@@ -1,7 +1,9 @@
-import { Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt } from 'lucide-react';
+import { useState } from 'react';
+import { Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt, X } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Props {
   onBack: () => void;
@@ -26,25 +28,40 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
   const { toast } = useToast();
   const isHe = lang === 'he';
   const { data: plans = [], isLoading } = usePricingPlans();
+  const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
 
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier || 'lite']?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
-  const handleUpgrade = (plan: PricingPlan) => {
-    // Log full plan object for debugging — confirm DB data is used
-    console.log('[Upgrade] Selected plan object:', JSON.stringify(plan, null, 2));
-    console.log('[Upgrade] stripe_price_id:', plan.stripe_price_id);
-
-    if (!plan.stripe_price_id) {
-      toast({
-        title: isHe ? 'מזהה Stripe חסר לתוכנית זו' : 'Stripe price ID missing for this plan',
-        variant: 'destructive',
-      });
+  const handleUpgrade = async (plan: PricingPlan) => {
+    if (plan.price_monthly === 0) {
+      toast({ title: isHe ? 'תוכנית זו כלולה במנוי שלך' : 'This plan is already included' });
       return;
     }
 
-    toast({ title: isHe ? 'מעבירים אותך לתשלום מאובטח... 🔒' : 'Redirecting to secure checkout... 🔒' });
-    // TODO: Create Stripe checkout session using plan.stripe_price_id
+    setIsLoadingPayment(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-payment-session', {
+        body: { planSlug: plan.slug, amountIls: plan.price_monthly },
+      });
+
+      if (error || !data?.iframeUrl) {
+        console.error('[Upgrade] create-payment-session error:', error);
+        toast({
+          title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setPaymentIframeUrl(data.iframeUrl);
+    } catch (err: any) {
+      console.error('[Upgrade] Unexpected error:', err?.message);
+      toast({ title: isHe ? 'שגיאה בלתי צפויה' : 'Unexpected error', variant: 'destructive' });
+    } finally {
+      setIsLoadingPayment(false);
+    }
   };
 
   if (isLoading) {
@@ -57,6 +74,54 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
 
   return (
     <div className="space-y-6 animate-fade-up pb-10" dir={isHe ? 'rtl' : 'ltr'}>
+
+      {/* Tranzilla Payment Modal */}
+      {paymentIframeUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+        >
+          <div
+            className="relative w-full max-w-md rounded-3xl overflow-hidden"
+            style={{
+              background: '#fff',
+              boxShadow: '0 24px 80px -12px rgba(0,0,0,0.4)',
+              border: '2px solid #D4AF37',
+            }}
+          >
+            {/* Modal header */}
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{ background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 50%, #8B6508 100%)' }}
+            >
+              <span className="text-white font-bold text-base">
+                {isHe ? '🔒 תשלום מאובטח' : '🔒 Secure Payment'}
+              </span>
+              <button
+                onClick={() => setPaymentIframeUrl(null)}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-white/20"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+
+            {/* Tranzilla iframe */}
+            <iframe
+              src={paymentIframeUrl}
+              title={isHe ? 'תשלום מאובטח' : 'Secure Payment'}
+              className="w-full"
+              style={{ height: '480px', border: 'none' }}
+              allow="payment"
+            />
+
+            <p className="text-center text-[10px] text-muted-foreground py-3 px-4">
+              {isHe
+                ? 'תשלום מאובטח על ידי Tranzila. פרטי הכרטיס אינם נשמרים אצלנו.'
+                : 'Secure payment powered by Tranzila. Card details are not stored by us.'}
+            </p>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
@@ -147,6 +212,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
               Icon={Icon}
               isHe={isHe}
               onUpgrade={handleUpgrade}
+              isLoadingPayment={isLoadingPayment}
             />
           );
         }
@@ -161,6 +227,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
             Icon={Icon}
             isHe={isHe}
             onUpgrade={handleUpgrade}
+            isLoadingPayment={isLoadingPayment}
           />
         );
       })}
@@ -168,8 +235,8 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
       {/* Fine print */}
       <p className="text-center text-[10px] text-muted-foreground leading-relaxed px-4">
         {isHe
-          ? 'ביטול בכל עת. תשלום מאובטח דרך Stripe. ללא התחייבות.'
-          : 'Cancel anytime. Secure payment via Stripe. No commitment.'}
+          ? 'ביטול בכל עת. תשלום מאובטח דרך Tranzila. ללא התחייבות.'
+          : 'Cancel anytime. Secure payment via Tranzila. No commitment.'}
       </p>
     </div>
   );
@@ -184,9 +251,10 @@ interface PlanCardProps {
   Icon: React.ElementType;
   isHe: boolean;
   onUpgrade: (plan: PricingPlan) => void;
+  isLoadingPayment?: boolean;
 }
 
-function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade }: PlanCardProps) {
+function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, isLoadingPayment }: PlanCardProps) {
   return (
     <div
       className="rounded-2xl border-2 p-5 space-y-4 relative overflow-hidden"
@@ -278,7 +346,8 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
 
       <button
         onClick={() => onUpgrade(plan)}
-        className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-[0.97] hover:shadow-xl flex items-center justify-center gap-2"
+        disabled={isLoadingPayment}
+        className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-[0.97] hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
         style={{
           background: 'linear-gradient(135deg, #FACC15 0%, #FDE68A 30%, #FCD34D 50%, #FACC15 75%, #EAB308 100%)',
           color: '#78350F',
@@ -288,14 +357,14 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade 
         }}
       >
         <Crown className="w-5 h-5" />
-        {cta}
+        {isLoadingPayment ? (isHe ? 'טוען...' : 'Loading...') : cta}
       </button>
     </div>
   );
 }
 
 /* ── Standard Plan Card ── */
-function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade }: PlanCardProps) {
+function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, isLoadingPayment }: PlanCardProps) {
   return (
     <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
       <div className="flex items-center gap-3">
@@ -338,9 +407,10 @@ function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade }: 
 
       <button
         onClick={() => onUpgrade(plan)}
-        className="w-full py-3 rounded-2xl text-sm font-bold border border-border transition-all active:scale-[0.97] hover:bg-accent/5 flex items-center justify-center gap-2 text-foreground"
+        disabled={isLoadingPayment}
+        className="w-full py-3 rounded-2xl text-sm font-bold border border-border transition-all active:scale-[0.97] hover:bg-accent/5 flex items-center justify-center gap-2 text-foreground disabled:opacity-70 disabled:cursor-not-allowed"
       >
-        {cta}
+        {isLoadingPayment ? (isHe ? 'טוען...' : 'Loading...') : cta}
       </button>
     </div>
   );

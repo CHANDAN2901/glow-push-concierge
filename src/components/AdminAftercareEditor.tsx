@@ -12,6 +12,8 @@ interface AftercareTemplate {
   template_key: string;
   label: string;
   default_text: string;
+  default_text_he: string | null;
+  default_text_en: string | null;
   placeholders: string[];
 }
 
@@ -30,20 +32,22 @@ const DAY_DESCRIPTIONS: Record<string, string> = {
 };
 
 const FALLBACK_TEMPLATES: AftercareTemplate[] = [
-  { id: 'fb-1', template_key: 'aftercare_day_1', label: 'יום הטיפול 🎉', default_text: 'היי [ClientName]! 🎉✨ מזל טוב על הטיפול החדש!\nהנה כמה הוראות חשובות לשעות הקרובות:\n• 🧻 ספגי הפרשות בעדינות\n• 🧴 מרחי שכבה דקה של משחה\n• ❌💧 אסור להרטיב!\n\n[ArtistName]', placeholders: ['[ClientName]', '[ArtistName]'] },
-  { id: 'fb-2', template_key: 'aftercare_day_3', label: 'שלב הגלדים 🛡️', default_text: 'היי [ClientName]! 🛡️ את בשלב הגלדים.\n• ❌ אסור לגרד!\n• 🧴 המשיכי למרוח משחה\n• 👀 הצבע עשוי להיראות מוזר — זה תקין\n\n[ArtistName]', placeholders: ['[ClientName]', '[ArtistName]'] },
-  { id: 'fb-3', template_key: 'aftercare_day_7', label: 'שלב ה-Ghosting 👻', default_text: 'היי [ClientName]! 👻 הצבע דהה? אל דאגה!\nזה שלב ה-Ghosting — הצבע יחזור בעוד כשבוע-שבועיים.\n🧼 את יכולה לשטוף פנים כרגיל\n❌☀️ הימנעי משמש ישירה\n\n[ArtistName]', placeholders: ['[ClientName]', '[ArtistName]'] },
-  { id: 'fb-4', template_key: 'aftercare_day_30', label: 'תזכורת טאצ׳ אפ 📅', default_text: 'היי [ClientName]! 📅 חודש עבר מהטיפול!\nהצבע התייצב — עכשיו זה הזמן המושלם לטאץ׳-אפ.\nנשמח לקבוע תור 💕\n\n[ArtistName]', placeholders: ['[ClientName]', '[ArtistName]'] },
+  { id: 'fb-1', template_key: 'aftercare_day_1', label: 'יום הטיפול 🎉', default_text: 'היי [ClientName]! 🎉✨ מזל טוב על הטיפול החדש!\nהנה כמה הוראות חשובות לשעות הקרובות:\n• 🧻 ספגי הפרשות בעדינות\n• 🧴 מרחי שכבה דקה של משחה\n• ❌💧 אסור להרטיב!\n\n[ArtistName]', default_text_he: null, default_text_en: null, placeholders: ['[ClientName]', '[ArtistName]'] },
+  { id: 'fb-2', template_key: 'aftercare_day_3', label: 'שלב הגלדים 🛡️', default_text: 'היי [ClientName]! 🛡️ את בשלב הגלדים.\n• ❌ אסור לגרד!\n• 🧴 המשיכי למרוח משחה\n• 👀 הצבע עשוי להיראות מוזר — זה תקין\n\n[ArtistName]', default_text_he: null, default_text_en: null, placeholders: ['[ClientName]', '[ArtistName]'] },
+  { id: 'fb-3', template_key: 'aftercare_day_7', label: 'שלב ה-Ghosting 👻', default_text: 'היי [ClientName]! 👻 הצבע דהה? אל דאגה!\nזה שלב ה-Ghosting — הצבע יחזור בעוד כשבע-שבועיים.\n🧼 את יכולה לשטוף פנים כרגיל\n❌☀️ הימנעי משמש ישירה\n\n[ArtistName]', default_text_he: null, default_text_en: null, placeholders: ['[ClientName]', '[ArtistName]'] },
+  { id: 'fb-4', template_key: 'aftercare_day_30', label: 'תזכורת טאצ׳ אפ 📅', default_text: 'היי [ClientName]! 📅 חודש עבר מהטיפול!\nהצבע התייצב — עכשיו זה הזמן המושלם לטאץ׳-אפ.\nנשמח לקבוע תור 💕\n\n[ArtistName]', default_text_he: null, default_text_en: null, placeholders: ['[ClientName]', '[ArtistName]'] },
 ];
+
+type Drafts = Record<string, { he: string; en: string }>;
 
 export default function AdminAftercareEditor() {
   const { lang } = useI18n();
   const { toast } = useToast();
   const isHe = lang === 'he';
   const [templates, setTemplates] = useState<AftercareTemplate[]>(FALLBACK_TEMPLATES);
-  const [drafts, setDrafts] = useState<Record<string, string>>(() => {
-    const d: Record<string, string> = {};
-    FALLBACK_TEMPLATES.forEach(t => d[t.id] = t.default_text);
+  const [drafts, setDrafts] = useState<Drafts>(() => {
+    const d: Drafts = {};
+    FALLBACK_TEMPLATES.forEach(t => { d[t.id] = { he: t.default_text, en: '' }; });
     return d;
   });
   const [saving, setSaving] = useState(false);
@@ -62,8 +66,13 @@ export default function AdminAftercareEditor() {
         setLoading(false);
         if (data.length > 0) {
           setTemplates(data);
-          const d: Record<string, string> = {};
-          data.forEach((t) => (d[t.id] = t.default_text));
+          const d: Drafts = {};
+          data.forEach((t) => {
+            d[t.id] = {
+              he: t.default_text_he ?? t.default_text,
+              en: t.default_text_en ?? '',
+            };
+          });
           setDrafts(d);
         }
       } catch (e: unknown) {
@@ -83,10 +92,26 @@ export default function AdminAftercareEditor() {
     );
     if (data.length > 0) {
       setTemplates(data);
-      const d: Record<string, string> = {};
-      data.forEach((t) => (d[t.id] = t.default_text));
+      const d: Drafts = {};
+      data.forEach((t) => {
+        d[t.id] = {
+          he: t.default_text_he ?? t.default_text,
+          en: t.default_text_en ?? '',
+        };
+      });
       setDrafts(d);
     }
+  };
+
+  const updateDraft = (id: string, field: 'he' | 'en', value: string) => {
+    setDrafts(prev => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
+  };
+
+  const appendPlaceholder = (id: string, placeholder: string) => {
+    setDrafts(prev => ({
+      ...prev,
+      [id]: { ...prev[id], he: (prev[id]?.he ?? '') + ' ' + placeholder },
+    }));
   };
 
   const handleSave = async () => {
@@ -94,8 +119,17 @@ export default function AdminAftercareEditor() {
     try {
       const token = getAccessToken();
       for (const t of templates) {
-        if (drafts[t.id] !== t.default_text) {
-          await restUpdate('message_templates', t.id, { default_text: drafts[t.id] }, token || undefined);
+        const draft = drafts[t.id];
+        if (!draft) continue;
+        const changed =
+          draft.he !== (t.default_text_he ?? t.default_text) ||
+          draft.en !== (t.default_text_en ?? '');
+        if (changed) {
+          await restUpdate('message_templates', t.id, {
+            default_text: draft.he || t.default_text,
+            default_text_he: draft.he,
+            default_text_en: draft.en,
+          }, token || undefined);
         }
       }
       await fetchTemplates();
@@ -140,9 +174,10 @@ export default function AdminAftercareEditor() {
           {templates.map((t) => {
             const icon = DAY_ICONS[t.template_key] || '💬';
             const desc = DAY_DESCRIPTIONS[t.template_key] || '';
+            const draft = drafts[t.id] ?? { he: '', en: '' };
             return (
               <div key={t.id} className="border border-border rounded-xl p-5 bg-background">
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-lg">
                     {icon}
                   </div>
@@ -162,23 +197,36 @@ export default function AdminAftercareEditor() {
                   </div>
                 </div>
 
-                <Textarea
-                  value={drafts[t.id] ?? ''}
-                  onChange={(e) => setDrafts({ ...drafts, [t.id]: e.target.value })}
-                  rows={6}
-                  dir="rtl"
-                  className="resize-y font-mono text-sm"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">{isHe ? 'עברית' : 'Hebrew'}</label>
+                    <Textarea
+                      value={draft.he}
+                      onChange={(e) => updateDraft(t.id, 'he', e.target.value)}
+                      rows={6}
+                      dir="rtl"
+                      className="resize-y font-mono text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">{isHe ? 'אנגלית' : 'English'}</label>
+                    <Textarea
+                      value={draft.en}
+                      onChange={(e) => updateDraft(t.id, 'en', e.target.value)}
+                      rows={6}
+                      dir="ltr"
+                      className="resize-y font-mono text-sm"
+                      placeholder="English version…"
+                    />
+                  </div>
+                </div>
 
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {t.placeholders.map((p) => (
                     <button
                       key={p}
                       type="button"
-                      onClick={() => {
-                        const current = drafts[t.id] ?? '';
-                        setDrafts({ ...drafts, [t.id]: current + ' ' + p });
-                      }}
+                      onClick={() => appendPlaceholder(t.id, p)}
                       className="inline-flex items-center px-2 py-0.5 rounded-md bg-accent/10 text-accent text-xs font-mono hover:bg-accent/20 transition-colors cursor-pointer"
                     >
                       {p}

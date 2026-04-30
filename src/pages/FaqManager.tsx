@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -43,6 +44,8 @@ const emptyFaq: Omit<FaqItem, 'id'> = {
 
 export default function FaqManager() {
   const { isAdmin, loading: authLoading, roleLoading } = useAuth();
+  const { lang, dir } = useI18n();
+  const isHe = lang === 'he';
   const navigate = useNavigate();
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -190,17 +193,17 @@ export default function FaqManager() {
     setOverIndex(null);
   };
 
-  if (authLoading || roleLoading) return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">טוען...</p></div>;
+  if (authLoading || roleLoading) return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">{isHe ? 'טוען...' : 'Loading...'}</p></div>;
   if (!canManageFaq) return null;
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background" dir={dir}>
       <div className="max-w-4xl mx-auto p-6 pt-24 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">ניהול שאלות נפוצות</h1>
-            <p className="text-sm text-muted-foreground mt-1">שאלות אלו מוצגות בדף הנחיתה הראשי</p>
+            <h1 className="text-2xl font-bold">{isHe ? 'ניהול שאלות נפוצות' : 'Manage FAQs'}</h1>
+            <p className="text-sm text-muted-foreground mt-1">{isHe ? 'שאלות אלו מוצגות בדף הנחיתה הראשי' : 'These questions appear on the main landing page'}</p>
           </div>
             <div className="flex gap-2">
             {canManageFaq && (
@@ -213,9 +216,9 @@ export default function FaqManager() {
 
         {/* FAQ List */}
         {loading ? (
-          <p className="text-center text-muted-foreground py-12">טוען...</p>
+          <p className="text-center text-muted-foreground py-12">{isHe ? 'טוען...' : 'Loading...'}</p>
         ) : faqs.length === 0 ? (
-          <p className="text-center text-muted-foreground py-12">אין שאלות עדיין</p>
+          <p className="text-center text-muted-foreground py-12">{isHe ? 'אין שאלות עדיין' : 'No FAQs yet'}</p>
         ) : (
           <div className="space-y-3">
             {faqs.map((faq, index) => (
@@ -237,10 +240,22 @@ export default function FaqManager() {
                   <div className="flex items-center gap-2">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">{faq.category}</span>
                   </div>
-                  <p className="font-medium text-sm leading-relaxed">{faq.question_he}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{faq.answer_he}</p>
-                  {faq.question_en && (
-                    <p className="text-xs text-muted-foreground/60 italic" dir="ltr">{faq.question_en}</p>
+                  {isHe ? (
+                    <>
+                      <p className="font-medium text-sm leading-relaxed" dir="rtl">{faq.question_he}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2" dir="rtl">{faq.answer_he}</p>
+                      {faq.question_en && (
+                        <p className="text-xs text-muted-foreground/60 italic" dir="ltr">{faq.question_en}</p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-medium text-sm leading-relaxed" dir="ltr">{faq.question_en || faq.question_he}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2" dir="ltr">{faq.answer_en || faq.answer_he}</p>
+                      {faq.question_he && (
+                        <p className="text-xs text-muted-foreground/60 italic" dir="rtl">{faq.question_he}</p>
+                      )}
+                    </>
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -268,9 +283,9 @@ export default function FaqManager() {
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-lg" dir="rtl">
+          <DialogContent className="max-w-lg" dir={dir}>
             <DialogHeader>
-              <DialogTitle>{editingFaq ? 'עריכת שאלה' : 'שאלה חדשה'}</DialogTitle>
+              <DialogTitle>{editingFaq ? (isHe ? 'עריכת שאלה' : 'Edit FAQ') : (isHe ? 'שאלה חדשה' : 'New FAQ')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-2">
               <div>

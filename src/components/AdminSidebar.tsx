@@ -1,10 +1,11 @@
-import { LayoutDashboard, Users, Megaphone, Settings, MessageSquareText, Heart, Stethoscope, CreditCard, ClipboardList, Sparkles, Pencil, HelpCircle, Crown, ListChecks, ScrollText, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Megaphone, Settings, MessageSquareText, Heart, Stethoscope, CreditCard, ClipboardList, Pencil, ListChecks, ScrollText, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
 import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
-type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-content' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'clinic-policy' | 'faq' | 'faq-manager' | 'settings';
+type AdminView = 'dashboard' | 'users' | 'announcements' | 'pricing' | 'messages' | 'timeline' | 'timeline-settings' | 'aftercare' | 'health-questions' | 'clinic-policy' | 'faq-manager' | 'settings';
 
 interface AdminSidebarProps {
   active: AdminView;
@@ -19,12 +20,10 @@ const navItems: { id: AdminView; labelKey: string; icon: React.ElementType; path
   { id: 'pricing', labelKey: 'superAdmin.sidebar.pricing', icon: CreditCard },
   { id: 'messages', labelKey: 'superAdmin.sidebar.messages', icon: MessageSquareText },
   { id: 'timeline', labelKey: 'superAdmin.sidebar.timeline', icon: Heart, path: '/admin/timeline' },
-  { id: 'timeline-content', labelKey: 'superAdmin.sidebar.timelineContent', icon: Sparkles, path: '/admin/timeline-content' },
   { id: 'timeline-settings', labelKey: 'superAdmin.sidebar.timelineSettings', icon: Pencil, path: '/admin/timeline-settings' },
   { id: 'aftercare', labelKey: 'superAdmin.sidebar.aftercare', icon: Stethoscope, path: '/admin/aftercare' },
   { id: 'health-questions', labelKey: 'superAdmin.sidebar.healthQuestions', icon: ClipboardList },
   { id: 'clinic-policy', labelKey: 'superAdmin.sidebar.clinicPolicy', icon: ScrollText },
-  { id: 'faq', labelKey: 'superAdmin.sidebar.faq', icon: HelpCircle },
   { id: 'faq-manager', labelKey: 'superAdmin.sidebar.faqManager', icon: ListChecks },
   { id: 'settings', labelKey: 'superAdmin.sidebar.settings', icon: Settings },
 ];
@@ -88,20 +87,6 @@ export default function AdminSidebar({ active, onNavigate, isAdmin }: AdminSideb
           {t('superAdmin.sidebar.logout')}
         </button>
 
-        {/* Premium Upgrade Link */}
-        <Link
-          to="/pricing"
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all mt-4"
-          style={{
-            background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06))',
-            border: '1.5px solid rgba(212,175,55,0.4)',
-            color: '#B8860B',
-            boxShadow: '0 0 12px rgba(212,175,55,0.15)',
-          }}
-        >
-          <Crown className="w-4 h-4" style={{ color: '#D4AF37' }} />
-          👑 {t('superAdmin.sidebar.upgrade')}
-        </Link>
       </nav>
     </aside>
   );

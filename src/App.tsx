@@ -24,13 +24,11 @@ import HealthDeclarationPage from "./pages/HealthDeclarationPage";
 import FormLinkResolver from "./pages/FormLinkResolver";
 import AftercareEditorPage from "./components/admin/AftercareEditor";
 import TimelineEditorPage from "./components/admin/TimelineEditor";
-import TimelineContentEditorPage from "./components/admin/TimelineContentEditor";
 import TimelineSettings from "./pages/TimelineSettings";
 import DebugTest from "./pages/DebugTest";
 import ResetPassword from "./pages/ResetPassword";
 import ClientProfile from "./pages/ClientProfile";
 import NotFound from "./pages/NotFound";
-import FaqPage from "./pages/FaqPage";
 import FaqManager from "./pages/FaqManager";
 import Legal from "./pages/Legal";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -70,9 +68,7 @@ const App = () => (
               <Route path="/f/:code" element={<FormLinkResolver />} />
               <Route path="/admin/aftercare" element={<RequireAuth><RequireAdmin><AftercareEditorPage /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/timeline" element={<RequireAuth><RequireAdmin><TimelineEditorPage /></RequireAdmin></RequireAuth>} />
-              <Route path="/admin/timeline-content" element={<RequireAuth><RequireAdmin><TimelineContentEditorPage /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/timeline-settings" element={<RequireAuth><ProtectedRoute featureId="healing_timeline"><TimelineSettings /></ProtectedRoute></RequireAuth>} />
-              <Route path="/admin/faq" element={<RequireAuth><FaqPage /></RequireAuth>} />
               <Route path="/admin/faq-manager" element={<RequireAuth><RequireAdmin><FaqManager /></RequireAdmin></RequireAuth>} />
               <Route path="/super-admin" element={<RequireAuth><RequireAdmin><SuperAdmin /></RequireAdmin></RequireAuth>} />
               <Route path="/debug-test" element={<DebugTest />} />
