@@ -20,7 +20,7 @@ export default function FeedbackFAB() {
   const [form, setForm] = useState({ name: "", email: "", topic: "", message: "" });
 
   const hiddenRoutes = ["/", "/pricing", "/auth", "/legal", "/privacy", "/terms", "/refund-policy", "/client", "/digital-card"];
-  if (hiddenRoutes.includes(location.pathname) || location.pathname.startsWith('/c/')) return null;
+  if (hiddenRoutes.includes(location.pathname) || location.pathname.startsWith('/c/') || location.pathname.startsWith('/super-admin')) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

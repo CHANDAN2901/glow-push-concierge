@@ -1,9 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext, createContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { resolveIsAdmin } from '@/lib/admin-auth';
 
-export function useAuth() {
+interface AuthState {
+  user: User | null;
+  loading: boolean;
+  isAdmin: boolean;
+  roleLoading: boolean;
+  signOut: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthState | null>(null);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -62,8 +72,6 @@ export function useAuth() {
       console.warn('[signOut] supabase signOut failed', e);
     }
 
-    // Clear storage but PRESERVE push notification state so the user keeps
-    // receiving notifications (e.g. appointment reminders) after logout.
     try {
       const PRESERVE_PREFIXES = ['push_', 'notif_', 'vapid', 'subscription_', 'glow-lang'];
       const preserved: Record<string, string> = {};
@@ -83,14 +91,18 @@ export function useAuth() {
       console.warn('[signOut] storage clear failed', e);
     }
 
-    // DO NOT unregister the service worker — it powers Web Push notifications.
-    // DO NOT delete Cache Storage either, as the SW relies on its caches.
-    // The next load will still pick up the latest JS via normal HTTP cache
-    // headers; if the user needs the absolute latest bundle they can hard-refresh.
-
-    // Force a full reload bypassing the bfcache so auth state is fresh
     window.location.replace('/auth');
   };
 
-  return { user, loading, isAdmin, roleLoading, signOut };
+  return (
+    <AuthContext.Provider value={{ user, loading, isAdmin, roleLoading, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth(): AuthState {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  return ctx;
 }

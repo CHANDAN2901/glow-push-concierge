@@ -17,8 +17,9 @@ const DevSwitcher = () => {
   const location = useLocation();
   const [currentOverride, setCurrentOverride] = useState<TierSlug | null>(getDevTierOverride);
 
-  // Only show in development
+  // Only show in development, never on super-admin
   if (import.meta.env.PROD) return null;
+  if (location.pathname.startsWith('/super-admin')) return null;
 
   const handleTierChange = (tier: TierSlug | null) => {
     setDevTierOverride(tier);

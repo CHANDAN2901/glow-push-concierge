@@ -40,6 +40,7 @@ import CookieConsentBanner from "./components/CookieConsentBanner";
 import ImpersonationBanner from "./components/ImpersonationBanner";
 import FeedbackFAB from "./components/FeedbackFAB";
 import AuthRedirectHandler from "./components/AuthRedirectHandler";
+import { AuthProvider } from "./hooks/useAuth";
 
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <AuthProvider>
       <I18nProvider>
         <Toaster />
         <Sonner />
@@ -88,6 +90,7 @@ const App = () => (
           <FeedbackFAB />
         </BrowserRouter>
       </I18nProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
