@@ -77,8 +77,8 @@ serve(async (req: Request) => {
       success_url_address: `${appUrl}/payment-success?plan=${planSlug}`,
       fail_url_address: `${appUrl}/payment-failed`,
       // Pass-through fields back to webhook
-      myid: auth.userId,     // reused as pass-through (userId)
       remarks: planSlug,     // plan slug passed through
+      remarks2: auth.userId, // userId pass-through (myid gets overwritten by cardholder input)
     });
 
     // iframenew.php doesn't reliably support lang=en; use iframe.php for English

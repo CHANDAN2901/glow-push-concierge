@@ -365,11 +365,13 @@ const ClientHome = () => {
   const [dbTreatmentDate, setDbTreatmentDate] = useState<string | null>(null);
   const [dbTreatmentType, setDbTreatmentType] = useState<string | null>(null);
   const [dbArtistId, setDbArtistId] = useState<string | null>(null);
+  const [clientDbLoaded, setClientDbLoaded] = useState(false);
   const [latestDeclaration, setLatestDeclaration] = useState<{ id: string; createdAt: string } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    if (!isUUID(clientId)) { setDbClientName(null); setDbClientPhone(null); setDbReferralCode(null); setDbTreatmentDate(null); setDbTreatmentType(null); setDbArtistId(null); return; }
+    setClientDbLoaded(false);
+    if (!isUUID(clientId)) { setDbClientName(null); setDbClientPhone(null); setDbReferralCode(null); setDbTreatmentDate(null); setDbTreatmentType(null); setDbArtistId(null); setClientDbLoaded(true); return; }
     (async () => {
       try {
         const { data, error } = await supabase.from('clients').select('full_name, phone, referral_code, treatment_date, treatment_type, artist_id, preferred_lang').eq('id', clientId).maybeSingle();
@@ -386,6 +388,7 @@ const ClientHome = () => {
           setLang(data.preferred_lang);
         }
       } catch (err) { if (!cancelled) console.error('[ClientHome] err:', err); }
+      finally { if (!cancelled) setClientDbLoaded(true); }
     })();
     return () => { cancelled = true; };
   }, [clientId]);
@@ -552,7 +555,7 @@ const ClientHome = () => {
 
   const artistDisplayName = artistFullName || artistName || '';
   const firstDashboardNotification = useMemo(() => {
-    if (!latestDeclaration || !artistDisplayName.trim()) return null;
+    if (!clientDbLoaded || !latestDeclaration || !artistDisplayName.trim()) return null;
     const message = buildFirstDashboardNotificationText({
       lang,
       artistName: artistDisplayName,
@@ -566,10 +569,10 @@ const ClientHome = () => {
       body: message.body,
       timestamp: new Date(latestDeclaration.createdAt),
     };
-  }, [latestDeclaration, lang, artistDisplayName, clientName]);
+  }, [clientDbLoaded, latestDeclaration, lang, artistDisplayName, clientName]);
 
   useEffect(() => {
-    if (!clientId || !latestDeclaration?.id || !artistDisplayName.trim()) return;
+    if (!clientDbLoaded || !clientId || !latestDeclaration?.id || !artistDisplayName.trim()) return;
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
     const storageKey = `${LS_FIRST_DASHBOARD_NOTIFICATION_PREFIX}:${clientId}:${latestDeclaration.id}`;
@@ -589,7 +592,7 @@ const ClientHome = () => {
     }).catch(() => {
       localStorage.removeItem(storageKey);
     });
-  }, [clientId, latestDeclaration, lang, artistDisplayName, clientName]);
+  }, [clientDbLoaded, clientId, latestDeclaration, lang, artistDisplayName, clientName]);
 
   // Catch-up in-app notification: if the scheduled push was missed, show it when the client opens the app
   useEffect(() => {

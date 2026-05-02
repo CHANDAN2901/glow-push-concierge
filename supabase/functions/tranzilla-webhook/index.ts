@@ -39,7 +39,7 @@ serve(async (req: Request) => {
     const token = fields["TranzilaTK"];              // saved card token
     const expiry = fields["expdate"];                // "MMYY"
     const confirmationCode = fields["ConfirmationCode"];
-    const userId = fields["myid"];                   // passed through from iframe URL
+    const userId = fields["remarks2"];               // passed through from iframe URL
     const planSlug = fields["remarks"];              // passed through from iframe URL
     const sum = fields["sum"];
 
