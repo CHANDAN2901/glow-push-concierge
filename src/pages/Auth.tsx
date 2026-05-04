@@ -188,6 +188,27 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      if (!isLogin) {
+        if (password.length < 6) {
+          toast({
+            title: lang === 'en' ? 'Password too short' : 'הסיסמה קצרה מדי',
+            description: lang === 'en' ? 'Password must be at least 6 characters.' : 'הסיסמה חייבת להכיל לפחות 6 תווים.',
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
+        if (password.length > 20) {
+          toast({
+            title: lang === 'en' ? 'Password too long' : 'הסיסמה ארוכה מדי',
+            description: lang === 'en' ? 'Password must be at most 20 characters.' : 'הסיסמה חייבת להכיל לכל היותר 20 תווים.',
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
       if (isLogin) {
         const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
@@ -300,9 +321,12 @@ const Auth = () => {
         localStorage.removeItem('gp-welcome-tour-done');
       }
     } catch (err: any) {
+      const isWeakPassword = /weak|password.*strength|not meet/i.test(err.message ?? '');
       toast({
         title: lang === 'en' ? 'Error' : 'שגיאה',
-        description: err.message,
+        description: isWeakPassword
+          ? (lang === 'en' ? 'Password must be between 6 and 20 characters.' : 'הסיסמה חייבת להכיל בין 6 ל-20 תווים.')
+          : err.message,
         variant: 'destructive',
       });
     } finally {

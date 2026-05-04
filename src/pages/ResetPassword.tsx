@@ -41,10 +41,33 @@ const ResetPassword = () => {
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password.length < 6) {
+      toast({
+        title: lang === 'en' ? 'Password too short' : 'הסיסמה קצרה מדי',
+        description: lang === 'en' ? 'Password must be at least 6 characters.' : 'הסיסמה חייבת להכיל לפחות 6 תווים.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (password.length > 20) {
+      toast({
+        title: lang === 'en' ? 'Password too long' : 'הסיסמה ארוכה מדי',
+        description: lang === 'en' ? 'Password must be at most 20 characters.' : 'הסיסמה חייבת להכיל לכל היותר 20 תווים.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      toast({ title: lang === 'en' ? 'Error' : 'שגיאה', description: error.message, variant: 'destructive' });
+      const isWeakPassword = /weak|password.*strength|not meet/i.test(error.message ?? '');
+      toast({
+        title: lang === 'en' ? 'Error' : 'שגיאה',
+        description: isWeakPassword
+          ? (lang === 'en' ? 'Password must be between 6 and 20 characters.' : 'הסיסמה חייבת להכיל בין 6 ל-20 תווים.')
+          : error.message,
+        variant: 'destructive',
+      });
     } else {
       const { data: { user } } = await supabase.auth.getUser();
       let isAdmin = resolveIsAdmin(user ?? null, false);
