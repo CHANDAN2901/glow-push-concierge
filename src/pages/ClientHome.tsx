@@ -1495,8 +1495,8 @@ const ClientHome = () => {
                 href={(() => {
                   const aName = artistFullName || artistName || '';
                   const msg = lang === 'en'
-                    ? `Hi ${aName}! ✨\nI saw the special offer in my personal area (Complete the Look), and I'm really interested!\nI'd love to hear more details and book an appointment. 🤍`
-                    : `היי ${aName} מהממת! ✨\nראיתי באזור האישי שלי את ההטבה לטיפול נוסף (להשלמת המראה), וממש עשה לי חשק!\nאשמח לשמוע פרטים ולקבוע תור. 🤍`;
+                    ? `Hi ${aName}!\nI saw the special offer in my personal area (Complete the Look), and I'm really interested!\nI'd love to hear more details and book an appointment.`
+                    : `היי ${aName} מהממת!\nראיתי באזור האישי שלי את ההטבה לטיפול נוסף (להשלמת המראה), וממש עשה לי חשק!\nאשמח לשמוע פרטים ולקבוע תור.`;
                   return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
                 })()}
                 target="_blank"

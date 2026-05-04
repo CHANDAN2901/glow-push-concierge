@@ -13,17 +13,17 @@ interface Props {
   }) => void;
 }
 
-const DEFAULT_BIRTHDAY_HE = 'היי {{client_name}}, מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: {{gift}} על הטיפול הבא שלך. נשיקות, {{artist_name}} 💕';
-const DEFAULT_BIRTHDAY_EN = 'Hi {{client_name}}, Happy Birthday! 🎉🎂 To celebrate your special day, we have a treat for you: {{gift}} on your next treatment. Warm wishes, {{artist_name}} 💕';
+const DEFAULT_BIRTHDAY_HE = 'היי {{client_name}}, מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: {{gift}} על הטיפול הבא שלך. נשיקות, {{artist_name}}';
+const DEFAULT_BIRTHDAY_EN = 'Hi {{client_name}}, Happy Birthday! 🎉🎂 To celebrate your special day, we have a treat for you: {{gift}} on your next treatment. Warm wishes, {{artist_name}}';
 
-const DEFAULT_RENEWAL_HE = 'היי {{client_name}}, עברה כמעט שנה מאז הטיפול האחרון! ✨ זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, {{artist_name}}';
-const DEFAULT_RENEWAL_EN = 'Hi {{client_name}}, it\'s been almost a year since your last treatment! ✨ Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, {{artist_name}}';
+const DEFAULT_RENEWAL_HE = 'היי {{client_name}}, עברה כמעט שנה מאז הטיפול האחרון! זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, {{artist_name}}';
+const DEFAULT_RENEWAL_EN = 'Hi {{client_name}}, it\'s been almost a year since your last treatment! Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, {{artist_name}}';
 
-const DEFAULT_REVIEW_HE = 'היי {{client_name}}! ✨ מקווה שאת מרוצה מהתוצאות! אם יש לך רגע, אשמח מאוד להמלצה קצרה — זה עוזר לנשים נוספות למצוא את הטיפול הנכון. תודה רבה! 💕 — {{artist_name}}';
-const DEFAULT_REVIEW_EN = 'Hi {{client_name}}! ✨ I hope you\'re loving your results! If you have a moment, I\'d really appreciate a short review — it helps other women find the right treatment. Thank you so much! 💕 — {{artist_name}}';
+const DEFAULT_REVIEW_HE = 'היי {{client_name}}! מקווה שאת מרוצה מהתוצאות! אם יש לך רגע, אשמח מאוד להמלצה קצרה — זה עוזר לנשים נוספות למצוא את הטיפול הנכון. תודה רבה! — {{artist_name}}';
+const DEFAULT_REVIEW_EN = 'Hi {{client_name}}! I hope you\'re loving your results! If you have a moment, I\'d really appreciate a short review — it helps other women find the right treatment. Thank you so much! — {{artist_name}}';
 
-const DEFAULT_REFERRAL_HE = 'היי {{client_name}}! 💝 אם יש לך חברה שתשמח לטיפול — שלחי לה את הקישור שלי ותהני מהטבה מיוחדת על ההפניה! תודה שאת ממליצה עליי 🌟 — {{artist_name}}';
-const DEFAULT_REFERRAL_EN = 'Hi {{client_name}}! 💝 If you have a friend who\'d love a treatment — send her my link and enjoy a special referral reward! Thank you for recommending me 🌟 — {{artist_name}}';
+const DEFAULT_REFERRAL_HE = 'היי {{client_name}}! אם יש לך חברה שתשמח לטיפול — שלחי לה את הקישור שלי ותהני מהטבה מיוחדת על ההפניה! תודה שאת ממליצה עליי — {{artist_name}}';
+const DEFAULT_REFERRAL_EN = 'Hi {{client_name}}! If you have a friend who\'d love a treatment — send her my link and enjoy a special referral reward! Thank you for recommending me — {{artist_name}}';
 
 // Support both {{placeholder}} and [PLACEHOLDER] formats
 function normalizePlaceholders(text: string): string {

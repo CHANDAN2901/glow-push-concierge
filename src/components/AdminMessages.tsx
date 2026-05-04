@@ -59,9 +59,9 @@ function buildPhaseDrafts(phases: HealingPhase[]): Record<string, PhaseDraft> {
 
 
 const PUSH_EVENTS = [
-  { key: 'appointment_reminder', labelHe: 'תזכורת תור', labelEn: 'Appointment Reminder', icon: '📅', defaultText: 'היי {{client_name}}, תזכורת מהקליניקה — קבענו לתאריך {{date}} בשעה {{time}}. מחכה לראותך! ✨' },
-  { key: 'post_treatment_followup', labelHe: 'מעקב אחרי טיפול', labelEn: 'Post-Treatment Follow-up', icon: '💌', defaultText: 'היי {{client_name}}, איך את מרגישה? 💕 היום מתחיל מסע ההחלמה שלך. נא לעקוב אחרי ההנחיות באפליקציה ולפנות אליי בכל שאלה!' },
-  { key: 'birthday_greeting', labelHe: 'הודעת יום הולדת', labelEn: 'Birthday Message', icon: '🎂', defaultText: 'יום הולדת שמח {{client_name}}! 🎉🎂 מאחלת לך שנה מלאה ביופי ובאושר 💕 כמתנה — קבלי 10% הנחה על הטיפול הבא!' },
+  { key: 'appointment_reminder', labelHe: 'תזכורת תור', labelEn: 'Appointment Reminder', icon: '📅', defaultText: 'היי {{client_name}}, תזכורת מהקליניקה — קבענו לתאריך {{date}} בשעה {{time}}. מחכה לראותך!' },
+  { key: 'post_treatment_followup', labelHe: 'מעקב אחרי טיפול', labelEn: 'Post-Treatment Follow-up', icon: '💌', defaultText: 'היי {{client_name}}, איך את מרגישה? היום מתחיל מסע ההחלמה שלך. נא לעקוב אחרי ההנחיות באפליקציה ולפנות אליי בכל שאלה!' },
+  { key: 'birthday_greeting', labelHe: 'הודעת יום הולדת', labelEn: 'Birthday Message', icon: '🎂', defaultText: 'יום הולדת שמח {{client_name}}! 🎉🎂 מאחלת לך שנה מלאה ביופי ובאושר! כמתנה — קבלי 10% הנחה על הטיפול הבא!' },
   { key: 'review_request', labelHe: 'בקשת ביקורת', labelEn: 'Review Request', icon: '⭐', defaultText: 'היי {{client_name}}, נשמח מאוד לביקורת שלך ⭐ זה עוזר לנו להמשיך לתת שירות מעולה! {{review_link}}' },
   { key: 'healing_day_notification', labelHe: 'הודעת מסע החלמה', labelEn: 'Healing Journey Update', icon: '💧', defaultText: 'היי {{client_name}}, יום {{day_number}} במסע ההחלמה שלך 💧 הנה ההנחיות להיום — פתחי את האפליקציה לפרטים!' },
   { key: 'renewal_reminder', labelHe: 'תזכורת חידוש', labelEn: 'Renewal Reminder', icon: '🔄', defaultText: 'היי {{client_name}}, עברו כבר כמה חודשים מהטיפול האחרון 🔄 הגיע הזמן לחידוש! נקבע תור?' },

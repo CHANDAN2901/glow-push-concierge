@@ -129,7 +129,7 @@ export default function RenewalMessageDialog({
             endpoint: sub.endpoint,
             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
           },
-          title: isEn ? '✨ Time for a touch-up!' : '✨ הגיע הזמן לרענון!',
+          title: isEn ? 'Time for a touch-up!' : 'הגיע הזמן לרענון!',
           body: getFinalMessage().substring(0, 200),
           day: 0,
         },

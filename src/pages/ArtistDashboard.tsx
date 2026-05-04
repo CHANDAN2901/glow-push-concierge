@@ -111,7 +111,7 @@ const SMART_MESSAGES: SmartMessage[] = [
     labelEn: 'Congrats 🎉',
     matchDay: (d) => d <= 1,
     message: (name, link) =>
-      `היי ${name}! 🎉✨ מזל טוב על הטיפול החדש! הכנתי לך אפליקציה אישית שתלווה אותך בכל שלב של ההחלמה.\n\nהנה הקישור שלך:\n${link}\n\nשמרי עליו — הוא מעודכן כל יום עם הוראות מותאמות אישית 💕`,
+      `היי ${name}! 🎉 מזל טוב על הטיפול החדש! הכנתי לך אפליקציה אישית שתלווה אותך בכל שלב של ההחלמה.\n\nהנה הקישור שלך:\n${link}\n\nשמרי עליו — הוא מעודכן כל יום עם הוראות מותאמות אישית`,
   },
   {
     id: 'peeling',
@@ -127,7 +127,7 @@ const SMART_MESSAGES: SmartMessage[] = [
     labelEn: 'Ghosting Explanation 👻',
     matchDay: (d) => d >= 9 && d <= 15,
     message: (name, link) =>
-      `היי ${name}! 👻 אם את מרגישה שהצבע כמעט נעלם — זה בדיוק מה שצריך לקרות! זה נקרא שלב ה-Ghosting. הפיגמנט מתחבא מתחת לעור החדש ויחזור בהדרגה.\n\nעוד פרטים באפליקציה שלך:\n${link}\n\nסבלנות, יפה שלי! ✨`,
+      `היי ${name}! 👻 אם את מרגישה שהצבע כמעט נעלם — זה בדיוק מה שצריך לקרות! זה נקרא שלב ה-Ghosting. הפיגמנט מתחבא מתחת לעור החדש ויחזור בהדרגה.\n\nעוד פרטים באפליקציה שלך:\n${link}\n\nסבלנות, יפה שלי!`,
   },
   {
     id: 'touchup',
@@ -135,7 +135,7 @@ const SMART_MESSAGES: SmartMessage[] = [
     labelEn: 'Touch-up Reminder 📅',
     matchDay: (d) => d >= 25 && d <= 30,
     message: (name, link) =>
-      `היי ${name}! 📅 את מתקרבת לסוף תהליך ההחלמה — את נראית מדהים! זה הזמן לקבוע תור לטאצ׳ אפ אם צריך.\n\nתסתכלי על ההתקדמות שלך:\n${link}\n\nנתראה בקרוב! 💕`,
+      `היי ${name}! 📅 את מתקרבת לסוף תהליך ההחלמה — את נראית מדהים! זה הזמן לקבוע תור לטאצ׳ אפ אם צריך.\n\nתסתכלי על ההתקדמות שלך:\n${link}\n\nנתראה בקרוב!`,
   },
 ];
 
@@ -750,9 +750,9 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     let text: string;
     if (appt) {
       const dateFormatted = new Date(appt.date).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
-      text = `היי ${clientName}, תזכורת מהקליניקה של ${studioLabel} - קבענו לתאריך ${dateFormatted} בשעה ${appt.time}. מחכה לראותך! ✨`;
+      text = `היי ${clientName}, תזכורת מהקליניקה של ${studioLabel} - קבענו לתאריך ${dateFormatted} בשעה ${appt.time}. מחכה לראותך!`;
     } else {
-      text = `היי ${clientName}, תזכורת מהקליניקה של ${studioLabel} - מחכה לראותך! ✨`; // WhatsApp message body — left in Hebrew as default
+      text = `היי ${clientName}, תזכורת מהקליניקה של ${studioLabel} - מחכה לראותך!`; // WhatsApp message body — left in Hebrew as default
     }
     return cleanP
       ? `https://wa.me/${cleanP}?text=${encodeURIComponent(text)}`
@@ -1207,7 +1207,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     }
     try {
       const firstName = (name || '').split(' ')[0] || 'מותק'; // 'מותק' is a Hebrew endearment used in the WhatsApp message body
-      const message = `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול! כדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות: ${link}\n\nמחכה לראות את התוצאה הסופית! באהבה, ${artistName || 'אורית אהרוני'} - Glow Push 🤍`;
+      const message = `היי ${firstName}, איזה כיף שסיימנו את הטיפול! כדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות: ${link}\n\nמחכה לראות את התוצאה הסופית! באהבה, ${artistName || 'אורית אהרוני'} - Glow Push`;
       const encoded = encodeURIComponent(message);
       if (phone && phone.trim()) {
         const cleanPhone = formatPhone(phone);
