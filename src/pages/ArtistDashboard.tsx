@@ -262,6 +262,7 @@ const ArtistDashboard = () => {
   const [updatingTreatmentDate, setUpdatingTreatmentDate] = useState(false);
   const [manualTreatmentDate, setManualTreatmentDate] = useState('');
   const [phasesCloned, setPhasesCloned] = useState(false);
+  const sendRecoveryRef = useRef<HTMLDivElement>(null);
   const [dismissedTouchup, setDismissedTouchup] = useState(() => !!localStorage.getItem('gp-dismiss-touchup'));
   const [medicalForm, setMedicalForm] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -915,31 +916,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   };
 
   // Build clean client zone link — just /c/{clientId}
-  const buildClientZoneLink = async (clientId: string, clientName?: string, clientPhone?: string): Promise<string> => {
+  // Does NOT embed form_code/form_token: the healing journey link is sent after treatment,
+  // so the health form is already filled. Embedding form params causes a redirect loop for
+  // clients who are also registered as artists (their RLS session blocks the declaration read).
+  const buildClientZoneLink = async (clientId: string, _clientName?: string, _clientPhone?: string): Promise<string> => {
     const base = `${window.location.origin}/c/${clientId}`;
-    // Try to embed a health-form token so the portal can auto-open the form if not yet filled
-    try {
-      if (userProfileId && clientId) {
-        const { data, error } = await supabase.from('form_links').insert({
-          artist_id: userProfileId,
-          client_name: clientName || '',
-          client_phone: clientPhone || null,
-          logo_url: logoUrl || null,
-          artist_phone: artistPhone ? formatPhone(artistPhone) : null,
-          treatment_type: '',
-          include_policy: true,
-          client_id: clientId,
-          artist_name: artistName || '',
-          is_token_used: false,
-        } as any).select('code, form_token').single();
-        const token = (data as any)?.form_token as string | undefined;
-        if (!error && data?.code && token) {
-          return lang === 'en'
-            ? `${base}?form_code=${data.code}&form_token=${token}&lang=en`
-            : `${base}?form_code=${data.code}&form_token=${token}`;
-        }
-      }
-    } catch {}
     return lang === 'en' ? `${base}?lang=en` : base;
   };
 
@@ -1932,6 +1913,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
               <button
                   type="button"
+                  disabled={!userProfileId}
                   onClick={() => { const url = new URL(buildHealthFormLink('לקוחה לדוגמה')); navigate(url.pathname + url.search + '&preview=true'); }}
                   className="pill-action-btn preview-pill-btn animate-fade-up"
                   style={{ height: '56px' }}
@@ -2271,6 +2253,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           p_treatment_type: tt,
                         });
                         setPhasesCloned(true);
+                        setTimeout(() => sendRecoveryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
                       } catch (cloneErr) {
                         console.error('Failed to clone healing phases:', cloneErr);
                       }
@@ -2308,7 +2291,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
                 {/* === Send Recovery Link (shown only after Finish Treatment is clicked) === */}
                 {phasesCloned && (
-                  <div className="flex items-center gap-2 px-1">
+                  <div ref={sendRecoveryRef} className="flex items-center gap-2 px-1">
                     <span className="text-lg">✅</span>
                     <p className="text-sm font-semibold" style={{ color: '#5a3e00' }}>
                       {lang === 'en' ? 'Treatment complete! Send the recovery journey to your client:' : '!הטיפול הסתיים! שלחי ללקוחה את מסע ההחלמה'}
@@ -2329,8 +2312,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         const artistSig = artistName || 'אורית אהרוני';
                         const link = await buildClientZoneLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone);
                         const waMsg = lang === 'en'
-                          ? `Hi ${firstName} ✨, so happy we finished the treatment!\n\nTo keep your results perfect, here's your personal recovery journey with all the instructions and reminders:\n\n${link}\n\nCan't wait to see the final result!\n\nWith love, ${artistSig} - Glow Push 🤍`
-                          : `היי ${firstName} ✨, איזה כיף שסיימנו את הטיפול!\n\nכדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות:\n\n${link}\n\nמחכה לראות את התוצאה הסופית!\n\nבאהבה, ${artistSig} - Glow Push 🤍`;
+                          ? `Hi ${firstName}, so happy we finished the treatment!\n\nTo keep your results perfect, here's your personal recovery journey with all the instructions and reminders:\n\n${link}\n\nCan't wait to see the final result!\n\nWith love, ${artistSig} - Glow Push`
+                          : `היי ${firstName}, איזה כיף שסיימנו את הטיפול!\n\nכדי שהתוצאה תישמר מושלמת, הכנתי לך כאן את מסע ההחלמה האישי שלך עם כל ההנחיות והתזכורות:\n\n${link}\n\nמחכה לראות את התוצאה הסופית!\n\nבאהבה, ${artistSig} - Glow Push`;
                         window.open(buildWhatsAppUrl(cleanPhone, waMsg), '_blank');
                       }}
                       className="flex-1 flex items-center justify-center py-4 text-base font-bold transition-all active:scale-[0.98] hover:scale-[1.01]"

@@ -15,14 +15,14 @@ export function generateWhatsAppMessage(
 ): string {
   if (lang === 'en') {
     if (includePolicy) {
-      return `Hey ${clientName} 🤍\nI'm so excited for our appointment!\nTo make sure everything goes smoothly, I've prepared a personal area where you can review the clinic policy and fill out a short health questionnaire.\nPlease take a minute to complete it before your visit:\n${link}\nFeel free to reach out with any questions. See you soon! ✨ ${artistName}`;
+      return `Hey ${clientName} 🤍\nI'm so excited for our appointment!\nTo make sure everything goes smoothly, I've prepared a personal area where you can review the clinic policy and fill out a short health questionnaire.\nPlease take a minute to complete it before your visit:\n${link}\nFeel free to reach out with any questions. See you soon! ${artistName}`;
     }
-    return `Hey ${clientName} 🤍\nI'm so excited for our appointment!\nTo make sure everything is perfectly tailored for you, I've prepared a short health questionnaire. Please take a minute to fill it out before your visit:\n${link}\nSee you soon! ✨ ${artistName}`;
+    return `Hey ${clientName} 🤍\nI'm so excited for our appointment!\nTo make sure everything is perfectly tailored for you, I've prepared a short health questionnaire. Please take a minute to fill it out before your visit:\n${link}\nSee you soon! ${artistName}`;
   }
   if (includePolicy) {
-    return `היי ${clientName} אהובה 🤍\nאני ממש מחכה לטיפול שלנו!\nכדי שהכל יהיה ברור, מסודר ובטוח, הכנתי לך אזור אישי שבו תוכלי לעבור על מדיניות הקליניקה ולמלא שאלון בריאות קצר.\nאשמח שתקדישי לזה דקה לפני הגעתך:\n${link}\nלכל שאלה אני כאן. נתראה בקרוב! ✨ ${artistName}`;
+    return `היי ${clientName} אהובה 🤍\nאני ממש מחכה לטיפול שלנו!\nכדי שהכל יהיה ברור, מסודר ובטוח, הכנתי לך אזור אישי שבו תוכלי לעבור על מדיניות הקליניקה ולמלא שאלון בריאות קצר.\nאשמח שתקדישי לזה דקה לפני הגעתך:\n${link}\nלכל שאלה אני כאן. נתראה בקרוב! ${artistName}`;
   }
-  return `היי ${clientName} אהובה 🤍\nאני ממש מחכה לטיפול שלנו!\nכדי שנוכל להתחיל ברוגע ולוודא שהכל מותאם עבורך בצורה מושלמת, הכנתי לך שאלון בריאות קצר. אשמח שתקדישי דקה למלא אותו לפני הגעתך:\n${link}\nנתראה בקרוב! ✨ ${artistName}`;
+  return `היי ${clientName} אהובה 🤍\nאני ממש מחכה לטיפול שלנו!\nכדי שנוכל להתחיל ברוגע ולוודא שהכל מותאם עבורך בצורה מושלמת, הכנתי לך שאלון בריאות קצר. אשמח שתקדישי דקה למלא אותו לפני הגעתך:\n${link}\nנתראה בקרוב! ${artistName}`;
 }
 
 /**

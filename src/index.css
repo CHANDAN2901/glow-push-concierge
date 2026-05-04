@@ -12,6 +12,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide Lovable platform badge injected at runtime */
+#lovable-badge,
+[data-lovable-badge],
+a[href*="lovable.app"][target="_blank"]:has(img),
+div[style*="z-index: 999999"] {
+  display: none !important;
+}
+
 @layer base {
   :root {
     --background: 15 39% 98%;

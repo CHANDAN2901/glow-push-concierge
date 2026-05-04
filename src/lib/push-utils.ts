@@ -201,8 +201,10 @@ export async function subscribeToPush(opts: {
     console.log('[Push] Marking client as push opted in...');
     const { error: updateErr } = await supabase.rpc('mark_client_push_opted_in', { p_client_id: cleanClientId });
     if (updateErr) {
-      console.warn('[Push] Failed to update push_opted_in:', updateErr.message);
-      // Non-fatal — subscription was saved
+      console.error('[Push] Failed to update push_opted_in:', updateErr.message);
+      // Roll back the subscription record so the toggle doesn't show as ON with a broken state
+      await supabase.from('push_subscriptions').delete().eq('endpoint', subJson.endpoint!);
+      return { success: false, error: `שגיאה בהפעלת התראות: ${updateErr.message}` };
     }
 
     console.log('[Push] ✅ Push subscription saved successfully!');

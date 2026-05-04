@@ -519,11 +519,11 @@ const ClientProfile = () => {
 
       const message = lang === 'en'
         ? (includePolicyCP
-          ? `Hi ${name} 💛\nPlease review our clinic policy and fill out the health declaration before your appointment 🩺✨\n${declLink}`
-          : `Hi ${name} 💛\nPlease fill out the health declaration before your appointment 🩺✨\n${declLink}`)
+          ? `Hi ${name}\nPlease review our clinic policy and fill out the health declaration before your appointment 🩺\n${declLink}`
+          : `Hi ${name}\nPlease fill out the health declaration before your appointment 🩺\n${declLink}`)
         : (includePolicyCP
-          ? `היי ${name} 💛\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות לפני התור 🩺✨\n${declLink}`
-          : `היי ${name} 💛\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺✨\n${declLink}`);
+          ? `היי ${name}\nמצורף קישור לצפייה במדיניות הקליניקה ומילוי הצהרת בריאות לפני התור 🩺\n${declLink}`
+          : `היי ${name}\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺\n${declLink}`);
 
       window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(message)}`, '_blank');
       toast({ title: lang === 'en' ? 'Message sent successfully ✉️' : 'הודעה נשלחה בהצלחה ✉️' });
@@ -824,8 +824,8 @@ const ClientProfile = () => {
                     <a
                       href={`https://wa.me/${intlPhone}?text=${encodeURIComponent(
                         lang === 'en'
-                          ? `Hi ${name} 💛\nPlease fill out the health declaration before your appointment 🩺✨\n${generatedDeclLink}`
-                          : `היי ${name} 💛\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺✨\n${generatedDeclLink}`
+                          ? `Hi ${name}\nPlease fill out the health declaration before your appointment 🩺\n${generatedDeclLink}`
+                          : `היי ${name}\nבבקשה מלאי את הצהרת הבריאות לפני התור 🩺\n${generatedDeclLink}`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

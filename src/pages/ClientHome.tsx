@@ -230,9 +230,23 @@ function usePushSubscription({ clientId, clientName, artistProfileId, lang }: { 
         const dbHasSub = !!(data && data.length > 0);
 
         if (dbHasSub && permissionGranted) {
-          // DB has a record and permission is granted — restore the LS flag silently
-          try { localStorage.setItem(lsKey, '1'); } catch {}
-          setStatus('subscribed');
+          // DB record exists and browser permission is granted.
+          // Check if the browser still has an active push subscription — if not, show the
+          // banner so the user re-subscribes (stale DB record from another device/session).
+          let browserHasSub = false;
+          try {
+            const reg = await navigator.serviceWorker?.ready;
+            const existing = await reg?.pushManager?.getSubscription();
+            browserHasSub = !!existing;
+          } catch { /* unsupported browser */ }
+
+          if (browserHasSub) {
+            try { localStorage.setItem(lsKey, '1'); } catch {}
+            setStatus('subscribed');
+          } else {
+            try { localStorage.removeItem(lsKey); } catch {}
+            setStatus('idle');
+          }
         } else {
           // No record or permission was revoked — show the banner
           try { localStorage.removeItem(lsKey); } catch {}
@@ -524,6 +538,9 @@ const ClientHome = () => {
 
   useEffect(() => {
     if (!artistProfileId) return;
+    // Reset before re-fetch so a stale name from a previous artist doesn't linger and
+    // fire the first-dashboard notification with the wrong artist name.
+    setArtistFullName('');
     (async () => {
       const { data } = await supabase
         .from('artist_message_settings')

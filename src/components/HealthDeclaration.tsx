@@ -267,7 +267,17 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
     }
   };
 
-  const isValidId = /^\d{9}$/.test(idNumber.trim());
+  const isValidId = (() => {
+    const id = idNumber.trim().padStart(9, '0');
+    if (!/^\d{9}$/.test(id)) return false;
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      let digit = parseInt(id[i], 10) * (i % 2 === 0 ? 1 : 2);
+      if (digit > 9) digit -= 9;
+      sum += digit;
+    }
+    return sum % 10 === 0;
+  })();
   const isValidPhone = phone.trim() === '' || /^\d{10}$/.test(phone.replace(/[-\s]/g, ''));
   const canProceedStep1 = isPreview || (fullName.trim().length > 0 && isValidId && isValidPhone);
   const canProceedStep3 = isPreview || (consent && legalConsent && medicalConsent && signatureDataUrl.length > 0);
@@ -664,7 +674,7 @@ export default function HealthDeclaration({ clientName = '', clientPhone = '', o
                     <WhiteFieldInput label={isHe ? 'שם מלא' : 'Full Name'} required value={fullName} onChange={setFullName} disabled={readOnly} placeholder={isHe ? 'שם פרטי ומשפחה' : 'First and last name'} />
                   </div>
                   <div style={{ animation: 'hd-item-enter 0.4s 0.22s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
-                    <WhiteFieldInput label={isHe ? 'תעודת זהות' : 'ID Number'} required value={idNumber} onChange={v => setIdNumber(v.replace(/\D/g, '').slice(0, 9))} disabled={readOnly} placeholder="000000000" dir="ltr" inputMode="numeric" maxLength={9} pattern="[0-9]*" error={idNumber.length > 0 && !isValidId ? (isHe ? 'יש להזין 9 ספרות בדיוק' : 'Must be exactly 9 digits') : undefined} />
+                    <WhiteFieldInput label={isHe ? 'תעודת זהות' : 'ID Number'} required value={idNumber} onChange={v => setIdNumber(v.replace(/\D/g, '').slice(0, 9))} disabled={readOnly} placeholder="000000000" dir="ltr" inputMode="numeric" maxLength={9} pattern="[0-9]*" error={idNumber.length > 0 && !isValidId ? (isHe ? 'מספר תעודת זהות אינו תקין' : 'Invalid ID number') : undefined} />
                   </div>
                   <div style={{ animation: 'hd-item-enter 0.4s 0.29s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
                     <WhiteFieldInput label={isHe ? 'טלפון' : 'Phone'} value={phone} onChange={v => setPhone(v.replace(/\D/g, '').slice(0, 10))} disabled={readOnly} placeholder="0501234567" dir="ltr" inputMode="tel" maxLength={10} pattern="[0-9]*" error={phone.length > 0 && !isValidPhone ? (isHe ? 'יש להזין 10 ספרות בדיוק' : 'Must be exactly 10 digits') : undefined} />

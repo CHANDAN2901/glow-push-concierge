@@ -44,7 +44,8 @@ const HealthDeclarationPage = () => {
   const { lang } = useI18n();
 
   const [isArtist, setIsArtist] = useState(false);
-  const [policyAcknowledged, setPolicyAcknowledged] = useState(!includePolicy);
+  // In preview mode the artist should see the full form directly without policy gating.
+  const [policyAcknowledged, setPolicyAcknowledged] = useState(!includePolicy || isPreview);
   const [langSupport, setLangSupport] = useState({ hasHe: true, hasEn: true });
   const [langDenied, setLangDenied] = useState<'he' | 'en' | null>(null);
 
