@@ -13,8 +13,8 @@ interface Props {
   }) => void;
 }
 
-const DEFAULT_BIRTHDAY_HE = 'היי {{client_name}}, מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: {{gift}} על הטיפול הבא שלך. נשיקות, {{artist_name}}';
-const DEFAULT_BIRTHDAY_EN = 'Hi {{client_name}}, Happy Birthday! 🎉🎂 To celebrate your special day, we have a treat for you: {{gift}} on your next treatment. Warm wishes, {{artist_name}}';
+const DEFAULT_BIRTHDAY_HE = 'היי {{client_name}}, מזל טוב! לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: {{gift}} על הטיפול הבא שלך. נשיקות, {{artist_name}}';
+const DEFAULT_BIRTHDAY_EN = 'Hi {{client_name}}, Happy Birthday! To celebrate your special day, we have a treat for you: {{gift}} on your next treatment. Warm wishes, {{artist_name}}';
 
 const DEFAULT_RENEWAL_HE = 'היי {{client_name}}, עברה כמעט שנה מאז הטיפול האחרון! זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, {{artist_name}}';
 const DEFAULT_RENEWAL_EN = 'Hi {{client_name}}, it\'s been almost a year since your last treatment! Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, {{artist_name}}';

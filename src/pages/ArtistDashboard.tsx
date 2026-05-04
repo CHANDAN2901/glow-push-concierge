@@ -1565,7 +1565,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   const firstName = artistName ? artistName.split(' ')[0] : '';
                   const greetingWord = hour < 12 ? t('artist.dashboard.greetingMorning') : hour < 17 ? t('artist.dashboard.greetingAfternoon') : t('artist.dashboard.greetingEvening');
                   if (firstName) return lang === 'en' ? `Hi ${firstName} 👋` : `היי ${firstName} 👋`;
-                  return `${greetingWord}! ✨`;
+                  return `${greetingWord}!`;
                 })()}
               </h1>
               <p className="text-sm" style={{ color: '#555' }}>
@@ -2160,7 +2160,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
                           },
                           title: t('artist.dashboard.testPushTitle'),
-                          body: `היי ${selectedClient.name}, זו התראת ניסיון מהמערכת! ✨`, // push notification body — sent to client device
+                          body: `היי ${selectedClient.name}, זו התראת ניסיון מהמערכת!`, // push notification body — sent to client device
                           day: 1,
                         },
                       });

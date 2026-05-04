@@ -39,8 +39,8 @@ const GIFT_PRESETS_EN = [
   'Free mini treatment',
 ];
 
-const DEFAULT_TEMPLATE_HE = 'היי [CLIENT], מזל טוב! 🎉🎂 לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: [GIFT] על הטיפול הבא שלך. נשיקות, [ARTIST]';
-const DEFAULT_TEMPLATE_EN = 'Hi [CLIENT], Happy Birthday! 🎉🎂 To celebrate your special day, we have a treat for you: [GIFT] on your next treatment. Warm wishes, [ARTIST]';
+const DEFAULT_TEMPLATE_HE = 'היי [CLIENT], מזל טוב! לכבוד היום המיוחד שלך, מחכה לך הטבה מפנקת: [GIFT] על הטיפול הבא שלך. נשיקות, [ARTIST]';
+const DEFAULT_TEMPLATE_EN = 'Hi [CLIENT], Happy Birthday! To celebrate your special day, we have a treat for you: [GIFT] on your next treatment. Warm wishes, [ARTIST]';
 
 const formatPhone = (raw: string): string => {
   const digits = raw.replace(/[^0-9]/g, '');

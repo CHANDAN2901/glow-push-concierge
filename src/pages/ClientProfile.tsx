@@ -92,7 +92,7 @@ function TestPushButton({ clientId, clientName, lang }: { clientId: string; clie
             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
           },
           title: 'בדיקת מערכת GlowPush 🔔',
-          body: `היי ${clientName}, זו התראת ניסיון מהמערכת! ✨`,
+          body: `היי ${clientName}, זו התראת ניסיון מהמערכת!`,
           url: `/c/${clientId}`,
           day: 1,
         },

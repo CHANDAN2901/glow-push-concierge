@@ -41,10 +41,10 @@ export function isRenewalDue(treatmentType: string, daysSinceTreatment: number):
   return daysSinceTreatment >= 365;
 }
 
-const DEFAULT_LIPS_HE = 'היי [CLIENT], עברו כבר כמה חודשים מאז שעיצבנו לך את השפתיים! 💋 זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
+const DEFAULT_LIPS_HE = 'היי [CLIENT], עברו כבר כמה חודשים מאז שעיצבנו לך את השפתיים! זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
 const DEFAULT_BROWS_HE = 'היי [CLIENT], עברה כמעט שנה מאז שעיצבנו לך את הגבות! זה בדיוק הזמן לרענון כדי לשמור על המראה המושלם. קבעי תור השבוע ותהני מהנחת לקוחה חוזרת. מחכה לך, [ARTIST]';
 
-const DEFAULT_LIPS_EN = 'Hi [CLIENT], it\'s been a few months since we styled your lips! 💋 Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, [ARTIST]';
+const DEFAULT_LIPS_EN = 'Hi [CLIENT], it\'s been a few months since we styled your lips! Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, [ARTIST]';
 const DEFAULT_BROWS_EN = 'Hi [CLIENT], it\'s been almost a year since we styled your brows! Now is the perfect time for a touch-up to keep your look flawless. Book this week and enjoy a returning client discount. Looking forward to seeing you, [ARTIST]';
 
 function resolvePlaceholders(template: string, vars: Record<string, string>): string {
