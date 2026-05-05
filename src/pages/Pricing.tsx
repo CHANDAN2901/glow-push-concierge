@@ -500,14 +500,14 @@ const Pricing = () => {
                         filter: 'drop-shadow(0 2px 8px rgba(212, 175, 55, 0.3)) drop-shadow(0 0 4px rgba(115, 92, 0, 0.2))',
                       }}
                     >
-                      {isHe ? `₪${monthlyEquivalentIls}` : `$${monthlyEquivalentUsd}`}
+                      ₪{monthlyEquivalentIls}
                     </span>
                     <span className="text-lg" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
                       {isHe ? '/ לחודש' : '/ month'}
                     </span>
                   </div>
                   <div className="text-sm mt-1 mb-0 text-center" style={{ color: 'rgba(75, 60, 50, 0.5)' }}>
-                    {isHe ? `בחיוב מראש של ₪${plan.price.ils.toLocaleString()} לשנה` : `Billed annually at $${plan.price.usd.toLocaleString()}/year`}
+                    {isHe ? `בחיוב מראש של ₪${plan.price.ils.toLocaleString()} לשנה` : `Billed annually at ₪${plan.price.ils.toLocaleString()}/year`}
                   </div>
                 </div>
               ) : (
