@@ -376,7 +376,7 @@ function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, is
           {plan.price_monthly > 0 && (
             <div className="flex items-baseline gap-1.5 mt-0.5">
               <span className="text-lg font-bold text-foreground">
-                {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
+                ₪{plan.price_monthly}
               </span>
               <span className="text-xs text-foreground/50">
                 {plan.slug === 'vip-3year'
