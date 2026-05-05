@@ -485,7 +485,7 @@ const Pricing = () => {
                 <div className="flex flex-col items-center justify-center mb-8">
                   {plan.originalPrice.ils > 0 && (
                     <span className="line-through text-lg mb-1" style={{ color: '#999' }}>
-                      {isHe ? `₪${Math.round(plan.originalPrice.ils / 12)} / חודש` : `$${Math.round(plan.originalPrice.usd / 12)} / month`}
+                      ₪{Math.round(plan.originalPrice.ils / 12)} {isHe ? '/ חודש' : '/ month'}
                     </span>
                   )}
                   <div className="flex items-baseline justify-center gap-1">
