@@ -514,7 +514,7 @@ const Pricing = () => {
                 <div className="flex flex-col items-center justify-center mb-8">
                   {plan.originalPrice.ils > 0 && (
                     <span className="line-through text-lg mb-1" style={{ color: '#999' }}>
-                      {isHe ? `₪${Math.round(plan.originalPrice.ils)} / חודש` : `$${Math.round(plan.originalPrice.usd)} / month`}
+                      ₪{Math.round(plan.originalPrice.ils)} {isHe ? '/ חודש' : '/ month'}
                     </span>
                   )}
                   <div className="flex items-baseline gap-1.5">
@@ -529,7 +529,7 @@ const Pricing = () => {
                         filter: 'drop-shadow(0 2px 8px rgba(212, 175, 55, 0.3)) drop-shadow(0 0 4px rgba(115, 92, 0, 0.2))',
                       }}
                     >
-                      {isHe ? `₪${plan.price.ils.toLocaleString()}` : `$${plan.price.usd.toLocaleString()}`}
+                      ₪{plan.price.ils.toLocaleString()}
                     </span>
                     <span className="text-sm" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
                       {isHe ? '/ חודש' : '/ month'}
