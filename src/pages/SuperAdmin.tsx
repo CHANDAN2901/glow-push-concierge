@@ -287,7 +287,7 @@ const SuperAdmin = () => {
                 <Label className="text-sm font-medium">{t('superAdmin.users.subscriptionPlan')}</Label>
                 <Select value={editTier} onValueChange={(v) => setEditTier(v as TierSlug)}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={editingUser.plan ? `${editingUser.plan} (${lang === 'he' ? 'נוכחי' : 'current'})` : (lang === 'he' ? 'בחרי מסלול' : 'Select a plan')} />
                   </SelectTrigger>
                   <SelectContent>
                     {dbPlans.map(p => (

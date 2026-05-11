@@ -232,7 +232,7 @@ export default function TimelineSettings() {
       <AdminSidebar active={'timeline-settings' as any} onNavigate={(v) => {
         if (v === 'aftercare') return navigate('/admin/aftercare');
         if (v === 'timeline') return navigate('/admin/timeline');
-        if (v === 'timeline-content') return navigate('/admin/timeline-content');
+        if ((v as string) === 'timeline-content') return navigate('/admin/timeline-content');
         return navigate('/super-admin', { state: { view: v } });
       }} />
       <main className="flex-1 p-6 md:p-8 overflow-y-auto pb-24 md:pb-8">
