@@ -291,7 +291,7 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade,
           <div className="flex flex-col mt-0.5">
             {plan.original_price_monthly > 0 && (
               <span className="text-sm line-through" style={{ color: '#999' }}>
-                {isHe ? `₪${Math.round(plan.original_price_monthly)} / חודש` : `$${Math.round(plan.original_price_usd)} /mo`}
+                ₪{Math.round(plan.original_price_monthly)} {isHe ? '/ חודש' : '/ month'}
               </span>
             )}
             <div className="flex items-baseline gap-1.5">
@@ -299,7 +299,7 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade,
                 className="text-2xl font-bold bg-clip-text text-transparent"
                 style={{ backgroundImage: 'linear-gradient(135deg, #B8860B, #D4AF37 50%, #F9F295)' }}
               >
-                {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
+                ₪{plan.price_monthly}
               </span>
               <span className="text-xs text-foreground/50">
                 {plan.slug === 'vip-3year'
@@ -376,7 +376,7 @@ function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, is
           {plan.price_monthly > 0 && (
             <div className="flex items-baseline gap-1.5 mt-0.5">
               <span className="text-lg font-bold text-foreground">
-                {isHe ? `₪${plan.price_monthly}` : `$${plan.price_usd}`}
+                ₪{plan.price_monthly}
               </span>
               <span className="text-xs text-foreground/50">
                 {plan.slug === 'vip-3year'
