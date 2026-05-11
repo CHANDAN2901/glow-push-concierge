@@ -86,6 +86,7 @@ const SuperAdmin = () => {
   const [termsText, setTermsText] = useState('הריני מאשרת כי כל הפרטים שמסרתי בטופס זה הם נכונים ומדויקים. אני מבינה כי הטיפול מבוצע בהסכמתי המלאה, וכי הוסברו לי הסיכונים האפשריים, תהליך ההחלמה והוראות הטיפול בבית. ידוע לי שתוצאות הטיפול משתנות מאחת לאחת ותלויות גם בסוג העור ובשמירה על ההוראות.');
   const [newQuestion, setNewQuestion] = useState('');
   const [editingUser, setEditingUser] = useState<ArtistRow | null>(null);
+  const [viewingUser, setViewingUser] = useState<ArtistRow | null>(null);
   const [editTier, setEditTier] = useState<TierSlug>('lite');
   const [upsellEnabled, setUpsellEnabled] = useState(true);
   const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
