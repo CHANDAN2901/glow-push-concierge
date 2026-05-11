@@ -86,6 +86,7 @@ const SuperAdmin = () => {
   const [termsText, setTermsText] = useState('הריני מאשרת כי כל הפרטים שמסרתי בטופס זה הם נכונים ומדויקים. אני מבינה כי הטיפול מבוצע בהסכמתי המלאה, וכי הוסברו לי הסיכונים האפשריים, תהליך ההחלמה והוראות הטיפול בבית. ידוע לי שתוצאות הטיפול משתנות מאחת לאחת ותלויות גם בסוג העור ובשמירה על ההוראות.');
   const [newQuestion, setNewQuestion] = useState('');
   const [editingUser, setEditingUser] = useState<ArtistRow | null>(null);
+  const [viewingUser, setViewingUser] = useState<ArtistRow | null>(null);
   const [editTier, setEditTier] = useState<TierSlug>('lite');
   const [upsellEnabled, setUpsellEnabled] = useState(true);
   const [upsellTitle, setUpsellTitle] = useState('להשלמת המראה');
@@ -244,18 +245,13 @@ const SuperAdmin = () => {
                     <div className={`flex items-center gap-1 ${lang === 'he' ? 'justify-end' : 'justify-start'}`}>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => {
-                            startImpersonation({ userName: u.name, studioName: u.studio, tier: u.plan as TierSlug });
-                            invalidateTier();
-                            window.dispatchEvent(new Event('impersonation-changed'));
-                            navigate('/artist');
-                          }}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-accent hover:text-accent" onClick={() => setViewingUser(u)}>
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>{t('superAdmin.users.impersonate')}</TooltipContent>
+                        <TooltipContent>{lang === 'he' ? 'צפייה בפרטים' : 'View details'}</TooltipContent>
                       </Tooltip>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingUser(u); setEditTier(u.plan as TierSlug); }}><Pencil className="w-3.5 h-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingUser(u); setEditTier((u.plan || 'lite') as TierSlug); }}><Pencil className="w-3.5 h-3.5" /></Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"><Ban className="w-3.5 h-3.5" /></Button>
                     </div>
                   </TableCell>
@@ -328,6 +324,49 @@ const SuperAdmin = () => {
             >
               <Save className="w-4 h-4 ml-1" /> {t('superAdmin.users.save')}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!viewingUser} onOpenChange={(open) => !open && setViewingUser(null)}>
+        <DialogContent className="max-w-md" dir={dir}>
+          <DialogHeader>
+            <DialogTitle className="font-serif text-lg">{lang === 'he' ? 'פרטי משתמש' : 'User Details'}</DialogTitle>
+          </DialogHeader>
+          {viewingUser && (() => {
+            const dbPlan = dbPlans.find(p => p.slug === viewingUser.plan);
+            const planLabel = (lang === 'he' ? dbPlan?.name_he : dbPlan?.name_en) ?? viewingUser.plan;
+            const rows: Array<[string, React.ReactNode]> = [
+              [lang === 'he' ? 'שם' : 'Name', viewingUser.name],
+              [lang === 'he' ? 'סטודיו' : 'Studio', viewingUser.studio],
+              [lang === 'he' ? 'מסלול' : 'Plan', planBadge(viewingUser.plan, lang, dbPlans)],
+              [lang === 'he' ? 'סטטוס' : 'Status', statusBadge(viewingUser.status, t('superAdmin.status.active'), t('superAdmin.status.suspended'))],
+              [lang === 'he' ? 'תאריך הצטרפות' : 'Join Date', viewingUser.joinDate],
+            ];
+            return (
+              <div className="space-y-4 py-2">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40">
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                    <span className="text-sm font-bold text-accent">{viewingUser.name.charAt(0)}</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{viewingUser.name}</p>
+                    <p className="text-xs text-muted-foreground">{viewingUser.studio}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {rows.map(([k, v]) => (
+                    <div key={k} className="flex items-center justify-between gap-3 text-sm py-2 border-b border-border/40 last:border-0">
+                      <span className="text-muted-foreground">{k}</span>
+                      <span className="font-medium">{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewingUser(null)}>{lang === 'he' ? 'סגירה' : 'Close'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
