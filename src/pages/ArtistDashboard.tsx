@@ -3655,15 +3655,15 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         {/* Footer – Terms & Privacy */}
         <footer className="border-t py-6 mt-8 text-center" style={{ borderColor: 'hsl(38 40% 88%)' }}>
           <div className="flex items-center justify-center gap-4 text-xs" style={{ color: 'hsl(0 0% 55%)' }}>
-            <Link to="/terms" className="hover:underline transition-colors" style={{ color: '#FFFFFF' }}>
+            <Link to="/terms" className="hover:underline transition-colors" style={{ color: 'hsl(0 0% 45%)' }}>
               {t('artist.dashboard.termsOfService')}
             </Link>
             <span>·</span>
-            <Link to="/refund-policy" className="hover:underline transition-colors" style={{ color: '#FFFFFF' }}>
+            <Link to="/refund-policy" className="hover:underline transition-colors" style={{ color: 'hsl(0 0% 45%)' }}>
               {t('artist.dashboard.refundPolicyLink')}
             </Link>
             <span>·</span>
-            <Link to="/privacy" className="hover:underline transition-colors" style={{ color: '#FFFFFF' }}>
+            <Link to="/privacy" className="hover:underline transition-colors" style={{ color: 'hsl(0 0% 45%)' }}>
               {t('artist.dashboard.privacyPolicy')}
             </Link>
           </div>
