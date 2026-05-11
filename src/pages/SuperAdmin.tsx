@@ -327,6 +327,49 @@ const SuperAdmin = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!viewingUser} onOpenChange={(open) => !open && setViewingUser(null)}>
+        <DialogContent className="max-w-md" dir={dir}>
+          <DialogHeader>
+            <DialogTitle className="font-serif text-lg">{lang === 'he' ? 'פרטי משתמש' : 'User Details'}</DialogTitle>
+          </DialogHeader>
+          {viewingUser && (() => {
+            const dbPlan = dbPlans.find(p => p.slug === viewingUser.plan);
+            const planLabel = (lang === 'he' ? dbPlan?.name_he : dbPlan?.name_en) ?? viewingUser.plan;
+            const rows: Array<[string, React.ReactNode]> = [
+              [lang === 'he' ? 'שם' : 'Name', viewingUser.name],
+              [lang === 'he' ? 'סטודיו' : 'Studio', viewingUser.studio],
+              [lang === 'he' ? 'מסלול' : 'Plan', planBadge(viewingUser.plan, lang, dbPlans)],
+              [lang === 'he' ? 'סטטוס' : 'Status', statusBadge(viewingUser.status, t('superAdmin.status.active'), t('superAdmin.status.suspended'))],
+              [lang === 'he' ? 'תאריך הצטרפות' : 'Join Date', viewingUser.joinDate],
+            ];
+            return (
+              <div className="space-y-4 py-2">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40">
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                    <span className="text-sm font-bold text-accent">{viewingUser.name.charAt(0)}</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{viewingUser.name}</p>
+                    <p className="text-xs text-muted-foreground">{viewingUser.studio}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {rows.map(([k, v]) => (
+                    <div key={k} className="flex items-center justify-between gap-3 text-sm py-2 border-b border-border/40 last:border-0">
+                      <span className="text-muted-foreground">{k}</span>
+                      <span className="font-medium">{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewingUser(null)}>{lang === 'he' ? 'סגירה' : 'Close'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
   const handleSendAnnouncement = async () => {
