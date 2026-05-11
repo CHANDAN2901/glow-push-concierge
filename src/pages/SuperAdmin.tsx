@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { type TierSlug } from '@/lib/subscriptionConfig';
 import { usePricingPlans } from '@/hooks/usePricingPlans';
-import { startImpersonation } from '@/lib/impersonation';
+import { startImpersonation, stopImpersonation, getImpersonation } from '@/lib/impersonation';
 import { useInvalidateTier } from '@/hooks/useFeatureAccess';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -106,6 +106,14 @@ const SuperAdmin = () => {
       navigate('/');
     }
   }, [isAdmin, loading, roleLoading, navigate]);
+
+  // Clear any leftover impersonation state when entering Super Admin
+  useEffect(() => {
+    if (getImpersonation()) {
+      stopImpersonation();
+      window.dispatchEvent(new Event('impersonation-changed'));
+    }
+  }, []);
 
   // Fetch real users from database
   const { data: artistList = [] } = useQuery({
