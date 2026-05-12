@@ -56,6 +56,24 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           artist_id: string
@@ -1032,6 +1050,9 @@ export type Database = {
           last_charge_at: string | null
           last_charge_confirmation: string | null
           logo_url: string | null
+          ls_customer_id: string | null
+          ls_order_id: string | null
+          ls_subscription_id: string | null
           onboarding_checklist_dismissed: boolean
           onboarding_checklist_state: Json
           post_trial_discount_percent: number | null
@@ -1071,6 +1092,9 @@ export type Database = {
           last_charge_at?: string | null
           last_charge_confirmation?: string | null
           logo_url?: string | null
+          ls_customer_id?: string | null
+          ls_order_id?: string | null
+          ls_subscription_id?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
           post_trial_discount_percent?: number | null
@@ -1110,6 +1134,9 @@ export type Database = {
           last_charge_at?: string | null
           last_charge_confirmation?: string | null
           logo_url?: string | null
+          ls_customer_id?: string | null
+          ls_order_id?: string | null
+          ls_subscription_id?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
           post_trial_discount_percent?: number | null
