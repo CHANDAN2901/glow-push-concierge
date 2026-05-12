@@ -101,6 +101,21 @@ const SuperAdmin = () => {
   const queryClient = useQueryClient();
   const { questions: healthQuestions, refetch: refetchHealthQuestions } = useAllHealthQuestions();
 
+  const { data: lsModeSetting, refetch: refetchLsMode } = useQuery({
+    queryKey: ['app_settings', 'ls_mode'],
+    queryFn: async () => {
+      const { data } = await supabase.from('app_settings').select('value').eq('key', 'ls_mode').single();
+      return (data?.value as 'test' | 'live') || 'test';
+    },
+  });
+  const lsMode = lsModeSetting ?? 'test';
+
+  const handleToggleLsMode = async (newMode: 'test' | 'live') => {
+    await supabase.from('app_settings').upsert({ key: 'ls_mode', value: newMode }, { onConflict: 'key' });
+    refetchLsMode();
+    toast({ title: newMode === 'live' ? '🟢 Lemon Squeezy switched to Live mode' : '🧪 Lemon Squeezy switched to Test mode' });
+  };
+
   useEffect(() => {
     if (!loading && !roleLoading && !isAdmin) {
       navigate('/');
@@ -553,6 +568,46 @@ const SuperAdmin = () => {
           <div>
             <label className="text-sm font-medium mb-1.5 block">{t('superAdmin.settings.upsellButton')}</label>
             <Input value={upsellButtonText} onChange={(e) => setUpsellButtonText(e.target.value)} dir={dir} placeholder={t('superAdmin.settings.upsellButtonPlaceholder')} />
+          </div>
+        </div>
+      </div>
+
+      {/* Lemon Squeezy Settings */}
+      <div className="rounded-xl p-6" style={{ background: 'linear-gradient(145deg, rgba(216,180,180,0.25), rgba(201,160,160,0.15))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(216,180,180,0.4)', boxShadow: '0 8px 32px rgba(216,180,180,0.2), 0 0 20px rgba(240,200,210,0.15)' }}>
+        <div className="flex items-center gap-2 mb-5" dir={dir}>
+          <span className="text-xl">🍋</span>
+          <h2 className="font-serif font-semibold text-lg">Lemon Squeezy</h2>
+        </div>
+
+        <div className="space-y-4" dir={dir}>
+          <div className="flex items-center justify-between gap-3 bg-muted/30 rounded-lg px-4 py-3">
+            <div>
+              <p className="text-sm font-medium">Payment Mode</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {lsMode === 'live'
+                  ? '🟢 Live — real payments are processed'
+                  : '🧪 Test — no real charges, use test card numbers'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs text-muted-foreground">Test</span>
+              <Switch
+                checked={lsMode === 'live'}
+                onCheckedChange={(checked) => handleToggleLsMode(checked ? 'live' : 'test')}
+                className="data-[state=checked]:bg-green-500"
+              />
+              <span className="text-xs text-muted-foreground">Live</span>
+            </div>
+          </div>
+
+          <div className="rounded-lg bg-muted/20 px-4 py-3 text-xs text-muted-foreground space-y-1" dir="ltr">
+            <p className="font-semibold text-foreground mb-1">Required Supabase Secrets</p>
+            <p><code>LS_API_KEY_TEST</code> — test mode API key</p>
+            <p><code>LS_API_KEY_LIVE</code> — live mode API key</p>
+            <p><code>LS_STORE_ID</code> — your Lemon Squeezy store ID</p>
+            <p><code>LS_WEBHOOK_SECRET</code> — webhook signing secret</p>
+            <p><code>LS_VARIANT_ID_PROFESSIONAL</code> — variant ID for Elite plan</p>
+            <p><code>LS_VARIANT_ID_MASTER</code> — variant ID for VIP plan</p>
           </div>
         </div>
       </div>

@@ -140,6 +140,8 @@ const Pricing = () => {
   const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
   const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+  const [pendingPlan, setPendingPlan] = useState<{ slug: string; priceIls: number } | null>(null);
+  const [selectedGateway, setSelectedGateway] = useState<'tranzilla' | 'lemonsqueezy'>('tranzilla');
 
   useEffect(() => {
     if (!user) return;
@@ -157,7 +159,7 @@ const Pricing = () => {
       });
   }, [user]);
 
-  const handleUpgrade = async (planSlug: string, priceIls: number) => {
+  const handleUpgrade = (planSlug: string, priceIls: number) => {
     if (!user) {
       navigate('/auth');
       return;
@@ -166,6 +168,11 @@ const Pricing = () => {
       toast({ title: isHe ? 'תוכנית זו כלולה במנוי שלך' : 'This plan is already included' });
       return;
     }
+    setPendingPlan({ slug: planSlug, priceIls });
+  };
+
+  const handleTranzillaPayment = async (planSlug: string, priceIls: number) => {
+    setPendingPlan(null);
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
@@ -180,6 +187,34 @@ const Pricing = () => {
       toast({ title: isHe ? 'שגיאה בלתי צפויה' : 'Unexpected error', variant: 'destructive' });
     } finally {
       setIsLoadingPayment(false);
+    }
+  };
+
+  const handleLemonSqueezyPayment = async (planSlug: string) => {
+    setPendingPlan(null);
+    setIsLoadingPayment(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-lemonsqueezy-checkout', {
+        body: { planSlug },
+      });
+      if (error || !data?.checkoutUrl) {
+        toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
+        return;
+      }
+      window.open(data.checkoutUrl, '_blank', 'noopener,noreferrer');
+    } catch {
+      toast({ title: isHe ? 'שגיאה בלתי צפויה' : 'Unexpected error', variant: 'destructive' });
+    } finally {
+      setIsLoadingPayment(false);
+    }
+  };
+
+  const handleConfirmGateway = () => {
+    if (!pendingPlan) return;
+    if (selectedGateway === 'tranzilla') {
+      handleTranzillaPayment(pendingPlan.slug, pendingPlan.priceIls);
+    } else {
+      handleLemonSqueezyPayment(pendingPlan.slug);
     }
   };
 
@@ -251,6 +286,94 @@ const Pricing = () => {
           </div>
         </div>
       )}
+      {/* Payment Method Selector Modal */}
+      {pendingPlan && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
+        >
+          <div
+            className="relative w-full max-w-sm rounded-3xl overflow-hidden"
+            style={{ background: '#fff', boxShadow: '0 24px 80px -12px rgba(0,0,0,0.4)', border: '2px solid rgba(212,175,55,0.4)' }}
+          >
+            {/* Header */}
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{ background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 50%, #8B6508 100%)' }}
+            >
+              <span className="text-white font-bold text-base">
+                {isHe ? '💳 בחרי אמצעי תשלום' : '💳 Choose Payment Method'}
+              </span>
+              <button
+                onClick={() => setPendingPlan(null)}
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/20 transition-all text-white text-lg font-bold"
+              >✕</button>
+            </div>
+
+            <div className="p-5 space-y-3" dir={isHe ? 'rtl' : 'ltr'}>
+              {/* Tranzilla option */}
+              <label
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 cursor-pointer transition-all"
+                style={{
+                  border: selectedGateway === 'tranzilla' ? '2px solid #D4AF37' : '1.5px solid rgba(0,0,0,0.1)',
+                  background: selectedGateway === 'tranzilla' ? 'rgba(212,175,55,0.08)' : 'rgba(0,0,0,0.02)',
+                }}
+                onClick={() => setSelectedGateway('tranzilla')}
+              >
+                <input
+                  type="radio"
+                  name="gateway"
+                  value="tranzilla"
+                  checked={selectedGateway === 'tranzilla'}
+                  onChange={() => setSelectedGateway('tranzilla')}
+                  className="accent-yellow-600"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm" style={{ color: '#5a3e1b' }}>Tranzilla</p>
+                  <p className="text-xs text-gray-500">{isHe ? 'כרטיס אשראי ישראלי' : 'Israeli credit card'}</p>
+                </div>
+                <span className="text-xl">🏦</span>
+              </label>
+
+              {/* Lemon Squeezy option */}
+              <label
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 cursor-pointer transition-all"
+                style={{
+                  border: selectedGateway === 'lemonsqueezy' ? '2px solid #D4AF37' : '1.5px solid rgba(0,0,0,0.1)',
+                  background: selectedGateway === 'lemonsqueezy' ? 'rgba(212,175,55,0.08)' : 'rgba(0,0,0,0.02)',
+                }}
+                onClick={() => setSelectedGateway('lemonsqueezy')}
+              >
+                <input
+                  type="radio"
+                  name="gateway"
+                  value="lemonsqueezy"
+                  checked={selectedGateway === 'lemonsqueezy'}
+                  onChange={() => setSelectedGateway('lemonsqueezy')}
+                  className="accent-yellow-600"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm" style={{ color: '#5a3e1b' }}>Lemon Squeezy</p>
+                  <p className="text-xs text-gray-500">{isHe ? 'כרטיס בינלאומי / PayPal' : 'International card / PayPal'}</p>
+                </div>
+                <span className="text-xl">🍋</span>
+              </label>
+
+              <button
+                onClick={handleConfirmGateway}
+                disabled={isLoadingPayment}
+                className="w-full py-3 rounded-2xl font-bold text-sm transition-all disabled:opacity-60"
+                style={{ background: 'linear-gradient(135deg, #8B6508, #D4AF37)', color: '#fff', marginTop: '4px' }}
+              >
+                {isLoadingPayment
+                  ? (isHe ? 'טוען...' : 'Loading...')
+                  : (isHe ? 'המשך לתשלום ←' : 'Continue to Payment →')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Bokeh floating circles */}
       {BOKEH_CIRCLES.map((b, i) => (
         <div
