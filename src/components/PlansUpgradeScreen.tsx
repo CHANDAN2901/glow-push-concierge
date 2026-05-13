@@ -402,8 +402,10 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade,
                 ₪{plan.price_monthly}
               </span>
               <span className="text-xs text-foreground/50">
-                {plan.slug === 'vip-3year'
+                {plan.billing_period === 'one_time'
                   ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
+                  : plan.billing_period === 'yearly'
+                  ? (isHe ? '/ שנה' : '/ year')
                   : (isHe ? 'לחודש' : '/month')}
               </span>
             </div>
@@ -479,8 +481,10 @@ function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, is
                 ₪{plan.price_monthly}
               </span>
               <span className="text-xs text-foreground/50">
-                {plan.slug === 'vip-3year'
+                {plan.billing_period === 'one_time'
                   ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
+                  : plan.billing_period === 'yearly'
+                  ? (isHe ? '/ שנה' : '/ year')
                   : (isHe ? 'לחודש' : '/month')}
               </span>
             </div>

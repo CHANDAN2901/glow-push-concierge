@@ -12,6 +12,11 @@ export interface PricingPlan {
   original_price_usd: number;
   currency: string;
   is_highlighted: boolean;
+  is_active: boolean;
+  billing_period: 'monthly' | 'yearly' | 'one_time';
+  subscription_tier: 'lite' | 'professional' | 'master' | null;
+  ls_variant_id_test: string | null;
+  ls_variant_id_live: string | null;
   badge_en: string | null;
   badge_he: string | null;
   features_en: string[];
@@ -25,8 +30,19 @@ export interface PricingPlan {
 }
 
 const QUERY_KEY = ['pricing-plans'];
+const ALL_PLANS_QUERY_KEY = ['pricing-plans-all'];
 
 async function fetchPlans(): Promise<PricingPlan[]> {
+  const { data, error } = await supabase
+    .from('pricing_plans')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order');
+  if (error) throw error;
+  return (data as unknown as PricingPlan[]) || [];
+}
+
+async function fetchAllPlans(): Promise<PricingPlan[]> {
   const { data, error } = await supabase
     .from('pricing_plans')
     .select('*')
@@ -45,12 +61,19 @@ async function fetchVipTaken(): Promise<number> {
 }
 
 export function usePricingPlans() {
-  const query = useQuery({
+  return useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchPlans,
-    staleTime: 0, // Always refetch to reflect admin changes
+    staleTime: 0,
   });
-  return query;
+}
+
+export function useAllPricingPlans() {
+  return useQuery({
+    queryKey: ALL_PLANS_QUERY_KEY,
+    queryFn: fetchAllPlans,
+    staleTime: 0,
+  });
 }
 
 export function useVipTakenCount() {
@@ -63,7 +86,10 @@ export function useVipTakenCount() {
 
 export function useInvalidatePricingPlans() {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+  return () => Promise.all([
+    queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
+    queryClient.invalidateQueries({ queryKey: ALL_PLANS_QUERY_KEY }),
+  ]);
 }
 
 export { QUERY_KEY as PRICING_PLANS_QUERY_KEY };

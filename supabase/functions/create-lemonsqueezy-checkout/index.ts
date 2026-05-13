@@ -7,13 +7,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const SLUG_TO_VARIANT_ENV: Record<string, string> = {
-  professional: "LS_VARIANT_ID_PROFESSIONAL",
-  elite: "LS_VARIANT_ID_PROFESSIONAL",
-  master: "LS_VARIANT_ID_MASTER",
-  "vip-3year": "LS_VARIANT_ID_MASTER",
-};
-
 async function authenticateRequest(req: Request): Promise<{ userId: string } | null> {
   const authHeader = req.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) return null;
@@ -71,12 +64,21 @@ serve(async (req: Request) => {
       : Deno.env.get("LS_API_KEY_TEST");
 
     const storeId = Deno.env.get("LS_STORE_ID");
-    const variantEnvKey = SLUG_TO_VARIANT_ENV[planSlug];
-    const variantId = variantEnvKey ? Deno.env.get(variantEnvKey) : null;
+
+    // Read variant ID from pricing_plans DB (set by admin in dashboard)
+    const { data: planRow } = await supabase
+      .from("pricing_plans")
+      .select("ls_variant_id_test, ls_variant_id_live")
+      .eq("slug", planSlug)
+      .single();
+
+    const variantId = lsMode === "live"
+      ? planRow?.ls_variant_id_live
+      : planRow?.ls_variant_id_test;
 
     if (!apiKey || !storeId || !variantId) {
-      console.error(`[create-lemonsqueezy-checkout] Missing config — mode=${lsMode} apiKey=${!!apiKey} storeId=${storeId} variantId=${variantId}`);
-      return new Response(JSON.stringify({ error: "Lemon Squeezy not configured — secrets missing" }), {
+      console.error(`[create-lemonsqueezy-checkout] Missing config — mode=${lsMode} apiKey=${!!apiKey} storeId=${storeId} variantId=${variantId} plan=${planSlug}`);
+      return new Response(JSON.stringify({ error: "Lemon Squeezy not configured — set variant IDs in SuperAdmin → Pricing" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

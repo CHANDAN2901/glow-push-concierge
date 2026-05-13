@@ -37,12 +37,12 @@ const iconMap: Record<string, React.ElementType> = {
   'vip-3year': Crown,
 };
 
-const PlanTitle = ({ slug, name }: { slug: string; name: string }) => {
+const PlanTitle = ({ isHighlighted, name }: { isHighlighted: boolean; name: string }) => {
   const lastSpace = name.lastIndexOf(' ');
   const prefix = lastSpace > 0 ? name.slice(0, lastSpace) : '';
   const suffix = lastSpace > 0 ? name.slice(lastSpace + 1) : name;
 
-  if (slug === 'elite' || slug === 'vip-3year') {
+  if (isHighlighted) {
     return (
       <h2 className="text-xl font-bold" style={{ color: TEXT_DARK, fontFamily: "'FB Ahava', 'Assistant', sans-serif" }}>
         <span className="font-light tracking-wide">{prefix} </span>
@@ -111,7 +111,6 @@ const Pricing = () => {
   // Fully DB-driven plan cards from pricing_plans table
   const plans = useMemo(() => {
     return dbPlans.map((db) => {
-      // Resolve feature keys to human-readable names from central config
       const resolvedFeatures = (db.feature_keys || []).map(key => {
         const feat = FEATURES.find(f => f.id === key);
         return feat ? { name: feat.name, desc: feat.desc } : null;
@@ -123,13 +122,13 @@ const Pricing = () => {
         price: { ils: db.price_monthly, usd: db.price_usd },
         originalPrice: { ils: db.original_price_monthly, usd: db.original_price_usd },
         isHighlighted: db.is_highlighted,
+        billingPeriod: db.billing_period || 'monthly',
+        subscriptionTier: db.subscription_tier,
         badge: db.badge_en || db.badge_he ? { en: db.badge_en || '', he: db.badge_he || '' } : null,
         stripe_price_id: db.stripe_price_id,
         total_promo_spots: db.total_promo_spots,
         cta: { en: db.cta_en, he: db.cta_he },
-        // DB display features for marketing copy
         displayFeatures: db.features_en.length > 0 ? { en: db.features_en, he: db.features_he } : null,
-        // Resolved feature descriptions from config as fallback
         configFeatures: resolvedFeatures,
       };
     });
@@ -236,13 +235,10 @@ const Pricing = () => {
     return d.toLocaleDateString(isHe ? 'he-IL' : 'en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   })();
 
-  // Slugs that correspond to the user's current tier
-  const tierSlugs: Record<string, string[]> = {
-    lite: ['lite', 'pro'],
-    professional: ['professional', 'elite'],
-    master: ['master', 'vip-3year'],
-  };
-  const activeSlugs = tierSlugs[currentTier] || [];
+  // Derive which plan slugs belong to the user's current tier from DB data
+  const activeSlugs = dbPlans
+    .filter(p => p.subscription_tier === currentTier)
+    .map(p => p.slug);
 
   return (
     <div
@@ -518,7 +514,6 @@ const Pricing = () => {
       <div className="mx-auto px-4 pb-20 flex flex-col items-center max-w-lg">
         {plans.map((plan, idx) => {
           const Icon = iconMap[plan.slug] || Sparkles;
-          // Prefer DB display features (richer marketing copy), fallback to config descriptions
           const features = plan.displayFeatures
             ? (isHe ? plan.displayFeatures.he : plan.displayFeatures.en)
             : plan.configFeatures.map(f => isHe ? f.desc.he : f.desc.en);
@@ -527,9 +522,11 @@ const Pricing = () => {
           const badge = plan.badge ? (isHe ? plan.badge.he : plan.badge.en) : null;
           const isElite = plan.isHighlighted;
 
-          const isVip = plan.slug === 'vip-3year';
-          const monthlyEquivalentIls = isVip ? Math.round(plan.price.ils / 12) : 0;
-          const monthlyEquivalentUsd = isVip ? Math.round(plan.price.usd / 12) : 0;
+          const isYearly = plan.billingPeriod === 'yearly';
+          const isOneTime = plan.billingPeriod === 'one_time';
+          const isVip = isYearly; // keep for card styling
+          const monthlyEquivalentIls = isYearly ? Math.round(plan.price.ils / 12) : 0;
+          const monthlyEquivalentUsd = isYearly ? Math.round(plan.price.usd / 12) : 0;
 
           return (
             <>
@@ -599,12 +596,12 @@ const Pricing = () => {
               />
 
               <div className={`flex items-center justify-center gap-2 ${isElite || isVip ? 'mt-4' : ''} mb-6`}>
-                <PlanTitle slug={plan.slug} name={name} />
+                <PlanTitle isHighlighted={plan.isHighlighted} name={name} />
                 <Icon className="w-5 h-5" style={{ color: '#d4af37' }} />
               </div>
 
-              {/* VIP: Monthly equivalent pricing */}
-              {isVip ? (
+              {/* Pricing display — driven by billing_period */}
+              {isYearly ? (
                 <div className="flex flex-col items-center justify-center mb-8">
                   {plan.originalPrice.ils > 0 && (
                     <span className="line-through text-lg mb-1" style={{ color: '#999' }}>
@@ -655,7 +652,9 @@ const Pricing = () => {
                       ₪{plan.price.ils.toLocaleString()}
                     </span>
                     <span className="text-sm" style={{ color: 'rgba(75, 60, 50, 0.6)' }}>
-                      {isHe ? '/ חודש' : '/ month'}
+                      {isOneTime
+                        ? (isHe ? '/ תשלום חד-פעמי' : '/ one-time')
+                        : (isHe ? '/ חודש' : '/ month')}
                     </span>
                   </div>
                 </div>
@@ -674,7 +673,7 @@ const Pricing = () => {
                 ))}
               </ul>
 
-              {plan.slug === 'master' && plan.total_promo_spots > 0 && (
+              {plan.subscriptionTier === 'master' && plan.total_promo_spots > 0 && (
                 <FomoBadge totalSpots={plan.total_promo_spots} takenSpots={vipTaken} isHe={isHe} />
               )}
 
