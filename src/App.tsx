@@ -35,6 +35,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
 import PaymentHistory from "./pages/PaymentHistory";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import DevSwitcher from "./components/DevSwitcher";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ImpersonationBanner from "./components/ImpersonationBanner";
