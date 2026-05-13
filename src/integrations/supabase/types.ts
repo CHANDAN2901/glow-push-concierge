@@ -902,7 +902,6 @@ export type Database = {
         Row: {
           badge_en: string | null
           badge_he: string | null
-          billing_period: string
           created_at: string
           cta_en: string
           cta_he: string
@@ -911,10 +910,7 @@ export type Database = {
           features_en: string[]
           features_he: string[]
           id: string
-          is_active: boolean
           is_highlighted: boolean
-          ls_variant_id_live: string | null
-          ls_variant_id_test: string | null
           name_en: string
           name_he: string
           original_price_monthly: number
@@ -924,14 +920,12 @@ export type Database = {
           slug: string
           sort_order: number
           stripe_price_id: string | null
-          subscription_tier: string | null
           total_promo_spots: number
           updated_at: string
         }
         Insert: {
           badge_en?: string | null
           badge_he?: string | null
-          billing_period?: string
           created_at?: string
           cta_en?: string
           cta_he?: string
@@ -940,10 +934,7 @@ export type Database = {
           features_en?: string[]
           features_he?: string[]
           id?: string
-          is_active?: boolean
           is_highlighted?: boolean
-          ls_variant_id_live?: string | null
-          ls_variant_id_test?: string | null
           name_en: string
           name_he: string
           original_price_monthly?: number
@@ -953,14 +944,12 @@ export type Database = {
           slug: string
           sort_order?: number
           stripe_price_id?: string | null
-          subscription_tier?: string | null
           total_promo_spots?: number
           updated_at?: string
         }
         Update: {
           badge_en?: string | null
           badge_he?: string | null
-          billing_period?: string
           created_at?: string
           cta_en?: string
           cta_he?: string
@@ -969,10 +958,7 @@ export type Database = {
           features_en?: string[]
           features_he?: string[]
           id?: string
-          is_active?: boolean
           is_highlighted?: boolean
-          ls_variant_id_live?: string | null
-          ls_variant_id_test?: string | null
           name_en?: string
           name_he?: string
           original_price_monthly?: number
@@ -982,7 +968,6 @@ export type Database = {
           slug?: string
           sort_order?: number
           stripe_price_id?: string | null
-          subscription_tier?: string | null
           total_promo_spots?: number
           updated_at?: string
         }
