@@ -2,19 +2,24 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SLUG_TO_TIER: Record<string, string> = {
+  pro: "lite",
+  starter: "lite",
   professional: "professional",
   elite: "professional",
   master: "master",
   "vip-3year": "master",
 };
 
-async function verifySignature(req: Request, rawBody: string): Promise<boolean> {
-  const secret = Deno.env.get("LS_WEBHOOK_SECRET");
-  if (!secret) {
-    console.error("[lemonsqueezy-webhook] LS_WEBHOOK_SECRET not set");
-    return false;
-  }
+async function getLsMode(supabase: ReturnType<typeof createClient>): Promise<"test" | "live"> {
+  const { data } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "ls_mode")
+    .single();
+  return data?.value === "live" ? "live" : "test";
+}
 
+async function verifySignature(req: Request, rawBody: string, secret: string): Promise<boolean> {
   const signature = req.headers.get("X-Signature");
   if (!signature) return false;
 
@@ -32,7 +37,6 @@ async function verifySignature(req: Request, rawBody: string): Promise<boolean> 
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 
-  // Timing-safe comparison
   if (hexMac.length !== signature.length) return false;
   let diff = 0;
   for (let i = 0; i < hexMac.length; i++) {
@@ -48,9 +52,24 @@ serve(async (req: Request) => {
 
   const rawBody = await req.text();
 
-  const valid = await verifySignature(req, rawBody);
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  const lsMode = await getLsMode(supabase);
+  const secret = lsMode === "live"
+    ? Deno.env.get("LS_WEBHOOK_SECRET_LIVE")
+    : Deno.env.get("LS_WEBHOOK_SECRET_TEST");
+
+  if (!secret) {
+    console.error(`[lemonsqueezy-webhook] LS_WEBHOOK_SECRET_${lsMode.toUpperCase()} not set`);
+    return new Response("webhook_secret_not_configured", { status: 500 });
+  }
+
+  const valid = await verifySignature(req, rawBody, secret);
   if (!valid) {
-    console.warn("[lemonsqueezy-webhook] Signature verification failed");
+    console.warn(`[lemonsqueezy-webhook] Signature verification failed (mode=${lsMode})`);
     return new Response("invalid_signature", { status: 401 });
   }
 
@@ -62,7 +81,7 @@ serve(async (req: Request) => {
   }
 
   const eventName = req.headers.get("X-Event-Name") || "";
-  console.log(`[lemonsqueezy-webhook] Event: ${eventName}`);
+  console.log(`[lemonsqueezy-webhook] Event: ${eventName} mode=${lsMode}`);
 
   const customData = payload?.meta?.custom_data || {};
   const userId = customData?.user_id;
@@ -72,11 +91,6 @@ serve(async (req: Request) => {
     console.error("[lemonsqueezy-webhook] Missing user_id or plan_slug in custom_data");
     return new Response("missing_custom_data", { status: 200 });
   }
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
 
   const attrs = payload?.data?.attributes || {};
   const lsSubscriptionId = payload?.data?.id ? String(payload.data.id) : null;
@@ -120,7 +134,7 @@ serve(async (req: Request) => {
       return new Response("db_error", { status: 500 });
     }
 
-    console.log(`[lemonsqueezy-webhook] ✅ Upgraded userId=${userId} tier=${tier} via ${eventName}`);
+    console.log(`[lemonsqueezy-webhook] ✅ Upgraded userId=${userId} tier=${tier} via ${eventName} mode=${lsMode}`);
   } else if (
     eventName === "subscription_cancelled" ||
     eventName === "subscription_expired"
@@ -135,7 +149,7 @@ serve(async (req: Request) => {
       return new Response("db_error", { status: 500 });
     }
 
-    console.log(`[lemonsqueezy-webhook] ⚠️ Cancelled userId=${userId} via ${eventName}`);
+    console.log(`[lemonsqueezy-webhook] ⚠️ Cancelled userId=${userId} via ${eventName} mode=${lsMode}`);
   } else {
     console.log(`[lemonsqueezy-webhook] Unhandled event: ${eventName} — ignoring`);
   }

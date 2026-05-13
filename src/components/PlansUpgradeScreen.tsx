@@ -74,7 +74,11 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
         return;
       }
-      window.open(data.checkoutUrl, '_blank', 'noopener,noreferrer');
+      if (typeof (window as any).LemonSqueezy !== 'undefined') {
+        (window as any).LemonSqueezy.Url.Open(data.checkoutUrl);
+      } else {
+        window.open(data.checkoutUrl, '_blank', 'noopener,noreferrer');
+      }
     } catch (err: any) {
       toast({ title: isHe ? 'שגיאה בלתי צפויה' : 'Unexpected error', variant: 'destructive' });
     } finally {
