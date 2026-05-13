@@ -1071,9 +1071,6 @@ export type Database = {
           updated_at: string
           user_id: string
           waze_address: string | null
-          ls_subscription_id: string | null
-          ls_customer_id: string | null
-          ls_order_id: string | null
         }
         Insert: {
           business_phone?: string | null
@@ -1113,9 +1110,6 @@ export type Database = {
           updated_at?: string
           user_id: string
           waze_address?: string | null
-          ls_subscription_id?: string | null
-          ls_customer_id?: string | null
-          ls_order_id?: string | null
         }
         Update: {
           business_phone?: string | null
@@ -1155,9 +1149,6 @@ export type Database = {
           updated_at?: string
           user_id?: string
           waze_address?: string | null
-          ls_subscription_id?: string | null
-          ls_customer_id?: string | null
-          ls_order_id?: string | null
         }
         Relationships: []
       }
