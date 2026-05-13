@@ -84,7 +84,7 @@ serve(async (req: Request) => {
       });
     }
 
-    const appUrl = Deno.env.get("APP_URL") || "https://app.glowpush.co.il";
+    const appUrl = req.headers.get("origin") || Deno.env.get("APP_URL") || "https://app.glowpush.co.il";
 
     const body = {
       data: {

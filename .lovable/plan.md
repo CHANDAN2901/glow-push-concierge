@@ -1,45 +1,42 @@
+## Two problems
 
+**1. "Continue" → error page**
+The edge function sends LS to `https://app.glowpush.co.il/payment-success?...`, but no `/payment-success` route exists in `src/App.tsx`. So the redirect lands on a 404/blank page — that's the error you're seeing.
 
-## Problem Analysis
-
-Two bugs in the onboarding wizard:
-
-### Bug 1: Buttons "not clickable"
-Steps 3 and 4 have action buttons ("Open Timeline Editor", "Edit questions", "Edit policy") that call `onClose()` to close the wizard and open the respective editor. When the user finishes with the editor and returns, the wizard does **not** reopen because the `useEffect` that triggers `setShowOnboarding(true)` only runs when `[user, profileFetched, isNewSignupFlow]` change — none of which change when returning from an editor. The user perceives this as buttons "not working" because the wizard vanishes permanently without completing.
-
-### Bug 2: Disappears on refresh
-The X (close) button on the wizard permanently dismisses onboarding by setting both `localStorage('gp-onboarding-done')` and `onboarding_checklist_dismissed: true` in the database. If a user clicks X at any step (even accidentally), the wizard is gone forever — even on refresh. The user can never resume where they left off.
-
----
+**2. Plan not upgraded**
+I checked the `lemonsqueezy-webhook` logs — **zero invocations**. Lemon Squeezy never called our webhook, which is why your tier didn't change. This means either:
+- The webhook URL is not registered in **LS Test mode → Settings → Webhooks**, or
+- It's registered but signature verification is silently rejected (would still produce logs, so most likely it's just not registered for Test mode).
 
 ## Plan
 
-### 1. Persist current onboarding step in the database
-- Add a column or use the existing `onboarding_checklist_state` JSON field in `profiles` to store `{ currentStep: number, completed: boolean }`.
-- On each step transition, save the current step so it survives refresh and cross-device login.
+### Step 1 — Add the `/payment-success` page
+Create `src/pages/PaymentSuccess.tsx`:
+- Reads `?plan=...` from URL
+- Polls the user's `profiles.subscription_tier` every ~2s for up to ~30s waiting for the webhook to upgrade them
+- Shows a success state ("Your plan is now active") once tier matches, or a "still processing" message with a manual refresh + support note if it times out
+- Invalidates the `user-tier` and `tier-feature-keys` React Query keys on success
+- Gold styling consistent with `PaymentHistory.tsx`
 
-### 2. Fix wizard re-opening after editor actions
-- When steps 3/4 close the wizard to open an editor, store a flag (e.g. `sessionStorage('gp-onboarding-returning')`) so the dashboard knows to reopen the wizard when the editor closes.
-- Alternatively, track `showOnboarding` more explicitly: instead of relying on a one-shot `useEffect`, add a callback from the editor-close handlers that re-triggers the wizard.
+Register the route in `src/App.tsx` inside the authenticated section.
 
-### 3. Change X button behavior — skip vs. dismiss
-- The X button should **not** permanently dismiss onboarding. Instead, it should just hide the wizard for the current session.
-- Add an explicit "Skip all setup" link at the bottom for permanent dismissal.
-- This way, on next login/refresh, users who haven't completed onboarding will see the wizard again at the step they left off.
+### Step 2 — Fix the redirect domain
+In `supabase/functions/create-lemonsqueezy-checkout/index.ts`, the redirect uses `APP_URL` env or hardcoded `https://app.glowpush.co.il`. Change the fallback to use the request's `Origin` header so test runs from the Lovable preview / published URL also work, instead of always sending users to `app.glowpush.co.il`.
 
-### 4. Resume from saved step on mount
-- When the wizard opens, read the saved step from `onboarding_checklist_state` and set `step` accordingly instead of always starting at 0.
-- On refresh, the dashboard checks `onboarding_checklist_dismissed` — if false and `gp-onboarding-done` is not set, show the wizard at the saved step.
+### Step 3 — Verify webhook registration in Lemon Squeezy
+Action for you (I can't do this from code):
+1. Open **Lemon Squeezy → Test Mode → Settings → Webhooks**
+2. Confirm a webhook exists with URL:
+   `https://ohkvlgghqxxjtwqzwyvs.supabase.co/functions/v1/lemonsqueezy-webhook`
+3. Subscribed events must include at least: `order_created`, `subscription_created`, `subscription_updated`, `subscription_renewed`, `subscription_cancelled`, `subscription_expired`
+4. Copy its **signing secret** and confirm it matches the `LS_WEBHOOK_SECRET_TEST` you gave me. If you've rotated it, send me the new value and I'll update the secret.
 
-### Files to modify
-- **`src/components/OnboardingWizard.tsx`** — load/save current step, change X behavior, resume from saved step
-- **`src/pages/ArtistDashboard.tsx`** — fix the useEffect to allow wizard re-opening after editor actions, remove permanent dismissal from localStorage on X
+Once registered, run another test purchase — webhook logs will appear and the tier will flip to `professional`/`master` automatically, and the new `/payment-success` page will detect it and show success.
 
-### Technical details
-- Use existing `onboarding_checklist_state` JSON column (already in DB) to store `{ step: number }`.
-- On wizard open: fetch saved step from profile, initialize `step` state.
-- On step change: update `onboarding_checklist_state` in DB.
-- X button: only calls `onClose()` without setting `gp-onboarding-done` or `onboarding_checklist_dismissed`.
-- "Skip all" link: keeps current permanent dismissal behavior.
-- Dashboard useEffect: use a re-trigger mechanism (e.g., depend on `showOnboarding` being false + onboarding not done) or use a callback pattern.
+### Step 4 — Verify
+- After your next test checkout, I'll check `lemonsqueezy-webhook` logs and `profiles.subscription_tier` for your user to confirm the upgrade happened.
 
+## Technical notes
+- Webhook function already maps slugs correctly (`pro→lite`, `elite→professional`, `vip-3year`/`master→master`) and uses `LS_WEBHOOK_SECRET_TEST` / `_LIVE` based on `app_settings.ls_mode`.
+- No DB migration needed.
+- No changes to `lemonsqueezy-webhook` itself.

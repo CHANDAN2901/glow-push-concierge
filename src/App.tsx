@@ -35,6 +35,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
 import PaymentHistory from "./pages/PaymentHistory";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import DevSwitcher from "./components/DevSwitcher";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ImpersonationBanner from "./components/ImpersonationBanner";
@@ -81,6 +82,7 @@ const App = () => (
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/payment-history" element={<RequireAuth><PaymentHistory /></RequireAuth>} />
+              <Route path="/payment-success" element={<RequireAuth><PaymentSuccess /></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
