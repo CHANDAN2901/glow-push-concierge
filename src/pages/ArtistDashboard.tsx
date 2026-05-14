@@ -21,6 +21,7 @@ import { FK } from '@/lib/featureKeys';
 import ReferralTab from '@/components/ReferralTab';
 import HealthDeclarationPreview from '@/components/HealthDeclarationPreview';
 import AiMagicSection from '@/components/AiMagicSection';
+import PortfolioManager from '@/components/PortfolioManager';
 import HelpCenter from '@/components/HelpCenter';
 import HealthDeclarationEditor from '@/components/HealthDeclarationEditor';
 import HealingJourneyEditorDialog from '@/components/HealingJourneyEditorDialog';
@@ -315,7 +316,7 @@ const ArtistDashboard = () => {
     }, { replace: true });
   }, [setSearchParams]);
 
-  type TabId = 'home' | 'clients' | 'calendar' | 'healing' | 'bonuses' | 'messages' | 'digital-card' | 'push' | 'profile';
+  type TabId = 'home' | 'clients' | 'calendar' | 'healing' | 'bonuses' | 'messages' | 'digital-card' | 'push' | 'profile' | 'ai-magic' | 'portfolio';
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     const returnTab = (location.state as any)?.returnTab;
     if (returnTab) return returnTab as TabId;
@@ -1394,6 +1395,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     messages: t('artist.dashboard.tabMessages'),
     'digital-card': t('artist.dashboard.tabDigitalCard'),
     profile: t('artist.dashboard.tabProfile'),
+    'ai-magic': lang === 'en' ? 'AI Magic' : 'קסם AI',
+    portfolio: lang === 'en' ? 'Portfolio' : 'פורטפוליו',
   };
 
   const currentTitle = subScreen || tabTitles[activeTab] || '';
@@ -1934,6 +1937,18 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   <HelpTooltip id="referral-voucher" text={t('artist.dashboard.referralVoucherTooltip')} />
                 </span>
               </div>
+              </FeatureGate>
+
+              <button onClick={() => { setActiveTab('portfolio'); setSubScreen(null); }} className="pill-action-btn animate-fade-up">
+                <span className="pill-icon-circle"><Image className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                <span className="flex-1 text-right pr-3">{lang === 'en' ? 'My Portfolio' : 'הפורטפוליו שלי'}</span>
+              </button>
+
+              <FeatureGate featureKey={FK.AI_MAGIC} mode="badge">
+                <button onClick={() => { setActiveTab('ai-magic'); setSubScreen(null); }} className="pill-action-btn animate-fade-up">
+                  <span className="pill-icon-circle"><Sparkles className="w-5 h-5" style={{ color: '#B8860B' }} strokeWidth={1.5} /></span>
+                  <span className="flex-1 text-right pr-3">{lang === 'en' ? 'AI Magic Tools' : 'כלי AI קסומים'}</span>
+                </button>
               </FeatureGate>
             </div>
 
@@ -2743,9 +2758,11 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
         {/* ===== BONUSES TAB (hidden from nav, still accessible) ===== */}
         {activeTab === 'messages' && (
-          <div>
-            <ReferralTab artistName={artistName} artistProfileId={userProfileId || undefined} />
-          </div>
+          <FeatureGate featureKey={FK.REFERRALS} mode="block">
+            <div>
+              <ReferralTab artistName={artistName} artistProfileId={userProfileId || undefined} />
+            </div>
+          </FeatureGate>
         )}
 
         {/* ===== DIGITAL CARD TAB ===== */}
@@ -2798,6 +2815,18 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             </div>
           </FeatureGate>
         )}
+        {/* ===== AI MAGIC TAB ===== */}
+        {activeTab === 'ai-magic' && !subScreen && (
+          <FeatureGate featureKey={FK.AI_MAGIC} mode="block">
+            <AiMagicSection lang={lang as 'en' | 'he'} artistName={artistName} logoUrl={logoUrl} />
+          </FeatureGate>
+        )}
+
+        {/* ===== PORTFOLIO TAB ===== */}
+        {activeTab === 'portfolio' && !subScreen && (
+          <PortfolioManager />
+        )}
+
         {/* ===== HEALING TAB ===== */}
         {activeTab === 'healing' && !subScreen && healingJourneyClient && healingJourneyClient.day > 0 && (
           <FeatureGate featureKey={FK.HEALING_TIMELINE} mode="block">
@@ -2958,7 +2987,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
         )}
         {/* ===== PUSH! TAB ===== */}
         {activeTab === 'push' && !subScreen && (
-          <FeatureGate featureKey={FK.MESSAGES} mode="block">
+          <FeatureGate featureKey={FK.PUSH_NOTIFICATIONS} mode="block">
             <div className="space-y-4">
               {/* Coming Soon — WhatsApp Automation */}
               <div

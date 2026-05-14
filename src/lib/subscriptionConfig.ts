@@ -38,8 +38,9 @@ export interface TierDefinition {
 }
 
 // ─── Feature Registry ───────────────────────────────────────────
+// Ordered to match DB pricing_plans.feature_keys (source of truth).
 export const FEATURES: FeatureFlag[] = [
-  // Lite (free/trial) features
+  // ── Lite / Pro — included in base plan ──
   {
     id: 'clients',
     name: { en: 'Client Management', he: 'ניהול לקוחות' },
@@ -60,39 +61,93 @@ export const FEATURES: FeatureFlag[] = [
     availableInTrial: true,
   },
   {
-    id: 'digital_card',
-    name: { en: 'Digital Business Card', he: 'כרטיס ביקור דיגיטלי' },
-    desc: { en: 'Luxury shareable digital card', he: 'כרטיס דיגיטלי יוקרתי לשיתוף' },
-    minTier: 'professional',
+    id: 'aftercare',
+    name: { en: 'Aftercare', he: 'טיפול לאחר' },
+    desc: { en: 'Post-treatment aftercare management', he: 'ניהול טיפול לאחר הטיפול' },
+    minTier: 'lite',
   },
-
-  // Professional features
+  {
+    id: 'healing_timeline',
+    name: { en: 'Healing Timeline', he: 'ציר זמן ריפוי' },
+    desc: { en: 'Day-by-day healing journey for clients', he: 'מסע ריפוי יומי ללקוחות' },
+    minTier: 'lite',
+  },
   {
     id: 'health_declaration',
     name: { en: 'Digital Health Declaration', he: 'הצהרת בריאות דיגיטלית' },
     desc: { en: 'Health form with digital signature', he: 'טופס הצהרת בריאות עם חתימה דיגיטלית' },
-    minTier: 'professional',
+    minTier: 'lite',
   },
   {
-    id: 'ai_magic',
-    name: { en: 'AI Magic Tools', he: 'כלי AI קסומים' },
-    desc: { en: 'AI-powered notes, captions & comparisons', he: 'הערות, כיתובים והשוואות מבוססי AI' },
-    minTier: 'professional',
+    id: 'messages',
+    name: { en: 'Messages', he: 'הודעות' },
+    desc: { en: 'Client messaging and notifications', he: 'הודעות והתראות ללקוחות' },
+    minTier: 'lite',
   },
   {
-    id: 'shared_client_gallery',
-    name: { en: 'Client Gallery', he: 'גלריית לקוחה' },
-    desc: { en: 'Share photos with clients securely', he: 'שיתוף תמונות מאובטח עם לקוחות' },
-    minTier: 'professional',
+    id: 'portfolio',
+    name: { en: 'Portfolio', he: 'פורטפוליו' },
+    desc: { en: 'Public portfolio gallery by category', he: 'גלריית פורטפוליו ציבורית לפי קטגוריה' },
+    minTier: 'lite',
+  },
+  {
+    id: 'push_notifications',
+    name: { en: 'Push Notifications', he: 'התראות Push' },
+    desc: { en: 'Daily healing reminders via push', he: 'תזכורות ריפוי יומיות דרך Push' },
+    minTier: 'lite',
   },
   {
     id: 'before_after_collage',
     name: { en: 'Before & After Collage', he: 'קולאז׳ לפני ואחרי' },
     desc: { en: 'Create branded comparison photos', he: 'יצירת תמונות השוואה ממותגות' },
+    minTier: 'lite',
+  },
+  {
+    id: 'shared_client_gallery',
+    name: { en: 'Client Gallery', he: 'גלריית לקוחה' },
+    desc: { en: 'Share photos with clients securely', he: 'שיתוף תמונות מאובטח עם לקוחות' },
+    minTier: 'lite',
+  },
+
+  // ── Professional / Elite ──
+  {
+    id: 'digital_card',
+    name: { en: 'Digital Business Card', he: 'כרטיס ביקור דיגיטלי' },
+    desc: { en: 'Luxury shareable digital card', he: 'כרטיס דיגיטלי יוקרתי לשיתוף' },
+    minTier: 'professional',
+  },
+  {
+    id: 'ai_magic',
+    name: { en: 'AI Magic Tools', he: 'כלי AI קסומים' },
+    desc: { en: 'AI-powered captions & comparisons', he: 'כיתובים והשוואות מבוססי AI' },
+    minTier: 'professional',
+  },
+  {
+    id: 'voice_notes',
+    name: { en: 'Voice Treatment Notes', he: 'הערות קוליות לטיפול' },
+    desc: { en: 'Record and transcribe treatment notes', he: 'הקלטה ותמלול הערות טיפול' },
+    minTier: 'professional',
+  },
+  {
+    id: 'referrals',
+    name: { en: 'Referral System', he: 'מערכת הפניות' },
+    desc: { en: 'Earn credits by referring artists', he: 'הרווחי קרדיטים על הפניית אמניות' },
+    minTier: 'professional',
+  },
+  {
+    id: 'bonus_center',
+    name: { en: 'Bonus Center', he: 'מרכז בונוסים' },
+    desc: { en: 'Earn and redeem bonus rewards', he: 'הרווחי ומימשי פרסים' },
+    minTier: 'professional',
+  },
+  {
+    id: 'daily_growth_engine',
+    name: { en: 'Daily Growth Engine', he: 'מנוע צמיחה יומי' },
+    desc: { en: 'Daily marketing tasks & tips', he: 'משימות שיווק וטיפים יומיים' },
     minTier: 'professional',
   },
 
-  // Master features
+  // ── Master / VIP ──
   {
     id: 'whatsapp_automation',
     name: { en: 'WhatsApp Automation', he: 'אוטומציית וואטסאפ' },
@@ -112,9 +167,9 @@ export const FEATURES: FeatureFlag[] = [
     minTier: 'master',
   },
   {
-    id: 'daily_growth_engine',
-    name: { en: 'Daily Growth Engine', he: 'מנוע צמיחה יומי' },
-    desc: { en: 'Daily marketing tasks & tips', he: 'משימות שיווק וטיפים יומיים' },
+    id: 'priority_support',
+    name: { en: 'Priority Support', he: 'תמיכה עדיפה' },
+    desc: { en: 'Priority customer support forever', he: 'תמיכת לקוחות עדיפה לתמיד' },
     minTier: 'master',
   },
 ];
@@ -187,7 +242,7 @@ export function getUpgradeFeatures(currentTier: TierSlug, upgradeTier: TierSlug)
 
 /** Routes that require a minimum tier */
 export const PROTECTED_ROUTES: { path: string; minTier: TierSlug; featureId: string }[] = [
-  { path: '/admin/timeline-settings', minTier: 'professional', featureId: 'ai_magic' },
+  { path: '/admin/timeline-settings', minTier: 'lite', featureId: 'healing_timeline' },
 ];
 
 // ─── Dev / Impersonation Override ───────────────────────────────
