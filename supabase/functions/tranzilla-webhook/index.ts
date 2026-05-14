@@ -1,14 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Plan slug → subscription_tier mapping
-const SLUG_TO_TIER: Record<string, string> = {
-  professional: "professional",
-  elite: "professional",
-  master: "master",
-  "vip-3year": "master",
-};
-
 serve(async (req: Request) => {
   // Tranzilla POSTs form data to this webhook after payment
   if (req.method !== "POST") {
@@ -55,16 +47,23 @@ serve(async (req: Request) => {
       return new Response("missing_params", { status: 200 });
     }
 
-    const tier = SLUG_TO_TIER[planSlug];
-    if (!tier) {
-      console.error(`[tranzilla-webhook] Unknown planSlug: ${planSlug}`);
-      return new Response("unknown_plan", { status: 200 });
-    }
-
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+
+    // Look up tier from DB so any plan created in admin automatically works
+    const { data: planRow } = await supabase
+      .from("pricing_plans")
+      .select("subscription_tier")
+      .eq("slug", planSlug)
+      .single();
+
+    const tier = planRow?.subscription_tier;
+    if (!tier) {
+      console.error(`[tranzilla-webhook] Unknown planSlug: ${planSlug}`);
+      return new Response("unknown_plan", { status: 200 });
+    }
 
     const now = new Date();
     const subscriptionEndDate = new Date(now);

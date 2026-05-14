@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt, X } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +27,7 @@ const tierLabelMap: Record<string, { he: string; en: string }> = {
 export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: Props) {
   const { lang } = useI18n();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const isHe = lang === 'he';
   const { data: plans = [], isLoading } = usePricingPlans();
   const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
@@ -216,6 +218,17 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
               className="w-full"
               style={{ height: '480px', border: 'none' }}
               allow="payment"
+              onLoad={(e) => {
+                try {
+                  const href = (e.target as HTMLIFrameElement).contentWindow?.location?.href || '';
+                  if (href.includes('/payment-success')) {
+                    setPaymentIframeUrl(null);
+                    navigate(href.replace(window.location.origin, ''));
+                  }
+                } catch {
+                  // cross-origin frame — ignore until it lands on our domain
+                }
+              }}
             />
 
             <p className="text-center text-[10px] text-muted-foreground py-3 px-4">

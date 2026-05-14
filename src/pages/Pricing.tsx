@@ -278,6 +278,17 @@ const Pricing = () => {
             className="w-full flex-1"
             style={{ border: 'none', background: '#fff' }}
             allow="payment"
+            onLoad={(e) => {
+              try {
+                const href = (e.target as HTMLIFrameElement).contentWindow?.location?.href || '';
+                if (href.includes('/payment-success')) {
+                  setPaymentIframeUrl(null);
+                  navigate(href.replace(window.location.origin, ''));
+                }
+              } catch {
+                // cross-origin frame — ignore until it lands on our domain
+              }
+            }}
           />
 
           {/* Footer note */}
