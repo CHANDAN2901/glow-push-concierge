@@ -1040,7 +1040,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          autopay_enabled: boolean | null
           business_phone: string | null
+          charge_failure_count: number | null
           created_at: string
           eligible_lifetime_basic: boolean
           email: string | null
@@ -1055,8 +1057,6 @@ export type Database = {
           logo_url: string | null
           ls_customer_id: string | null
           ls_order_id: string | null
-          autopay_enabled: boolean
-          charge_failure_count: number
           ls_subscription_id: string | null
           onboarding_checklist_dismissed: boolean
           onboarding_checklist_state: Json
@@ -1081,7 +1081,9 @@ export type Database = {
           waze_address: string | null
         }
         Insert: {
+          autopay_enabled?: boolean | null
           business_phone?: string | null
+          charge_failure_count?: number | null
           created_at?: string
           eligible_lifetime_basic?: boolean
           email?: string | null
@@ -1096,8 +1098,6 @@ export type Database = {
           logo_url?: string | null
           ls_customer_id?: string | null
           ls_order_id?: string | null
-          autopay_enabled?: boolean
-          charge_failure_count?: number
           ls_subscription_id?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
@@ -1122,7 +1122,9 @@ export type Database = {
           waze_address?: string | null
         }
         Update: {
+          autopay_enabled?: boolean | null
           business_phone?: string | null
+          charge_failure_count?: number | null
           created_at?: string
           eligible_lifetime_basic?: boolean
           email?: string | null
@@ -1137,8 +1139,6 @@ export type Database = {
           logo_url?: string | null
           ls_customer_id?: string | null
           ls_order_id?: string | null
-          autopay_enabled?: boolean
-          charge_failure_count?: number
           ls_subscription_id?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
