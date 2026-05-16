@@ -102,7 +102,8 @@ serve(async (req: Request) => {
     eventName === "order_created" ||
     eventName === "subscription_created" ||
     eventName === "subscription_renewed" ||
-    eventName === "subscription_updated"
+    eventName === "subscription_updated" ||
+    eventName === "subscription_payment_success"
   ) {
     const tier = SLUG_TO_TIER[planSlug];
     if (!tier) {
