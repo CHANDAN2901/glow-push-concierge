@@ -139,7 +139,6 @@ const Pricing = () => {
   const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('');
   const [isAutopayActive, setIsAutopayActive] = useState(false);
-  const [lsSubscriptionId, setLsSubscriptionId] = useState<string | null>(null);
   const [isCancellingAutopay, setIsCancellingAutopay] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
@@ -152,7 +151,7 @@ const Pricing = () => {
     if (!user) return;
     supabase
       .from('profiles')
-      .select('full_name, subscription_tier, subscription_end_date, subscription_status, autopay_enabled, ls_subscription_id')
+      .select('full_name, subscription_tier, subscription_end_date, subscription_status, autopay_enabled')
       .eq('user_id', user.id)
       .single()
       .then(({ data }) => {
@@ -162,7 +161,6 @@ const Pricing = () => {
           setSubscriptionEndDate((data as any).subscription_end_date || null);
           setSubscriptionStatus((data as any).subscription_status || '');
           setIsAutopayActive(!!(data as any).autopay_enabled);
-          setLsSubscriptionId((data as any).ls_subscription_id || null);
         }
       });
   }, [user]);
@@ -533,17 +531,6 @@ const Pricing = () => {
                     ? (isHe ? 'מבטל...' : 'Cancelling...')
                     : (isHe ? '⏹ ביטול חיוב אוטומטי' : '⏹ Cancel Autopay')}
                 </button>
-              )}
-              {lsSubscriptionId && (
-                <a
-                  href={`https://app.lemonsqueezy.com/my-orders`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105"
-                  style={{ border: `1.5px solid ${ROSE_GOLD}`, background: 'transparent', color: ROSE_GOLD_METALLIC }}
-                >
-                  🍋 {isHe ? 'ניהול חיוב' : 'Manage Billing'}
-                </a>
               )}
             </div>
           </div>
