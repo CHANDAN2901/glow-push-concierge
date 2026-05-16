@@ -22,6 +22,7 @@ type Status = 'processing' | 'success' | 'timeout';
 const PaymentSuccess = () => {
   const [params] = useSearchParams();
   const planSlug = params.get('plan') || '';
+  const isAutopay = params.get('autopay') !== 'false';
   const navigate = useNavigate();
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -109,6 +110,11 @@ const PaymentSuccess = () => {
             </h1>
             <p className="mt-3 text-sm" style={{ color: '#666' }}>
               {isHe ? 'המנוי שלך פעיל. תהנה!' : 'Your subscription is now active. Enjoy!'}
+            </p>
+            <p className="mt-2 text-xs" style={{ color: '#999' }}>
+              {isAutopay
+                ? (isHe ? '🔄 חיוב אוטומטי פעיל — יחודש כל חודש. ביטול בכל עת מהגדרות.' : '🔄 Autopay active — renews monthly. Cancel anytime from Settings.')
+                : (isHe ? '💳 תשלום חד-פעמי. יש לחדש ידנית לפני תאריך הפקיעה.' : '💳 One-time payment. Renew manually before your access expires.')}
             </p>
             <button
               onClick={() => navigate('/artist?tab=home')}

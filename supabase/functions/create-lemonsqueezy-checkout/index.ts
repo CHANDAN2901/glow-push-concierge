@@ -37,7 +37,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { planSlug } = await req.json();
+    const { planSlug, autoPayEnabled = true } = await req.json();
 
     if (!planSlug) {
       return new Response(JSON.stringify({ error: "planSlug is required" }), {
@@ -68,16 +68,23 @@ serve(async (req: Request) => {
     // Read variant ID from pricing_plans DB (set by admin in dashboard)
     const { data: planRow } = await supabase
       .from("pricing_plans")
-      .select("ls_variant_id_test, ls_variant_id_live")
+      .select("ls_variant_id_test, ls_variant_id_live, ls_variant_id_autopay_test, ls_variant_id_autopay_live")
       .eq("slug", planSlug)
       .single();
 
-    const variantId = lsMode === "live"
+    // Use autopay (subscription) variant if opted in and configured, else one-time variant
+    const autopayVariantId = lsMode === "live"
+      ? planRow?.ls_variant_id_autopay_live
+      : planRow?.ls_variant_id_autopay_test;
+
+    const onetimeVariantId = lsMode === "live"
       ? planRow?.ls_variant_id_live
       : planRow?.ls_variant_id_test;
 
+    const variantId = (autoPayEnabled && autopayVariantId) ? autopayVariantId : onetimeVariantId;
+
     if (!apiKey || !storeId || !variantId) {
-      console.error(`[create-lemonsqueezy-checkout] Missing config — mode=${lsMode} apiKey=${!!apiKey} storeId=${storeId} variantId=${variantId} plan=${planSlug}`);
+      console.error(`[create-lemonsqueezy-checkout] Missing config — mode=${lsMode} apiKey=${!!apiKey} storeId=${storeId} variantId=${variantId} plan=${planSlug} autopay=${autoPayEnabled}`);
       return new Response(JSON.stringify({ error: "Lemon Squeezy not configured — set variant IDs in SuperAdmin → Pricing" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -94,6 +101,7 @@ serve(async (req: Request) => {
             custom: {
               user_id: auth.userId,
               plan_slug: planSlug,
+              auto_pay: String(autoPayEnabled),
             },
           },
           checkout_options: {
@@ -101,7 +109,7 @@ serve(async (req: Request) => {
             dark: false,
           },
           product_options: {
-            redirect_url: `${appUrl}/payment-success?plan=${planSlug}&gateway=lemonsqueezy`,
+            redirect_url: `${appUrl}/payment-success?plan=${planSlug}&gateway=lemonsqueezy&autopay=${autoPayEnabled}`,
           },
         },
         relationships: {

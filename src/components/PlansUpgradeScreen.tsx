@@ -34,6 +34,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<PricingPlan | null>(null);
   const [selectedGateway, setSelectedGateway] = useState<'tranzilla' | 'lemonsqueezy'>('tranzilla');
+  const [autoPayEnabled, setAutoPayEnabled] = useState(true);
 
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier || 'lite']?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
@@ -51,7 +52,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
-        body: { planSlug: plan.slug, amountIls: plan.price_monthly },
+        body: { planSlug: plan.slug, amountIls: plan.price_monthly, autoPayEnabled },
       });
       if (error || !data?.iframeUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
@@ -70,7 +71,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-lemonsqueezy-checkout', {
-        body: { planSlug: plan.slug },
+        body: { planSlug: plan.slug, autoPayEnabled },
       });
       if (error || !data?.checkoutUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
@@ -165,6 +166,32 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
                 </div>
                 <span className="text-xl">🍋</span>
               </label>
+
+              {/* Autopay toggle */}
+              <div
+                className="flex items-center justify-between rounded-2xl px-4 py-3"
+                style={{ background: autoPayEnabled ? 'rgba(212,175,55,0.07)' : 'rgba(0,0,0,0.02)', border: autoPayEnabled ? '1.5px solid rgba(212,175,55,0.35)' : '1.5px solid rgba(0,0,0,0.08)' }}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm" style={{ color: '#5a3e1b' }}>
+                    {isHe ? '🔄 חיוב אוטומטי חודשי' : '🔄 Monthly Autopay'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {isHe ? 'חידוש אוטומטי בכל חודש — ביטול בכל עת' : 'Auto-renews monthly — cancel anytime'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setAutoPayEnabled(prev => !prev)}
+                  className="relative flex-shrink-0 w-11 h-6 rounded-full transition-all duration-200"
+                  style={{ background: autoPayEnabled ? '#D4AF37' : '#ccc' }}
+                  aria-label="Toggle autopay"
+                >
+                  <span
+                    className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-200"
+                    style={{ left: autoPayEnabled ? '22px' : '2px' }}
+                  />
+                </button>
+              </div>
 
               <button
                 onClick={handleConfirmGateway}

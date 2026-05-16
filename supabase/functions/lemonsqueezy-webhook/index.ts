@@ -86,6 +86,7 @@ serve(async (req: Request) => {
   const customData = payload?.meta?.custom_data || {};
   const userId = customData?.user_id;
   const planSlug = customData?.plan_slug;
+  const autoPayEnabled = customData?.auto_pay !== "false";
 
   if (!userId || !planSlug) {
     console.error("[lemonsqueezy-webhook] Missing user_id or plan_slug in custom_data");
@@ -118,6 +119,8 @@ serve(async (req: Request) => {
       subscription_status: "active",
       subscription_end_date: subscriptionEndDate.toISOString(),
       last_charge_at: now.toISOString(),
+      autopay_enabled: autoPayEnabled,
+      charge_failure_count: 0,
     };
 
     if (lsSubscriptionId) updatePayload.ls_subscription_id = lsSubscriptionId;
@@ -135,13 +138,35 @@ serve(async (req: Request) => {
     }
 
     console.log(`[lemonsqueezy-webhook] ✅ Upgraded userId=${userId} tier=${tier} via ${eventName} mode=${lsMode}`);
+  } else if (eventName === "subscription_payment_failed") {
+    // Increment failure count, mark past_due
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("charge_failure_count, ls_subscription_id")
+      .eq("user_id", userId)
+      .single();
+
+    const newFailureCount = ((profile?.charge_failure_count as number) || 0) + 1;
+    const updateData: Record<string, unknown> = {
+      subscription_status: "past_due",
+      charge_failure_count: newFailureCount,
+    };
+
+    // After 3 failures, cancel autopay
+    if (newFailureCount >= 3) {
+      updateData.autopay_enabled = false;
+    }
+
+    await supabase.from("profiles").update(updateData).eq("user_id", userId);
+
+    console.log(`[lemonsqueezy-webhook] ⚠️ Payment failed userId=${userId} failureCount=${newFailureCount}`);
   } else if (
     eventName === "subscription_cancelled" ||
     eventName === "subscription_expired"
   ) {
     const { error } = await supabase
       .from("profiles")
-      .update({ subscription_status: "cancelled" })
+      .update({ subscription_status: "cancelled", autopay_enabled: false })
       .eq("user_id", userId);
 
     if (error) {

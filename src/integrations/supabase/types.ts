@@ -913,6 +913,8 @@ export type Database = {
           id: string
           is_active: boolean
           is_highlighted: boolean
+          ls_variant_id_autopay_live: string | null
+          ls_variant_id_autopay_test: string | null
           ls_variant_id_live: string | null
           ls_variant_id_test: string | null
           name_en: string
@@ -942,6 +944,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_highlighted?: boolean
+          ls_variant_id_autopay_live?: string | null
+          ls_variant_id_autopay_test?: string | null
           ls_variant_id_live?: string | null
           ls_variant_id_test?: string | null
           name_en: string
@@ -971,6 +975,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_highlighted?: boolean
+          ls_variant_id_autopay_live?: string | null
+          ls_variant_id_autopay_test?: string | null
           ls_variant_id_live?: string | null
           ls_variant_id_test?: string | null
           name_en?: string
@@ -1049,6 +1055,8 @@ export type Database = {
           logo_url: string | null
           ls_customer_id: string | null
           ls_order_id: string | null
+          autopay_enabled: boolean
+          charge_failure_count: number
           ls_subscription_id: string | null
           onboarding_checklist_dismissed: boolean
           onboarding_checklist_state: Json
@@ -1088,6 +1096,8 @@ export type Database = {
           logo_url?: string | null
           ls_customer_id?: string | null
           ls_order_id?: string | null
+          autopay_enabled?: boolean
+          charge_failure_count?: number
           ls_subscription_id?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
@@ -1127,6 +1137,8 @@ export type Database = {
           logo_url?: string | null
           ls_customer_id?: string | null
           ls_order_id?: string | null
+          autopay_enabled?: boolean
+          charge_failure_count?: number
           ls_subscription_id?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json

@@ -34,6 +34,7 @@ serve(async (req: Request) => {
     const userId = fields["remarks2"];               // passed through from iframe URL
     const planSlug = fields["remarks"];              // passed through from iframe URL
     const sum = fields["sum"];
+    const autoPayEnabled = fields["remarks3"] !== "false"; // default true if not set
 
     console.log(`[tranzilla-webhook] Response=${responseCode} userId=${userId} plan=${planSlug} token=${token ? "present" : "missing"}`);
 
@@ -79,10 +80,18 @@ serve(async (req: Request) => {
       last_charge_confirmation: confirmationCode || null,
     };
 
-    // Save token only if provided (VK mode returns token)
-    if (token) {
+    // Save token only if autopay was opted in and token was returned (VK mode)
+    if (autoPayEnabled && token) {
       updatePayload.tranzilla_token = token;
       updatePayload.tranzilla_expiry = expiry || null;
+      updatePayload.autopay_enabled = true;
+      updatePayload.charge_failure_count = 0;
+    } else {
+      // One-time payment — clear any previous token so cron skips this user
+      updatePayload.tranzilla_token = null;
+      updatePayload.tranzilla_expiry = null;
+      updatePayload.autopay_enabled = false;
+      updatePayload.charge_failure_count = 0;
     }
 
     const { error } = await supabase

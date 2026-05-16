@@ -41,7 +41,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { planSlug, amountIls, lang } = await req.json();
+    const { planSlug, amountIls, lang, autoPayEnabled = true } = await req.json();
 
     if (!planSlug || !amountIls) {
       return new Response(JSON.stringify({ error: "planSlug and amountIls are required" }), {
@@ -64,21 +64,24 @@ serve(async (req: Request) => {
 
     // Build Tranzilla iframe URL
     // tranmode=VK → charge now AND save token for future recurring charges
+    // tranmode=V  → charge only, no token saved (one-time payment)
+    const tranmode = autoPayEnabled ? "VK" : "V";
     const params = new URLSearchParams({
       supplier: TERMINAL_NAME,
       TranzilaPW: TERMINAL_PW,
       sum: String(amountIls),
       currency: "1",         // 1 = ILS
       cred_type: "1",        // regular credit
-      tranmode: "VK",        // charge + tokenise
+      tranmode,
       lang: lang === 'en' ? 'en' : 'il',
       trButtonColor: "D4AF37",
       notify_url_address: `${supabaseUrl}/functions/v1/tranzilla-webhook`,
-      success_url_address: `${appUrl}/payment-success?plan=${planSlug}`,
+      success_url_address: `${appUrl}/payment-success?plan=${planSlug}&autopay=${autoPayEnabled}`,
       fail_url_address: `${appUrl}/payment-failed`,
       // Pass-through fields back to webhook
-      remarks: planSlug,     // plan slug passed through
-      remarks2: auth.userId, // userId pass-through (myid gets overwritten by cardholder input)
+      remarks: planSlug,              // plan slug passed through
+      remarks2: auth.userId,          // userId pass-through
+      remarks3: String(autoPayEnabled), // autopay flag pass-through
     });
 
     // iframenew.php doesn't reliably support lang=en; use iframe.php for English

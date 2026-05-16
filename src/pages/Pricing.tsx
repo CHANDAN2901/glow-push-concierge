@@ -137,16 +137,22 @@ const Pricing = () => {
   const [artistName, setArtistName] = useState('');
   const [currentTier, setCurrentTier] = useState('lite');
   const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string>('');
+  const [isAutopayActive, setIsAutopayActive] = useState(false);
+  const [lsSubscriptionId, setLsSubscriptionId] = useState<string | null>(null);
+  const [isCancellingAutopay, setIsCancellingAutopay] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<{ slug: string; priceIls: number } | null>(null);
   const [selectedGateway, setSelectedGateway] = useState<'tranzilla' | 'lemonsqueezy'>('tranzilla');
+  const [autoPayEnabled, setAutoPayEnabled] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     supabase
       .from('profiles')
-      .select('full_name, subscription_tier, subscription_end_date')
+      .select('full_name, subscription_tier, subscription_end_date, subscription_status, autopay_enabled, ls_subscription_id')
       .eq('user_id', user.id)
       .single()
       .then(({ data }) => {
@@ -154,9 +160,31 @@ const Pricing = () => {
           setArtistName(data.full_name || '');
           setCurrentTier(data.subscription_tier || 'lite');
           setSubscriptionEndDate((data as any).subscription_end_date || null);
+          setSubscriptionStatus((data as any).subscription_status || '');
+          setIsAutopayActive(!!(data as any).autopay_enabled);
+          setLsSubscriptionId((data as any).ls_subscription_id || null);
         }
       });
   }, [user]);
+
+  const handleCancelAutopay = async () => {
+    setShowCancelConfirm(false);
+    setIsCancellingAutopay(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('cancel-subscription', { body: {} });
+      if (error || !data?.success) {
+        toast({ title: isHe ? 'שגיאה בביטול האוטומטי' : 'Failed to cancel autopay', variant: 'destructive' });
+        return;
+      }
+      setIsAutopayActive(false);
+      setSubscriptionStatus('cancelled');
+      toast({ title: isHe ? 'חיוב אוטומטי בוטל' : 'Autopay cancelled', description: isHe ? `הגישה שלך פעילה עד ${validUntilText}` : `Your access remains active until ${validUntilText}` });
+    } catch {
+      toast({ title: isHe ? 'שגיאה בלתי צפויה' : 'Unexpected error', variant: 'destructive' });
+    } finally {
+      setIsCancellingAutopay(false);
+    }
+  };
 
   const handleUpgrade = (planSlug: string, priceIls: number) => {
     if (!user) {
@@ -175,7 +203,7 @@ const Pricing = () => {
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
-        body: { planSlug, amountIls: priceIls, lang: 'il' },
+        body: { planSlug, amountIls: priceIls, lang: 'il', autoPayEnabled },
       });
       if (error || !data?.iframeUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
@@ -194,7 +222,7 @@ const Pricing = () => {
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-lemonsqueezy-checkout', {
-        body: { planSlug },
+        body: { planSlug, autoPayEnabled },
       });
       if (error || !data?.checkoutUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
@@ -370,6 +398,32 @@ const Pricing = () => {
                 <span className="text-xl">🍋</span>
               </label>
 
+              {/* Autopay toggle */}
+              <div
+                className="flex items-center justify-between rounded-2xl px-4 py-3"
+                style={{ background: autoPayEnabled ? 'rgba(212,175,55,0.07)' : 'rgba(0,0,0,0.02)', border: autoPayEnabled ? '1.5px solid rgba(212,175,55,0.35)' : '1.5px solid rgba(0,0,0,0.08)' }}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm" style={{ color: '#5a3e1b' }}>
+                    {isHe ? '🔄 חיוב אוטומטי חודשי' : '🔄 Monthly Autopay'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {isHe ? 'חידוש אוטומטי בכל חודש — ביטול בכל עת' : 'Auto-renews monthly — cancel anytime'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setAutoPayEnabled(prev => !prev)}
+                  className="relative flex-shrink-0 w-11 h-6 rounded-full transition-all duration-200"
+                  style={{ background: autoPayEnabled ? '#D4AF37' : '#ccc' }}
+                  aria-label="Toggle autopay"
+                >
+                  <span
+                    className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-200"
+                    style={{ left: autoPayEnabled ? '22px' : '2px' }}
+                  />
+                </button>
+              </div>
+
               <button
                 onClick={handleConfirmGateway}
                 disabled={isLoadingPayment}
@@ -459,17 +513,77 @@ const Pricing = () => {
                 {isHe ? `בתוקף עד: ${validUntilText}` : `Valid until: ${validUntilText}`}
               </p>
             </div>
-            <button
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
-              style={{ border: `1.5px solid ${ROSE_GOLD}`, background: 'transparent', color: ROSE_GOLD_METALLIC }}
-              onClick={() => navigate('/payment-history')}
-            >
-              <Receipt className="w-4 h-4" />
-              {t('sub.paymentHistory')}
-            </button>
+            <div className="flex flex-wrap justify-center gap-2">
+              <button
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
+                style={{ border: `1.5px solid ${ROSE_GOLD}`, background: 'transparent', color: ROSE_GOLD_METALLIC }}
+                onClick={() => navigate('/payment-history')}
+              >
+                <Receipt className="w-4 h-4" />
+                {t('sub.paymentHistory')}
+              </button>
+              {isAutopayActive && subscriptionStatus === 'active' && (
+                <button
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
+                  style={{ border: '1.5px solid rgba(180,60,60,0.4)', background: 'transparent', color: '#b43c3c' }}
+                  onClick={() => setShowCancelConfirm(true)}
+                  disabled={isCancellingAutopay}
+                >
+                  {isCancellingAutopay
+                    ? (isHe ? 'מבטל...' : 'Cancelling...')
+                    : (isHe ? '⏹ ביטול חיוב אוטומטי' : '⏹ Cancel Autopay')}
+                </button>
+              )}
+              {lsSubscriptionId && (
+                <a
+                  href={`https://app.lemonsqueezy.com/my-orders`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105"
+                  style={{ border: `1.5px solid ${ROSE_GOLD}`, background: 'transparent', color: ROSE_GOLD_METALLIC }}
+                >
+                  🍋 {isHe ? 'ניהול חיוב' : 'Manage Billing'}
+                </a>
+              )}
+            </div>
           </div>
         </div>
        )}
+
+      {/* Cancel Autopay Confirmation Dialog */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
+          <div className="w-full max-w-sm rounded-3xl overflow-hidden bg-white" style={{ boxShadow: '0 24px 80px -12px rgba(0,0,0,0.4)', border: '2px solid rgba(212,175,55,0.3)' }}>
+            <div className="p-6 text-center space-y-4" dir={isHe ? 'rtl' : 'ltr'}>
+              <p className="text-2xl">⚠️</p>
+              <h3 className="text-lg font-bold" style={{ color: '#5a3e1b' }}>
+                {isHe ? 'לבטל חיוב אוטומטי?' : 'Cancel Autopay?'}
+              </h3>
+              <p className="text-sm text-gray-600">
+                {isHe
+                  ? `הגישה שלך תישאר פעילה עד ${validUntilText}. לאחר מכן לא יהיה חיוב נוסף.`
+                  : `Your access stays active until ${validUntilText}. No further charges after that.`}
+              </p>
+              <div className="flex gap-3 justify-center pt-2">
+                <button
+                  onClick={() => setShowCancelConfirm(false)}
+                  className="px-5 py-2.5 rounded-full text-sm font-medium"
+                  style={{ border: '1.5px solid rgba(0,0,0,0.15)', color: '#666' }}
+                >
+                  {isHe ? 'חזרה' : 'Go Back'}
+                </button>
+                <button
+                  onClick={handleCancelAutopay}
+                  className="px-5 py-2.5 rounded-full text-sm font-bold text-white"
+                  style={{ background: '#b43c3c' }}
+                >
+                  {isHe ? 'כן, בטל' : 'Yes, Cancel'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Gold glint divider */}
       <div className="flex justify-center py-6">

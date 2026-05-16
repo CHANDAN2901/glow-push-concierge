@@ -12,6 +12,7 @@ interface Profile {
   tranzilla_amount_agorot: number;
   tranzilla_plan_slug: string;
   subscription_end_date: string;
+  charge_failure_count: number;
 }
 
 async function chargeToken(token: string, expiry: string, amountAgorot: number): Promise<{
@@ -71,8 +72,9 @@ serve(async (req: Request) => {
 
     const { data: profiles, error: fetchError } = await supabase
       .from("profiles")
-      .select("user_id, tranzilla_token, tranzilla_expiry, tranzilla_amount_agorot, tranzilla_plan_slug, subscription_end_date")
+      .select("user_id, tranzilla_token, tranzilla_expiry, tranzilla_amount_agorot, tranzilla_plan_slug, subscription_end_date, charge_failure_count")
       .eq("subscription_status", "active")
+      .eq("autopay_enabled", true)
       .not("tranzilla_token", "is", null)
       .lte("subscription_end_date", now.toISOString())
       .gte("subscription_end_date", windowStart.toISOString());
@@ -86,8 +88,11 @@ serve(async (req: Request) => {
 
     const results: Array<{ userId: string; success: boolean; error?: string }> = [];
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
     for (const profile of (profiles as Profile[]) ?? []) {
-      const { user_id, tranzilla_token, tranzilla_expiry, tranzilla_amount_agorot } = profile;
+      const { user_id, tranzilla_token, tranzilla_expiry, tranzilla_amount_agorot, charge_failure_count } = profile;
 
       if (!tranzilla_token || !tranzilla_expiry || !tranzilla_amount_agorot) {
         console.warn(`[tranzilla-recurring] Skipping userId=${user_id}: missing token/expiry/amount`);
@@ -107,19 +112,47 @@ serve(async (req: Request) => {
             subscription_end_date: newEndDate.toISOString(),
             last_charge_at: now.toISOString(),
             last_charge_confirmation: charge.confirmationCode || null,
+            charge_failure_count: 0,
           })
           .eq("user_id", user_id);
 
         console.log(`[tranzilla-recurring] ✅ Renewed userId=${user_id} until ${newEndDate.toISOString()}`);
         results.push({ userId: user_id, success: true });
       } else {
-        // Mark subscription as past_due after failed charge
-        await supabase
-          .from("profiles")
-          .update({ subscription_status: "past_due" })
-          .eq("user_id", user_id);
+        const newFailureCount = (charge_failure_count || 0) + 1;
+        const updateData: Record<string, unknown> = {
+          subscription_status: "past_due",
+          charge_failure_count: newFailureCount,
+        };
 
-        console.warn(`[tranzilla-recurring] ❌ Charge failed userId=${user_id}: ${charge.error}`);
+        // After 3 failures, disable autopay to stop future cron attempts
+        if (newFailureCount >= 3) {
+          updateData.autopay_enabled = false;
+          updateData.tranzilla_token = null;
+        }
+
+        await supabase.from("profiles").update(updateData).eq("user_id", user_id);
+
+        // Send push notification to artist about failed payment
+        try {
+          await fetch(`${supabaseUrl}/functions/v1/send-push`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify({
+              userId: user_id,
+              title: "⚠️ תשלום נכשל",
+              body: "חידוש המנוי שלך נכשל. אנא עדכני את פרטי כרטיס האשראי.",
+              data: { type: "payment_failed" },
+            }),
+          });
+        } catch (pushErr: any) {
+          console.warn(`[tranzilla-recurring] Push notification failed for userId=${user_id}: ${pushErr?.message}`);
+        }
+
+        console.warn(`[tranzilla-recurring] ❌ Charge failed userId=${user_id} failureCount=${newFailureCount}: ${charge.error}`);
         results.push({ userId: user_id, success: false, error: charge.error });
       }
     }
