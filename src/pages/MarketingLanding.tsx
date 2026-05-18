@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { usePricingPlans } from '@/hooks/usePricingPlans';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
@@ -85,38 +86,7 @@ const MarketingLanding = () => {
     ? [{ label: 'יתרונות', id: 'features' }, { label: 'מחירים', id: 'pricing' }, { label: 'שאלות נפוצות', id: 'faq' }]
     : [{ label: 'Features', id: 'features' }, { label: 'Pricing', id: 'pricing' }, { label: 'FAQ', id: 'faq' }];
 
-  const plans = [
-    {
-      slug: 'pro',
-      name: isHe ? 'פרו – בסיסי' : 'Pro – Basic',
-      price: isHe ? 'חינם' : 'Free',
-      priceSub: '',
-      popular: false,
-      features: isHe
-        ? ['ניהול לקוחות', 'יומן חכם', 'הודעות אוטומטיות', 'ליווי החלמה']
-        : ['Client Management', 'Smart Calendar', 'Auto-Messages', 'Aftercare Journey'],
-    },
-    {
-      slug: 'elite',
-      name: isHe ? 'אליט – מקצועי' : 'Elite – Professional',
-      price: '₪79',
-      priceSub: isHe ? '/חודש' : '/mo',
-      popular: true,
-      features: isHe
-        ? ['הכל בפרו +', 'הצהרת בריאות', 'כלי AI קסומים', 'גלריה ופורטפוליו', 'כרטיס דיגיטלי', 'תיעוד קולי']
-        : ['Everything in Pro +', 'Health Declaration', 'AI Magic Tools', 'Gallery & Portfolio', 'Digital Business Card', 'Voice Treatment Notes'],
-    },
-    {
-      slug: 'vip',
-      name: isHe ? 'VIP – מייסדים' : 'VIP – Founders',
-      price: '₪149',
-      priceSub: isHe ? '/חודש' : '/mo',
-      popular: false,
-      features: isHe
-        ? ['הכל באליט +', 'אוטומציה לוואטסאפ', 'White Label', 'ייצוא CSV', 'מנוע צמיחה', 'מערכת הפניות']
-        : ['Everything in Elite +', 'WhatsApp Automation', 'White Label', 'CSV Export', 'Growth Engine', 'Referral System'],
-    },
-  ];
+  const { data: dbPlans = [] } = usePricingPlans();
 
   return (
     <div
@@ -428,62 +398,72 @@ const MarketingLanding = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {plans.map((plan) => (
-              <div
-                key={plan.slug}
-                className="p-8 rounded-2xl flex flex-col relative transition-all duration-300 hover:-translate-y-1"
-                style={plan.popular ? {
-                  border: '2px solid transparent',
-                  backgroundImage: 'linear-gradient(#fff, #fff), linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
-                  backgroundOrigin: 'border-box',
-                  backgroundClip: 'padding-box, border-box',
-                  boxShadow: '0 12px 36px rgba(212,175,55,0.25)',
-                } : {
-                  background: '#f6f3f2',
-                  border: '1px solid rgba(212,175,55,0.15)',
-                }}
-              >
-                {plan.popular && (
-                  <div
-                    className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-white"
-                    style={{ background: GOLD }}
-                  >
-                    {isHe ? 'הכי פופולרי' : 'Most Popular'}
-                  </div>
-                )}
-
-                <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#B8860B' }}>{plan.name}</p>
-                <div className="mb-6 mt-2">
-                  <span className="text-4xl font-bold" style={{ color: '#1c1b1b' }}>{plan.price}</span>
-                  {plan.priceSub && <span className="text-sm ml-1" style={{ color: '#5f5e5e' }}>{plan.priceSub}</span>}
-                </div>
-
-                <ul className="space-y-3 flex-1 mb-8">
-                  {plan.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm" style={{ color: '#3a3a3a' }}>
-                      <Check size={15} className="shrink-0 mt-0.5" style={{ color: '#d4af37' }} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  onClick={() => navigate(user ? authenticatedHome : '/auth?mode=signup')}
-                  className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-95"
-                  style={plan.popular ? {
-                    background: GOLD,
-                    color: '#fff',
-                    boxShadow: '0 6px 18px rgba(115,92,0,0.3)',
+            {dbPlans.map((plan) => {
+              const name = isHe ? plan.name_he : plan.name_en;
+              const features = isHe ? plan.features_he : plan.features_en;
+              const price = plan.price_monthly === 0
+                ? (isHe ? 'חינם' : 'Free')
+                : `₪${plan.price_monthly}`;
+              const priceSub = plan.price_monthly > 0 ? (isHe ? '/חודש' : '/mo') : '';
+              const badge = isHe ? plan.badge_he : plan.badge_en;
+              const cta = isHe ? plan.cta_he : plan.cta_en;
+              return (
+                <div
+                  key={plan.slug}
+                  className="p-8 rounded-2xl flex flex-col relative transition-all duration-300 hover:-translate-y-1"
+                  style={plan.is_highlighted ? {
+                    border: '2px solid transparent',
+                    backgroundImage: 'linear-gradient(#fff, #fff), linear-gradient(135deg, #B8860B, #D4AF37, #F9F295, #D4AF37, #B8860B)',
+                    backgroundOrigin: 'border-box',
+                    backgroundClip: 'padding-box, border-box',
+                    boxShadow: '0 12px 36px rgba(212,175,55,0.25)',
                   } : {
-                    border: '1.5px solid rgba(212,175,55,0.5)',
-                    color: '#735c00',
-                    background: 'transparent',
+                    background: '#f6f3f2',
+                    border: '1px solid rgba(212,175,55,0.15)',
                   }}
                 >
-                  {isHe ? `בחרי ב-${plan.name.split(' – ')[0]}` : `Choose ${plan.name.split(' – ')[0]}`}
-                </button>
-              </div>
-            ))}
+                  {badge && (
+                    <div
+                      className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-white"
+                      style={{ background: GOLD }}
+                    >
+                      {badge}
+                    </div>
+                  )}
+
+                  <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#B8860B' }}>{name}</p>
+                  <div className="mb-6 mt-2">
+                    <span className="text-4xl font-bold" style={{ color: '#1c1b1b' }}>{price}</span>
+                    {priceSub && <span className="text-sm ml-1" style={{ color: '#5f5e5e' }}>{priceSub}</span>}
+                  </div>
+
+                  <ul className="space-y-3 flex-1 mb-8">
+                    {features.map((f, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm" style={{ color: '#3a3a3a' }}>
+                        <Check size={15} className="shrink-0 mt-0.5" style={{ color: '#d4af37' }} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    onClick={() => navigate(user ? authenticatedHome : '/auth?mode=signup')}
+                    className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-95"
+                    style={plan.is_highlighted ? {
+                      background: GOLD,
+                      color: '#fff',
+                      boxShadow: '0 6px 18px rgba(115,92,0,0.3)',
+                    } : {
+                      border: '1.5px solid rgba(212,175,55,0.5)',
+                      color: '#735c00',
+                      background: 'transparent',
+                    }}
+                  >
+                    {cta || (isHe ? `בחרי ב-${name.split(' – ')[0]}` : `Choose ${name.split(' – ')[0]}`)}
+                  </button>
+                </div>
+              );
+            })}
           </div>
 
           <div className="text-center mt-8">
