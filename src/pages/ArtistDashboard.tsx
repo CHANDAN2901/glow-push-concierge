@@ -222,6 +222,7 @@ const ArtistDashboard = () => {
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [lastChargeAt, setLastChargeAt] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('pending');
+  const [trialBannerDismissed, setTrialBannerDismissed] = useState(() => !!sessionStorage.getItem('gp-trial-banner-dismissed'));
   const [subscriptionTier, setSubscriptionTier] = useState<string>('lite');
   const [profileFetched, setProfileFetched] = useState(false);
   const [totalClientsCount, setTotalClientsCount] = useState(0);
@@ -243,6 +244,13 @@ const ArtistDashboard = () => {
   useEffect(() => {
     if (hardBlocked) navigate('/pricing');
   }, [hardBlocked, navigate]);
+
+  // Listen for trial modal dismiss event
+  useEffect(() => {
+    const handler = () => setTrialBannerDismissed(true);
+    window.addEventListener('trial-banner-dismiss', handler);
+    return () => window.removeEventListener('trial-banner-dismiss', handler);
+  }, []);
 
   // User tier
   const userTier = subscriptionTier as 'lite' | 'professional' | 'master';
@@ -1403,7 +1411,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   return (
     <div className="min-h-screen flex flex-col relative artist-dashboard" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #fcf9f8 30%, #f6f3f2 100%)' }}>
       {/* Grace period banner — shown for 3 days after trial expires */}
-      {inGracePeriod && <TrialExpiredBanner daysLeft={graceDaysLeft} />}
+      {inGracePeriod && !trialBannerDismissed && <TrialExpiredBanner daysLeft={graceDaysLeft} />}
       {/* Subtle diagonal line texture */}
       <div className="fixed inset-0 z-0 pointer-events-none" style={{
         backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 80px, rgba(212,175,55,0.03) 80px, rgba(212,175,55,0.03) 81px)`,
