@@ -178,25 +178,25 @@ export const FEATURES: FeatureFlag[] = [
 export const TIERS: TierDefinition[] = [
   {
     slug: 'lite',
-    name: { en: 'Pro – Basic', he: 'Pro – בסיסי' },
+    name: { en: 'Glow Push Pro', he: 'Glow Push Pro' },
     sortOrder: 0,
-    price: { ils: 0, usd: 0 },
+    price: { ils: 139, usd: 34 },
     featureKeys: FEATURES.filter(f => f.minTier === 'lite').map(f => f.id),
   },
   {
     slug: 'professional',
-    name: { en: 'Elite – Professional', he: 'Elite – מקצועי' },
+    name: { en: 'Glow Push Elite', he: 'Glow Push Elite' },
     sortOrder: 1,
-    price: { ils: 79, usd: 22 },
+    price: { ils: 157, usd: 49 },
     featureKeys: FEATURES.filter(f => ['lite', 'professional'].includes(f.minTier)).map(f => f.id),
     isHighlighted: true,
-    badge: { en: 'Most Popular', he: 'הכי פופולרי' },
+    badge: { en: '⭐ Most Popular', he: '⭐ הכי פופולרי' },
   },
   {
     slug: 'master',
-    name: { en: 'VIP – Founders', he: 'VIP – מייסדות' },
+    name: { en: 'Glow Push VIP', he: 'Glow Push VIP' },
     sortOrder: 2,
-    price: { ils: 149, usd: 42 },
+    price: { ils: 999, usd: 415 },
     featureKeys: FEATURES.map(f => f.id),
   },
 ];

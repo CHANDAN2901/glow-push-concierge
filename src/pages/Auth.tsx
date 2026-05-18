@@ -148,13 +148,7 @@ const Auth = () => {
       setPromoStatus('valid_academy');
       setPromoLabel(p.label || p.code_type);
       setPromoTag(`${p.code_type}_${p.label || p.code}`.replace(/\s+/g, '_'));
-      // Track specific code type for benefit message
-      const codeUpper = code.trim().toUpperCase();
-      if (['ACADEMY', 'GRADUATE', 'INFLUENCERS'].includes(codeUpper)) {
-        setPromoCodeType(codeUpper as PromoCodeType);
-      } else {
-        setPromoCodeType('generic');
-      }
+      // promoCodeType intentionally NOT set — coupons no longer grant free dashboard access
       return;
     }
 
@@ -250,7 +244,8 @@ const Auth = () => {
         const destination = sanitizeRoleDestination(requested, signedInIsAdmin);
         navigate(destination, { replace: true });
       } else {
-        const hasValidCode = promoStatus === 'valid_referral' || promoStatus === 'valid_academy';
+        // Only referral codes (person-to-person) get passed through — promo codes no longer grant free access
+        const hasReferral = promoStatus === 'valid_referral';
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
@@ -259,7 +254,7 @@ const Auth = () => {
             data: {
               full_name: fullName,
               studio_name: studioName,
-              ...(hasValidCode && promoCode.trim() ? { referral_code: promoCode.trim() } : {}),
+              ...(hasReferral && promoCode.trim() ? { referral_code: promoCode.trim() } : {}),
             },
           },
         });
@@ -305,15 +300,9 @@ const Auth = () => {
           return;
         }
 
-        // Session exists (auto-confirm enabled) — fall through to existing toast/redirect
-        const hasPromo = promoStatus === 'valid_referral' || promoStatus === 'valid_academy';
         toast({
-          title: hasPromo
-            ? (lang === 'en' ? 'Welcome to Glow Push!' : 'ברוכה הבאה ל-Glow Push!')
-            : (lang === 'en' ? 'Check your email!' : 'בדקי את המייל!'),
-          description: hasPromo
-            ? (lang === 'en' ? 'Your signup benefit has been activated!' : 'הטבת ההצטרפות שלך הופעלה!')
-            : (lang === 'en' ? 'We sent a confirmation link to your email.' : 'שלחנו לך קישור אישור למייל.'),
+          title: lang === 'en' ? 'Welcome to Glow Push!' : 'ברוכה הבאה ל-Glow Push!',
+          description: lang === 'en' ? 'Your account is ready. Activate your trial to get started.' : 'החשבון שלך מוכן. הפעילי את הניסיון כדי להתחיל.',
         });
 
         sessionStorage.setItem('gp-show-install-prompt', '1');
@@ -334,24 +323,7 @@ const Auth = () => {
     }
   };
 
-  const promoBenefitDetail = () => {
-    if (promoCodeType === 'ACADEMY') {
-      return lang === 'en'
-        ? '3 months free on Elite plan, then 50% off first month'
-        : '3 חודשים חינם בתוכנית Elite, אח״כ 50% הנחה על החודש הראשון';
-    }
-    if (promoCodeType === 'GRADUATE') {
-      return lang === 'en'
-        ? '30-day free trial + 50% off first month'
-        : '30 יום חינם + 50% הנחה על החודש הראשון';
-    }
-    if (promoCodeType === 'INFLUENCERS') {
-      return lang === 'en'
-        ? '30-day free trial on Elite plan'
-        : '30 יום חינם בתוכנית Elite';
-    }
-    return null;
-  };
+  const promoBenefitDetail = () => null;
 
   const promoStatusMessage = () => {
     switch (promoStatus) {

@@ -108,9 +108,9 @@ const Pricing = () => {
   const { data: vipTaken = 0 } = useVipTakenCount();
   const { user } = useAuth();
 
-  // Fully DB-driven plan cards from pricing_plans table
+  // Fully DB-driven plan cards — exclude the glow-trial plan (it's only shown in TrialPaymentGate)
   const plans = useMemo(() => {
-    return dbPlans.map((db) => {
+    return dbPlans.filter(db => db.slug !== 'glow-trial').map((db) => {
       const resolvedFeatures = (db.feature_keys || []).map(key => {
         const feat = FEATURES.find(f => f.id === key);
         return feat ? { name: feat.name, desc: feat.desc } : null;
@@ -119,7 +119,8 @@ const Pricing = () => {
       return {
         slug: db.slug,
         name: { en: db.name_en, he: db.name_he },
-        price: { ils: db.price_monthly, usd: db.price_usd },
+        // Pro plan: price_monthly = ₪1 (trial entry), original_price_monthly = ₪139 (real monthly rate)
+        price: { ils: db.slug === 'pro' ? db.original_price_monthly : db.price_monthly, usd: db.slug === 'pro' ? db.original_price_usd : db.price_usd },
         originalPrice: { ils: db.original_price_monthly, usd: db.original_price_usd },
         isHighlighted: db.is_highlighted,
         billingPeriod: db.billing_period || 'monthly',
@@ -472,6 +473,19 @@ const Pricing = () => {
 
       {/* Spacer for fixed header */}
       <div className="pt-16" />
+
+      {/* Logout button — shown when user is logged in (e.g. redirected from expired trial) */}
+      {user && (
+        <div className="fixed top-3 right-4 z-50">
+          <button
+            onClick={async () => { await supabase.auth.signOut(); navigate('/'); }}
+            className="text-xs font-medium px-3 py-1.5 rounded-full transition-all active:scale-95"
+            style={{ background: 'rgba(255,255,255,0.7)', color: GOLD_TEXT, border: '1px solid rgba(212,175,55,0.3)', backdropFilter: 'blur(8px)' }}
+          >
+            {isHe ? 'התנתקי' : 'Log out'}
+          </button>
+        </div>
+      )}
 
       {/* Back button — only when navigated from inside the app */}
       {(location.state as any)?.returnTab && (

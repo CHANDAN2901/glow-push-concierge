@@ -393,12 +393,12 @@ const MarketingLanding = () => {
               {isHe ? 'בחרי את מסלול ההצלחה שלך' : 'Choose Your Success Plan'}
             </h2>
             <p className="text-xs uppercase tracking-widest" style={{ color: '#5f5e5e' }}>
-              {isHe ? '30 יום ניסיון חינם, ללא כרטיס אשראי' : '30-day free trial · No credit card required'}
+              {isHe ? 'ניסיון 30 יום ב-₪2 בלבד' : '30-day trial · Only ₪2'}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {dbPlans.map((plan) => {
+            {dbPlans.filter(p => p.slug !== 'glow-trial' && p.slug !== 'pro').map((plan) => {
               const name = isHe ? plan.name_he : plan.name_en;
               const features = isHe ? plan.features_he : plan.features_en;
               const price = plan.price_monthly === 0

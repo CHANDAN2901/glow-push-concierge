@@ -50,6 +50,8 @@ import WelcomeTour from '@/components/WelcomeTour';
 import PostSignupInstallPrompt from '@/components/PostSignupInstallPrompt';
 import DailyGrowthEngine from '@/components/DailyGrowthEngine';
 import ReferralVoucherEditor from '@/components/ReferralVoucherEditor';
+import TrialPaymentGate from '@/components/TrialPaymentGate';
+import TrialExpiredBanner from '@/components/TrialExpiredBanner';
 import { useAftercareTemplates } from '@/hooks/useAftercareTemplates';
 import { usePromoSettings } from '@/hooks/usePromoSettings';
 import { useHealthQuestions, calculateDynamicRiskLevel } from '@/hooks/useHealthQuestions';
@@ -156,19 +158,7 @@ function saveSentLog(log: Record<string, string>) {
   localStorage.setItem('gp-wa-sent-log', JSON.stringify(log));
 }
 
-const TRIAL_DAYS = 30;
-const TRIAL_FEATURES = ['auto-messages', 'qr-code'];
-
-// Features included per tier (master gets health-declaration for free)
-const MASTER_INCLUDED_FEATURES = ['health-declaration'];
-
-function calcTrialDaysLeft(createdAt: string | null): number {
-  if (!createdAt) return TRIAL_DAYS;
-  const start = new Date(createdAt);
-  const now = new Date();
-  const elapsed = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  return Math.max(0, TRIAL_DAYS - elapsed);
-}
+const GRACE_MS = 3 * 86_400_000; // 3-day grace period after trial expiry
 
 export interface ShopProduct {
   name: string;
@@ -227,8 +217,9 @@ const ArtistDashboard = () => {
   const { user, isAdmin } = useAuth();
   const { getMessageForDay, buildWhatsAppText, hasMessageForDay, getMatchingDayValue } = useAftercareTemplates();
 
-  // Trial system — driven by profile created_at from DB
+  // Subscription state — driven by trial_ends_at from DB
   const [profileCreatedAt, setProfileCreatedAt] = useState<string | null>(null);
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('trial');
   const [subscriptionTier, setSubscriptionTier] = useState<string>('lite');
   const [profileFetched, setProfileFetched] = useState(false);
@@ -236,28 +227,27 @@ const ArtistDashboard = () => {
   const [artistReferralCode, setArtistReferralCode] = useState<string | null>(null);
   const [todayAppointmentsCount, setTodayAppointmentsCount] = useState(0);
 
-  const trialDaysLeft = calcTrialDaysLeft(profileCreatedAt);
-  const trialActive = trialDaysLeft > 0;
-  const isPaidUser = subscriptionStatus === 'active' || subscriptionTier === 'professional' || subscriptionTier === 'master';
-  const trialExpired = !trialActive && !isPaidUser;
+  const now = Date.now();
+  const trialEnd = trialEndsAt ? new Date(trialEndsAt).getTime() : null;
+  const needsTrialPayment = profileFetched && !trialEnd && subscriptionStatus !== 'active';
+  const trialActive       = !!trialEnd && trialEnd > now;
+  const inGracePeriod     = !!trialEnd && trialEnd <= now && (trialEnd + GRACE_MS) > now;
+  const isPaidUser        = subscriptionStatus === 'active';
+  const hardBlocked       = profileFetched && !!trialEnd && (trialEnd + GRACE_MS) <= now && !isPaidUser;
+  const graceDaysLeft     = inGracePeriod ? Math.ceil((trialEnd! + GRACE_MS - now) / 86_400_000) : 0;
 
-  // Redirect to /pricing if trial expired and not paid — wait for full profile fetch to avoid
-  // redirecting paid users whose subscriptionTier/Status haven't loaded from DB yet
+  // Redirect to /pricing once grace period is over and no payment
   useEffect(() => {
-    if (profileFetched && trialExpired) {
-      navigate('/pricing');
-    }
-  }, [profileFetched, trialExpired, navigate]);
+    if (hardBlocked) navigate('/pricing');
+  }, [hardBlocked, navigate]);
 
   // User tier
   const userTier = subscriptionTier as 'lite' | 'professional' | 'master';
 
-  // Check if feature is available (tier, trial or purchased)
+  // Check if feature is available (tier or purchased)
   const isFeatureAvailable = (featureId: string): boolean => {
-    if (userTier === 'master' && MASTER_INCLUDED_FEATURES.includes(featureId)) return true;
     const savedFeatures = (() => { try { const r = localStorage.getItem('gp-enabled-features'); return r ? JSON.parse(r) : {}; } catch { return {}; } })();
     if (savedFeatures[featureId]) return true;
-    if (TRIAL_FEATURES.includes(featureId) && trialActive) return true;
     return false;
   };
   const [sendingTestPush, setSendingTestPush] = useState(false);
@@ -498,7 +488,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     if (!user) return;
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier, onboarding_checklist_dismissed, referral_code')
+      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier, onboarding_checklist_dismissed, referral_code, trial_ends_at')
       .eq('user_id', user.id)
       .maybeSingle() as { data: any; error: any };
 
@@ -520,6 +510,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       // Block all display-facing fields from being overwritten
       if (!isImpersonating) {
         setProfileCreatedAt(data.created_at || null);
+        setTrialEndsAt((data as any).trial_ends_at || null);
         setSubscriptionStatus(data.subscription_status || 'trial');
         setSubscriptionTier(data.subscription_tier || 'lite');
         if (data.business_phone) { setArtistPhone(data.business_phone); localStorage.setItem('gp-artist-phone', data.business_phone); }
@@ -1402,8 +1393,13 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const currentTitle = subScreen || tabTitles[activeTab] || '';
 
+  // New user who hasn't paid ₪2 trial yet — show payment gate
+  if (needsTrialPayment) return <TrialPaymentGate />;
+
   return (
     <div className="min-h-screen flex flex-col relative artist-dashboard" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #fcf9f8 30%, #f6f3f2 100%)' }}>
+      {/* Grace period banner — shown for 3 days after trial expires */}
+      {inGracePeriod && <TrialExpiredBanner daysLeft={graceDaysLeft} />}
       {/* Subtle diagonal line texture */}
       <div className="fixed inset-0 z-0 pointer-events-none" style={{
         backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 80px, rgba(212,175,55,0.03) 80px, rgba(212,175,55,0.03) 81px)`,

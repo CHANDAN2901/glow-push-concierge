@@ -50,6 +50,9 @@ serve(async (req: Request) => {
       });
     }
 
+    // Enforce ₪2 for the trial plan regardless of what the frontend sends
+    const effectiveAmount = planSlug === "glow-trial" ? 2 : amountIls;
+
     console.log(`[create-payment-session] TERMINAL_NAME="${TERMINAL_NAME}" TERMINAL_PW_set=${!!TERMINAL_PW}`);
 
     if (!TERMINAL_NAME || !TERMINAL_PW) {
@@ -69,7 +72,7 @@ serve(async (req: Request) => {
     const params = new URLSearchParams({
       supplier: TERMINAL_NAME,
       TranzilaPW: TERMINAL_PW,
-      sum: String(amountIls),
+      sum: String(effectiveAmount),
       currency: "1",         // 1 = ILS
       cred_type: "1",        // regular credit
       tranmode,
@@ -88,7 +91,7 @@ serve(async (req: Request) => {
     const endpoint = lang === 'en' ? 'iframe.php' : 'iframenew.php';
     const iframeUrl = `https://direct.tranzila.com/${TERMINAL_NAME}/${endpoint}?${params.toString()}`;
 
-    console.log(`[create-payment-session] userId=${auth.userId} plan=${planSlug} amount=₪${amountIls}`);
+    console.log(`[create-payment-session] userId=${auth.userId} plan=${planSlug} amount=₪${effectiveAmount}`);
 
     return new Response(JSON.stringify({ iframeUrl }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

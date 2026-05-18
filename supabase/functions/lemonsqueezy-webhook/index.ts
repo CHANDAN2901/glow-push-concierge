@@ -105,28 +105,45 @@ serve(async (req: Request) => {
     eventName === "subscription_updated" ||
     eventName === "subscription_payment_success"
   ) {
-    const tier = SLUG_TO_TIER[planSlug];
-    if (!tier) {
-      console.error(`[lemonsqueezy-webhook] Unknown planSlug: ${planSlug}`);
-      return new Response("unknown_plan", { status: 200 });
-    }
-
     const now = new Date();
-    const subscriptionEndDate = new Date(now);
-    subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1);
+    let updatePayload: Record<string, unknown>;
 
-    const updatePayload: Record<string, unknown> = {
-      subscription_tier: tier,
-      subscription_status: "active",
-      subscription_end_date: subscriptionEndDate.toISOString(),
-      last_charge_at: now.toISOString(),
-      autopay_enabled: autoPayEnabled,
-      charge_failure_count: 0,
-    };
+    if (planSlug === "glow-trial") {
+      // ₪2 trial activation — grants 30-day full access (master tier)
+      const trialEndsAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      updatePayload = {
+        subscription_status: "trial",
+        subscription_tier: "master",
+        trial_ends_at: trialEndsAt.toISOString(),
+        last_charge_at: now.toISOString(),
+        autopay_enabled: false,
+        charge_failure_count: 0,
+      };
+      if (lsOrderId) updatePayload.ls_order_id = lsOrderId;
+      if (lsCustomerId) updatePayload.ls_customer_id = lsCustomerId;
+    } else {
+      const tier = SLUG_TO_TIER[planSlug];
+      if (!tier) {
+        console.error(`[lemonsqueezy-webhook] Unknown planSlug: ${planSlug}`);
+        return new Response("unknown_plan", { status: 200 });
+      }
 
-    if (lsSubscriptionId) updatePayload.ls_subscription_id = lsSubscriptionId;
-    if (lsCustomerId) updatePayload.ls_customer_id = lsCustomerId;
-    if (lsOrderId) updatePayload.ls_order_id = lsOrderId;
+      const subscriptionEndDate = new Date(now);
+      subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1);
+
+      updatePayload = {
+        subscription_tier: tier,
+        subscription_status: "active",
+        subscription_end_date: subscriptionEndDate.toISOString(),
+        last_charge_at: now.toISOString(),
+        autopay_enabled: autoPayEnabled,
+        charge_failure_count: 0,
+      };
+
+      if (lsSubscriptionId) updatePayload.ls_subscription_id = lsSubscriptionId;
+      if (lsCustomerId) updatePayload.ls_customer_id = lsCustomerId;
+      if (lsOrderId) updatePayload.ls_order_id = lsOrderId;
+    }
 
     const { error } = await supabase
       .from("profiles")
@@ -138,7 +155,10 @@ serve(async (req: Request) => {
       return new Response("db_error", { status: 500 });
     }
 
-    console.log(`[lemonsqueezy-webhook] ✅ Upgraded userId=${userId} tier=${tier} via ${eventName} mode=${lsMode}`);
+    const logMsg = planSlug === "glow-trial"
+      ? `[lemonsqueezy-webhook] ✅ Trial activated — userId=${userId} via ${eventName} mode=${lsMode}`
+      : `[lemonsqueezy-webhook] ✅ Upgraded userId=${userId} tier=${SLUG_TO_TIER[planSlug]} via ${eventName} mode=${lsMode}`;
+    console.log(logMsg);
   } else if (eventName === "subscription_payment_failed") {
     // Increment failure count, mark past_due
     const { data: profile } = await supabase

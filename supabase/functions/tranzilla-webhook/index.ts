@@ -67,31 +67,49 @@ serve(async (req: Request) => {
     }
 
     const now = new Date();
-    const subscriptionEndDate = new Date(now);
-    subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1);
+    let updatePayload: Record<string, unknown>;
 
-    const updatePayload: Record<string, unknown> = {
-      subscription_tier: tier,
-      subscription_status: "active",
-      tranzilla_plan_slug: planSlug,
-      tranzilla_amount_agorot: sum ? Math.round(parseFloat(sum) * 100) : null,
-      subscription_end_date: subscriptionEndDate.toISOString(),
-      last_charge_at: now.toISOString(),
-      last_charge_confirmation: confirmationCode || null,
-    };
-
-    // Save token only if autopay was opted in and token was returned (VK mode)
-    if (autoPayEnabled && token) {
-      updatePayload.tranzilla_token = token;
-      updatePayload.tranzilla_expiry = expiry || null;
-      updatePayload.autopay_enabled = true;
-      updatePayload.charge_failure_count = 0;
+    if (planSlug === "glow-trial") {
+      // ₪2 trial activation — grants 30-day full access (master tier)
+      const trialEndsAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      updatePayload = {
+        subscription_status: "trial",
+        subscription_tier: "master",
+        trial_ends_at: trialEndsAt.toISOString(),
+        tranzilla_plan_slug: planSlug,
+        tranzilla_amount_agorot: 200,
+        last_charge_at: now.toISOString(),
+        last_charge_confirmation: confirmationCode || null,
+        tranzilla_token: null,
+        tranzilla_expiry: null,
+        autopay_enabled: false,
+        charge_failure_count: 0,
+      };
     } else {
-      // One-time payment — clear any previous token so cron skips this user
-      updatePayload.tranzilla_token = null;
-      updatePayload.tranzilla_expiry = null;
-      updatePayload.autopay_enabled = false;
-      updatePayload.charge_failure_count = 0;
+      const subscriptionEndDate = new Date(now);
+      subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1);
+
+      updatePayload = {
+        subscription_tier: tier,
+        subscription_status: "active",
+        tranzilla_plan_slug: planSlug,
+        tranzilla_amount_agorot: sum ? Math.round(parseFloat(sum) * 100) : null,
+        subscription_end_date: subscriptionEndDate.toISOString(),
+        last_charge_at: now.toISOString(),
+        last_charge_confirmation: confirmationCode || null,
+      };
+
+      if (autoPayEnabled && token) {
+        updatePayload.tranzilla_token = token;
+        updatePayload.tranzilla_expiry = expiry || null;
+        updatePayload.autopay_enabled = true;
+        updatePayload.charge_failure_count = 0;
+      } else {
+        updatePayload.tranzilla_token = null;
+        updatePayload.tranzilla_expiry = null;
+        updatePayload.autopay_enabled = false;
+        updatePayload.charge_failure_count = 0;
+      }
     }
 
     const { error } = await supabase
@@ -104,7 +122,10 @@ serve(async (req: Request) => {
       return new Response("db_error", { status: 500 });
     }
 
-    console.log(`[tranzilla-webhook] ✅ Subscription upgraded — userId=${userId} tier=${tier} ends=${subscriptionEndDate.toISOString()}`);
+    const logMsg = planSlug === "glow-trial"
+      ? `[tranzilla-webhook] ✅ Trial activated — userId=${userId} trial_ends_at=${updatePayload.trial_ends_at}`
+      : `[tranzilla-webhook] ✅ Subscription upgraded — userId=${userId} tier=${tier}`;
+    console.log(logMsg);
     return new Response("ok", { status: 200 });
   } catch (err: any) {
     console.error("[tranzilla-webhook] Unhandled error:", err?.message);
