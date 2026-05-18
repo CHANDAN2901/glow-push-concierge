@@ -474,19 +474,6 @@ const Pricing = () => {
       {/* Spacer for fixed header */}
       <div className="pt-16" />
 
-      {/* Logout button — shown when user is logged in (e.g. redirected from expired trial) */}
-      {user && (
-        <div className="fixed top-3 right-4 z-50">
-          <button
-            onClick={async () => { await supabase.auth.signOut(); navigate('/'); }}
-            className="text-xs font-medium px-3 py-1.5 rounded-full transition-all active:scale-95"
-            style={{ background: 'rgba(255,255,255,0.7)', color: GOLD_TEXT, border: '1px solid rgba(212,175,55,0.3)', backdropFilter: 'blur(8px)' }}
-          >
-            {isHe ? 'התנתקי' : 'Log out'}
-          </button>
-        </div>
-      )}
-
       {/* Back button — only when navigated from inside the app */}
       {(location.state as any)?.returnTab && (
         <div className="px-4 pt-2 max-w-lg mx-auto">

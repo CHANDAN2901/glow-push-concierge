@@ -1,6 +1,9 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
+import { LogOut } from 'lucide-react';
 import BackButton from '@/components/BackButton';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 const ROUTE_TITLES: Record<string, { he: string; en: string }> = {
   '/pricing': { he: 'חבילות ומחירים', en: 'Plans & Pricing' },
@@ -28,6 +31,9 @@ const HIDDEN_ROUTES = ['/', '/artist', '/client', '/health-declaration', '/clien
 const Header = () => {
   const { lang, setLang } = useI18n();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const showLogout = location.pathname === '/pricing' && !!user;
 
   if (HIDDEN_ROUTES.includes(location.pathname) || location.pathname.startsWith('/c/')) return null;
 
@@ -59,18 +65,34 @@ const Header = () => {
           </h1>
         )}
 
-        {/* Language toggle — pinned to right side */}
-        <button
-          onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95 z-20"
-          style={{
-            background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
-            color: '#4a3636',
-            boxShadow: '0 2px 8px rgba(212,175,55,0.35)',
-          }}
-        >
-          {lang === 'he' ? 'EN' : 'עב'}
-        </button>
+        {/* Right side: logout (pricing only) + language toggle */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 z-20">
+          {showLogout && (
+            <button
+              onClick={async () => { await supabase.auth.signOut(); navigate('/'); }}
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+              style={{
+                background: 'rgba(212,175,55,0.12)',
+                border: '1px solid rgba(212,175,55,0.35)',
+                color: '#8B6508',
+              }}
+              aria-label="Log out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-extrabold tracking-wide transition-all hover:scale-105 active:scale-95"
+            style={{
+              background: 'linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #F9F295 60%, #D4AF37 80%, #B8860B 100%)',
+              color: '#4a3636',
+              boxShadow: '0 2px 8px rgba(212,175,55,0.35)',
+            }}
+          >
+            {lang === 'he' ? 'EN' : 'עב'}
+          </button>
+        </div>
       </div>
     </header>
   );
