@@ -1,44 +1,20 @@
-// GlowPush Custom Service Worker for Push Notifications
-self.addEventListener('install', () => {
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
-});
-
-self.addEventListener('push', (event) => {
-  console.log('[SW] Push received:', event);
-  let data = { title: 'Glow Push ✨', body: 'יש לך עדכון חדש!', icon: '/pwa-192.png', data: {} };
-  try {
-    if (event.data) {
-      data = { ...data, ...event.data.json() };
-    }
-  } catch (e) {
-    console.error('[SW] Failed to parse push data:', e);
-  }
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: data.icon || '/pwa-192.png',
-      badge: '/pwa-192.png',
-      data: data.data || {},
-      vibrate: [200, 100, 200],
-    })
-  );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked:', event.notification.data);
-  event.notification.close();
-  const url = event.notification.data?.url || '/client';
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      for (const client of windowClients) {
-        if (client.url.includes(url) && 'focus' in client) return client.focus();
-      }
-      return clients.openWindow(url);
-    })
-  );
-});
+// Kill-switch: unregister any previously-installed service worker and clear caches.
+self.addEventListener("install", (e) => e.waitUntil(self.skipWaiting()));
+self.addEventListener("activate", (e) =>
+  e.waitUntil(
+    (async () => {
+      await self.clients.claim();
+      const names = await caches.keys();
+      await Promise.all(names.map((n) => caches.delete(n)));
+      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      await Promise.all(
+        clients.map((c) => {
+          const url = new URL(c.url);
+          url.searchParams.set("sw-cleanup", Date.now().toString());
+          return c.navigate(url.toString());
+        })
+      );
+      await self.registration.unregister();
+    })()
+  )
+);
