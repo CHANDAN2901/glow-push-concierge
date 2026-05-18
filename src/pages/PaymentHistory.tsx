@@ -1,17 +1,62 @@
-import { ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ExternalLink, Receipt } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 const GOLD_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)';
 
-const receipts = [
-  { date: '01/03/2026', plan: 'Glow Pro', amount: '₪199', invoiceUrl: '#' },
-  { date: '01/02/2026', plan: 'Glow Pro', amount: '₪199', invoiceUrl: '#' },
-  { date: '01/01/2026', plan: 'Glow Basic', amount: '₪99', invoiceUrl: '#' },
-];
+const PLAN_DISPLAY: Record<string, { en: string; he: string }> = {
+  'glow-trial': { en: 'Glow Push Trial', he: 'ניסיון Glow Push' },
+  'pro':        { en: 'Glow Push Pro',   he: 'Glow Push Pro'   },
+  'elite':      { en: 'Glow Push Elite', he: 'Glow Push Elite' },
+  'vip-3year':  { en: 'Glow Push VIP',   he: 'Glow Push VIP'   },
+};
+
+interface PaymentRecord {
+  date: string;
+  planSlug: string;
+  amountIls: number | null;
+  confirmation: string | null;
+  lsOrderId: string | null;
+}
 
 const PaymentHistory = () => {
   const { t, lang } = useI18n();
+  const { user } = useAuth();
   const isHe = lang === 'he';
+
+  const [record, setRecord] = useState<PaymentRecord | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) { setLoading(false); return; }
+    supabase
+      .from('profiles')
+      .select('last_charge_at, tranzilla_plan_slug, tranzilla_amount_agorot, last_charge_confirmation, ls_order_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.last_charge_at) {
+          setRecord({
+            date: data.last_charge_at,
+            planSlug: data.tranzilla_plan_slug ?? 'pro',
+            amountIls: data.tranzilla_amount_agorot != null ? data.tranzilla_amount_agorot / 100 : null,
+            confirmation: data.last_charge_confirmation ?? null,
+            lsOrderId: data.ls_order_id ?? null,
+          });
+        }
+        setLoading(false);
+      });
+  }, [user]);
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString(isHe ? 'he-IL' : 'en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  const planName = (slug: string) =>
+    (PLAN_DISPLAY[slug] ?? { en: slug, he: slug })[isHe ? 'he' : 'en'];
 
   return (
     <div className="min-h-screen pb-20 pt-14" style={{ background: '#fcf9f8' }} dir={isHe ? 'rtl' : 'ltr'}>
@@ -30,35 +75,53 @@ const PaymentHistory = () => {
       </div>
 
       <div className="mx-auto px-4 max-w-lg flex flex-col gap-4">
-        {receipts.map((r, idx) => (
-          <div key={idx}>
-            <div
-              className="rounded-2xl p-5 bg-white flex items-center justify-between"
-              style={{ boxShadow: '0 2px 12px -4px rgba(0,0,0,0.06)', border: '1px solid rgba(212,175,55,0.15)' }}
-            >
-              <div className="space-y-1.5">
-                <p className="text-sm font-bold" style={{ color: '#000' }}>{r.date}</p>
-                <p className="text-sm font-medium" style={{ color: '#000' }}>{r.plan}</p>
-                <span
-                  className="inline-block text-xs font-bold px-3 py-0.5 rounded-full"
-                  style={{ background: 'rgba(212,175,55,0.1)', color: '#8B6508' }}
-                >
-                  {t('payment.paid')}
-                </span>
-              </div>
+        {loading ? (
+          <div className="text-center py-12 text-sm" style={{ color: '#999' }}>
+            {isHe ? 'טוען...' : 'Loading...'}
+          </div>
+        ) : !record ? (
+          <div className="text-center py-16 flex flex-col items-center gap-3">
+            <Receipt className="w-10 h-10" style={{ color: '#D4AF37', opacity: 0.5 }} />
+            <p className="text-sm font-medium" style={{ color: '#999' }}>
+              {isHe ? 'אין היסטוריית תשלומים עדיין' : 'No payment history yet'}
+            </p>
+          </div>
+        ) : (
+          <div
+            className="rounded-2xl p-5 bg-white flex items-center justify-between"
+            style={{ boxShadow: '0 2px 12px -4px rgba(0,0,0,0.06)', border: '1px solid rgba(212,175,55,0.15)' }}
+          >
+            <div className="space-y-1.5">
+              <p className="text-sm font-bold" style={{ color: '#000' }}>{formatDate(record.date)}</p>
+              <p className="text-sm font-medium" style={{ color: '#000' }}>{planName(record.planSlug)}</p>
+              {record.confirmation && (
+                <p className="text-xs" style={{ color: '#999' }}>
+                  {isHe ? 'אישור:' : 'Ref:'} {record.confirmation}
+                </p>
+              )}
+              <span
+                className="inline-block text-xs font-bold px-3 py-0.5 rounded-full"
+                style={{ background: 'rgba(212,175,55,0.1)', color: '#8B6508' }}
+              >
+                {t('payment.paid')}
+              </span>
+            </div>
 
-              <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
+              {record.amountIls != null && (
                 <span
                   className="text-xl font-serif font-bold bg-clip-text text-transparent"
                   style={{ backgroundImage: GOLD_GRADIENT }}
                 >
-                  {r.amount}
+                  ₪{record.amountIls}
                 </span>
+              )}
+              {record.lsOrderId && (
                 <a
-                  href={r.invoiceUrl}
+                  href={`https://app.lemonsqueezy.com/my-orders/${record.lsOrderId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full text-sm font-bold transition-transform hover:scale-105 active:scale-95"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-transform hover:scale-105 active:scale-95"
                   style={{
                     background: 'linear-gradient(145deg, #f3d078, #D4AF37)',
                     color: '#fff',
@@ -69,26 +132,10 @@ const PaymentHistory = () => {
                   <ExternalLink className="w-3.5 h-3.5" />
                   {t('payment.viewInvoice')}
                 </a>
-              </div>
+              )}
             </div>
-
-            {idx < receipts.length - 1 && (
-              <div className="py-3">
-                <div
-                  style={{
-                    height: '3px',
-                    width: '60%',
-                    [isHe ? 'marginRight' : 'marginLeft']: 0,
-                    [isHe ? 'marginLeft' : 'marginRight']: 'auto',
-                    borderRadius: '4px',
-                    background: GOLD_GRADIENT,
-                    boxShadow: '0 0 6px rgba(212,175,55,0.25)',
-                  }}
-                />
-              </div>
-            )}
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
