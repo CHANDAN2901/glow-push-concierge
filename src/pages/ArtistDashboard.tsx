@@ -220,7 +220,8 @@ const ArtistDashboard = () => {
   // Subscription state — driven by trial_ends_at from DB
   const [profileCreatedAt, setProfileCreatedAt] = useState<string | null>(null);
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
-  const [subscriptionStatus, setSubscriptionStatus] = useState<string>('trial');
+  const [lastChargeAt, setLastChargeAt] = useState<string | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string>('pending');
   const [subscriptionTier, setSubscriptionTier] = useState<string>('lite');
   const [profileFetched, setProfileFetched] = useState(false);
   const [totalClientsCount, setTotalClientsCount] = useState(0);
@@ -229,7 +230,8 @@ const ArtistDashboard = () => {
 
   const now = Date.now();
   const trialEnd = trialEndsAt ? new Date(trialEndsAt).getTime() : null;
-  const needsTrialPayment = profileFetched && !trialEnd && subscriptionStatus !== 'active';
+  // Gate: user must have paid at least once (last_charge_at set by webhook), OR have an active subscription
+  const needsTrialPayment = profileFetched && !lastChargeAt && subscriptionStatus !== 'active';
   const trialActive       = !!trialEnd && trialEnd > now;
   const inGracePeriod     = !!trialEnd && trialEnd <= now && (trialEnd + GRACE_MS) > now;
   const isPaidUser        = subscriptionStatus === 'active';
@@ -489,7 +491,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     if (!user) return;
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier, onboarding_checklist_dismissed, referral_code, trial_ends_at')
+      .select('id, business_phone, instagram_url, facebook_url, waze_address, logo_url, full_name, studio_name, has_whatsapp_automation, created_at, subscription_status, subscription_tier, onboarding_checklist_dismissed, referral_code, trial_ends_at, last_charge_at')
       .eq('user_id', user.id)
       .maybeSingle() as { data: any; error: any };
 
@@ -512,7 +514,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       if (!isImpersonating) {
         setProfileCreatedAt(data.created_at || null);
         setTrialEndsAt((data as any).trial_ends_at || null);
-        setSubscriptionStatus(data.subscription_status || 'trial');
+        setLastChargeAt((data as any).last_charge_at || null);
+        setSubscriptionStatus(data.subscription_status || 'pending');
         setSubscriptionTier(data.subscription_tier || 'lite');
         if (data.business_phone) { setArtistPhone(data.business_phone); localStorage.setItem('gp-artist-phone', data.business_phone); }
         if (data.instagram_url) setInstagramUrl(data.instagram_url);
