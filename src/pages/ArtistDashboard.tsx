@@ -231,6 +231,7 @@ const ArtistDashboard = () => {
   const [profileCreatedAt, setProfileCreatedAt] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('trial');
   const [subscriptionTier, setSubscriptionTier] = useState<string>('lite');
+  const [profileFetched, setProfileFetched] = useState(false);
   const [totalClientsCount, setTotalClientsCount] = useState(0);
   const [artistReferralCode, setArtistReferralCode] = useState<string | null>(null);
   const [todayAppointmentsCount, setTodayAppointmentsCount] = useState(0);
@@ -240,12 +241,13 @@ const ArtistDashboard = () => {
   const isPaidUser = subscriptionStatus === 'active' || subscriptionTier === 'professional' || subscriptionTier === 'master';
   const trialExpired = !trialActive && !isPaidUser;
 
-  // Redirect to /pricing if trial expired and not paid
+  // Redirect to /pricing if trial expired and not paid — wait for full profile fetch to avoid
+  // redirecting paid users whose subscriptionTier/Status haven't loaded from DB yet
   useEffect(() => {
-    if (profileCreatedAt && trialExpired) {
+    if (profileFetched && trialExpired) {
       navigate('/pricing');
     }
-  }, [profileCreatedAt, trialExpired, navigate]);
+  }, [profileFetched, trialExpired, navigate]);
 
   // User tier
   const userTier = subscriptionTier as 'lite' | 'professional' | 'master';
@@ -815,7 +817,6 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [onboardingReturning, setOnboardingReturning] = useState(false);
   const [showWelcomeTour, setShowWelcomeTour] = useState(false);
-  const [profileFetched, setProfileFetched] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   // True while waiting for install prompt to close (blocks wizard from firing in parallel)
   const [isNewSignupFlow, setIsNewSignupFlow] = useState(() => {
