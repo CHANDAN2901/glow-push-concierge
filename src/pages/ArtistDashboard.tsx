@@ -235,6 +235,7 @@ const ArtistDashboard = () => {
   const isPaidUser        = subscriptionStatus === 'active';
   const hardBlocked       = profileFetched && !!trialEnd && (trialEnd + GRACE_MS) <= now && !isPaidUser;
   const graceDaysLeft     = inGracePeriod ? Math.ceil((trialEnd! + GRACE_MS - now) / 86_400_000) : 0;
+  const trialDaysLeft     = trialActive ? Math.ceil((trialEnd! - now) / 86_400_000) : 0;
 
   // Redirect to /pricing once grace period is over and no payment
   useEffect(() => {
