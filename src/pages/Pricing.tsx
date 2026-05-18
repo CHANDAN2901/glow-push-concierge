@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Crown, Sparkles, Star, Flame, Receipt } from 'lucide-react';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
@@ -646,14 +646,13 @@ const Pricing = () => {
           const monthlyEquivalentUsd = isYearly ? Math.round(plan.price.usd / 12) : 0;
 
           return (
-            <>
+            <React.Fragment key={plan.slug}>
               {idx > 0 && (
                 <div className="flex justify-center py-6 w-full">
                   <div style={{width:'45%',height:'2px',borderRadius:'1px',background:'linear-gradient(90deg, transparent 0%, #B8860B 20%, #D4AF37 35%, #F9F295 50%, #D4AF37 65%, #B8860B 80%, transparent 100%)',backgroundSize:'200% 100%',animation:'gold-glint 4s ease-in-out infinite',boxShadow:'0 0 8px rgba(212,175,55,0.4), 0 0 16px rgba(212,175,55,0.15)'}} />
                 </div>
               )}
               <div
-                key={plan.slug}
                 className="w-full p-8 md:p-10 flex flex-col relative animate-fade-up text-center"
                 style={{
                 border: isVip ? '2px solid #D4AF37' : 'none',
@@ -833,7 +832,7 @@ const Pricing = () => {
                 </button>
               )}
               </div>
-            </>
+            </React.Fragment>
           );
         })}
       </div>
