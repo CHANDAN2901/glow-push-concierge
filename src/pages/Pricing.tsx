@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Crown, Sparkles, Star, Flame, Receipt } from 'lucide-react';
+import { Crown, Sparkles, Star, Flame, Receipt, LogOut } from 'lucide-react';
 import roseGoldTexture from '@/assets/rose-gold-metal-texture.jpg';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -106,7 +106,7 @@ const Pricing = () => {
   const { toast } = useToast();
   const { data: dbPlans = [] } = usePricingPlans();
   const { data: vipTaken = 0 } = useVipTakenCount();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   // Fully DB-driven plan cards — exclude the glow-trial plan (it's only shown in TrialPaymentGate)
   const plans = useMemo(() => {
@@ -520,6 +520,14 @@ const Pricing = () => {
               >
                 <Receipt className="w-4 h-4" />
                 {t('sub.paymentHistory')}
+              </button>
+              <button
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:brightness-105 active:scale-[0.97]"
+                style={{ border: '1.5px solid rgba(212, 175, 55, 0.45)', background: 'rgba(212, 175, 55, 0.1)', color: ROSE_GOLD_METALLIC }}
+                onClick={() => void signOut()}
+              >
+                <LogOut className="w-4 h-4" />
+                {isHe ? 'התנתקות' : 'Log out'}
               </button>
               {isAutopayActive && subscriptionStatus === 'active' && (
                 <button
