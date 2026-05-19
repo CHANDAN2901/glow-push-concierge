@@ -36,7 +36,6 @@ import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
 import PaymentHistory from "./pages/PaymentHistory";
 import PaymentSuccess from "./pages/PaymentSuccess";
-import DevSwitcher from "./components/DevSwitcher";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ImpersonationBanner from "./components/ImpersonationBanner";
 import FeedbackFAB from "./components/FeedbackFAB";
@@ -86,7 +85,6 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
-          <DevSwitcher />
           <ImpersonationBanner />
           <CookieConsentBanner />
           <FeedbackFAB />

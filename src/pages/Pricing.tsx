@@ -152,14 +152,14 @@ const Pricing = () => {
     if (!user) return;
     supabase
       .from('profiles')
-      .select('full_name, subscription_tier, subscription_end_date, subscription_status, autopay_enabled')
+      .select('full_name, subscription_tier, subscription_end_date, subscription_status, autopay_enabled, trial_ends_at')
       .eq('user_id', user.id)
       .single()
       .then(({ data }) => {
         if (data) {
           setArtistName(data.full_name || '');
           setCurrentTier(data.subscription_tier || 'lite');
-          setSubscriptionEndDate((data as any).subscription_end_date || null);
+          setSubscriptionEndDate((data as any).subscription_end_date || (data as any).trial_ends_at || null);
           setSubscriptionStatus((data as any).subscription_status || '');
           setIsAutopayActive(!!(data as any).autopay_enabled);
         }
