@@ -90,7 +90,7 @@ serve(async (req: Request) => {
       currency: "1",         // 1 = ILS
       cred_type: "1",        // regular credit
       tranmode,
-      lang: lang === 'en' ? 'en' : 'il',
+      lang: "il",
       trButtonColor: "D4AF37",
       notify_url_address: `${supabaseUrl}/functions/v1/tranzilla-webhook`,
       success_url_address: `${appUrl}/payment-success?plan=${planSlug}&autopay=${autoPayEnabled}`,
@@ -101,9 +101,7 @@ serve(async (req: Request) => {
       remarks3: String(autoPayEnabled), // autopay flag pass-through
     });
 
-    // iframenew.php doesn't reliably support lang=en; use iframe.php for English
-    const endpoint = lang === 'en' ? 'iframe.php' : 'iframenew.php';
-    const iframeUrl = `https://direct.tranzila.com/${TERMINAL_NAME}/${endpoint}?${params.toString()}`;
+    const iframeUrl = `https://direct.tranzila.com/${TERMINAL_NAME}/iframenew.php?${params.toString()}`;
 
     console.log(`[create-payment-session] userId=${auth.userId} plan=${planSlug} amount=₪${effectiveAmount}`);
 
