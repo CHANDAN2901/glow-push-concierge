@@ -7,11 +7,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGatewaySettings } from '@/hooks/useGatewaySettings';
 import { useQuery } from '@tanstack/react-query';
 
-const FEATURES = [
+const FALLBACK_FEATURES = [
   { en: 'Client & calendar management', he: 'ניהול לקוחות ויומן' },
   { en: 'Healing timeline per client', he: 'ציר זמן ריפוי אישי לכל לקוחה' },
   { en: 'Digital health declaration', he: 'הצהרת בריאות דיגיטלית' },
-  { en: 'AI Before & After collage', he: 'קולאז׳ לפני/אחרי עם AI' },
+  { en: 'AI Before & After collage', he: 'קולאז׳ לפני/אחרי' },
   { en: 'AI magic tools & captions', he: 'כלי AI לכיתובים ועריכה' },
   { en: 'Voice treatment notes', he: 'הערות קוליות לטיפול' },
   { en: 'Digital business card', he: 'כרטיס ביקור דיגיטלי' },
@@ -52,6 +52,26 @@ export default function TrialPaymentGate() {
     staleTime: 5 * 60 * 1000,
   });
   const trialAmount = isIsrael ? trialAmountIl : trialAmountGlobal;
+
+  const { data: dbFeatures } = useQuery<{ en: string; he: string }[] | null>({
+    queryKey: ['trial_plan_features'],
+    queryFn: async () => {
+      const { data: plan } = await supabase
+        .from('pricing_plans')
+        .select('feature_keys')
+        .eq('slug', 'glow-trial')
+        .maybeSingle();
+      if (!plan?.feature_keys?.length) return null;
+      const { data: features } = await supabase
+        .from('pricing_features')
+        .select('name_en, name_he')
+        .in('key', plan.feature_keys);
+      if (!features?.length) return null;
+      return features.map(f => ({ en: f.name_en ?? '', he: f.name_he ?? '' }));
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+  const features = dbFeatures ?? FALLBACK_FEATURES;
 
   const handleTranzilla = async () => {
     setShowGatewayModal(false);
@@ -262,7 +282,7 @@ export default function TrialPaymentGate() {
           className="w-full rounded-2xl p-4 space-y-2"
           style={{ background: 'rgba(212,175,55,0.07)', border: '1px solid rgba(212,175,55,0.25)' }}
         >
-          {FEATURES.map((f, i) => (
+          {features.map((f, i) => (
             <div key={i} className="flex items-center gap-2 text-sm" style={{ color: '#5a3e1b' }}>
               <span className="text-base shrink-0" style={{ color: '#D4AF37' }}>✓</span>
               <span>{isHe ? f.he : f.en}</span>
