@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BackButton from '@/components/BackButton';
 import { FEATURES } from '@/lib/subscriptionConfig';
+import { useGatewaySettings } from '@/hooks/useGatewaySettings';
 
 const ROSE_GOLD = '#d4af37';
 const ROSE_GOLD_DARK = 'hsl(40 60% 25%)';
@@ -145,6 +146,7 @@ const Pricing = () => {
   const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<{ slug: string; priceIls: number } | null>(null);
+  const { resolvedGateway, isIsrael } = useGatewaySettings();
   const [selectedGateway, setSelectedGateway] = useState<'tranzilla' | 'lemonsqueezy'>('tranzilla');
   const [autoPayEnabled, setAutoPayEnabled] = useState(true);
 
@@ -194,7 +196,13 @@ const Pricing = () => {
       toast({ title: isHe ? 'תוכנית זו כלולה במנוי שלך' : 'This plan is already included' });
       return;
     }
-    setPendingPlan({ slug: planSlug, priceIls });
+    if (resolvedGateway === 'both') {
+      setPendingPlan({ slug: planSlug, priceIls });
+    } else if (resolvedGateway === 'tranzilla') {
+      handleTranzillaPayment(planSlug, priceIls);
+    } else {
+      handleLemonSqueezyPayment(planSlug);
+    }
   };
 
   const handleTranzillaPayment = async (planSlug: string, priceIls: number) => {
@@ -202,7 +210,7 @@ const Pricing = () => {
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
-        body: { planSlug, amountIls: priceIls, lang: 'il', autoPayEnabled },
+        body: { planSlug, amountIls: priceIls, lang: isIsrael ? 'il' : 'en', autoPayEnabled, isIsrael },
       });
       if (error || !data?.iframeUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });

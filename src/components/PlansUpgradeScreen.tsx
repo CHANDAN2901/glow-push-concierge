@@ -5,6 +5,7 @@ import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
 import { supabase } from '@/integrations/supabase/client';
+import { useGatewaySettings } from '@/hooks/useGatewaySettings';
 
 interface Props {
   onBack: () => void;
@@ -33,6 +34,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
   const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<PricingPlan | null>(null);
+  const { resolvedGateway, isIsrael } = useGatewaySettings();
   const [selectedGateway, setSelectedGateway] = useState<'tranzilla' | 'lemonsqueezy'>('tranzilla');
   const [autoPayEnabled, setAutoPayEnabled] = useState(true);
 
@@ -44,7 +46,13 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
       toast({ title: isHe ? 'תוכנית זו כלולה במנוי שלך' : 'This plan is already included' });
       return;
     }
-    setPendingPlan(plan);
+    if (resolvedGateway === 'both') {
+      setPendingPlan(plan);
+    } else if (resolvedGateway === 'tranzilla') {
+      handleTranzillaPayment(plan);
+    } else {
+      handleLemonSqueezyPayment(plan);
+    }
   };
 
   const handleTranzillaPayment = async (plan: PricingPlan) => {
@@ -52,7 +60,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
-        body: { planSlug: plan.slug, amountIls: plan.price_monthly, autoPayEnabled },
+        body: { planSlug: plan.slug, amountIls: plan.price_monthly, autoPayEnabled, isIsrael },
       });
       if (error || !data?.iframeUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });

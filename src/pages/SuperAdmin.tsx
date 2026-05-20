@@ -97,6 +97,8 @@ const SuperAdmin = () => {
   const [announcementContentHe, setAnnouncementContentHe] = useState('');
   const [announcementContentEn, setAnnouncementContentEn] = useState('');
   const [sendingAnnouncement, setSendingAnnouncement] = useState(false);
+  const [trialAmountIlInput, setTrialAmountIlInput] = useState('');
+  const [trialAmountGlobalInput, setTrialAmountGlobalInput] = useState('');
   const { data: dbPlans = [] } = usePricingPlans();
   const queryClient = useQueryClient();
   const { questions: healthQuestions, refetch: refetchHealthQuestions } = useAllHealthQuestions();
@@ -116,11 +118,55 @@ const SuperAdmin = () => {
     toast({ title: newMode === 'live' ? '🟢 Lemon Squeezy switched to Live mode' : '🧪 Lemon Squeezy switched to Test mode' });
   };
 
+  type GatewayMode = 'auto' | 'tranzilla_only' | 'lemonsqueezy_only' | 'both';
+  const { data: gatewayMode = 'auto', refetch: refetchGatewayMode } = useQuery<GatewayMode>({
+    queryKey: ['app_settings', 'gateway_mode'],
+    queryFn: async () => {
+      const { data } = await supabase.from('app_settings').select('value').eq('key', 'gateway_mode').maybeSingle();
+      return (data?.value as GatewayMode) ?? 'auto';
+    },
+  });
+
+  const handleGatewayModeChange = async (newMode: GatewayMode) => {
+    await supabase.from('app_settings').upsert({ key: 'gateway_mode', value: newMode }, { onConflict: 'key' });
+    refetchGatewayMode();
+    toast({ title: `Gateway mode set to "${newMode}"` });
+  };
+
+  const { data: trialAmountIl = '1', refetch: refetchTrialIl } = useQuery<string>({
+    queryKey: ['app_settings', 'trial_amount_il'],
+    queryFn: async () => {
+      const { data } = await supabase.from('app_settings').select('value').eq('key', 'trial_amount_il').maybeSingle();
+      return data?.value ?? '1';
+    },
+  });
+  const { data: trialAmountGlobal = '2', refetch: refetchTrialGlobal } = useQuery<string>({
+    queryKey: ['app_settings', 'trial_amount_global'],
+    queryFn: async () => {
+      const { data } = await supabase.from('app_settings').select('value').eq('key', 'trial_amount_global').maybeSingle();
+      return data?.value ?? '2';
+    },
+  });
+
+  const handleSaveTrialAmounts = async (il: string, global: string) => {
+    await Promise.all([
+      supabase.from('app_settings').upsert({ key: 'trial_amount_il', value: il }, { onConflict: 'key' }),
+      supabase.from('app_settings').upsert({ key: 'trial_amount_global', value: global }, { onConflict: 'key' }),
+    ]);
+    refetchTrialIl();
+    refetchTrialGlobal();
+    toast({ title: '✅ Trial amounts saved' });
+  };
+
   useEffect(() => {
     if (!loading && !roleLoading && !isAdmin) {
       navigate('/');
     }
   }, [isAdmin, loading, roleLoading, navigate]);
+
+  // Sync trial amount inputs when query data loads
+  useEffect(() => { setTrialAmountIlInput(trialAmountIl); }, [trialAmountIl]);
+  useEffect(() => { setTrialAmountGlobalInput(trialAmountGlobal); }, [trialAmountGlobal]);
 
   // Clear any leftover impersonation state when entering Super Admin
   useEffect(() => {
@@ -569,6 +615,77 @@ const SuperAdmin = () => {
             <label className="text-sm font-medium mb-1.5 block">{t('superAdmin.settings.upsellButton')}</label>
             <Input value={upsellButtonText} onChange={(e) => setUpsellButtonText(e.target.value)} dir={dir} placeholder={t('superAdmin.settings.upsellButtonPlaceholder')} />
           </div>
+        </div>
+      </div>
+
+      {/* Gateway Mode Settings */}
+      <div className="rounded-xl p-6" style={{ background: 'linear-gradient(145deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(212,175,55,0.35)', boxShadow: '0 8px 32px rgba(212,175,55,0.12)' }}>
+        <div className="flex items-center gap-2 mb-5" dir={dir}>
+          <span className="text-xl">💳</span>
+          <h2 className="font-serif font-semibold text-lg">Payment Gateway</h2>
+        </div>
+        <div className="space-y-3" dir={dir}>
+          <div>
+            <p className="text-sm font-medium mb-1">Gateway Display Mode</p>
+            <p className="text-xs text-muted-foreground mb-3">
+              Controls which payment gateway users see at checkout.
+            </p>
+            <Select value={gatewayMode} onValueChange={(v) => handleGatewayModeChange(v as GatewayMode)}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">Auto (timezone-based: Israel → Tranzilla, others → LemonSqueezy)</SelectItem>
+                <SelectItem value="tranzilla_only">Tranzilla only — all users</SelectItem>
+                <SelectItem value="lemonsqueezy_only">LemonSqueezy only — all users</SelectItem>
+                <SelectItem value="both">Both — user chooses at checkout</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Trial Amount Settings */}
+      <div className="rounded-xl p-6" style={{ background: 'linear-gradient(145deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06))', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(212,175,55,0.35)', boxShadow: '0 8px 32px rgba(212,175,55,0.12)' }}>
+        <div className="flex items-center gap-2 mb-5" dir={dir}>
+          <span className="text-xl">🎯</span>
+          <h2 className="font-serif font-semibold text-lg">Trial Payment Amount</h2>
+        </div>
+        <div className="space-y-4" dir={dir}>
+          <p className="text-xs text-muted-foreground">
+            Amount charged when a new artist starts the 30-day trial. Detected automatically by user timezone.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-medium">Israel (₪)</Label>
+              <Input
+                type="number"
+                min="1"
+                value={trialAmountIlInput}
+                onChange={(e) => setTrialAmountIlInput(e.target.value)}
+                className="mt-1"
+                placeholder="1"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Global (₪)</Label>
+              <Input
+                type="number"
+                min="1"
+                value={trialAmountGlobalInput}
+                onChange={(e) => setTrialAmountGlobalInput(e.target.value)}
+                className="mt-1"
+                placeholder="2"
+              />
+            </div>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => handleSaveTrialAmounts(trialAmountIlInput, trialAmountGlobalInput)}
+            className="bg-accent text-accent-foreground hover:bg-accent/90"
+          >
+            Save Trial Amounts
+          </Button>
         </div>
       </div>
 

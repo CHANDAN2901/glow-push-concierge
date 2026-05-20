@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useGatewaySettings } from '@/hooks/useGatewaySettings';
+import { useQuery } from '@tanstack/react-query';
 
 const FEATURES = [
   { en: 'Client & calendar management', he: 'ניהול לקוחות ויומן' },
@@ -27,17 +29,36 @@ export default function TrialPaymentGate() {
   const { user } = useAuth();
   const isHe = lang === 'he';
 
+  const { resolvedGateway, isIsrael } = useGatewaySettings();
   const [selectedGateway, setSelectedGateway] = useState<'tranzilla' | 'lemonsqueezy'>('tranzilla');
   const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showGatewayModal, setShowGatewayModal] = useState(false);
+
+  const { data: trialAmountIl = 1 } = useQuery<number>({
+    queryKey: ['app_settings', 'trial_amount_il'],
+    queryFn: async () => {
+      const { data } = await supabase.from('app_settings').select('value').eq('key', 'trial_amount_il').maybeSingle();
+      return Number(data?.value ?? 1);
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: trialAmountGlobal = 2 } = useQuery<number>({
+    queryKey: ['app_settings', 'trial_amount_global'],
+    queryFn: async () => {
+      const { data } = await supabase.from('app_settings').select('value').eq('key', 'trial_amount_global').maybeSingle();
+      return Number(data?.value ?? 2);
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+  const trialAmount = isIsrael ? trialAmountIl : trialAmountGlobal;
 
   const handleTranzilla = async () => {
     setShowGatewayModal(false);
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
-        body: { planSlug: 'glow-trial', amountIls: 2, lang: isHe ? 'il' : 'en', autoPayEnabled: false },
+        body: { planSlug: 'glow-trial', amountIls: trialAmount, lang: isIsrael ? 'il' : 'en', autoPayEnabled: false, isIsrael },
       });
       if (error || !data?.iframeUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
@@ -229,7 +250,7 @@ export default function TrialPaymentGate() {
             {isHe ? 'נסי את Glow Push — 30 יום' : 'Try Glow Push — 30 Days'}
           </h1>
           <p className="text-3xl font-black" style={{ background: 'linear-gradient(135deg, #B8860B, #D4AF37)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            {isHe ? 'רק ₪2' : 'Only ₪2'}
+            {isHe ? `רק ₪${trialAmount}` : `Only ₪${trialAmount}`}
           </p>
           <p className="text-sm text-gray-500">
             {isHe ? 'גישה מלאה לכל הפיצ׳רים. ללא חיוב אוטומטי.' : 'Full access to every feature. No auto-charge.'}
@@ -251,7 +272,11 @@ export default function TrialPaymentGate() {
 
         {/* CTA */}
         <button
-          onClick={() => setShowGatewayModal(true)}
+          onClick={() => {
+            if (resolvedGateway === 'both') setShowGatewayModal(true);
+            else if (resolvedGateway === 'tranzilla') handleTranzilla();
+            else handleLemonSqueezy();
+          }}
           disabled={isLoading}
           className="w-full py-4 rounded-2xl font-extrabold text-base shadow-lg transition-all active:scale-[0.98] disabled:opacity-60"
           style={{ background: 'linear-gradient(135deg, #8B6508 0%, #D4AF37 50%, #8B6508 100%)', color: '#fff', fontSize: '1rem' }}

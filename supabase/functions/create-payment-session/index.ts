@@ -41,7 +41,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { planSlug, amountIls, lang, autoPayEnabled = true } = await req.json();
+    const { planSlug, amountIls, lang, autoPayEnabled = true, isIsrael = false } = await req.json();
 
     if (!planSlug || !amountIls) {
       return new Response(JSON.stringify({ error: "planSlug and amountIls are required" }), {
@@ -50,8 +50,22 @@ serve(async (req: Request) => {
       });
     }
 
-    // Enforce ₪2 for the trial plan regardless of what the frontend sends
-    const effectiveAmount = planSlug === "glow-trial" ? 2 : amountIls;
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    // For trial plan, read amount from app_settings so super admin can control it
+    let effectiveAmount = amountIls;
+    if (planSlug === "glow-trial") {
+      const settingKey = isIsrael ? "trial_amount_il" : "trial_amount_global";
+      const { data: setting } = await supabaseAdmin
+        .from("app_settings")
+        .select("value")
+        .eq("key", settingKey)
+        .maybeSingle();
+      effectiveAmount = Number(setting?.value ?? (isIsrael ? 1 : 2));
+    }
 
     console.log(`[create-payment-session] TERMINAL_NAME="${TERMINAL_NAME}" TERMINAL_PW_set=${!!TERMINAL_PW}`);
 
