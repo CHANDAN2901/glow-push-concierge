@@ -91,7 +91,11 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
     
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const text = ev.target?.result as string;
+      // Strip UTF-8 BOM (﻿) — Excel and Google Sheets often prepend it to CSV exports.
+      // Without this, the first header cell becomes "﻿שם" which breaks all regex matches.
+      const raw = ev.target?.result as string;
+      const text = raw.replace(/^﻿/, '');
+
       const { headers: h, rows: r } = parseCSV(text);
       if (h.length === 0 || r.length === 0) {
         toast({ title: lang === 'en' ? 'Empty or invalid CSV file' : 'קובץ CSV ריק או לא תקין', variant: 'destructive' });
@@ -99,7 +103,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
       }
       setHeaders(h);
       setRows(r);
-      
+
       // Auto-map by header name similarity
       const autoMap: Record<string, string> = {};
       const namePatterns = [/name|שם/i];
@@ -107,7 +111,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
       const emailPatterns = [/email|אימייל|מייל/i];
       const treatmentDatePatterns = [/treatment|טיפול|date|תאריך/i];
       const birthPatterns = [/birth|לידה|יום הולדת/i];
-      
+
       h.forEach(header => {
         if (namePatterns.some(p => p.test(header))) autoMap['name'] = header;
         else if (phonePatterns.some(p => p.test(header))) autoMap['phone'] = header;
@@ -115,7 +119,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
         else if (birthPatterns.some(p => p.test(header))) autoMap['birth_date'] = header;
         else if (treatmentDatePatterns.some(p => p.test(header)) && !autoMap['treatment_date']) autoMap['treatment_date'] = header;
       });
-      
+
       setMapping(autoMap);
       setStep('mapping');
     };
@@ -227,6 +231,14 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
               <FileText className="w-4 h-4" />
               {he ? `נמצאו ${rows.length} שורות` : `Found ${rows.length} rows`}
             </div>
+
+            {/* Warn when the name column wasn't auto-detected so the user knows to fix it */}
+            {!mapping['name'] && (
+              <div className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm" style={{ background: 'hsl(0 80% 96%)', border: '1px solid hsl(0 65% 80%)', color: 'hsl(0 55% 40%)' }}>
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <p>{he ? 'עמודת השם לא זוהתה אוטומטית — אנא בחרי אותה ידנית (שדה חובה).' : 'Name column was not detected automatically — please select it manually (required).'}</p>
+              </div>
+            )}
 
             <div className="space-y-3">
               {MAPPABLE_FIELDS.map(field => (

@@ -30,7 +30,10 @@ const Auth = () => {
   // Redirect already-logged-in users away from auth page (admins → /super-admin, artists → /artist)
   useEffect(() => {
     if (!authLoading && !roleLoading && user) {
-      const requested = (location.state as any)?.from?.pathname;
+      const fromState = (location.state as any)?.from;
+      const requested = fromState
+        ? (fromState.pathname || '') + (fromState.search || '')
+        : undefined;
       const destination = sanitizeRoleDestination(requested, isAdmin);
       navigate(destination, { replace: true });
     }
@@ -225,7 +228,11 @@ const Auth = () => {
         });
 
         sessionStorage.removeItem('artistActiveTab');
-        const requested = (location.state as any)?.from?.pathname;
+        // Preserve full path including search params (e.g. /payment-success?plan=professional)
+        const fromState = (location.state as any)?.from;
+        const requested = fromState
+          ? (fromState.pathname || '') + (fromState.search || '')
+          : undefined;
         let signedInIsAdmin = resolveIsAdmin(signInData.user ?? null, false);
 
         if (signInData.user?.id) {

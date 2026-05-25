@@ -19,10 +19,20 @@ function getDeviceType(): 'ios' | 'android' | 'other' {
   return 'other';
 }
 
+/**
+ * WhatsApp, Instagram, Facebook, and other in-app browsers on iOS/Android
+ * do NOT support PWA installation. The user must open the link in Safari (iOS)
+ * or Chrome (Android) first. Detect these browsers so we can show the right step.
+ */
+function isInAppBrowser(): boolean {
+  const ua = navigator.userAgent;
+  return /FBAN|FBAV|Instagram|WhatsApp|Line|Snapchat|Twitter|TikTok|MicroMessenger/i.test(ua);
+}
+
 const PWA_DISMISSED_KEY = 'glow-pwa-dismissed';
 const NOTIF_PROMPTED_KEY = 'glow-notif-prompted';
 
-type Step = 'install' | 'notifications' | 'done';
+type Step = 'open-browser' | 'install' | 'notifications' | 'done';
 
 interface InstallBannerProps {
   onEnableNotifications?: () => Promise<void>;
@@ -62,6 +72,12 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnable
 
     if (dismissed) return;
     if (device === 'other') return;
+
+    // If the user opened the link inside WhatsApp / Instagram / Facebook in-app browser,
+    // PWA installation is not available in that browser. Show an "open in Safari/Chrome" prompt first.
+    if (isInAppBrowser()) {
+      setStep('open-browser');
+    }
 
     setTimeout(() => setVisible(true), 2500);
   }, [device]);
@@ -171,6 +187,36 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnable
           </button>
           <button onClick={dismiss} className="w-full mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
             {isHe ? 'אולי אחר כך' : 'Maybe later'}
+          </button>
+        </>
+      );
+    }
+
+    // Open-in-browser step — shown when user is inside WhatsApp / Instagram / Facebook in-app browser
+    if (step === 'open-browser') {
+      return (
+        <>
+          <div className="flex items-start gap-3">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: `${goldColor}15` }}>
+              <Smartphone className="w-6 h-6" style={{ color: goldColor }} />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-serif font-bold text-base mb-1">
+                {isHe ? 'פתחי בדפדפן לקבלת חוויה מלאה 🌟' : 'Open in your browser for the full experience 🌟'}
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {device === 'ios'
+                  ? (isHe
+                    ? 'כדי להתקין את האפליקציה ולקבל התראות, עליך לפתוח את הקישור ב-Safari. לחצי על ⋮ (שלוש נקודות) או על כפתור הדפדפן ← ״פתח ב-Safari״'
+                    : 'To install the app and receive notifications, open this link in Safari. Tap ⋮ or the browser icon → "Open in Safari"')
+                  : (isHe
+                    ? 'כדי להתקין את האפליקציה ולקבל התראות, עליך לפתוח את הקישור ב-Chrome. לחצי על ⋮ ← ״פתח ב-Chrome״'
+                    : 'To install the app and receive notifications, open this link in Chrome. Tap ⋮ → "Open in Chrome"')}
+              </p>
+            </div>
+          </div>
+          <button onClick={dismiss} className="w-full mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            {isHe ? 'אולי מאוחר יותר' : 'Maybe later'}
           </button>
         </>
       );

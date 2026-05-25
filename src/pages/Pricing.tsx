@@ -9,7 +9,6 @@ import { usePricingPlans, useVipTakenCount } from '@/hooks/usePricingPlans';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BackButton from '@/components/BackButton';
-import { FEATURES } from '@/lib/subscriptionConfig';
 import { useGatewaySettings } from '@/hooks/useGatewaySettings';
 
 const ROSE_GOLD = '#d4af37';
@@ -110,18 +109,14 @@ const Pricing = () => {
   const { user, signOut } = useAuth();
 
   // Fully DB-driven plan cards — exclude the glow-trial plan (it's only shown in TrialPaymentGate)
+  // All prices and features come exclusively from the DB (pricing_plans table).
+  // No slug-based exceptions and no static config fallbacks — super admin controls everything.
   const plans = useMemo(() => {
     return dbPlans.filter(db => db.slug !== 'glow-trial').map((db) => {
-      const resolvedFeatures = (db.feature_keys || []).map(key => {
-        const feat = FEATURES.find(f => f.id === key);
-        return feat ? { name: feat.name, desc: feat.desc } : null;
-      }).filter(Boolean) as { name: { en: string; he: string }; desc: { en: string; he: string } }[];
-
       return {
         slug: db.slug,
         name: { en: db.name_en, he: db.name_he },
-        // Pro plan: price_monthly = ₪1 (trial entry), original_price_monthly = ₪139 (real monthly rate)
-        price: { ils: db.slug === 'pro' ? db.original_price_monthly : db.price_monthly, usd: db.slug === 'pro' ? db.original_price_usd : db.price_usd },
+        price: { ils: db.price_monthly, usd: db.price_usd },
         originalPrice: { ils: db.original_price_monthly, usd: db.original_price_usd },
         isHighlighted: db.is_highlighted,
         billingPeriod: db.billing_period || 'monthly',
@@ -130,8 +125,9 @@ const Pricing = () => {
         stripe_price_id: db.stripe_price_id,
         total_promo_spots: db.total_promo_spots,
         cta: { en: db.cta_en, he: db.cta_he },
-        displayFeatures: db.features_en.length > 0 ? { en: db.features_en, he: db.features_he } : null,
-        configFeatures: resolvedFeatures,
+        // Features are ONLY from the DB features_en / features_he columns.
+        // If the super admin hasn't populated them yet, the card shows no bullet list.
+        features: { en: db.features_en || [], he: db.features_he || [] },
       };
     });
   }, [dbPlans]);
@@ -647,9 +643,7 @@ const Pricing = () => {
       <div className="mx-auto px-4 pb-20 flex flex-col items-center max-w-lg">
         {plans.map((plan, idx) => {
           const Icon = iconMap[plan.slug] || Sparkles;
-          const features = plan.displayFeatures
-            ? (isHe ? plan.displayFeatures.he : plan.displayFeatures.en)
-            : plan.configFeatures.map(f => isHe ? f.desc.he : f.desc.en);
+          const features = isHe ? plan.features.he : plan.features.en;
           const name = isHe ? plan.name.he : plan.name.en;
           const cta = isHe ? plan.cta.he : plan.cta.en;
           const badge = plan.badge ? (isHe ? plan.badge.he : plan.badge.en) : null;
