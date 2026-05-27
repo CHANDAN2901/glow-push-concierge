@@ -188,7 +188,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="w-[95vw] max-w-lg sm:w-full rounded-2xl p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="font-serif">
             {he ? 'ייבוא לקוחות מקובץ CSV' : 'Import Clients from CSV'}
@@ -226,7 +226,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
 
         {/* Step: Mapping */}
         {step === 'mapping' && (
-          <div className="space-y-4 py-2" dir={he ? 'rtl' : 'ltr'}>
+          <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-1" dir={he ? 'rtl' : 'ltr'}>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <FileText className="w-4 h-4" />
               {he ? `נמצאו ${rows.length} שורות` : `Found ${rows.length} rows`}
@@ -242,8 +242,8 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
 
             <div className="space-y-3">
               {MAPPABLE_FIELDS.map(field => (
-                <div key={field.key} className="flex items-center gap-3">
-                  <span className="text-sm font-medium w-32 shrink-0">
+                <div key={field.key} className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                  <span className="text-sm font-medium sm:w-36 shrink-0">
                     {he ? field.label : field.labelEn}
                     {field.key === 'name' && <span className="text-destructive"> *</span>}
                   </span>
@@ -251,7 +251,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
                     value={mapping[field.key] || '_none'}
                     onValueChange={(v) => setMapping(prev => ({ ...prev, [field.key]: v === '_none' ? '' : v }))}
                   >
-                    <SelectTrigger className="flex-1">
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder={he ? 'בחרי עמודה' : 'Select column'} />
                     </SelectTrigger>
                     <SelectContent>
@@ -265,24 +265,45 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
               ))}
             </div>
 
-            {/* Preview */}
+            {/* Preview — all columns, horizontally scrollable */}
             {rows.length > 0 && (
-              <div className="bg-muted/50 rounded-xl p-3 text-xs overflow-x-auto">
-                <p className="font-semibold mb-1">{he ? 'תצוגה מקדימה (3 שורות ראשונות):' : 'Preview (first 3 rows):'}</p>
-                <table className="w-full">
-                  <thead>
-                    <tr>{headers.map(h => <th key={h} className="px-2 py-1 text-start font-medium">{h}</th>)}</tr>
-                  </thead>
-                  <tbody>
-                    {rows.slice(0, 3).map((row, i) => (
-                      <tr key={i}>{row.map((cell, j) => <td key={j} className="px-2 py-0.5 text-muted-foreground">{cell}</td>)}</tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="bg-muted/50 rounded-xl p-3 text-xs">
+                <p className="font-semibold mb-2 text-muted-foreground">
+                  {he ? 'תצוגה מקדימה (3 שורות ראשונות):' : 'Preview (first 3 rows):'}
+                </p>
+                <div className="overflow-x-auto rounded-lg border border-border/30">
+                  <table className="border-collapse text-xs" style={{ minWidth: `${headers.length * 110}px` }}>
+                    <thead>
+                      <tr className="bg-muted border-b border-border/40">
+                        {headers.map(h => (
+                          <th key={h} className="px-3 py-1.5 text-start font-semibold whitespace-nowrap text-foreground/80">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.slice(0, 3).map((row, i) => (
+                        <tr key={i} className="border-b border-border/20 last:border-0 hover:bg-muted/60">
+                          {headers.map((_, j) => (
+                            <td key={j} className="px-3 py-1.5 text-muted-foreground whitespace-nowrap max-w-[140px] truncate">
+                              {row[j] || '—'}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1.5 flex items-center gap-1">
+                  <span>←</span>
+                  {he ? 'גלול לצדדים לצפייה בכל העמודות' : 'Scroll sideways to see all columns'}
+                  <span>→</span>
+                </p>
               </div>
             )}
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
               <Button variant="outline" onClick={reset} className="flex-1">
                 {he ? 'חזרה' : 'Back'}
               </Button>
