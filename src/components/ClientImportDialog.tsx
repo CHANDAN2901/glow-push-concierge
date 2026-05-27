@@ -167,14 +167,28 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
         .filter(Boolean) as any[];
 
       if (records.length > 0) {
-        // ignoreDuplicates: true — DB unique index (artist_id, phone) silently skips dupes
         const { data, error } = await supabase
           .from('clients')
           .upsert(records, { onConflict: 'artist_id,phone', ignoreDuplicates: true })
           .select('id');
+
         if (error) {
-          console.error('Batch import error:', error);
-          errors += records.length;
+          // 42P10 = no matching unique constraint yet (migration not run)
+          // Fall back to plain insert so the import still works
+          if (error.code === '42P10') {
+            const { data: insertData, error: insertError } = await supabase
+              .from('clients')
+              .insert(records)
+              .select('id');
+            if (insertError) {
+              errors += records.length;
+            } else {
+              imported += insertData?.length || 0;
+            }
+          } else {
+            console.error('Batch import error:', error);
+            errors += records.length;
+          }
         } else {
           const insertedCount = data?.length || 0;
           imported += insertedCount;
@@ -342,26 +356,51 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
 
         {/* Step: Done */}
         {step === 'done' && (
-          <div className="py-8 space-y-4 text-center">
-            <CheckCircle className="w-12 h-12 mx-auto text-green-500" />
+          <div className="py-6 space-y-4 text-center">
+            {importedCount > 0
+              ? <CheckCircle className="w-12 h-12 mx-auto text-green-500" />
+              : <AlertTriangle className="w-12 h-12 mx-auto" style={{ color: '#b45309' }} />
+            }
             <p className="text-lg font-bold">
-              {he ? `יובאו ${importedCount} לקוחות בהצלחה! 🎉` : `Successfully imported ${importedCount} clients! 🎉`}
+              {importedCount > 0
+                ? (he ? `יובאו ${importedCount} לקוחות בהצלחה! 🎉` : `${importedCount} clients imported! 🎉`)
+                : (he ? 'לא נוספו לקוחות חדשים' : 'No new clients were added')}
             </p>
-            {skippedCount > 0 && (
-              <p className="text-sm flex items-center justify-center gap-1" style={{ color: '#b45309' }}>
-                <AlertTriangle className="w-4 h-4" />
-                {he ? `${skippedCount} לקוחות כבר קיימים — דולגו` : `${skippedCount} duplicates skipped (already exist)`}
+
+            {/* Summary pills */}
+            <div className="flex flex-col gap-2 items-center text-sm">
+              {importedCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium"
+                  style={{ background: '#dcfce7', color: '#15803d' }}>
+                  <CheckCircle className="w-4 h-4" />
+                  {he ? `${importedCount} לקוחות נוספו` : `${importedCount} new clients added`}
+                </span>
+              )}
+              {skippedCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium"
+                  style={{ background: '#fef9c3', color: '#92400e' }}>
+                  <AlertTriangle className="w-4 h-4" />
+                  {he
+                    ? `${skippedCount} לקוחות כבר קיימות — לא נוספו שוב`
+                    : `${skippedCount} already in your list — skipped`}
+                </span>
+              )}
+              {errorCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium"
+                  style={{ background: '#fee2e2', color: '#b91c1c' }}>
+                  <AlertTriangle className="w-4 h-4" />
+                  {he
+                    ? `${errorCount} שורות לא נטענו — בדקי את הפורמט`
+                    : `${errorCount} rows couldn't be saved — check the data format`}
+                </span>
+              )}
+            </div>
+
+            {importedCount > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {he ? 'לכל לקוחה נוצר מזהה ייחודי וקישור אישי למסע ההחלמה.' : 'Each client received a unique ID and personal healing journey link.'}
               </p>
             )}
-            {errorCount > 0 && (
-              <p className="text-sm text-destructive flex items-center justify-center gap-1">
-                <AlertTriangle className="w-4 h-4" />
-                {he ? `${errorCount} שורות נכשלו` : `${errorCount} rows failed`}
-              </p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              {he ? 'לכל לקוחה נוצר מזהה ייחודי וקישור אישי למסע ההחלמה.' : 'Each client received a unique ID and personal recovery journey URL.'}
-            </p>
             <Button
               onClick={() => { reset(); onOpenChange(false); onImportComplete(); }}
               className="bg-accent text-accent-foreground hover:bg-accent/90"

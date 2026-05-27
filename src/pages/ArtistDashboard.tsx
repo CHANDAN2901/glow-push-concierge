@@ -753,26 +753,47 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     setBulkDeleting(true);
     setConfirmBulkDelete(false);
     const ids = Array.from(selectedClientIds);
+
+    // PostgREST sends IDs as a query string — large arrays exceed URL length limits.
+    // Batch into chunks of 100 to stay safely under the limit.
+    const BATCH = 100;
+    const idChunks: string[][] = [];
+    for (let i = 0; i < ids.length; i += BATCH) idChunks.push(ids.slice(i, i + BATCH));
+
     try {
-      // Single API call to delete all matching appointments
-      if (userProfileId) {
-        const namesToDelete = clients.filter(c => c.dbId && ids.includes(c.dbId)).map(c => c.name);
-        if (namesToDelete.length > 0) {
+      const namesToDelete = clients
+        .filter(c => c.dbId && ids.includes(c.dbId))
+        .map(c => c.name);
+
+      // Delete appointments in batches
+      if (userProfileId && namesToDelete.length > 0) {
+        const nameChunks: string[][] = [];
+        for (let i = 0; i < namesToDelete.length; i += BATCH) nameChunks.push(namesToDelete.slice(i, i + BATCH));
+        for (const chunk of nameChunks) {
           await (supabase as any).from('appointments').delete()
             .eq('artist_id', userProfileId)
-            .in('client_name', namesToDelete);
+            .in('client_name', chunk);
         }
       }
-      // Single API call to delete all selected clients
-      const { error } = await supabase.from('clients').delete().in('id', ids);
-      if (error) throw error;
+
+      // Delete clients in batches
+      for (const chunk of idChunks) {
+        const { error } = await supabase.from('clients').delete().in('id', chunk);
+        if (error) throw error;
+      }
+
       setClients(prev => prev.filter(c => !c.dbId || !ids.includes(c.dbId)));
       setSelectedClientIds(new Set());
       setBulkSelectMode(false);
       toast({ title: lang === 'en' ? `${ids.length} clients deleted` : `${ids.length} לקוחות נמחקו בהצלחה` });
-    } catch (err) {
+      fetchClients(); // Refresh from DB to ensure clean state
+    } catch (err: any) {
       console.error('Bulk delete failed:', err);
-      toast({ title: lang === 'en' ? 'Bulk delete failed' : 'המחיקה נכשלה', variant: 'destructive' });
+      toast({
+        title: lang === 'en' ? 'Delete failed' : 'המחיקה נכשלה',
+        description: lang === 'en' ? 'Some clients could not be deleted. Please try again.' : 'חלק מהלקוחות לא נמחקו. אנא נסי שוב.',
+        variant: 'destructive',
+      });
     } finally {
       setBulkDeleting(false);
     }
