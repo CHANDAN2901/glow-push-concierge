@@ -74,6 +74,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
   const [progress, setProgress] = useState(0);
   const [importedCount, setImportedCount] = useState(0);
   const [errorCount, setErrorCount] = useState(0);
+  const [skippedCount, setSkippedCount] = useState(0);
 
   const reset = useCallback(() => {
     setStep('upload');
@@ -83,6 +84,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
     setProgress(0);
     setImportedCount(0);
     setErrorCount(0);
+    setSkippedCount(0);
   }, []);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,7 +134,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
     if (!canImport) return;
     setStep('importing');
     setProgress(0);
-    
+
     const nameIdx = headers.indexOf(mapping['name']);
     const phoneIdx = mapping['phone'] ? headers.indexOf(mapping['phone']) : -1;
     const emailIdx = mapping['email'] ? headers.indexOf(mapping['email']) : -1;
@@ -141,19 +143,22 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
 
     let imported = 0;
     let errors = 0;
+    let skipped = 0;
     const batchSize = 50;
-    const baseUrl = window.location.origin;
 
     for (let i = 0; i < rows.length; i += batchSize) {
       const batch = rows.slice(i, i + batchSize);
-      const inserts = batch
+      const records = batch
         .map(row => {
           const name = row[nameIdx]?.trim();
           if (!name) return null;
+          // Normalise phone to digits-only so the unique index matches consistently
+          const rawPhone = phoneIdx >= 0 ? (row[phoneIdx]?.trim() || null) : null;
+          const phone = rawPhone ? rawPhone.replace(/\D/g, '') || null : null;
           return {
             artist_id: artistProfileId,
             full_name: name,
-            phone: phoneIdx >= 0 ? (row[phoneIdx]?.trim() || null) : null,
+            phone,
             email: emailIdx >= 0 ? (row[emailIdx]?.trim() || null) : null,
             treatment_date: treatmentIdx >= 0 ? tryParseDate(row[treatmentIdx]) : null,
             birth_date: birthIdx >= 0 ? tryParseDate(row[birthIdx]) : null,
@@ -161,13 +166,19 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
         })
         .filter(Boolean) as any[];
 
-      if (inserts.length > 0) {
-        const { data, error } = await supabase.from('clients').insert(inserts).select('id, full_name');
+      if (records.length > 0) {
+        // ignoreDuplicates: true — DB unique index (artist_id, phone) silently skips dupes
+        const { data, error } = await supabase
+          .from('clients')
+          .upsert(records, { onConflict: 'artist_id,phone', ignoreDuplicates: true })
+          .select('id');
         if (error) {
           console.error('Batch import error:', error);
-          errors += inserts.length;
+          errors += records.length;
         } else {
-          imported += data?.length || 0;
+          const insertedCount = data?.length || 0;
+          imported += insertedCount;
+          skipped += records.length - insertedCount;
         }
       }
 
@@ -176,6 +187,7 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
 
     setImportedCount(imported);
     setErrorCount(errors);
+    setSkippedCount(skipped);
     setStep('done');
   };
 
@@ -335,6 +347,12 @@ export default function ClientImportDialog({ open, onOpenChange, artistProfileId
             <p className="text-lg font-bold">
               {he ? `יובאו ${importedCount} לקוחות בהצלחה! 🎉` : `Successfully imported ${importedCount} clients! 🎉`}
             </p>
+            {skippedCount > 0 && (
+              <p className="text-sm flex items-center justify-center gap-1" style={{ color: '#b45309' }}>
+                <AlertTriangle className="w-4 h-4" />
+                {he ? `${skippedCount} לקוחות כבר קיימים — דולגו` : `${skippedCount} duplicates skipped (already exist)`}
+              </p>
+            )}
             {errorCount > 0 && (
               <p className="text-sm text-destructive flex items-center justify-center gap-1">
                 <AlertTriangle className="w-4 h-4" />

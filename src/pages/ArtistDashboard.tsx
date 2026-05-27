@@ -748,6 +748,36 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedClientIds.size === 0) return;
+    setBulkDeleting(true);
+    setConfirmBulkDelete(false);
+    const ids = Array.from(selectedClientIds);
+    try {
+      // Single API call to delete all matching appointments
+      if (userProfileId) {
+        const namesToDelete = clients.filter(c => c.dbId && ids.includes(c.dbId)).map(c => c.name);
+        if (namesToDelete.length > 0) {
+          await (supabase as any).from('appointments').delete()
+            .eq('artist_id', userProfileId)
+            .in('client_name', namesToDelete);
+        }
+      }
+      // Single API call to delete all selected clients
+      const { error } = await supabase.from('clients').delete().in('id', ids);
+      if (error) throw error;
+      setClients(prev => prev.filter(c => !c.dbId || !ids.includes(c.dbId)));
+      setSelectedClientIds(new Set());
+      setBulkSelectMode(false);
+      toast({ title: lang === 'en' ? `${ids.length} clients deleted` : `${ids.length} לקוחות נמחקו בהצלחה` });
+    } catch (err) {
+      console.error('Bulk delete failed:', err);
+      toast({ title: lang === 'en' ? 'Bulk delete failed' : 'המחיקה נכשלה', variant: 'destructive' });
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   // Build dynamic appointment reminder WhatsApp URL
   const buildReminderWhatsAppUrl = (clientName: string, clientPhone: string): string => {
     const appt = appointmentLookup[clientName];
@@ -830,6 +860,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showInvoiceComingSoon, setShowInvoiceComingSoon] = useState(false);
   const [deletingClient, setDeletingClient] = useState<ClientEntry | null>(null);
   const [deleteAlsoAppointments, setDeleteAlsoAppointments] = useState(false);
+  const [bulkSelectMode, setBulkSelectMode] = useState(false);
+  const [selectedClientIds, setSelectedClientIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [removeClientFromCalendar, setRemoveClientFromCalendar] = useState<string | null>(null);
   const [clientListFilter, setClientListFilter] = useState<'all' | 'birthdays' | 'renewal'>('all');
   const [clientSearchQuery, setClientSearchQuery] = useState('');
@@ -2503,17 +2537,63 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     <Plus className="w-4 h-4" strokeWidth={3} />
                     {t('artist.dashboard.addNewClient')}
                   </button>
-                  <button
-                    onClick={() => setImportOpen(true)}
-                    className="w-full rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                    style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(212, 175, 55, 0.4)', color: '#4a3520' }}
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    {t('artist.dashboard.importClients')}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setImportOpen(true)}
+                      className="flex-1 rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                      style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(212, 175, 55, 0.4)', color: '#4a3520' }}
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      {lang === 'en' ? 'Import' : 'ייבוא'}
+                    </button>
+                    <button
+                      onClick={() => { setBulkSelectMode(v => !v); setSelectedClientIds(new Set()); }}
+                      className="flex-1 rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                      style={bulkSelectMode
+                        ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.35)', color: '#dc2626' }
+                        : { background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(212, 175, 55, 0.4)', color: '#4a3520' }}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      {bulkSelectMode ? (lang === 'en' ? 'Cancel' : 'ביטול') : (lang === 'en' ? 'Bulk Delete' : 'מחיקה מרובה')}
+                    </button>
+                  </div>
                 </div>
 
             <div className="p-1">
+              {/* Bulk selection toolbar */}
+              {bulkSelectMode && (
+                <div className="mb-3 rounded-2xl px-4 py-3 flex items-center justify-between gap-3 transition-all"
+                  style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)' }}>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        const allIds = new Set(clients.filter(c => c.dbId).map(c => c.dbId!));
+                        if (selectedClientIds.size === allIds.size) setSelectedClientIds(new Set());
+                        else setSelectedClientIds(allIds);
+                      }}
+                      className="text-xs font-semibold underline underline-offset-2"
+                      style={{ color: '#dc2626' }}
+                    >
+                      {selectedClientIds.size === clients.filter(c => c.dbId).length
+                        ? (lang === 'en' ? 'Deselect all' : 'בטל הכל')
+                        : (lang === 'en' ? 'Select all' : 'בחר הכל')}
+                    </button>
+                    <span className="text-xs text-muted-foreground">
+                      {lang === 'en' ? `${selectedClientIds.size} selected` : `${selectedClientIds.size} נבחרו`}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => { if (selectedClientIds.size > 0) setConfirmBulkDelete(true); }}
+                    disabled={selectedClientIds.size === 0}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 disabled:opacity-40"
+                    style={{ background: selectedClientIds.size > 0 ? '#dc2626' : 'rgba(239,68,68,0.2)', color: '#fff' }}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    {lang === 'en' ? `Delete ${selectedClientIds.size}` : `מחק ${selectedClientIds.size}`}
+                  </button>
+                </div>
+              )}
+
               {/* Search bar */}
               <div className="relative mb-3">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#C4A265' }} />
@@ -2616,7 +2696,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     const risk = getClientRiskLevel(client.name);
                     const flags = hasFlags ? [risk === 'red' ? t('artist.dashboard.medicalWarningShort') : t('artist.dashboard.attention')] : [];
                     return (
-                      <div key={i} className={`rounded-2xl overflow-hidden transition-all cursor-pointer ${hasFlags ? 'border-2 border-destructive/30' : ''}`}
+                      <div key={i} className={`rounded-2xl overflow-hidden transition-all cursor-pointer ${hasFlags ? 'border-2 border-destructive/30' : ''} ${bulkSelectMode && client.dbId && selectedClientIds.has(client.dbId) ? 'ring-2 ring-red-400' : ''}`}
                         style={{
                           background: 'rgba(255, 255, 255, 0.55)',
                           backdropFilter: 'blur(16px)',
@@ -2626,8 +2706,34 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                         }}
                       >
                         <div className="flex px-3 py-2.5" dir="rtl">
+                          {/* Bulk select checkbox */}
+                          {bulkSelectMode && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!client.dbId) return;
+                                setSelectedClientIds(prev => {
+                                  const next = new Set(prev);
+                                  if (next.has(client.dbId!)) next.delete(client.dbId!);
+                                  else next.add(client.dbId!);
+                                  return next;
+                                });
+                              }}
+                              className="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 mr-2 transition-all"
+                              style={client.dbId && selectedClientIds.has(client.dbId)
+                                ? { background: '#dc2626', borderColor: '#dc2626' }
+                                : { background: 'transparent', borderColor: 'rgba(239,68,68,0.4)' }}
+                            >
+                              {client.dbId && selectedClientIds.has(client.dbId) && (
+                                <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </button>
+                          )}
                           {/* Client Info */}
-                          <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedClient(client)}>
+                          <div className="flex-1 min-w-0 cursor-pointer" onClick={() => { if (bulkSelectMode) { if (!client.dbId) return; setSelectedClientIds(prev => { const next = new Set(prev); if (next.has(client.dbId!)) next.delete(client.dbId!); else next.add(client.dbId!); return next; }); } else setSelectedClient(client); }}>
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <div
@@ -3838,6 +3944,43 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             </Button>
             <Button variant="destructive" onClick={confirmDeleteClient} className="flex-1 rounded-full">
               {t('artist.dashboard.delete')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog open={confirmBulkDelete} onOpenChange={(open) => { if (!open) setConfirmBulkDelete(false); }}>
+        <DialogContent className="max-w-sm" dir={lang === 'he' ? 'rtl' : 'ltr'}>
+          <DialogHeader>
+            <DialogTitle className="font-serif text-lg text-destructive flex items-center gap-2">
+              <Trash2 className="w-5 h-5" />
+              {lang === 'en' ? 'Bulk Delete Clients' : 'מחיקת לקוחות מרובה'}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground leading-relaxed py-2">
+            {lang === 'en'
+              ? `You are about to permanently delete ${selectedClientIds.size} client${selectedClientIds.size !== 1 ? 's' : ''} and all their treatment history. This cannot be undone.`
+              : `אתה עומד למחוק לצמיתות ${selectedClientIds.size} לקוחות ואת כל היסטוריית הטיפולים שלהם. פעולה זו לא ניתנת לביטול.`}
+          </p>
+          <div className="rounded-xl px-4 py-3 text-sm font-semibold text-destructive flex items-center gap-2"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            {lang === 'en' ? `${selectedClientIds.size} clients will be deleted` : `${selectedClientIds.size} לקוחות יימחקו`}
+          </div>
+          <div className="flex gap-3 pt-2">
+            <Button variant="outline" onClick={() => setConfirmBulkDelete(false)} className="flex-1 rounded-full">
+              {lang === 'en' ? 'Cancel' : 'ביטול'}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting}
+              className="flex-1 rounded-full"
+            >
+              {bulkDeleting
+                ? (lang === 'en' ? 'Deleting...' : 'מוחק...')
+                : (lang === 'en' ? `Delete ${selectedClientIds.size}` : `מחק ${selectedClientIds.size}`)}
             </Button>
           </div>
         </DialogContent>
