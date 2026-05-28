@@ -398,13 +398,13 @@ const MarketingLanding = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {dbPlans.filter(p => p.slug !== 'glow-trial' && p.slug !== 'pro').map((plan) => {
+            {dbPlans.filter(p => p.slug !== 'glow-trial').map((plan) => {
               const name = isHe ? plan.name_he : plan.name_en;
               const features = isHe ? plan.features_he : plan.features_en;
-              const price = plan.price_monthly === 0
-                ? (isHe ? 'חינם' : 'Free')
-                : `₪${plan.price_monthly}`;
-              const priceSub = plan.price_monthly > 0 ? (isHe ? '/חודש' : '/mo') : '';
+              const price = isHe
+                ? (plan.price_monthly === 0 ? 'חינם' : `₪${plan.price_monthly}`)
+                : (plan.price_usd === 0 ? 'Free' : `$${plan.price_usd}`);
+              const priceSub = (isHe ? plan.price_monthly : plan.price_usd) > 0 ? (isHe ? '/חודש' : '/mo') : '';
               const badge = isHe ? plan.badge_he : plan.badge_en;
               const cta = isHe ? plan.cta_he : plan.cta_en;
               return (
