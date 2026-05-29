@@ -38,12 +38,28 @@ function isLikelyVapidPublicKey(key: string): boolean {
 }
 
 /**
- * Get the active service worker registration (VitePWA registers /sw.js which imports /custom-sw.js)
+ * Ensure the push-capable service worker is registered and active.
+ * All other SW files in /public are kill-switches, so we register push-sw.js explicitly.
  */
 async function getActiveSWRegistration(): Promise<ServiceWorkerRegistration> {
-  console.log('[Push] Getting active service worker registration...');
-  const reg = await navigator.serviceWorker.ready;
-  console.log('[Push] SW ready, scope:', reg.scope);
+  console.log('[Push] Registering push service worker...');
+  const reg = await navigator.serviceWorker.register('/push-sw.js', { scope: '/' });
+  console.log('[Push] SW registered, scope:', reg.scope);
+
+  // Wait for the SW to become active (handles install → activate lifecycle)
+  if (reg.installing || reg.waiting) {
+    await new Promise<void>((resolve) => {
+      const sw = reg.installing || reg.waiting;
+      if (!sw) { resolve(); return; }
+      sw.addEventListener('statechange', function onStateChange() {
+        if (sw.state === 'activated') {
+          sw.removeEventListener('statechange', onStateChange);
+          resolve();
+        }
+      });
+    });
+  }
+
   return reg;
 }
 
@@ -114,6 +130,22 @@ export async function subscribeToPush(opts: {
         success: false,
         error: `מפתח VAPID לא תקין בשרת (אורך: ${normalizedVapidKey.length}). יש לעדכן את מפתחות ההתראות ב-Lovable Cloud.`,
       };
+    }
+
+    // Verify the decoded key is exactly 65 bytes (uncompressed P-256 point).
+    // If the VAPID key was stored with standard base64 chars (+/=) instead of base64url (-_),
+    // the edge function strips them and corrupts the key to a wrong byte length.
+    try {
+      const decodedKey = urlBase64ToUint8Array(normalizedVapidKey);
+      console.log('[Push] Decoded VAPID key length (bytes):', decodedKey.length, '(should be 65)');
+      if (decodedKey.length !== 65) {
+        return {
+          success: false,
+          error: `מפתח VAPID לא תקין — נדרשים 65 בייט, התקבלו ${decodedKey.length}. יש לאפס את מפתחות VAPID בסופאבייס.`,
+        };
+      }
+    } catch (decodeErr: any) {
+      return { success: false, error: `שגיאת פענוח מפתח VAPID: ${decodeErr.message}` };
     }
 
     // 4. Reuse existing browser subscription if the VAPID key matches — avoid unnecessary churn.
