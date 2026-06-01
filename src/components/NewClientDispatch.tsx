@@ -346,7 +346,7 @@ const NewClientDispatch = ({
             </div>
           )}
 
-          {/* Save Client Only */}
+          {/* Save Client */}
           <div className="pt-2">
             <button onClick={async () => {
               if (!isValid) return;
@@ -360,55 +360,13 @@ const NewClientDispatch = ({
               });
               toast({ title: lang === 'en' ? 'Client saved successfully ✨' : 'הלקוחה נשמרה בהצלחה ✨' });
               handleClose();
-            }} disabled={!isValid}
+            }} disabled={!isValid || isSubmitting}
               className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
               style={{ border: '2px solid #D4AF37', color: isValid ? '#4a3636' : '#aaa', background: isValid ? GOLD_GRADIENT : '#f0f0f0', boxShadow: isValid ? '0 2px 8px rgba(212, 175, 55, 0.15)' : 'none' }}>
               <CheckCircle className="w-5 h-5" />
-              {lang === 'en' ? 'Save Client Only' : 'שמירת לקוחה בלבד'}
+              {lang === 'en' ? 'Save Client' : 'שמירת לקוחה'}
             </button>
           </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            {/* Primary: WhatsApp */}
-            <button onClick={handleSendWhatsApp} disabled={!isValid || isSubmitting || (isDuplicate && !duplicateAck)}
-              className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
-              style={{ background: GOLD_GRADIENT, color: GOLD_TEXT, boxShadow: '0 4px 18px rgba(212, 175, 55, 0.35)', border: 'none' }}>
-              <Share2 className="w-5 h-5" />
-              {lang === 'en' ? 'Save & Send Link' : 'שמירה ושליחת לינק'}
-            </button>
-
-            {/* Secondary: Fill Here */}
-            <button onClick={handleFillHere} disabled={!isValid || isSubmitting}
-              className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
-              style={{ border: GOLD_BORDER, color: GOLD_TEXT, background: 'transparent', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.15)' }}>
-              <Smartphone className="w-5 h-5" />
-              {lang === 'en' ? 'Save & Fill Here' : 'שמירה ומילוי במקום'}
-            </button>
-
-            {/* Tertiary: Copy Link */}
-            <button onClick={handleCopyLink} disabled={!isValid || isSubmitting || (isDuplicate && !duplicateAck)}
-              className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none"
-              style={{ border: GOLD_BORDER, color: GOLD_TEXT, background: 'transparent', boxShadow: '0 2px 8px rgba(212, 175, 55, 0.15)' }}>
-              {copied ? <CheckCircle className="w-5 h-5" style={{ color: '#22c55e' }} /> : <Copy className="w-5 h-5" />}
-              {copied ? (lang === 'en' ? 'Copied!' : 'הועתק!') : (lang === 'en' ? 'Save & Copy Link' : 'שמירה והעתקת לינק')}
-            </button>
-          </div>
-
-          {/* Status Tracker */}
-          {dispatched && (
-            <div className="flex items-center gap-3 p-3.5 rounded-2xl animate-fade-up" style={{ background: `${GOLD}12`, border: `1px solid ${GOLD}30` }}>
-              <Clock className="w-4 h-4 flex-shrink-0 animate-pulse" style={{ color: GOLD }} />
-              <div className="flex-1">
-                <p className="text-sm font-bold" style={{ color: GOLD_DARK }}>
-                  {lang === 'en' ? 'Pending...' : 'מחכה למילוי הטופס...'}
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {lang === 'en' ? `Link sent to ${name}. Waiting for form completion.` : `הלינק נשלח ל${name}. ממתינה למילוי.`}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

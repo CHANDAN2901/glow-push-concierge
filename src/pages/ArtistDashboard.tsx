@@ -2146,6 +2146,16 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     window.open(buildWhatsAppUrl(cleanPhone, msg), '_blank');
                   };
 
+                  const handleCopyDeclLink = async () => {
+                    const formLink = await buildHealthShortLink(selectedClient.dbId || '', selectedClient.name, selectedClient.phone, includePolicyShare);
+                    try {
+                      await navigator.clipboard.writeText(formLink);
+                      toast({ title: lang === 'en' ? 'Link copied ✓' : 'קישור הועתק ✓' });
+                    } catch {
+                      window.prompt('', formLink);
+                    }
+                  };
+
                   return (
                     <div className="space-y-3">
                       {/* Policy Toggle — controls ONLY this Brown button */}
@@ -2162,20 +2172,35 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                           onCheckedChange={setIncludePolicyShare}
                         />
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleSendHealthWhatsApp}
-                        className="w-[85%] mx-auto flex items-center justify-center gap-2 py-3 rounded-full text-sm font-serif font-bold tracking-wide transition-all duration-300 active:scale-[0.96]"
-                        style={{
-                          background: 'linear-gradient(135deg, #c98a8a 0%, #b06e6e 40%, #a05e5e 100%)',
-                          color: '#ffffff',
-                          boxShadow: '0 8px 32px rgba(115, 92, 0, 0.45), 0 0 20px rgba(184, 150, 11, 0.25)',
-                          border: '1px solid rgba(255, 255, 255, 0.15)',
-                        }}
-                      >
-                        <MessageCircle className="w-4 h-4" strokeWidth={2} />
-                        {t('artist.dashboard.sendHealthWhatsApp')}
-                      </button>
+                      <div className="flex gap-2 w-[85%] mx-auto">
+                        <button
+                          type="button"
+                          onClick={handleSendHealthWhatsApp}
+                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-serif font-bold tracking-wide transition-all duration-300 active:scale-[0.96]"
+                          style={{
+                            background: 'linear-gradient(135deg, #c98a8a 0%, #b06e6e 40%, #a05e5e 100%)',
+                            color: '#ffffff',
+                            boxShadow: '0 8px 32px rgba(115, 92, 0, 0.45), 0 0 20px rgba(184, 150, 11, 0.25)',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                          }}
+                        >
+                          <MessageCircle className="w-4 h-4" strokeWidth={2} />
+                          {t('artist.dashboard.sendHealthWhatsApp')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCopyDeclLink}
+                          className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-full text-sm font-bold transition-all duration-300 active:scale-[0.96]"
+                          style={{
+                            border: '1.5px solid rgba(212,175,55,0.5)',
+                            color: '#8B7355',
+                            background: 'rgba(212,175,55,0.06)',
+                          }}
+                          title={lang === 'en' ? 'Copy declaration link' : 'העתק קישור הצהרה'}
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   );
                 })()}
