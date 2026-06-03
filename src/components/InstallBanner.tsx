@@ -86,10 +86,12 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnable
 
   const dismiss = () => {
     setVisible(false);
-    if (step === 'install') {
-      localStorage.setItem(PWA_DISMISSED_KEY, '1');
-    } else {
+    if (step === 'notifications' || step === 'done') {
       localStorage.setItem(NOTIF_PROMPTED_KEY, '1');
+    } else {
+      // 'install' or 'open-browser' — both mean the user has seen the install prompt;
+      // suppress it permanently so it doesn't reappear after they add to home screen.
+      localStorage.setItem(PWA_DISMISSED_KEY, '1');
     }
   };
 
