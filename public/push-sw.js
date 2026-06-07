@@ -1,6 +1,13 @@
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 
+// Minimal fetch handler. Its mere presence is what lets browsers treat the app
+// as installable (e.g. mint a WebAPK on Android). We intentionally do NOT cache
+// any responses — requests pass straight through to the network — so users always
+// get the latest version. (Aggressive Workbox precaching was the reason the old
+// service worker was removed; we must not reintroduce stale-content bugs.)
+self.addEventListener('fetch', () => {});
+
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch {}

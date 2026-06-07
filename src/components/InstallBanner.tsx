@@ -1,7 +1,6 @@
 import { forwardRef, useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { X, Share, MoreVertical, Bell, Download, Smartphone, CheckCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 const goldColor = 'hsl(38, 65%, 55%)';
 
@@ -52,8 +51,21 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnable
       e.preventDefault();
       setDeferredPrompt(e);
     };
+    // Fired once the app is actually installed (native prompt accepted, or
+    // "Add to Home Screen" on browsers that emit it). Record it so we never
+    // nag the user to install again — even if a later launch opens in browser
+    // mode and isStandalone() can't detect the install.
+    const onInstalled = () => {
+      try { localStorage.setItem(PWA_DISMISSED_KEY, '1'); } catch {}
+      setDeferredPrompt(null);
+      setVisible(false);
+    };
     window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
   }, []);
 
   useEffect(() => {
@@ -101,7 +113,9 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnable
       const { outcome } = await deferredPrompt.userChoice;
       setDeferredPrompt(null);
       if (outcome === 'accepted') {
-        // Move to notification step
+        // Installed — never show the install prompt again, then move on to
+        // asking for notification permission.
+        try { localStorage.setItem(PWA_DISMISSED_KEY, '1'); } catch {}
         setStep('notifications');
       }
     }
@@ -109,36 +123,16 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnable
 
   const handleEnableNotifications = async () => {
     if (onEnableNotifications) {
-      // Use the caller-provided subscribe flow (e.g. ClientHome's proper client subscribe)
+      // Proper client subscribe flow (e.g. ClientHome) — ties the subscription to a
+      // real client_id via subscribeToPush(), which is what aftercare-cron looks up.
       try { await onEnableNotifications(); } catch {}
     } else {
-      if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-        setStep('done');
-        localStorage.setItem(NOTIF_PROMPTED_KEY, '1');
-        return;
-      }
-
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        try {
-          const registration = await navigator.serviceWorker.ready;
-          const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-          if (vapidPublicKey) {
-            const subscription = await (registration as any).pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-            });
-            const json = subscription.toJSON();
-            await supabase.from('push_subscriptions').insert({
-              endpoint: json.endpoint!,
-              p256dh: json.keys!.p256dh!,
-              auth_key: json.keys!.auth!,
-              client_name: 'web-client',
-            });
-          }
-        } catch (err) {
-          console.warn('Push subscription failed:', err);
-        }
+      // No client context (e.g. artist-side ClientProfile). Only request notification
+      // permission here — we must NOT create a push_subscriptions row, because without a
+      // client_id it is undeliverable (aftercare-cron queries strictly by client_id) and
+      // would only pollute the table with orphan records.
+      if ('Notification' in window) {
+        try { await Notification.requestPermission(); } catch {}
       }
     }
 
@@ -294,17 +288,6 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnable
     </div>
   );
 });
-
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
 
 InstallBanner.displayName = 'InstallBanner';
 

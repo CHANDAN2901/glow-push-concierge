@@ -14,7 +14,16 @@ async function authenticateRequest(req: Request): Promise<{ userId: string } | n
     return null;
   }
 
-  const token = authHeader.replace("Bearer ", "");
+  const token = authHeader.replace("Bearer ", "").trim();
+
+  // Trusted internal/server calls (e.g. aftercare-cron and birthday-greetings invoke
+  // this function with the service-role key). getUser() below would reject that token
+  // because the service-role key maps to no user, so accept it explicitly here.
+  // Without this, every automated/cron-triggered push fails with 401.
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (serviceRoleKey && token === serviceRoleKey) {
+    return { userId: "service-role" };
+  }
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
