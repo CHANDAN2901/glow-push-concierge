@@ -7,13 +7,35 @@ const corsHeaders = {
 };
 
 async function authenticateCronRequest(req: Request): Promise<boolean> {
-  const authHeader = req.headers.get("authorization");
-  const cronSecret = Deno.env.get("CRON_SECRET_KEY");
-  if (!cronSecret) {
-    console.error("[aftercare-cron] CRON_SECRET_KEY not configured - denying access");
-    return false;
+  const authHeader = req.headers.get("authorization") ?? "";
+  if (!authHeader.startsWith("Bearer ")) return false;
+  const presented = authHeader.slice("Bearer ".length).trim();
+  if (!presented) return false;
+
+  // 1) Env-based secret (legacy/manual override)
+  const envSecret = Deno.env.get("CRON_SECRET_KEY");
+  if (envSecret && presented === envSecret) return true;
+
+  // 2) DB-stored secret (single source of truth shared with pg_cron)
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { data, error } = await supabase
+      .from("cron_tokens")
+      .select("token")
+      .eq("name", "aftercare")
+      .maybeSingle();
+    if (error) {
+      console.error("[aftercare-cron] cron_tokens lookup failed:", error.message);
+      return false;
+    }
+    if (data?.token && presented === data.token) return true;
+  } catch (e) {
+    console.error("[aftercare-cron] auth lookup exception:", (e as Error).message);
   }
-  return authHeader === `Bearer ${cronSecret}`;
+  return false;
 }
 
 type Lang = 'he' | 'en';
