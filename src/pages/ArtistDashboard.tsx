@@ -4410,7 +4410,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   const savedLang = localStorage.getItem('glow-lang');
                   localStorage.clear();
                   if (savedLang) localStorage.setItem('glow-lang', savedLang);
-                  window.location.href = '/marketing';
+                  window.location.href = '/';
                 } catch (err: any) {
                   toast({ title: t('artist.dashboard.deleteAccountFailed'), description: err?.message, variant: 'destructive' });
                   setDeletingAccount(false);
