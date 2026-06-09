@@ -66,6 +66,56 @@ interface ArtistSettings {
   days?: Record<string, number | string | null>;
 }
 
+interface HealingPhase {
+  treatment_type: string;
+  day_start: number;
+  day_end: number;
+  title_he: string;
+  title_en: string;
+  steps_he: string[];
+  steps_en: string[];
+  sort_order: number;
+}
+
+interface ClientHealingPhase extends HealingPhase {
+  client_id: string;
+}
+
+interface TimelineOverride {
+  quote_he: string | null;
+  quote_en: string | null;
+}
+
+// Inlined copy of src/lib/timeline-overrides.ts — edge functions can't import frontend modules.
+// Treats stale default journey text as "no override" so the cron uses live phase content instead.
+const LEGACY_HE_PATTERNS = [
+  'יום ראשון - מושלם',
+  'שמרי על האזור נקי ויבש. הצבע כהה היום — זה טבעי',
+  'הפיגמנט מתחמצן ומכהה',
+  'לא לקלף! תני לגלד ליפול לבד',
+  'שלב ה-ghosting',
+  'הצבע מתייצב. שמרי על הגנה מהשמש',
+  'הגיע הזמן לקבוע תור לטאצ׳ אפ',
+];
+const LEGACY_EN_PATTERNS = [
+  'day one - perfect',
+  'keep the area clean and dry. color is dark today',
+  'the pigment oxidizes and darkens',
+  "don't peel!",
+  'ghosting phase',
+  'color is stabilizing. protect from sun exposure',
+  'time to schedule your touch-up',
+];
+
+function isLegacyTimelineOverride(quoteHe?: string | null, quoteEn?: string | null): boolean {
+  const he = (quoteHe || '').trim().toLowerCase();
+  const en = (quoteEn || '').trim().toLowerCase();
+  if (!he && !en) return false;
+  const matchesHe = LEGACY_HE_PATTERNS.some((pattern) => he.includes(pattern.toLowerCase()));
+  const matchesEn = LEGACY_EN_PATTERNS.some((pattern) => en.includes(pattern.toLowerCase()));
+  return matchesHe || matchesEn;
+}
+
 /**
  * Resolve the message text for a given client from the artist's message settings.
  * Priority: artist draft (lang-specific) → artist draft (legacy) → null
@@ -167,6 +217,42 @@ serve(async (req: Request) => {
       ])
     );
 
+    // 2b. Per-client healing phases (cloned at treatment finish) — primary daily content source
+    const { data: clientPhaseRows } = await supabase
+      .from('client_healing_phases')
+      .select('client_id, treatment_type, day_start, day_end, title_he, title_en, steps_he, steps_en, sort_order');
+
+    const clientPhasesMap = new Map<string, ClientHealingPhase[]>();
+    for (const row of (clientPhaseRows ?? []) as ClientHealingPhase[]) {
+      if (!clientPhasesMap.has(row.client_id)) clientPhasesMap.set(row.client_id, []);
+      clientPhasesMap.get(row.client_id)!.push(row);
+    }
+
+    // 2c. Global healing phases — fallback when a client has no cloned phases, keyed by treatment prefix
+    const { data: globalPhaseRows } = await supabase
+      .from('healing_phases')
+      .select('treatment_type, day_start, day_end, title_he, title_en, steps_he, steps_en, sort_order');
+
+    const globalPhasesMap = new Map<string, HealingPhase[]>();
+    for (const row of (globalPhaseRows ?? []) as HealingPhase[]) {
+      const prefix = getTreatmentPrefix(row.treatment_type);
+      if (!prefix) continue;
+      if (!globalPhasesMap.has(prefix)) globalPhasesMap.set(prefix, []);
+      globalPhasesMap.get(prefix)!.push(row);
+    }
+
+    // 2d. Artist journey-text overrides (timeline_content). The journey editor is eyebrows-only and
+    //     keys overrides by step_index = 0-based phase order, so these apply to 'brows' clients only.
+    const { data: timelineRows } = await supabase
+      .from('timeline_content')
+      .select('artist_profile_id, step_index, quote_he, quote_en');
+
+    const timelineMap = new Map<string, Map<number, TimelineOverride>>();
+    for (const row of (timelineRows ?? []) as { artist_profile_id: string; step_index: number; quote_he: string | null; quote_en: string | null }[]) {
+      if (!timelineMap.has(row.artist_profile_id)) timelineMap.set(row.artist_profile_id, new Map());
+      timelineMap.get(row.artist_profile_id)!.set(row.step_index, { quote_he: row.quote_he, quote_en: row.quote_en });
+    }
+
     // 3. Fetch artist profile names (for placeholder replacement)
     const { data: profiles } = await supabase
       .from('profiles')
@@ -207,7 +293,66 @@ serve(async (req: Request) => {
     let fallbacksCreated = 0;
     const results: { client: string; day: number; action: string; lang: string }[] = [];
 
-    // Helper: resolve message for a given day
+    // Helper: build a message from the healing-journey phase covering `dayNum`.
+    // Uses the client's cloned phases, falling back to the global phase set for the treatment.
+    // For 'brows' clients, a non-legacy artist override (timeline_content) replaces the body text.
+    const resolvePhaseMessage = (
+      client: { id: string; full_name: string; artist_id: string; treatment_type: string },
+      dayNum: number,
+      clientLang: Lang,
+      treatmentPrefix: string | null,
+      artistName: string,
+    ): { text: string; label: string } | null => {
+      let phases: HealingPhase[] | undefined = clientPhasesMap.get(client.id);
+      if (!phases || phases.length === 0) {
+        phases = treatmentPrefix ? globalPhasesMap.get(treatmentPrefix) : undefined;
+      }
+      if (!phases || phases.length === 0) return null;
+
+      const sorted = [...phases].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      let phaseIndex = -1;
+      for (let i = 0; i < sorted.length; i++) {
+        if (dayNum >= sorted[i].day_start && dayNum <= sorted[i].day_end) { phaseIndex = i; break; }
+      }
+      if (phaseIndex === -1) return null;
+      const phase = sorted[phaseIndex];
+
+      const title = clientLang === 'en'
+        ? (phase.title_en || phase.title_he)
+        : (phase.title_he || phase.title_en);
+
+      let body: string | null = null;
+
+      // Artist journey-text override — eyebrows-only (the editor authors timeline_content for brows).
+      if (treatmentPrefix === 'brows') {
+        const override = timelineMap.get(client.artist_id)?.get(phaseIndex);
+        if (override && !isLegacyTimelineOverride(override.quote_he, override.quote_en)) {
+          const q = clientLang === 'en' ? override.quote_en : override.quote_he;
+          if (q && q.trim()) body = q.trim();
+        }
+      }
+
+      // Otherwise use a care step, rotating across the days within the phase so the text varies.
+      if (!body) {
+        const steps = (clientLang === 'en' ? phase.steps_en : phase.steps_he) ?? [];
+        const validSteps = steps.filter((s) => s && s.trim());
+        if (validSteps.length > 0) {
+          const offset = Math.max(0, dayNum - phase.day_start);
+          body = validSteps[offset % validSteps.length];
+        }
+      }
+
+      if (!body) body = title;
+
+      return {
+        text: replacePlaceholders(body, client.full_name, artistName),
+        label: title,
+      };
+    };
+
+    // Helper: resolve message for a given day.
+    // Priority: (1) per-day automated-message override → (2) healing-journey phase content
+    // (with artist journey edits layered) → (3) legacy global aftercare_% template → null.
     const resolveMessage = (
       client: { id: string; full_name: string; artist_id: string; treatment_type: string; preferred_lang: string },
       dayNum: number,
@@ -216,6 +361,7 @@ serve(async (req: Request) => {
       const treatmentPrefix = getTreatmentPrefix(client.treatment_type);
       const artistName = profileNameMap.get(client.artist_id) ?? '';
 
+      // 1. Per-day automated-message override (artist saved/seeded drafts: lips 1/3/10, brows 1/4/10)
       const artistSettings = artistSettingsMap.get(client.artist_id);
       if (artistSettings) {
         const resolved = resolveFromArtistSettings(artistSettings, dayNum, clientLang, treatmentPrefix);
@@ -227,6 +373,11 @@ serve(async (req: Request) => {
         }
       }
 
+      // 2. Healing-journey phase content for this day (the daily driver, days 1–30)
+      const phaseMsg = resolvePhaseMessage(client, dayNum, clientLang, treatmentPrefix, artistName);
+      if (phaseMsg) return phaseMsg;
+
+      // 3. Legacy global fallback (message_templates aftercare_day_N) — kept for backward compat
       const fallback = fallbackDayMessages.find((d: { day: number }) => d.day === dayNum);
       if (!fallback) return null;
       return {
@@ -320,6 +471,7 @@ serve(async (req: Request) => {
         results.push({ client: client.full_name, day: dayNum, action, lang: clientLang });
         if (action === 'push_sent') pushesSent++;
         else if (action !== 'no_message') fallbacksCreated++;
+        else console.warn(`[aftercare-cron] no_message: ${client.full_name} (${client.treatment_type}) day ${dayNum} — no override, phase, or template content resolved`);
       }
     }
 
