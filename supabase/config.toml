@@ -5,3 +5,12 @@ verify_jwt = false
 
 [functions.get-vapid-key]
 verify_jwt = false
+
+# Payment gateways call these server-to-server with no Supabase JWT.
+# Without verify_jwt = false the gateway returns 401 before the function
+# runs, the subscription never activates, and Tranzila does NOT retry.
+[functions.tranzilla-webhook]
+verify_jwt = false
+
+[functions.lemonsqueezy-webhook]
+verify_jwt = false

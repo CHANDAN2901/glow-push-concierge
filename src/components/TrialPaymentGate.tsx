@@ -5,6 +5,8 @@ import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useGatewaySettings } from '@/hooks/useGatewaySettings';
+import { usePaymentSuccessMessage } from '@/hooks/usePaymentSuccessMessage';
+import { openLemonSqueezyCheckout } from '@/lib/lemonsqueezy';
 import { useQuery } from '@tanstack/react-query';
 
 const FALLBACK_FEATURES = [
@@ -53,6 +55,13 @@ export default function TrialPaymentGate() {
   });
   const trialAmount = isIsrael ? trialAmountIl : trialAmountGlobal;
 
+  // Fallback breakout: the /payment-success page posts a message from inside
+  // the iframe (works even if the iframe landed on a different origin).
+  usePaymentSuccessMessage(!!paymentIframeUrl, (resultPath) => {
+    setPaymentIframeUrl(null);
+    navigate(resultPath);
+  });
+
   const { data: dbFeatures } = useQuery<{ en: string; he: string }[] | null>({
     queryKey: ['trial_plan_features'],
     queryFn: async () => {
@@ -78,7 +87,7 @@ export default function TrialPaymentGate() {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
-        body: { planSlug: 'glow-trial', amountIls: trialAmount, lang: isIsrael ? 'il' : 'en', autoPayEnabled: false, isIsrael },
+        body: { planSlug: 'glow-trial', amountIls: trialAmount, lang: isIsrael ? 'il' : 'en', autoPayEnabled: false, isIsrael, appOrigin: window.location.origin },
       });
       if (error || !data?.iframeUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
@@ -103,11 +112,8 @@ export default function TrialPaymentGate() {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
         return;
       }
-      if (typeof (window as any).LemonSqueezy !== 'undefined') {
-        (window as any).LemonSqueezy.Url.Open(data.checkoutUrl);
-      } else {
-        window.open(data.checkoutUrl, '_blank', 'noopener,noreferrer');
-      }
+      openLemonSqueezyCheckout(data.checkoutUrl, () =>
+        navigate('/payment-success?plan=glow-trial&gateway=lemonsqueezy&autopay=false'));
     } catch {
       toast({ title: isHe ? 'שגיאה בלתי צפויה' : 'Unexpected error', variant: 'destructive' });
     } finally {
@@ -155,7 +161,7 @@ export default function TrialPaymentGate() {
             onLoad={(e) => {
               try {
                 const href = (e.target as HTMLIFrameElement).contentWindow?.location?.href || '';
-                if (href.includes('/payment-success')) {
+                if (href.includes('/payment-success') || href.includes('/payment-failed')) {
                   setPaymentIframeUrl(null);
                   navigate(href.replace(window.location.origin, ''));
                 }

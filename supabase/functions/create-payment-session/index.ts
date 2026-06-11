@@ -41,7 +41,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { planSlug, amountIls, lang, autoPayEnabled = true, isIsrael = false } = await req.json();
+    const { planSlug, amountIls, lang, autoPayEnabled = true, isIsrael = false, appOrigin } = await req.json();
 
     if (!planSlug || !amountIls) {
       return new Response(JSON.stringify({ error: "planSlug and amountIls are required" }), {
@@ -76,7 +76,23 @@ serve(async (req: Request) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const appUrl = Deno.env.get("APP_URL") || "https://app.glowpush.co.il";
+    // Prefer the origin the user is actually browsing on, so Tranzila's
+    // success redirect stays same-origin with the parent page (the iframe
+    // breakout reads contentWindow.location.href, which throws cross-origin).
+    const isAllowedOrigin = (origin: string) => {
+      try {
+        const { protocol, hostname } = new URL(origin);
+        return protocol === "https:" &&
+          (hostname.endsWith(".lovable.app") ||
+            hostname === "glowpush.co.il" ||
+            hostname.endsWith(".glowpush.co.il"));
+      } catch {
+        return false;
+      }
+    };
+    const appUrl = (typeof appOrigin === "string" && isAllowedOrigin(appOrigin))
+      ? appOrigin
+      : (Deno.env.get("APP_URL") || "https://app.glowpush.co.il");
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 
     // Build Tranzilla iframe URL

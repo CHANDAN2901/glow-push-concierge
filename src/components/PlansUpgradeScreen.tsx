@@ -6,6 +6,8 @@ import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
 import { supabase } from '@/integrations/supabase/client';
 import { useGatewaySettings } from '@/hooks/useGatewaySettings';
+import { usePaymentSuccessMessage } from '@/hooks/usePaymentSuccessMessage';
+import { openLemonSqueezyCheckout } from '@/lib/lemonsqueezy';
 
 interface Props {
   onBack: () => void;
@@ -41,6 +43,13 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier || 'lite']?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
 
+  // Fallback breakout: the /payment-success page posts a message from inside
+  // the iframe (works even if the iframe landed on a different origin).
+  usePaymentSuccessMessage(!!paymentIframeUrl, (resultPath) => {
+    setPaymentIframeUrl(null);
+    navigate(resultPath);
+  });
+
   const handleUpgrade = (plan: PricingPlan) => {
     if (plan.price_monthly === 0) {
       toast({ title: isHe ? 'תוכנית זו כלולה במנוי שלך' : 'This plan is already included' });
@@ -60,7 +69,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
-        body: { planSlug: plan.slug, amountIls: plan.price_monthly, autoPayEnabled, isIsrael },
+        body: { planSlug: plan.slug, amountIls: plan.price_monthly, autoPayEnabled, isIsrael, appOrigin: window.location.origin },
       });
       if (error || !data?.iframeUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
@@ -85,11 +94,8 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
         return;
       }
-      if (typeof (window as any).LemonSqueezy !== 'undefined') {
-        (window as any).LemonSqueezy.Url.Open(data.checkoutUrl);
-      } else {
-        window.open(data.checkoutUrl, '_blank', 'noopener,noreferrer');
-      }
+      openLemonSqueezyCheckout(data.checkoutUrl, () =>
+        navigate(`/payment-success?plan=${plan.slug}&gateway=lemonsqueezy&autopay=${autoPayEnabled}`));
     } catch (err: any) {
       toast({ title: isHe ? 'שגיאה בלתי צפויה' : 'Unexpected error', variant: 'destructive' });
     } finally {
@@ -256,7 +262,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
               onLoad={(e) => {
                 try {
                   const href = (e.target as HTMLIFrameElement).contentWindow?.location?.href || '';
-                  if (href.includes('/payment-success')) {
+                  if (href.includes('/payment-success') || href.includes('/payment-failed')) {
                     setPaymentIframeUrl(null);
                     navigate(href.replace(window.location.origin, ''));
                   }

@@ -36,10 +36,12 @@ import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
 import PaymentHistory from "./pages/PaymentHistory";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ImpersonationBanner from "./components/ImpersonationBanner";
 import FeedbackFAB from "./components/FeedbackFAB";
 import AuthRedirectHandler from "./components/AuthRedirectHandler";
+import PaymentIframeBreakout from "./components/PaymentIframeBreakout";
 import { AuthProvider } from "./hooks/useAuth";
 
 
@@ -55,6 +57,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <AuthRedirectHandler />
+          <PaymentIframeBreakout />
           <Header />
           <ErrorBoundary>
             <Routes>
@@ -82,6 +85,7 @@ const App = () => (
               <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/payment-history" element={<RequireAuth><PaymentHistory /></RequireAuth>} />
               <Route path="/payment-success" element={<RequireAuth><PaymentSuccess /></RequireAuth>} />
+              <Route path="/payment-failed" element={<PaymentFailed />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>

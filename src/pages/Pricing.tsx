@@ -10,6 +10,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BackButton from '@/components/BackButton';
 import { useGatewaySettings } from '@/hooks/useGatewaySettings';
+import { usePaymentSuccessMessage } from '@/hooks/usePaymentSuccessMessage';
+import { openLemonSqueezyCheckout } from '@/lib/lemonsqueezy';
 
 const ROSE_GOLD = '#d4af37';
 const ROSE_GOLD_DARK = 'hsl(40 60% 25%)';
@@ -146,6 +148,13 @@ const Pricing = () => {
   const [selectedGateway, setSelectedGateway] = useState<'tranzilla' | 'lemonsqueezy'>('tranzilla');
   const [autoPayEnabled, setAutoPayEnabled] = useState(true);
 
+  // Fallback breakout: the /payment-success page posts a message from inside
+  // the iframe (works even if the iframe landed on a different origin).
+  usePaymentSuccessMessage(!!paymentIframeUrl, (resultPath) => {
+    setPaymentIframeUrl(null);
+    navigate(resultPath);
+  });
+
   useEffect(() => {
     if (!user) return;
     supabase
@@ -206,7 +215,7 @@ const Pricing = () => {
     setIsLoadingPayment(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-payment-session', {
-        body: { planSlug, amountIls: priceIls, lang: isIsrael ? 'il' : 'en', autoPayEnabled, isIsrael },
+        body: { planSlug, amountIls: priceIls, lang: isIsrael ? 'il' : 'en', autoPayEnabled, isIsrael, appOrigin: window.location.origin },
       });
       if (error || !data?.iframeUrl) {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
@@ -231,11 +240,8 @@ const Pricing = () => {
         toast({ title: isHe ? 'שגיאה בפתיחת דף תשלום' : 'Failed to open payment page', variant: 'destructive' });
         return;
       }
-      if (typeof (window as any).LemonSqueezy !== 'undefined') {
-        (window as any).LemonSqueezy.Url.Open(data.checkoutUrl);
-      } else {
-        window.open(data.checkoutUrl, '_blank', 'noopener,noreferrer');
-      }
+      openLemonSqueezyCheckout(data.checkoutUrl, () =>
+        navigate(`/payment-success?plan=${planSlug}&gateway=lemonsqueezy&autopay=${autoPayEnabled}`));
     } catch {
       toast({ title: isHe ? 'שגיאה בלתי צפויה' : 'Unexpected error', variant: 'destructive' });
     } finally {
@@ -312,7 +318,7 @@ const Pricing = () => {
             onLoad={(e) => {
               try {
                 const href = (e.target as HTMLIFrameElement).contentWindow?.location?.href || '';
-                if (href.includes('/payment-success')) {
+                if (href.includes('/payment-success') || href.includes('/payment-failed')) {
                   setPaymentIframeUrl(null);
                   navigate(href.replace(window.location.origin, ''));
                 }

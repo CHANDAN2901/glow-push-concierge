@@ -1,27 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, Loader2 } from 'lucide-react';
+import { CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useI18n } from '@/lib/i18n';
 
 const GOLD_GRADIENT = 'linear-gradient(135deg, #8B6508 0%, #D4AF37 35%, #996515 50%, #F3E5AB 75%, #5C400A 100%)';
 
-const PLAN_TO_TIER: Record<string, string> = {
-  pro: 'lite',
-  starter: 'lite',
-  professional: 'professional',
-  elite: 'professional',
-  master: 'master',
-  'vip-3year': 'master',
-};
+// Polling cadence: fast for the first minute, then slower. Never stops —
+// after SLOW_AFTER_ATTEMPTS we show the "still processing" state but keep
+// checking so the page self-recovers when the webhook lands late.
+const FAST_INTERVAL_MS = 2000;
+const SLOW_INTERVAL_MS = 5000;
+const FAST_ATTEMPTS = 30;          // ~1 min at 2s
+const TIMEOUT_AFTER_ATTEMPTS = 78; // ~5 min total (30×2s + 48×5s)
+
+// A charge is considered "this payment" if the webhook stamped it recently.
+const RECENT_CHARGE_WINDOW_MS = 60 * 60 * 1000;
 
 type Status = 'processing' | 'success' | 'timeout';
 
 const PaymentSuccess = () => {
   const [params] = useSearchParams();
-  const planSlug = params.get('plan') || '';
   const isAutopay = params.get('autopay') !== 'false';
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -30,27 +31,33 @@ const PaymentSuccess = () => {
   const isHe = lang === 'he';
   const [status, setStatus] = useState<Status>('processing');
 
-  const expectedTier = PLAN_TO_TIER[planSlug];
+  // When Tranzila redirects the payment iframe here, this page boots inside
+  // the iframe. PaymentIframeBreakout notifies the parent window, which
+  // closes the modal and navigates — so here we only show a placeholder.
+  const inIframe = typeof window !== 'undefined' && window.self !== window.top;
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || inIframe) return;
     let cancelled = false;
     let attempts = 0;
-    const maxAttempts = 20; // ~40s
 
     const poll = async () => {
       if (cancelled) return;
       attempts++;
       const { data } = await supabase
         .from('profiles')
-        .select('subscription_tier, subscription_status')
+        .select('subscription_tier, subscription_status, last_charge_at')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      const tier = data?.subscription_tier;
-      const matched = expectedTier ? tier === expectedTier : tier && tier !== 'lite';
+      // Webhook always sets subscription_status (active/trial) + last_charge_at,
+      // for every plan — no slug→tier mapping needed.
+      const statusOk = data?.subscription_status === 'active' || data?.subscription_status === 'trial';
+      const chargedRecently = data?.last_charge_at
+        ? Date.now() - new Date(data.last_charge_at).getTime() < RECENT_CHARGE_WINDOW_MS
+        : false;
 
-      if (matched) {
+      if (statusOk && chargedRecently) {
         if (cancelled) return;
         await qc.invalidateQueries({ queryKey: ['user-tier'] });
         await qc.invalidateQueries({ queryKey: ['tier-feature-keys'] });
@@ -58,16 +65,30 @@ const PaymentSuccess = () => {
         return;
       }
 
-      if (attempts >= maxAttempts) {
-        if (!cancelled) setStatus('timeout');
-        return;
+      if (attempts >= TIMEOUT_AFTER_ATTEMPTS && !cancelled) {
+        setStatus('timeout');
       }
-      setTimeout(poll, 2000);
+      setTimeout(poll, attempts < FAST_ATTEMPTS ? FAST_INTERVAL_MS : SLOW_INTERVAL_MS);
     };
 
     poll();
     return () => { cancelled = true; };
-  }, [user, expectedTier, qc]);
+  }, [user, inIframe, qc]);
+
+  // Auto-return to the dashboard shortly after confirmation.
+  useEffect(() => {
+    if (status !== 'success') return;
+    const id = setTimeout(() => navigate('/artist?tab=home'), 2500);
+    return () => clearTimeout(id);
+  }, [status, navigate]);
+
+  if (inIframe) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#fcf9f8' }}>
+        <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#D4AF37' }} />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -109,7 +130,7 @@ const PaymentSuccess = () => {
               {isHe ? 'התשלום התקבל!' : 'Payment confirmed!'}
             </h1>
             <p className="mt-3 text-sm" style={{ color: '#666' }}>
-              {isHe ? 'המנוי שלך פעיל. תהנה!' : 'Your subscription is now active. Enjoy!'}
+              {isHe ? 'המנוי שלך פעיל. מעבירים אותך לאפליקציה...' : 'Your subscription is now active. Taking you to the app...'}
             </p>
             <p className="mt-2 text-xs" style={{ color: '#999' }}>
               {isAutopay
@@ -131,7 +152,7 @@ const PaymentSuccess = () => {
 
         {status === 'timeout' && (
           <>
-            <Loader2 className="w-14 h-14 mx-auto" style={{ color: '#D4AF37' }} />
+            <Clock className="w-14 h-14 mx-auto" style={{ color: '#D4AF37' }} />
             <h1
               className="mt-6 text-2xl font-serif font-bold bg-clip-text text-transparent"
               style={{ backgroundImage: GOLD_GRADIENT }}
