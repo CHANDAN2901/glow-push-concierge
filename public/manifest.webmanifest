@@ -1,9 +1,7 @@
 {
-  "id": "/",
   "name": "Glow Push",
   "short_name": "Glow Push",
   "description": "הליווי האישי שלך להחלמה מושלמת",
-  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#000000",
