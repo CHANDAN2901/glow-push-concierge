@@ -75,6 +75,50 @@ try {
   if (cartist) localStorage.setItem(LS_ARTIST_ID, cartist);
 } catch (_) { /* SSR-safe */ }
 
+/**
+ * Rewrite the <link rel="manifest"> to a per-client manifest whose start_url is THIS client's
+ * journey. The static manifest's start_url is "/" (marketing page), and iOS does NOT share
+ * localStorage between Safari and an installed standalone PWA — so baking the destination into
+ * the manifest at install time is the only reliable way to make the Home Screen app reopen on
+ * the client's healing journey instead of the artist landing/signup page. All URLs are absolute
+ * (a blob: manifest can't resolve relative paths). No-op outside the client route.
+ */
+function setClientPwaManifest() {
+  try {
+    const origin = window.location.origin;
+    const path = window.location.pathname; // /c/<clientId>
+    const startUrl = path + window.location.search;
+    const manifest = {
+      id: path,
+      name: 'Glow Push',
+      short_name: 'Glow Push',
+      description: 'הליווי האישי שלך להחלמה מושלמת',
+      start_url: origin + startUrl,
+      scope: origin + '/',
+      display: 'standalone',
+      background_color: '#000000',
+      theme_color: '#D4AF37',
+      lang: 'he',
+      dir: 'rtl',
+      orientation: 'portrait',
+      icons: [
+        { src: origin + '/pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: origin + '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      ],
+    };
+    const blobUrl = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' }));
+    let link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'manifest';
+      document.head.appendChild(link);
+    }
+    link.setAttribute('href', blobUrl);
+  } catch (e) {
+    console.warn('[PWA] Failed to set per-client manifest:', e);
+  }
+}
+
 // Time-based greeting
 function getTimeGreeting(name: string, lang: 'en' | 'he' = 'he'): string {
   const hour = new Date().getHours();
@@ -284,8 +328,13 @@ function usePushSubscription({ clientId, clientName, artistProfileId, lang, onIn
       } else {
         setStatus('idle');
         setDiag(formatPushDiag());
-        // Install-related failures: surface the visual install guide instead of a dead-end toast.
-        if (result.code && ['ios-needs-install', 'in-app-browser', 'ios-push-unavailable'].includes(result.code)) {
+        // Install-related failures: surface the visual install guide — UNLESS the user already
+        // dismissed it with "Maybe later" (glow-pwa-dismissed). Then respect their choice and
+        // show the guidance as a toast instead of re-popping the modal on every Enable click.
+        const installCodes = ['ios-needs-install', 'in-app-browser', 'ios-push-unavailable'];
+        let dismissedInstall = false;
+        try { dismissedInstall = localStorage.getItem('glow-pwa-dismissed') === '1'; } catch {}
+        if (result.code && installCodes.includes(result.code) && !dismissedInstall) {
           onInstallNeeded?.(result.code);
         } else {
           toast({ title: lang === 'en' ? 'Failed to subscribe' : 'ההרשמה נכשלה', description: result.error, variant: 'destructive' });
@@ -538,6 +587,12 @@ const ClientHome = () => {
   };
 
   const { status: pushStatus, handleSubscribe: handlePushSubscribe, diag: pushDiag } = usePushSubscription({ clientId, clientName, artistProfileId, lang, onInstallNeeded });
+
+  // Bake this client's journey URL into the PWA manifest so the installed Home Screen app
+  // reopens here instead of the marketing/signup page (iOS can't bridge it via localStorage).
+  useEffect(() => {
+    if (isUUID(clientId)) setClientPwaManifest();
+  }, [clientId]);
 
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useClientHealingPhases(isUUID(clientId) ? clientId : null, treatment);
   const { promo } = usePromoSettings(artistProfileId || undefined);
