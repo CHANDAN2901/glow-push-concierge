@@ -294,6 +294,26 @@ export async function subscribeToPush(opts: {
     const cleanClientId = uuidMatch ? uuidMatch[1] : opts.clientId;
     console.log('[Push] Clean clientId:', cleanClientId, '(original length:', opts.clientId.length, ')');
 
+    // 5b. Verify the client row actually exists before inserting. push_subscriptions.client_id
+    //     has a FK to clients(id); a well-formed-but-nonexistent id (stale link / deleted client)
+    //     would otherwise fail the insert with a cryptic "23503 foreign key violation".
+    const { data: clientRow, error: clientCheckErr } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('id', cleanClientId)
+      .maybeSingle();
+    if (clientCheckErr) {
+      console.error('[Push] Client existence check failed:', clientCheckErr.message);
+      return { success: false, error: `שגיאה באימות רשומת הלקוחה: ${clientCheckErr.message}` };
+    }
+    if (!clientRow) {
+      console.error('[Push] Client not found for id:', cleanClientId);
+      return {
+        success: false,
+        error: 'רשומת הלקוחה לא נמצאה — ייתכן שהקישור אינו תקין או שהלקוחה נמחקה. פתחו את הקישור האישי שנשלח אליכם ונסו שוב.',
+      };
+    }
+
     // 6. Delete any existing DB record for this endpoint only — after we have a valid subscription.
     //    This prevents a gap where the old record is deleted but the new insert hasn't happened yet.
     console.log('[Push] Removing old DB record for this endpoint...');
