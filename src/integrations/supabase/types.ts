@@ -1550,6 +1550,32 @@ export type Database = {
         Args: { p_client_id: string; p_treatment_type: string }
         Returns: undefined
       }
+      get_public_artist_card: {
+        Args: { p_profile_id: string }
+        Returns: {
+          id: string
+          full_name: string
+          studio_name: string
+          business_phone: string
+          logo_url: string
+          instagram_url: string
+          facebook_url: string
+          waze_address: string
+        }[]
+      }
+      get_public_client_info: {
+        Args: { p_client_id: string }
+        Returns: {
+          id: string
+          full_name: string
+          phone: string
+          referral_code: string
+          treatment_type: string
+          treatment_date: string
+          artist_id: string
+          preferred_lang: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1564,6 +1590,10 @@ export type Database = {
       mark_client_push_opted_in: {
         Args: { p_client_id: string }
         Returns: undefined
+      }
+      resolve_client_id_by_name: {
+        Args: { p_name: string }
+        Returns: string
       }
       save_client_referral_code: {
         Args: { p_client_id: string; p_code: string }

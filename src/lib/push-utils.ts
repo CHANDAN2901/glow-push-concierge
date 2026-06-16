@@ -358,9 +358,7 @@ export async function subscribeToPush(opts: {
     //     has a FK to clients(id); a well-formed-but-nonexistent id (stale link / deleted client)
     //     would otherwise fail the insert with a cryptic "23503 foreign key violation".
     const { data: clientRow, error: clientCheckErr } = await supabase
-      .from('clients')
-      .select('id')
-      .eq('id', cleanClientId)
+      .rpc('get_public_client_info', { p_client_id: cleanClientId })
       .maybeSingle();
     if (clientCheckErr) {
       console.error('[Push] Client existence check failed:', clientCheckErr.message);

@@ -38,9 +38,7 @@ const DigitalCard = ({ embedded, previewName, previewPhone, previewLogo, preview
   useEffect(() => {
     if (!artistId) return;
     supabase
-      .from('profiles')
-      .select('full_name, business_phone, logo_url, instagram_url, facebook_url')
-      .eq('id', artistId)
+      .rpc('get_public_artist_card', { p_profile_id: artistId })
       .maybeSingle()
       .then(({ data }) => {
         if (data) {

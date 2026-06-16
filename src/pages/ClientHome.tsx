@@ -418,7 +418,7 @@ const ClientHome = () => {
     if (!isUUID(clientId)) { setDbClientName(null); setDbClientPhone(null); setDbReferralCode(null); setDbTreatmentDate(null); setDbTreatmentType(null); setDbArtistId(null); setClientDbLoaded(true); return; }
     (async () => {
       try {
-        const { data, error } = await supabase.from('clients').select('full_name, phone, referral_code, treatment_date, treatment_type, artist_id, preferred_lang').eq('id', clientId).maybeSingle();
+        const { data, error } = await supabase.rpc('get_public_client_info', { p_client_id: clientId }).maybeSingle();
         if (cancelled || error) return;
         if (data?.full_name) setDbClientName(data.full_name.split(' ')[0]);
         if (data?.phone) setDbClientPhone(data.phone);
@@ -593,11 +593,9 @@ const ClientHome = () => {
         if (s.voucher_wa_he) setVoucherWaHe(s.voucher_wa_he as string);
         if (s.voucher_wa_en) setVoucherWaEn(s.voucher_wa_en as string);
       }
-      // Get artist profile for contact info
+      // Get artist profile for contact info (safe public fields only, via RPC)
       const { data: profile } = await supabase
-        .from('profiles')
-        .select('instagram_url, waze_address, business_phone, full_name, logo_url')
-        .eq('id', artistProfileId)
+        .rpc('get_public_artist_card', { p_profile_id: artistProfileId })
         .maybeSingle();
       if (profile) {
         if (profile.instagram_url) setArtistInstagram(profile.instagram_url);

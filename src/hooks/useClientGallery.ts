@@ -34,11 +34,8 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
       if (isUUID(clientId)) { setResolvedClientId(clientId); return; }
       const name = clientId.trim();
       if (!name) { setResolvedClientId(null); return; }
-      const exact = await supabase.from('clients').select('id').eq('full_name', name).limit(1).maybeSingle();
-      if (cancelled) return;
-      if (exact.data?.id) { setResolvedClientId(exact.data.id); return; }
-      const fuzzy = await supabase.from('clients').select('id').ilike('full_name', name).limit(1).maybeSingle();
-      if (!cancelled) setResolvedClientId(fuzzy.data?.id || null);
+      const { data: resolvedId } = await supabase.rpc('resolve_client_id_by_name', { p_name: name });
+      if (!cancelled) setResolvedClientId((resolvedId as string | null) || null);
     })().catch(() => { if (!cancelled) setResolvedClientId(null); });
     return () => { cancelled = true; };
   }, [clientId]);
@@ -56,7 +53,7 @@ export function useClientGallery(clientId: string | undefined, artistId?: string
   // Fallback: derive artist from client record
   useEffect(() => {
     if (resolvedArtistId || !resolvedClientId || !isUUID(resolvedClientId)) return;
-    supabase.from('clients').select('artist_id').eq('id', resolvedClientId).limit(1).maybeSingle()
+    supabase.rpc('get_public_client_info', { p_client_id: resolvedClientId }).maybeSingle()
       .then(({ data }) => { if (data?.artist_id) setResolvedArtistId(data.artist_id); });
   }, [resolvedArtistId, resolvedClientId]);
 
