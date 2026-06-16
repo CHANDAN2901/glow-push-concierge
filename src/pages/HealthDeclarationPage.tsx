@@ -167,6 +167,7 @@ const HealthDeclarationPage = () => {
         clientId: result.clientId,
         clientName: data.fullName || clientName,
         artistProfileId: artistId || undefined,
+        lang,
       });
     }
 

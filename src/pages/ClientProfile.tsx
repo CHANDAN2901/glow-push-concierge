@@ -199,6 +199,7 @@ function SubscribePushButton({ clientId, clientName, artistProfileId, lang }: { 
       clientId,
       clientName,
       artistProfileId: artistProfileId || undefined,
+      lang: lang === 'en' ? 'en' : 'he',
     });
 
     if (result.success) {

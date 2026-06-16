@@ -50,11 +50,63 @@ function detectPushEnvironment(): { isIOS: boolean; isStandalone: boolean; inApp
   const isStandalone =
     window.matchMedia?.('(display-mode: standalone)')?.matches === true ||
     (navigator as any).standalone === true;
-  // Strong signals only — Facebook/Instagram WebViews and generic Android WebViews ("; wv)")
-  // genuinely cannot register for web push. Avoid false positives on real browsers.
-  const inAppBrowser = /FBAN|FBAV|Instagram|Line\/|; wv\)/i.test(ua);
+  // Strong signals only — in-app WebViews (WhatsApp/Instagram/Facebook/etc.) and generic
+  // Android WebViews ("; wv)") genuinely cannot register for web push. Avoid false positives
+  // on real browsers. Kept in sync with InstallBanner's isInAppBrowser().
+  const inAppBrowser = /FBAN|FBAV|Instagram|WhatsApp|Line\/|Snapchat|Twitter|TikTok|MicroMessenger|; wv\)/i.test(ua);
   return { isIOS, isStandalone, inAppBrowser };
 }
+
+/**
+ * On-device push diagnostics — surfaced in the UI when subscription fails so we (and the
+ * client) can see the real environment state. iOS standalone PWAs can't easily be inspected
+ * with devtools, so this turns "debugging blind" into a screenshot the user can send.
+ */
+export function getPushDiagnostics(): {
+  isIOS: boolean;
+  isStandalone: boolean;
+  inAppBrowser: boolean;
+  hasPushManager: boolean;
+  hasNotification: boolean;
+  permission: string;
+} {
+  const env = detectPushEnvironment();
+  return {
+    ...env,
+    hasPushManager: typeof window !== 'undefined' && 'PushManager' in window,
+    hasNotification: typeof window !== 'undefined' && 'Notification' in window,
+    permission: typeof Notification !== 'undefined' ? Notification.permission : 'unsupported',
+  };
+}
+
+/**
+ * Localized push messages (EN/HE). subscribeToPush historically returned Hebrew-only strings,
+ * so English-page users saw Hebrew errors. Keyed strings keep both languages in one place.
+ */
+const PUSH_MSG = {
+  noSW: { he: 'הדפדפן לא תומך ב-Service Worker', en: 'Your browser does not support Service Workers.' },
+  noPush: { he: 'הדפדפן לא תומך בהתראות פוש.', en: 'Your browser does not support push notifications.' },
+  noNotif: { he: 'הדפדפן לא תומך בהתראות (Notification API חסר).', en: 'Your browser does not support notifications (Notification API missing).' },
+  inApp: { he: 'לא ניתן להפעיל התראות מתוך דפדפן מובנה (וואטסאפ/אינסטגרם). יש לפתוח את הקישור ב-Safari או Chrome ולנסות שוב.', en: 'Notifications can’t be enabled from an in-app browser (WhatsApp/Instagram). Open the link in Safari or Chrome and try again.' },
+  iosInstall: { he: 'באייפון יש להוסיף את האפליקציה למסך הבית (שיתוף → הוסף למסך הבית) ולפתוח אותה משם כדי להפעיל התראות.', en: 'On iPhone, add the app to your Home Screen (Share → Add to Home Screen) and open it from there to enable notifications.' },
+  iosReinstallSafari: { he: 'נראה שהאפליקציה נוספה למסך הבית מתוך דפדפן מובנה. פתחו את הקישור ישירות ב-Safari, ואז שיתוף → הוסף למסך הבית, והפעילו מהאייקון.', en: 'It looks like the app was added to the Home Screen from an in-app browser. Open the link directly in Safari, then Share → Add to Home Screen, and launch it from the icon.' },
+  permDenied: { he: 'ההרשאה להתראות לא אושרה', en: 'Notification permission was not granted' },
+  swError: { he: 'שגיאת Service Worker', en: 'Service Worker error' },
+  vapidError: { he: 'שגיאת VAPID', en: 'VAPID error' },
+  vapidMissing: { he: 'מפתח VAPID לא הוחזר מהשרת.', en: 'The server did not return a VAPID key.' },
+  vapidInvalid: { he: 'מפתח VAPID לא תקין בשרת', en: 'Invalid VAPID key on the server' },
+  vapidBytes: { he: 'מפתח VAPID לא תקין — נדרשים 65 בייט', en: 'Invalid VAPID key — 65 bytes required' },
+  vapidDecode: { he: 'שגיאת פענוח מפתח VAPID', en: 'VAPID key decode error' },
+  braveFcm: { he: 'דפדפן Brave חוסם התראות כברירת מחדל. פתחו brave://settings/privacy, הפעילו "Use Google services for push messaging", הפעילו מחדש את Brave ונסו שוב — או השתמשו ב-Chrome/Safari.', en: 'Brave blocks push by default. Open brave://settings/privacy, enable "Use Google services for push messaging", restart Brave, and try again — or use Chrome/Safari.' },
+  pushServiceError: { he: 'הדפדפן נכשל ברישום לשירות ההתראות. רעננו את הדף ונסו שוב, או פתחו ב-Chrome/Safari.', en: 'Your browser couldn’t register with its push service. Refresh and try again, or open in Chrome/Safari.' },
+  subscribeError: { he: 'שגיאת הרשמה', en: 'Subscription error' },
+  subInfoMissing: { he: 'מידע ההרשמה חסר (endpoint/keys).', en: 'Subscription info is missing (endpoint/keys).' },
+  clientCheckError: { he: 'שגיאה באימות רשומת הלקוחה', en: 'Error verifying the client record' },
+  clientNotFound: { he: 'רשומת הלקוחה לא נמצאה — ייתכן שהקישור אינו תקין או שהלקוחה נמחקה. פתחו את הקישור האישי שנשלח אליכם ונסו שוב.', en: 'Client record not found — the link may be invalid or the client was deleted. Open the personal link sent to you and try again.' },
+  dbError: { he: 'שגיאת שמירה ב-DB', en: 'Database save error' },
+  optInError: { he: 'שגיאה בהפעלת התראות', en: 'Error enabling notifications' },
+  general: { he: 'שגיאה כללית', en: 'General error' },
+} as const;
 
 /**
  * Unregister any leftover service workers that are NOT our push SW.
@@ -145,36 +197,39 @@ export async function subscribeToPush(opts: {
   clientId: string;
   clientName: string;
   artistProfileId?: string;
-}): Promise<{ success: boolean; error?: string }> {
+  lang?: 'en' | 'he';
+}): Promise<{ success: boolean; error?: string; code?: string }> {
+  const lang: 'en' | 'he' = opts.lang === 'en' ? 'en' : 'he';
+  const t = (k: keyof typeof PUSH_MSG) => PUSH_MSG[k][lang] ?? PUSH_MSG[k].he;
   try {
-    // Check browser support
-    if (!('serviceWorker' in navigator)) {
-      return { success: false, error: 'הדפדפן לא תומך ב-Service Worker' };
-    }
-    if (!('PushManager' in window)) {
-      return { success: false, error: 'הדפדפן לא תומך ב-PushManager' };
-    }
-    if (!('Notification' in window)) {
-      return { success: false, error: 'הדפדפן לא תומך בהתראות (Notification API missing)' };
-    }
-
-    // 0. Environment guard — fail fast with an actionable message instead of a cryptic
-    //    "push service error" that the browser throws deep inside subscribe().
+    // 0. Environment guard FIRST — must run before the generic "not supported" checks.
+    //    On iOS Safari, PushManager is legitimately absent unless the app is installed to the
+    //    Home Screen, so the generic check would otherwise return a dead-end "not supported"
+    //    message instead of actionable "Add to Home Screen" guidance.
     const env = detectPushEnvironment();
     console.log('[Push] Environment:', env);
     if (env.inAppBrowser) {
-      return {
-        success: false,
-        error:
-          'לא ניתן להפעיל התראות מתוך דפדפן מובנה (וואטסאפ/אינסטגרם). יש לפתוח את הקישור ב-Chrome או Safari ולנסות שוב.',
-      };
+      return { success: false, code: 'in-app-browser', error: t('inApp') };
     }
     if (env.isIOS && !env.isStandalone) {
-      return {
-        success: false,
-        error:
-          'באייפון יש להוסיף את האפליקציה למסך הבית (שיתוף → הוסף למסך הבית) ולפתוח אותה משם כדי להפעיל התראות.',
-      };
+      return { success: false, code: 'ios-needs-install', error: t('iosInstall') };
+    }
+
+    // 1. Generic browser-support checks (truly unsupported / desktop browsers).
+    if (!('serviceWorker' in navigator)) {
+      return { success: false, code: 'unsupported', error: t('noSW') };
+    }
+    if (!('PushManager' in window)) {
+      // iOS paradox: standalone-looking but the Push API is missing → almost always means the
+      // app was added to the Home Screen from a non-Safari browser (e.g. WhatsApp). Guide a
+      // reinstall from Safari rather than the generic "unsupported" dead end.
+      if (env.isIOS) {
+        return { success: false, code: 'ios-push-unavailable', error: t('iosReinstallSafari') };
+      }
+      return { success: false, code: 'unsupported', error: t('noPush') };
+    }
+    if (!('Notification' in window)) {
+      return { success: false, code: 'unsupported', error: t('noNotif') };
     }
 
     // 1. Request permission
@@ -182,7 +237,7 @@ export async function subscribeToPush(opts: {
     const permission = await Notification.requestPermission();
     console.log('[Push] Permission result:', permission);
     if (permission !== 'granted') {
-      return { success: false, error: `ההרשאה להתראות לא אושרה (status: ${permission})` };
+      return { success: false, code: 'permission-denied', error: `${t('permDenied')} (status: ${permission})` };
     }
 
     // 2. Register custom SW
@@ -192,7 +247,7 @@ export async function subscribeToPush(opts: {
       console.log('[Push] SW active, ready for subscription');
     } catch (swErr: any) {
       console.error('[Push] SW registration failed:', swErr);
-      return { success: false, error: `שגיאת Service Worker: ${swErr.message}` };
+      return { success: false, code: 'sw-error', error: `${t('swError')}: ${swErr.message}` };
     }
 
     // 3. Fetch VAPID public key from edge function
@@ -202,23 +257,24 @@ export async function subscribeToPush(opts: {
       const { data: vapidData, error: vapidError } = await supabase.functions.invoke('get-vapid-key');
       if (vapidError) {
         console.error('[Push] VAPID fetch error:', vapidError);
-        return { success: false, error: `שגיאת VAPID: ${vapidError.message || JSON.stringify(vapidError)}` };
+        return { success: false, code: 'vapid-error', error: `${t('vapidError')}: ${vapidError.message || JSON.stringify(vapidError)}` };
       }
       if (!vapidData?.publicKey) {
-        return { success: false, error: 'מפתח VAPID לא הוחזר מהשרת' };
+        return { success: false, code: 'vapid-error', error: t('vapidMissing') };
       }
       vapidPublicKey = vapidData.publicKey;
       console.log('[Push] VAPID public key received, length:', vapidPublicKey.length);
     } catch (vapidErr: any) {
       console.error('[Push] VAPID exception:', vapidErr);
-      return { success: false, error: `שגיאת VAPID: ${vapidErr.message}` };
+      return { success: false, code: 'vapid-error', error: `${t('vapidError')}: ${vapidErr.message}` };
     }
 
     const normalizedVapidKey = vapidPublicKey.trim();
     if (!isLikelyVapidPublicKey(normalizedVapidKey)) {
       return {
         success: false,
-        error: `מפתח VAPID לא תקין בשרת (אורך: ${normalizedVapidKey.length}). יש לעדכן את מפתחות ההתראות ב-Lovable Cloud.`,
+        code: 'vapid-error',
+        error: `${t('vapidInvalid')} (length: ${normalizedVapidKey.length}).`,
       };
     }
 
@@ -231,11 +287,12 @@ export async function subscribeToPush(opts: {
       if (decodedKey.length !== 65) {
         return {
           success: false,
-          error: `מפתח VAPID לא תקין — נדרשים 65 בייט, התקבלו ${decodedKey.length}. יש לאפס את מפתחות VAPID בסופאבייס.`,
+          code: 'vapid-error',
+          error: `${t('vapidBytes')} (got ${decodedKey.length}).`,
         };
       }
     } catch (decodeErr: any) {
-      return { success: false, error: `שגיאת פענוח מפתח VAPID: ${decodeErr.message}` };
+      return { success: false, code: 'vapid-error', error: `${t('vapidDecode')}: ${decodeErr.message}` };
     }
 
     // 4. Reuse existing browser subscription if the VAPID key matches — avoid unnecessary churn.
@@ -272,21 +329,24 @@ export async function subscribeToPush(opts: {
       }
     } catch (subErr: any) {
       console.error('[Push] pushManager.subscribe failed:', subErr);
-      // AbortError after retries means the browser couldn't register with its push
-      // service (FCM/APNs) — not a code/key problem. Give the user a next step.
+      // AbortError after retries means the browser couldn't register with its push service
+      // (FCM/APNs) — not a code/key problem. Brave disables Google's push service by default,
+      // which produces this exact error; detect it and point the user to the setting.
       if (subErr?.name === 'AbortError') {
+        let isBrave = false;
+        try { isBrave = !!(navigator as any).brave && (await (navigator as any).brave.isBrave?.()); } catch {}
         return {
           success: false,
-          error:
-            'הדפדפן נכשל ברישום לשירות ההתראות. נסו לרענן את הדף ולנסות שוב, או לפתוח ב-Chrome/Safari. (push service error)',
+          code: isBrave ? 'brave-fcm-disabled' : 'push-service-error',
+          error: isBrave ? t('braveFcm') : t('pushServiceError'),
         };
       }
-      return { success: false, error: `שגיאת הרשמה: ${subErr.message}` };
+      return { success: false, code: 'subscribe-error', error: `${t('subscribeError')}: ${subErr.message}` };
     }
 
     const subJson = subscription.toJSON();
     if (!subJson.endpoint || !subJson.keys?.p256dh || !subJson.keys?.auth) {
-      return { success: false, error: 'מידע ההרשמה חסר (endpoint/keys)' };
+      return { success: false, code: 'sub-info-missing', error: t('subInfoMissing') };
     }
 
     // 5. Sanitize clientId — extract UUID only (guard against concatenation bugs)
@@ -304,14 +364,11 @@ export async function subscribeToPush(opts: {
       .maybeSingle();
     if (clientCheckErr) {
       console.error('[Push] Client existence check failed:', clientCheckErr.message);
-      return { success: false, error: `שגיאה באימות רשומת הלקוחה: ${clientCheckErr.message}` };
+      return { success: false, code: 'client-check-error', error: `${t('clientCheckError')}: ${clientCheckErr.message}` };
     }
     if (!clientRow) {
       console.error('[Push] Client not found for id:', cleanClientId);
-      return {
-        success: false,
-        error: 'רשומת הלקוחה לא נמצאה — ייתכן שהקישור אינו תקין או שהלקוחה נמחקה. פתחו את הקישור האישי שנשלח אליכם ונסו שוב.',
-      };
+      return { success: false, code: 'client-not-found', error: t('clientNotFound') };
     }
 
     // 6. Delete any existing DB record for this endpoint only — after we have a valid subscription.
@@ -337,7 +394,7 @@ export async function subscribeToPush(opts: {
 
     if (dbError) {
       console.error('[Push] Supabase insert error:', dbError);
-      return { success: false, error: `שגיאת שמירה בDB: ${dbError.message} (code: ${dbError.code})` };
+      return { success: false, code: 'db-error', error: `${t('dbError')}: ${dbError.message} (code: ${dbError.code})` };
     }
 
     console.log('[Push] Insert completed successfully');
@@ -349,13 +406,13 @@ export async function subscribeToPush(opts: {
       console.error('[Push] Failed to update push_opted_in:', updateErr.message);
       // Roll back the subscription record so the toggle doesn't show as ON with a broken state
       await supabase.from('push_subscriptions').delete().eq('endpoint', subJson.endpoint!);
-      return { success: false, error: `שגיאה בהפעלת התראות: ${updateErr.message}` };
+      return { success: false, code: 'optin-error', error: `${t('optInError')}: ${updateErr.message}` };
     }
 
     console.log('[Push] ✅ Push subscription saved successfully!');
     return { success: true };
   } catch (err: any) {
     console.error('[Push] Subscription flow error:', err);
-    return { success: false, error: `שגיאה כללית: ${err.message || 'שגיאה לא ידועה'}` };
+    return { success: false, code: 'general-error', error: `${t('general')}: ${err.message || 'unknown'}` };
   }
 }

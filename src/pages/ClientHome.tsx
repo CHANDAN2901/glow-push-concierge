@@ -8,7 +8,7 @@ import { usePromoSettings } from '@/hooks/usePromoSettings';
 import { TreatmentType } from '@/lib/recovery-data';
 import { useClientHealingPhases } from '@/hooks/useClientHealingPhases';
 import { ChevronLeft, ChevronRight, Heart, Clock, Shield, CheckCircle2, Camera, Instagram, CalendarCheck, CalendarPlus, Check, Sparkles, Gift, MessageCircle, HelpCircle, ChevronDown, ArrowUp, Bell, Phone, Navigation, FileText } from 'lucide-react';
-import { subscribeToPush } from '@/lib/push-utils';
+import { subscribeToPush, getPushDiagnostics } from '@/lib/push-utils';
 import {
   Accordion,
   AccordionContent,
@@ -197,8 +197,16 @@ const LogoBrand = ({ lang, setLang, hasUnread = false, onBellClick, artistLogoUr
   </div>
 );
 
+/** Compact one-line environment readout shown when a subscribe attempt fails — lets the
+ *  user screenshot the real state (iOS standalone? PushManager present? permission?) so we
+ *  can diagnose iOS without devtools. */
+function formatPushDiag(): string {
+  const d = getPushDiagnostics();
+  return `iOS:${d.isIOS ? '✓' : '✗'} standalone:${d.isStandalone ? '✓' : '✗'} inApp:${d.inAppBrowser ? '✓' : '✗'} push:${d.hasPushManager ? '✓' : '✗'} perm:${d.permission}`;
+}
+
 /* ─── Push Notification hook — shared between banner and install modal ─── */
-function usePushSubscription({ clientId, clientName, artistProfileId, lang }: { clientId: string; clientName: string; artistProfileId: string; lang: 'en' | 'he' }) {
+function usePushSubscription({ clientId, clientName, artistProfileId, lang, onInstallNeeded }: { clientId: string; clientName: string; artistProfileId: string; lang: 'en' | 'he'; onInstallNeeded?: (code: string) => void }) {
   const { toast } = useToast();
   const validClientId = isUUID(clientId);
   const lsKey = `gp-push-subscribed-${clientId}`;
@@ -206,6 +214,7 @@ function usePushSubscription({ clientId, clientName, artistProfileId, lang }: { 
   const [status, setStatus] = useState<'checking' | 'idle' | 'loading' | 'subscribed'>(() => {
     try { return localStorage.getItem(lsKey) === '1' ? 'subscribed' : 'checking'; } catch { return 'checking'; }
   });
+  const [diag, setDiag] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -264,30 +273,40 @@ function usePushSubscription({ clientId, clientName, artistProfileId, lang }: { 
       return;
     }
     setStatus('loading');
+    setDiag(null);
     try {
-      const result = await subscribeToPush({ clientId, clientName, artistProfileId });
+      const result = await subscribeToPush({ clientId, clientName, artistProfileId, lang });
       if (result.success) {
         try { localStorage.setItem(lsKey, '1'); } catch {}
         setStatus('subscribed');
+        setDiag(null);
         toast({ title: lang === 'en' ? 'Notifications enabled! ✅' : 'התראות הופעלו בהצלחה! ✅' });
       } else {
         setStatus('idle');
-        toast({ title: lang === 'en' ? 'Failed to subscribe' : 'ההרשמה נכשלה', description: result.error, variant: 'destructive' });
+        setDiag(formatPushDiag());
+        // Install-related failures: surface the visual install guide instead of a dead-end toast.
+        if (result.code && ['ios-needs-install', 'in-app-browser', 'ios-push-unavailable'].includes(result.code)) {
+          onInstallNeeded?.(result.code);
+        } else {
+          toast({ title: lang === 'en' ? 'Failed to subscribe' : 'ההרשמה נכשלה', description: result.error, variant: 'destructive' });
+        }
       }
     } catch {
       setStatus('idle');
+      setDiag(formatPushDiag());
       toast({ title: lang === 'en' ? 'Failed to subscribe' : 'ההרשמה נכשלה', variant: 'destructive' });
     }
   };
 
-  return { status, handleSubscribe };
+  return { status, handleSubscribe, diag };
 }
 
 /* ─── Push Notification Banner ─── */
-function ClientPushBanner({ status, onSubscribe, lang }: { status: 'checking' | 'idle' | 'loading' | 'subscribed'; onSubscribe: () => Promise<void>; lang: 'en' | 'he' }) {
+function ClientPushBanner({ status, onSubscribe, lang, diag }: { status: 'checking' | 'idle' | 'loading' | 'subscribed'; onSubscribe: () => Promise<void>; lang: 'en' | 'he'; diag?: string | null }) {
   if (status === 'checking') return null;
 
   return (
+    <>
     <button
       onClick={onSubscribe}
       disabled={status === 'loading'}
@@ -312,6 +331,12 @@ function ClientPushBanner({ status, onSubscribe, lang }: { status: 'checking' | 
           ? (lang === 'en' ? 'Enabling...' : 'מפעילה...')
           : (lang === 'en' ? 'Enable notifications for recovery updates 🔔' : 'הפעילי התראות לקבלת עדכוני החלמה 🔔')}
     </button>
+    {diag && status === 'idle' && (
+      <div className="mb-5 -mt-3 text-[10px] text-center font-mono opacity-60" style={{ color: '#5C400A' }}>
+        {diag}
+      </div>
+    )}
+    </>
   );
 }
 
@@ -503,7 +528,16 @@ const ClientHome = () => {
     return Math.max(0, Math.min(30, diff));
   }, [startDateParam]);
 
-  const { status: pushStatus, handleSubscribe: handlePushSubscribe } = usePushSubscription({ clientId, clientName, artistProfileId, lang });
+  // On-demand control of the InstallBanner: when push fails on iOS / in-app, we open the
+  // visual install guide instead of a dead-end toast (bumping installSignal bypasses dismissal).
+  const [installSignal, setInstallSignal] = useState(0);
+  const [installStep, setInstallStep] = useState<'install' | 'open-browser' | 'notifications' | 'done' | undefined>(undefined);
+  const onInstallNeeded = (code: string) => {
+    setInstallStep(code === 'in-app-browser' ? 'open-browser' : 'install');
+    setInstallSignal((n) => n + 1);
+  };
+
+  const { status: pushStatus, handleSubscribe: handlePushSubscribe, diag: pushDiag } = usePushSubscription({ clientId, clientName, artistProfileId, lang, onInstallNeeded });
 
   const { phases, loading: phasesLoading, error: phasesError, getPhaseForDay } = useClientHealingPhases(isUUID(clientId) ? clientId : null, treatment);
   const { promo } = usePromoSettings(artistProfileId || undefined);
@@ -865,7 +899,7 @@ const ClientHome = () => {
       <div className="pt-28 max-w-md mx-auto px-4" dir={lang === 'he' ? 'rtl' : 'ltr'}>
 
         {/* ─── PUSH BANNER ─── */}
-        <ClientPushBanner status={pushStatus} onSubscribe={handlePushSubscribe} lang={lang} />
+        <ClientPushBanner status={pushStatus} onSubscribe={handlePushSubscribe} lang={lang} diag={pushDiag} />
 
         {/* ─── GREETING CARD ─── */}
         <div className="relative mb-6">
@@ -1452,7 +1486,7 @@ const ClientHome = () => {
               <span>{lang === 'en' ? 'FAQ' : 'שאלות נפוצות'}</span>
             </a>
           </div>
-          <InstallBanner onEnableNotifications={handlePushSubscribe} />
+          <InstallBanner onEnableNotifications={handlePushSubscribe} forceOpenSignal={installSignal} forceStep={installStep} />
         </div>
       </div>
 

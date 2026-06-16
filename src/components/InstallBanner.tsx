@@ -35,9 +35,13 @@ type Step = 'open-browser' | 'install' | 'notifications' | 'done';
 
 interface InstallBannerProps {
   onEnableNotifications?: () => Promise<void>;
+  /** Bump this number to open the banner on demand (e.g. after push fails on iOS),
+   *  bypassing the localStorage dismissal suppression. */
+  forceOpenSignal?: number;
+  forceStep?: Step;
 }
 
-const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnableNotifications }, ref) => {
+const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnableNotifications, forceOpenSignal, forceStep }, ref) => {
   const { lang } = useI18n();
   const isHe = lang === 'he';
   const [visible, setVisible] = useState(false);
@@ -93,6 +97,15 @@ const InstallBanner = forwardRef<HTMLDivElement, InstallBannerProps>(({ onEnable
 
     setTimeout(() => setVisible(true), 2500);
   }, [device]);
+
+  // Open on demand (controlled by parent via forceOpenSignal). Used when the user taps
+  // "Enable notifications" but push is blocked (iOS not standalone / in-app browser): we
+  // surface this visual install guide instead of a dead-end toast. Bypasses dismissal state.
+  useEffect(() => {
+    if (!forceOpenSignal) return;
+    setStep(forceStep ?? (isInAppBrowser() ? 'open-browser' : 'install'));
+    setVisible(true);
+  }, [forceOpenSignal, forceStep]);
 
   if (!visible) return null;
 
