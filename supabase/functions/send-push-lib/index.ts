@@ -1,10 +1,7 @@
-// Library-based variant of `send-push`, using the `web-push` npm package instead
-// of the hand-rolled VAPID JWT + AES-128-GCM crypto.
-//
-// ⚠️ VERIFY BEFORE CUTOVER: `web-push` is a Node library; this runs on the Supabase
-// Edge Runtime (Deno). `npm:` + Node-compat usually works, but must be confirmed on a
-// real deploy with a live subscription. The original `send-push` is left intact as the
-// fallback — only repoint callers (aftercare-cron) here once this is confirmed working.
+// Drop-in twin of `send-push` that uses npm:web-push instead of the hand-rolled
+// VAPID/encryption pipeline. Auth, request shape, env vars, and stale-subscription
+// cleanup behavior are identical. Deploy alongside `send-push` for A/B testing.
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
@@ -21,8 +18,6 @@ async function authenticateRequest(req: Request): Promise<{ userId: string } | n
 
   const token = authHeader.replace("Bearer ", "").trim();
 
-  // Trusted internal/server calls (aftercare-cron, birthday-greetings) use the
-  // service-role key, which maps to no user — accept it explicitly.
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (serviceRoleKey && token === serviceRoleKey) {
     return { userId: "service-role" };
@@ -38,7 +33,7 @@ async function authenticateRequest(req: Request): Promise<{ userId: string } | n
     if (error || !user) return null;
     return { userId: user.id };
   } catch (e) {
-    console.error("Auth error:", e);
+    console.error("[send-push-lib] Auth error:", e);
     return null;
   }
 }
@@ -48,11 +43,7 @@ function summarizeSubscription(subscription: any) {
   const endpointHost =
     typeof endpoint === "string" && endpoint
       ? (() => {
-          try {
-            return new URL(endpoint).host;
-          } catch {
-            return "invalid-endpoint";
-          }
+          try { return new URL(endpoint).host; } catch { return "invalid-endpoint"; }
         })()
       : "missing";
   return {
@@ -71,44 +62,6 @@ function classifyProviderFailure(status: number, bodyText: string): FailureClass
   if (status === 404) return "subscription_transient";
   if (/expired/i.test(bodyText)) return "subscription_transient";
   return "provider_error";
-}
-
-// Delete a permanently-gone subscription, or count a transient failure and delete after 3.
-async function cleanupSubscription(endpoint: string, failureReason: FailureClass) {
-  if (failureReason !== "subscription_gone" && failureReason !== "subscription_transient") return;
-  try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
-    if (failureReason === "subscription_gone") {
-      const { error } = await adminClient.from("push_subscriptions").delete().eq("endpoint", endpoint);
-      if (error) console.warn("[send-push-lib] Failed to delete gone subscription:", error.message);
-      else console.log("[send-push-lib] ✅ Subscription permanently gone — deleted from DB");
-      return;
-    }
-
-    // Transient: increment fail_count, delete only at 3.
-    const { data: rows, error: fetchErr } = await adminClient
-      .from("push_subscriptions")
-      .select("id, fail_count")
-      .eq("endpoint", endpoint)
-      .limit(1);
-
-    if (!fetchErr && rows && rows.length > 0) {
-      const row = rows[0];
-      const newCount = (row.fail_count ?? 0) + 1;
-      if (newCount >= 3) {
-        await adminClient.from("push_subscriptions").delete().eq("id", row.id);
-        console.log(`[send-push-lib] ✅ Subscription hit ${newCount} transient failures — deleted from DB`);
-      } else {
-        await adminClient.from("push_subscriptions").update({ fail_count: newCount }).eq("id", row.id);
-        console.log(`[send-push-lib] Transient failure recorded (fail_count: ${newCount}/3)`);
-      }
-    }
-  } catch (cleanupErr: any) {
-    console.warn("[send-push-lib] Cleanup error:", cleanupErr?.message);
-  }
 }
 
 serve(async (req: Request) => {
@@ -136,6 +89,7 @@ serve(async (req: Request) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
     if (!requestBody) {
       return new Response(JSON.stringify({ error: "Empty request body" }), {
         status: 400,
@@ -148,6 +102,7 @@ serve(async (req: Request) => {
     console.log("[send-push-lib] Request summary:", JSON.stringify(subscriptionSummary));
 
     if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
+      console.error("[send-push-lib] Invalid subscription object:", JSON.stringify(subscriptionSummary));
       return new Response(
         JSON.stringify({
           error: "Invalid subscription object. Required: endpoint, keys.p256dh, keys.auth",
@@ -163,8 +118,23 @@ serve(async (req: Request) => {
     const vapidPrivateKey = rawPrivate.replace(/[^A-Za-z0-9\-_]/g, "");
 
     if (!vapidPublicKey || !vapidPrivateKey) {
+      console.error("[send-push-lib] Missing VAPID keys");
       return new Response(
-        JSON.stringify({ error: "VAPID keys not configured", hasPublicKey: !!rawPublic, hasPrivateKey: !!rawPrivate }),
+        JSON.stringify({
+          error: "VAPID keys not configured",
+          hasPublicKey: !!rawPublic,
+          hasPrivateKey: !!rawPrivate,
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    try {
+      webpush.setVapidDetails("mailto:push@glowpush.app", vapidPublicKey, vapidPrivateKey);
+    } catch (vapidErr: any) {
+      console.error("[send-push-lib] setVapidDetails failed:", vapidErr?.message);
+      return new Response(
+        JSON.stringify({ error: `VAPID configuration failed: ${vapidErr?.message || "Unknown error"}` }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -180,36 +150,80 @@ serve(async (req: Request) => {
       data: { url: targetUrl, day: day || null },
     });
 
-    // === This is the whole point of the library: encryption + VAPID JWT + send in one call. ===
-    webpush.setVapidDetails("mailto:push@glowpush.app", vapidPublicKey, vapidPrivateKey);
+    const endpointHost = (() => {
+      try { return new URL(subscription.endpoint).host; } catch { return "invalid"; }
+    })();
+    console.log("[send-push-lib] Sending to host:", endpointHost);
 
     try {
-      console.log("[send-push-lib] Sending via web-push to host:", subscriptionSummary.endpointHost);
-      await webpush.sendNotification(subscription, notificationPayload, {
-        TTL: 86400,
-        headers: { Urgency: "high" },
-      });
-      console.log("[send-push-lib] ✅ Push delivered successfully");
-      return new Response(JSON.stringify({ success: true }), {
+      const result = await webpush.sendNotification(
+        {
+          endpoint: subscription.endpoint,
+          keys: { p256dh: subscription.keys.p256dh, auth: subscription.keys.auth },
+        },
+        notificationPayload,
+        { TTL: 86400, urgency: "high" },
+      );
+
+      console.log("[send-push-lib] ✅ Push delivered, status:", result.statusCode);
+      return new Response(JSON.stringify({ success: true, provider_status: result.statusCode }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-    } catch (sendErr: any) {
-      // web-push throws a WebPushError with statusCode / body / headers on non-2xx.
-      const status: number = sendErr?.statusCode ?? 0;
-      const providerText: string = typeof sendErr?.body === "string" ? sendErr.body : (sendErr?.message || "");
-      const failureReason = classifyProviderFailure(status, providerText);
+    } catch (pushErr: any) {
+      const providerStatus: number = pushErr?.statusCode ?? 0;
+      const providerText: string = pushErr?.body ?? pushErr?.message ?? "";
+      const providerBody = (() => {
+        try { return JSON.parse(providerText); } catch { return providerText; }
+      })();
+      const failureReason = classifyProviderFailure(providerStatus, String(providerText));
 
       console.error(
-        "[send-push-lib] Provider error:",
+        "[send-push-lib] Provider error details:",
         JSON.stringify({
           failureReason,
-          providerStatus: status,
-          endpointHost: subscriptionSummary.endpointHost,
-          providerResponse: providerText?.slice(0, 500),
+          providerStatus,
+          endpointHost,
+          providerResponse: providerBody,
         }),
       );
 
-      await cleanupSubscription(subscription.endpoint, failureReason);
+      if (failureReason === "subscription_gone" || failureReason === "subscription_transient") {
+        try {
+          const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+          const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+          const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+          if (failureReason === "subscription_gone") {
+            const { error: deleteErr } = await adminClient
+              .from("push_subscriptions")
+              .delete()
+              .eq("endpoint", subscription.endpoint);
+            if (deleteErr) console.warn("[send-push-lib] Failed to delete gone subscription:", deleteErr.message);
+            else console.log("[send-push-lib] ✅ Subscription permanently gone — deleted from DB");
+          } else {
+            const { data: rows, error: fetchErr } = await adminClient
+              .from("push_subscriptions")
+              .select("id, fail_count")
+              .eq("endpoint", subscription.endpoint)
+              .limit(1);
+
+            if (!fetchErr && rows && rows.length > 0) {
+              const row = rows[0];
+              const newCount = (row.fail_count ?? 0) + 1;
+              if (newCount >= 3) {
+                await adminClient.from("push_subscriptions").delete().eq("id", row.id);
+                console.log(`[send-push-lib] ✅ Subscription hit ${newCount} transient failures — deleted from DB`);
+              } else {
+                await adminClient.from("push_subscriptions").update({ fail_count: newCount }).eq("id", row.id);
+                console.log(`[send-push-lib] Transient failure recorded (fail_count: ${newCount}/3)`);
+              }
+            }
+          }
+        } catch (cleanupErr: any) {
+          console.warn("[send-push-lib] Cleanup error:", cleanupErr?.message);
+        }
+      }
 
       return new Response(
         JSON.stringify({
@@ -220,17 +234,20 @@ serve(async (req: Request) => {
               ? "Push subscription transiently unreachable (404)"
               : "Push delivery failed",
           failure_reason: failureReason,
-          provider_status: status,
-          provider_response: providerText?.slice(0, 500),
+          provider_status: providerStatus,
+          provider_response: providerBody,
         }),
-        { status: status || 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        {
+          status: providerStatus && providerStatus >= 400 ? providerStatus : 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
       );
     }
-  } catch (error: any) {
-    console.error("[send-push-lib] Unhandled error:", JSON.stringify({ name: error?.name, message: error?.message }));
-    return new Response(JSON.stringify({ error: error?.message || "Unknown server error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+  } catch (err: any) {
+    console.error("[send-push-lib] Unexpected error:", err?.message, err?.stack);
+    return new Response(
+      JSON.stringify({ error: err?.message || "Internal error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
 });
