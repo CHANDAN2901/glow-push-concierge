@@ -38,10 +38,81 @@ function isLikelyVapidPublicKey(key: string): boolean {
 }
 
 /**
+ * Detect the runtime environment so we can fail fast with an actionable message
+ * instead of a cryptic "AbortError: push service error" deep inside subscribe().
+ */
+function detectPushEnvironment(): { isIOS: boolean; isStandalone: boolean; inAppBrowser: boolean } {
+  const ua = navigator.userAgent || '';
+  // iPadOS reports as MacIntel but has touch points; a real Mac has maxTouchPoints === 0.
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandalone =
+    window.matchMedia?.('(display-mode: standalone)')?.matches === true ||
+    (navigator as any).standalone === true;
+  // Strong signals only — Facebook/Instagram WebViews and generic Android WebViews ("; wv)")
+  // genuinely cannot register for web push. Avoid false positives on real browsers.
+  const inAppBrowser = /FBAN|FBAV|Instagram|Line\/|; wv\)/i.test(ua);
+  return { isIOS, isStandalone, inAppBrowser };
+}
+
+/**
+ * Unregister any leftover service workers that are NOT our push SW.
+ * A stale SW from an earlier visit (old Workbox/custom-sw kill-switch) is a common
+ * cause of mobile-only "Registration failed - push service error" on re-subscribe.
+ */
+async function cleanupStaleServiceWorkers(): Promise<void> {
+  try {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for (const reg of regs) {
+      const scriptURL =
+        reg.active?.scriptURL || reg.waiting?.scriptURL || reg.installing?.scriptURL || '';
+      if (scriptURL && !scriptURL.endsWith('/push-sw.js')) {
+        console.log('[Push] Unregistering stale service worker:', scriptURL);
+        await reg.unregister();
+      }
+    }
+  } catch (e) {
+    console.warn('[Push] Stale SW cleanup failed (non-fatal):', e);
+  }
+}
+
+/**
+ * Subscribe with retry — "AbortError: push service error" is frequently transient
+ * (the browser's registration call to FCM/APNs times out or rate-limits). One shot
+ * gives up too easily; a few backoff retries turns many failures into successes.
+ */
+async function subscribeWithRetry(
+  registration: ServiceWorkerRegistration,
+  applicationServerKey: Uint8Array,
+  attempts = 3,
+): Promise<PushSubscription> {
+  let lastErr: any;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await (registration as any).pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey,
+      });
+    } catch (e: any) {
+      lastErr = e;
+      // Only retry the transient push-service error; rethrow real config errors immediately.
+      if (e?.name !== 'AbortError') throw e;
+      console.warn(`[Push] subscribe attempt ${i + 1}/${attempts} failed (AbortError) — retrying...`);
+      await new Promise((r) => setTimeout(r, 700 * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
+
+/**
  * Ensure the push-capable service worker is registered and active.
  * All other SW files in /public are kill-switches, so we register push-sw.js explicitly.
  */
 async function getActiveSWRegistration(): Promise<ServiceWorkerRegistration> {
+  // Remove any leftover/conflicting service workers before registering ours.
+  await cleanupStaleServiceWorkers();
+
   console.log('[Push] Registering push service worker...');
   const reg = await navigator.serviceWorker.register('/push-sw.js', { scope: '/' });
   console.log('[Push] SW registered, scope:', reg.scope);
@@ -85,6 +156,25 @@ export async function subscribeToPush(opts: {
     }
     if (!('Notification' in window)) {
       return { success: false, error: 'הדפדפן לא תומך בהתראות (Notification API missing)' };
+    }
+
+    // 0. Environment guard — fail fast with an actionable message instead of a cryptic
+    //    "push service error" that the browser throws deep inside subscribe().
+    const env = detectPushEnvironment();
+    console.log('[Push] Environment:', env);
+    if (env.inAppBrowser) {
+      return {
+        success: false,
+        error:
+          'לא ניתן להפעיל התראות מתוך דפדפן מובנה (וואטסאפ/אינסטגרם). יש לפתוח את הקישור ב-Chrome או Safari ולנסות שוב.',
+      };
+    }
+    if (env.isIOS && !env.isStandalone) {
+      return {
+        success: false,
+        error:
+          'באייפון יש להוסיף את האפליקציה למסך הבית (שיתוף → הוסף למסך הבית) ולפתוח אותה משם כדי להפעיל התראות.',
+      };
     }
 
     // 1. Request permission
@@ -171,23 +261,26 @@ export async function subscribeToPush(opts: {
         } else {
           console.log('[Push] VAPID key changed — unsubscribing old subscription...');
           await existingSub.unsubscribe();
-          subscription = await (registration as any).pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: currentKeyBytes,
-          });
+          subscription = await subscribeWithRetry(registration, currentKeyBytes);
           console.log('[Push] New subscription created after key change:', subscription.endpoint);
         }
       } else {
         console.log('[Push] No existing subscription — creating new one...');
         const applicationServerKey = urlBase64ToUint8Array(normalizedVapidKey);
-        subscription = await (registration as any).pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey,
-        });
+        subscription = await subscribeWithRetry(registration, applicationServerKey);
         console.log('[Push] New push subscription created:', subscription.endpoint);
       }
     } catch (subErr: any) {
       console.error('[Push] pushManager.subscribe failed:', subErr);
+      // AbortError after retries means the browser couldn't register with its push
+      // service (FCM/APNs) — not a code/key problem. Give the user a next step.
+      if (subErr?.name === 'AbortError') {
+        return {
+          success: false,
+          error:
+            'הדפדפן נכשל ברישום לשירות ההתראות. נסו לרענן את הדף ולנסות שוב, או לפתוח ב-Chrome/Safari. (push service error)',
+        };
+      }
       return { success: false, error: `שגיאת הרשמה: ${subErr.message}` };
     }
 
