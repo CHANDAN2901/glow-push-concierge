@@ -65,6 +65,20 @@ serve(async (req: Request) => {
         .eq("key", settingKey)
         .maybeSingle();
       effectiveAmount = Number(setting?.value ?? (isIsrael ? 1 : 2));
+    } else {
+      // One-time coupon discount: a percentage coupon entered at signup is stored on the
+      // profile as post_trial_discount_percent (via apply_referral_benefits). Apply it to
+      // this first real-plan charge only — renewals are billed at full price (see tranzilla-webhook).
+      const { data: prof } = await supabaseAdmin
+        .from("profiles")
+        .select("post_trial_discount_percent")
+        .eq("user_id", auth.userId)
+        .maybeSingle();
+      const pct = Number(prof?.post_trial_discount_percent ?? 0);
+      if (pct > 0 && pct < 100) {
+        effectiveAmount = Math.round(effectiveAmount * (100 - pct)) / 100;
+        console.log(`[create-payment-session] Applied ${pct}% coupon discount → ₪${effectiveAmount}`);
+      }
     }
 
     console.log(`[create-payment-session] TERMINAL_NAME="${TERMINAL_NAME}" TERMINAL_PW_set=${!!TERMINAL_PW}`);

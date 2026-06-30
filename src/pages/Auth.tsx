@@ -277,8 +277,11 @@ const Auth = () => {
         const destination = sanitizeRoleDestination(requested, signedInIsAdmin);
         navigate(destination, { replace: true });
       } else {
-        // Only referral codes (person-to-person) get passed through — promo codes no longer grant free access
-        const hasReferral = promoStatus === 'valid_referral';
+        // Forward any valid code (referral OR admin coupon) so the handle_new_user trigger
+        // can call apply_referral_benefits — which grants free months and/or stores the
+        // percentage discount (post_trial_discount_percent) decided by the admin.
+        const hasValidCode =
+          (promoStatus === 'valid_referral' || promoStatus === 'valid_academy') && !!promoCode.trim();
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
@@ -287,7 +290,7 @@ const Auth = () => {
             data: {
               full_name: fullName,
               studio_name: studioName,
-              ...(hasReferral && promoCode.trim() ? { referral_code: promoCode.trim() } : {}),
+              ...(hasValidCode ? { referral_code: promoCode.trim() } : {}),
             },
           },
         });

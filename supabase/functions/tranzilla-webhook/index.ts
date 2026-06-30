@@ -56,7 +56,7 @@ serve(async (req: Request) => {
     // Look up tier from DB so any plan created in admin automatically works
     const { data: planRow } = await supabase
       .from("pricing_plans")
-      .select("subscription_tier")
+      .select("subscription_tier, price_monthly")
       .eq("slug", planSlug)
       .single();
 
@@ -89,11 +89,20 @@ serve(async (req: Request) => {
       const subscriptionEndDate = new Date(now);
       subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1);
 
+      // Recurring amount = FULL plan price (not the charged `sum`), so a first-charge-only
+      // coupon discount never carries into renewals. Falls back to the charged sum if the
+      // plan has no configured price. Clearing post_trial_discount_percent consumes the
+      // one-time coupon discount so it can't be re-applied to a future checkout.
+      const fullPriceAgorot = planRow?.price_monthly
+        ? Math.round(Number(planRow.price_monthly) * 100)
+        : (sum ? Math.round(parseFloat(sum) * 100) : null);
+
       updatePayload = {
         subscription_tier: tier,
         subscription_status: "active",
         tranzilla_plan_slug: planSlug,
-        tranzilla_amount_agorot: sum ? Math.round(parseFloat(sum) * 100) : null,
+        tranzilla_amount_agorot: fullPriceAgorot,
+        post_trial_discount_percent: null,
         subscription_end_date: subscriptionEndDate.toISOString(),
         last_charge_at: now.toISOString(),
         last_charge_confirmation: confirmationCode || null,

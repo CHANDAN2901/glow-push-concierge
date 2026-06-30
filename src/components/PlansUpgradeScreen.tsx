@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt, X } from 'lucide-react';
+import { Crown, Sparkles, ArrowRight, MessageCircle, Zap, Receipt, X, Ticket } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { usePricingPlans, type PricingPlan } from '@/hooks/usePricingPlans';
@@ -27,6 +27,10 @@ const tierLabelMap: Record<string, { he: string; en: string }> = {
   master: { he: 'VIP – מייסדות', en: 'VIP – Founders' },
 };
 
+// First-charge-only coupon discount → reduced first payment (rounded to agorot).
+const applyDiscount = (price: number, pct: number) =>
+  Math.round(price * (100 - pct)) / 100;
+
 export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: Props) {
   const { lang } = useI18n();
   const { toast } = useToast();
@@ -39,6 +43,29 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
   const { resolvedGateway, isIsrael } = useGatewaySettings();
   const [selectedGateway, setSelectedGateway] = useState<'tranzilla' | 'lemonsqueezy'>('tranzilla');
   const [autoPayEnabled, setAutoPayEnabled] = useState(true);
+  const [discountPct, setDiscountPct] = useState(0);
+  const [couponCode, setCouponCode] = useState<string | null>(null);
+
+  // The coupon discount is applied by Tranzilla only — don't advertise it on a Lemon-Squeezy-only flow.
+  const couponActive = discountPct > 0 && resolvedGateway !== 'lemonsqueezy';
+
+  // Load any one-time coupon discount the artist redeemed at signup (post_trial_discount_percent).
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('post_trial_discount_percent, promo_code_used')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const pct = Number(data?.post_trial_discount_percent ?? 0);
+      if (pct > 0 && pct < 100) {
+        setDiscountPct(pct);
+        setCouponCode(data?.promo_code_used ?? null);
+      }
+    })();
+  }, []);
 
   const displayName = artistName?.split(' ')[0] || (isHe ? 'יוצרת' : 'Creator');
   const tierLabel = tierLabelMap[currentTier || 'lite']?.[isHe ? 'he' : 'en'] || (isHe ? 'חינמי' : 'Free');
@@ -352,6 +379,24 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
         />
       </div>
 
+      {/* Coupon discount banner */}
+      {couponActive && (
+        <div
+          className="rounded-2xl px-4 py-3 flex items-center gap-3"
+          style={{
+            background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(243,229,171,0.18))',
+            border: '1.5px solid rgba(212,175,55,0.45)',
+          }}
+        >
+          <Ticket className="w-5 h-5 shrink-0" style={{ color: '#B8860B' }} />
+          <p className="text-sm font-semibold leading-snug" style={{ color: '#8B6508' }}>
+            {isHe
+              ? `קופון ${couponCode ? `"${couponCode}" ` : ''}פעיל — ${discountPct}% הנחה על התשלום הראשון 🎉`
+              : `Coupon ${couponCode ? `"${couponCode}" ` : ''}applied — ${discountPct}% off your first payment 🎉`}
+          </p>
+        </div>
+      )}
+
       {plans.map((plan) => {
         const Icon = iconMap[plan.slug] || Sparkles;
         const name = isHe ? plan.name_he : plan.name_en;
@@ -371,6 +416,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
               isHe={isHe}
               onUpgrade={handleUpgrade}
               isLoadingPayment={isLoadingPayment}
+              discountPct={couponActive ? discountPct : 0}
             />
           );
         }
@@ -386,6 +432,7 @@ export default function PlansUpgradeScreen({ onBack, currentTier, artistName }: 
             isHe={isHe}
             onUpgrade={handleUpgrade}
             isLoadingPayment={isLoadingPayment}
+            discountPct={couponActive ? discountPct : 0}
           />
         );
       })}
@@ -410,9 +457,10 @@ interface PlanCardProps {
   isHe: boolean;
   onUpgrade: (plan: PricingPlan) => void;
   isLoadingPayment?: boolean;
+  discountPct?: number;
 }
 
-function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, isLoadingPayment }: PlanCardProps) {
+function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, isLoadingPayment, discountPct = 0 }: PlanCardProps) {
   return (
     <div
       className="rounded-2xl border-2 p-5 space-y-4 relative overflow-hidden"
@@ -467,6 +515,13 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade,
                   : (isHe ? 'לחודש' : '/month')}
               </span>
             </div>
+            {discountPct > 0 && plan.price_monthly > 0 && (
+              <span className="text-xs font-bold mt-1" style={{ color: '#15803d' }}>
+                {isHe
+                  ? `תשלום ראשון: ₪${applyDiscount(plan.price_monthly, discountPct)} (${discountPct}% הנחה)`
+                  : `First payment: ₪${applyDiscount(plan.price_monthly, discountPct)} (${discountPct}% off)`}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -524,7 +579,7 @@ function HighlightedPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade,
 }
 
 /* ── Standard Plan Card ── */
-function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, isLoadingPayment }: PlanCardProps) {
+function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, isLoadingPayment, discountPct = 0 }: PlanCardProps) {
   return (
     <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
       <div className="flex items-center gap-3">
@@ -546,6 +601,13 @@ function StandardPlanCard({ plan, name, features, cta, Icon, isHe, onUpgrade, is
                   : (isHe ? 'לחודש' : '/month')}
               </span>
             </div>
+          )}
+          {discountPct > 0 && plan.price_monthly > 0 && (
+            <p className="text-xs font-bold mt-0.5" style={{ color: '#15803d' }}>
+              {isHe
+                ? `תשלום ראשון: ₪${applyDiscount(plan.price_monthly, discountPct)} (${discountPct}% הנחה)`
+                : `First payment: ₪${applyDiscount(plan.price_monthly, discountPct)} (${discountPct}% off)`}
+            </p>
           )}
           {plan.price_monthly === 0 && (
             <p className="text-xs text-muted-foreground">
