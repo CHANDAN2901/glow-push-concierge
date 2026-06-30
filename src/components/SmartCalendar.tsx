@@ -96,6 +96,13 @@ export function calculateRiskLevel(answers: HealthFormAnswers): HealthRiskLevel 
   return 'green';
 }
 
+// Format a Date as a LOCAL YYYY-MM-DD string.
+// NOTE: never use toISOString() for this — it converts to UTC and shifts the
+// date back a day in timezones ahead of UTC (e.g. Israel), causing appointments
+// to land on the wrong calendar cell or disappear.
+const toLocalDateStr = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 const RISK_CONFIG: Record<HealthRiskLevel, { color: string; bg: string; emoji: string; labelHe: string; labelEn: string }> = {
   red: { color: '#DC2626', bg: 'rgba(220,38,38,0.12)', emoji: '🔴', labelHe: 'דגל אדום — נדרשת בדיקה', labelEn: 'Red flag — review required' },
   yellow: { color: '#D97706', bg: 'rgba(217,119,6,0.12)', emoji: '🟡', labelHe: 'דורש תשומת לב', labelEn: 'Attention needed' },
@@ -161,7 +168,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   // Remove future appointments for a deleted client
   useEffect(() => {
     if (removeClientName && artistProfileId) {
-      const today = new Date().toISOString().split('T')[0];
+      const today = toLocalDateStr(new Date());
       // Remove from DB
       db
         .from('appointments')
@@ -181,7 +188,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newType, setNewType] = useState<'eyebrows' | 'lips' | 'eyeliner'>('eyebrows');
-  const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
+  const [newDate, setNewDate] = useState(toLocalDateStr(new Date()));
   const [newTime, setNewTime] = useState('10:00');
   const [newAutoHealth, setNewAutoHealth] = useState(false);
   const [newIncludePolicy, setNewIncludePolicy] = useState(true);
@@ -287,7 +294,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     return days;
   }, [displayMonth]);
 
-  const selectedDateStr = selectedDate.toISOString().split('T')[0];
+  const selectedDateStr = toLocalDateStr(selectedDate);
   const dayAppointments = appointments
     .filter(a => a.date === selectedDateStr && a.status !== 'cancelled')
     .sort((a, b) => a.time.localeCompare(b.time));
@@ -308,9 +315,9 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
     });
   };
 
-  const isToday = (d: Date) => d.toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
-  const isSelected = (d: Date) => d.toISOString().split('T')[0] === selectedDateStr;
-  const hasAppointments = (d: Date) => appointments.some(a => a.date === d.toISOString().split('T')[0] && a.status !== 'cancelled');
+  const isToday = (d: Date) => toLocalDateStr(d) === toLocalDateStr(new Date());
+  const isSelected = (d: Date) => toLocalDateStr(d) === selectedDateStr;
+  const hasAppointments = (d: Date) => appointments.some(a => a.date === toLocalDateStr(d) && a.status !== 'cancelled');
 
   const formatPhoneForWA = (phone: string) => {
     const digits = phone.replace(/\D/g, '');
@@ -427,7 +434,7 @@ export default function SmartCalendar({ lang, onTreatmentCompleted, redFlagClien
   const isTomorrow = (dateStr: string) => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return dateStr === tomorrow.toISOString().split('T')[0];
+    return dateStr === toLocalDateStr(tomorrow);
   };
 
   const handleAppointmentCardClick = async (apt: Appointment) => {

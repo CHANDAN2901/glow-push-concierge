@@ -208,6 +208,11 @@ const calcRecoveryDay = (treatmentDate: string) => {
   return Math.max(0, Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24)));
 };
 
+// Local YYYY-MM-DD (never toISOString — that is UTC and shifts the date back a
+// day in timezones ahead of UTC, e.g. Israel).
+const toLocalDateStr = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 const ArtistDashboard = () => {
   const { t, lang, setLang } = useI18n();
   const { toast } = useToast();
@@ -282,7 +287,7 @@ const ArtistDashboard = () => {
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [treatmentType, setTreatmentType] = useState('');
-  const [treatmentDate, setTreatmentDate] = useState(new Date().toISOString().split('T')[0]);
+  const [treatmentDate, setTreatmentDate] = useState(toLocalDateStr(new Date()));
   const [beforeImg, setBeforeImg] = useState('');
   const [afterImg, setAfterImg] = useState('');
   const [formError, setFormError] = useState('');
@@ -1235,7 +1240,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
       setClientName('');
       setClientPhone('');
       setTreatmentType('');
-      setTreatmentDate(new Date().toISOString().split('T')[0]);
+      setTreatmentDate(toLocalDateStr(new Date()));
       setBeforeImg('');
       setAfterImg('');
     } catch (e) {
@@ -1793,7 +1798,10 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
             {/* ── Today's Appointments ── */}
             {(() => {
-              const todayClients = clients.filter(c => c.treatmentDate && (c.day === 0 || c.day === 1));
+              const localToday = toLocalDateStr(new Date());
+              // Match by actual calendar date (today only) — the recovery-day
+              // window counted yesterday's treatments as "today".
+              const todayClients = clients.filter(c => c.treatmentDate && c.treatmentDate.slice(0, 10) === localToday);
               if (todayClients.length === 0) return null;
               return (
                 <div className="animate-fade-up" style={{ animationDelay: '0.25s', opacity: 0 }}>
@@ -2337,7 +2345,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                     try {
                       // Only set the treatment date if it hasn't been set yet
                       if (!isTreatmentDone) {
-                        const today = new Date().toISOString().split('T')[0];
+                        const today = toLocalDateStr(new Date());
                         const { error } = await supabase
                           .from('clients')
                           .update({ treatment_date: today })
