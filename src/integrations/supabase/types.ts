@@ -1553,27 +1553,27 @@ export type Database = {
       get_public_artist_card: {
         Args: { p_profile_id: string }
         Returns: {
-          id: string
-          full_name: string
-          studio_name: string
           business_phone: string
-          logo_url: string
-          instagram_url: string
           facebook_url: string
+          full_name: string
+          id: string
+          instagram_url: string
+          logo_url: string
+          studio_name: string
           waze_address: string
         }[]
       }
       get_public_client_info: {
         Args: { p_client_id: string }
         Returns: {
-          id: string
-          full_name: string
-          phone: string
-          referral_code: string
-          treatment_type: string
-          treatment_date: string
           artist_id: string
+          full_name: string
+          id: string
+          phone: string
           preferred_lang: string
+          referral_code: string
+          treatment_date: string
+          treatment_type: string
         }[]
       }
       has_role: {
@@ -1591,10 +1591,7 @@ export type Database = {
         Args: { p_client_id: string }
         Returns: undefined
       }
-      resolve_client_id_by_name: {
-        Args: { p_name: string }
-        Returns: string
-      }
+      resolve_client_id_by_name: { Args: { p_name: string }; Returns: string }
       save_client_referral_code: {
         Args: { p_client_id: string; p_code: string }
         Returns: undefined
