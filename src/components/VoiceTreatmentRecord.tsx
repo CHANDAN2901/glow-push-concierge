@@ -16,7 +16,86 @@ interface VoiceTreatmentRecordProps {
   onSave?: (text: string, structured?: StructuredNotes) => void;
 }
 
+// ─── Audio helpers: record via MediaRecorder, encode to 16kHz mono WAV ───
+// (server-side transcription works in every browser/PWA, unlike the Web Speech API)
 
+function writeString(view: DataView, offset: number, str: string) {
+  for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+}
+
+function encodeWav(samples: Float32Array, sampleRate: number): ArrayBuffer {
+  const buffer = new ArrayBuffer(44 + samples.length * 2);
+  const view = new DataView(buffer);
+  writeString(view, 0, 'RIFF');
+  view.setUint32(4, 36 + samples.length * 2, true);
+  writeString(view, 8, 'WAVE');
+  writeString(view, 12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 1, true); // mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true); // byte rate
+  view.setUint16(32, 2, true); // block align
+  view.setUint16(34, 16, true); // bits per sample
+  writeString(view, 36, 'data');
+  view.setUint32(40, samples.length * 2, true);
+  let offset = 44;
+  for (let i = 0; i < samples.length; i++, offset += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return buffer;
+}
+
+function downsample(buffer: Float32Array, inputRate: number, targetRate: number): Float32Array {
+  if (targetRate >= inputRate) return buffer;
+  const ratio = inputRate / targetRate;
+  const newLen = Math.round(buffer.length / ratio);
+  const result = new Float32Array(newLen);
+  let offsetResult = 0;
+  let offsetBuffer = 0;
+  while (offsetResult < newLen) {
+    const nextOffset = Math.round((offsetResult + 1) * ratio);
+    let accum = 0, count = 0;
+    for (let i = offsetBuffer; i < nextOffset && i < buffer.length; i++) { accum += buffer[i]; count++; }
+    result[offsetResult] = count ? accum / count : 0;
+    offsetResult++;
+    offsetBuffer = nextOffset;
+  }
+  return result;
+}
+
+async function blobToWavBase64(blob: Blob): Promise<string> {
+  const arrayBuffer = await blob.arrayBuffer();
+  const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
+  const audioCtx = new AudioCtx();
+  let audioBuffer: AudioBuffer;
+  try {
+    audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+  } finally {
+    // close lazily after decode
+  }
+  // mix all channels down to mono
+  const channels = audioBuffer.numberOfChannels;
+  const length = audioBuffer.length;
+  const mono = new Float32Array(length);
+  for (let c = 0; c < channels; c++) {
+    const data = audioBuffer.getChannelData(c);
+    for (let i = 0; i < length; i++) mono[i] += data[i] / channels;
+  }
+  const targetRate = 16000;
+  const down = downsample(mono, audioBuffer.sampleRate, targetRate);
+  try { audioCtx.close(); } catch {}
+  const wavBuffer = encodeWav(down, targetRate);
+  // base64 encode (chunked to avoid call-stack limits)
+  const bytes = new Uint8Array(wavBuffer);
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+  }
+  return btoa(binary);
+}
 
 const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecordProps) => {
   const { toast } = useToast();
@@ -31,23 +110,18 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
   const [editFields, setEditFields] = useState<StructuredNotes | null>(null);
   const [timer, setTimer] = useState(0);
 
-  const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const accumulatedTextRef = useRef('');
-  const finalResultsByIndexRef = useRef<Record<number, string>>({});
-  const interimResultsByIndexRef = useRef<Record<number, string>>({});
   const isRecordingRef = useRef(false);
   const isStartingRef = useRef(false);
-  const sessionIdRef = useRef(0);
-  const networkRetryCountRef = useRef(0);
-  const MAX_NETWORK_RETRIES = 3;
 
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (recognitionRef.current) {
-        try { recognitionRef.current.abort(); } catch {}
-      }
+      try { mediaRecorderRef.current?.stop(); } catch {}
+      streamRef.current?.getTracks().forEach(t => t.stop());
     };
   }, []);
 
@@ -60,28 +134,20 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
   const startRecording = async () => {
     if (isRecordingRef.current || isStartingRef.current) return;
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (typeof MediaRecorder === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
       toast({
-        title: lang === 'en' ? 'Speech recognition not supported' : 'זיהוי דיבור אינו נתמך בדפדפן זה',
-        description: lang === 'en' ? 'Please use Chrome or Edge browser.' : 'אנא השתמשי בדפדפן Chrome או Edge.',
+        title: lang === 'en' ? 'Recording not supported' : 'הקלטה אינה נתמכת בדפדפן זה',
+        description: lang === 'en' ? 'Please use Chrome, Safari, or Edge.' : 'אנא השתמשי בדפדפן Chrome, Safari או Edge.',
         variant: 'destructive',
       });
       return;
     }
 
     isStartingRef.current = true;
-    const sessionId = ++sessionIdRef.current;
 
-    if (recognitionRef.current) {
-      try { recognitionRef.current.abort(); } catch {}
-      recognitionRef.current = null;
-    }
-
+    let stream: MediaStream;
     try {
-      // Request mic permission first
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(t => t.stop());
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch {
       isStartingRef.current = false;
       toast({
@@ -90,100 +156,35 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
       });
       return;
     }
+    streamRef.current = stream;
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = lang === 'en' ? 'en-US' : 'he-IL';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognitionRef.current = recognition;
-    accumulatedTextRef.current = '';
-    finalResultsByIndexRef.current = {};
-    interimResultsByIndexRef.current = {};
+    // Pick the first mime type the browser actually supports
+    const preferred = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+    let chosen = '';
+    for (const m of preferred) {
+      if (typeof MediaRecorder.isTypeSupported === 'function' && MediaRecorder.isTypeSupported(m)) { chosen = m; break; }
+    }
 
-    recognition.onresult = (event: any) => {
-      if (sessionId !== sessionIdRef.current || recognitionRef.current !== recognition) return;
+    let recorder: MediaRecorder;
+    try {
+      recorder = chosen ? new MediaRecorder(stream, { mimeType: chosen }) : new MediaRecorder(stream);
+    } catch {
+      recorder = new MediaRecorder(stream);
+    }
+    mediaRecorderRef.current = recorder;
+    audioChunksRef.current = [];
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        const transcript = (result[0]?.transcript || '').trim();
-
-        if (result.isFinal) {
-          if (transcript) {
-            finalResultsByIndexRef.current[i] = transcript;
-          }
-          delete interimResultsByIndexRef.current[i];
-          continue;
-        }
-
-        if (!(i in finalResultsByIndexRef.current)) {
-          if (transcript) {
-            interimResultsByIndexRef.current[i] = transcript;
-          } else {
-            delete interimResultsByIndexRef.current[i];
-          }
-        }
-      }
-
-      const finalText = Object.keys(finalResultsByIndexRef.current)
-        .map(Number)
-        .sort((a, b) => a - b)
-        .map((index) => finalResultsByIndexRef.current[index])
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      const interimText = Object.keys(interimResultsByIndexRef.current)
-        .map(Number)
-        .sort((a, b) => a - b)
-        .map((index) => interimResultsByIndexRef.current[index])
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      accumulatedTextRef.current = finalText;
-      setTranscription(finalText);
-      setInterimTranscription(interimText);
+    recorder.ondataavailable = (e: BlobEvent) => {
+      if (e.data && e.data.size > 0) audioChunksRef.current.push(e.data);
     };
-
-    recognition.onerror = (event: any) => {
-      if (sessionId !== sessionIdRef.current || recognitionRef.current !== recognition) return;
-
-      if (event.error === 'not-allowed' || event.error === 'permission-denied') {
-        toast({
-          title: lang === 'en' ? 'Please allow microphone access in browser settings to record' : 'כדי להקליט, יש לאשר גישה למיקרופון בהגדרות הדפדפן',
-          variant: 'destructive',
-        });
-        handleFullReset();
-      } else if (event.error === 'network') {
-        networkRetryCountRef.current += 1;
-        if (networkRetryCountRef.current >= MAX_NETWORK_RETRIES) {
-          toast({
-            title: lang === 'en' ? 'Network error' : 'שגיאת רשת',
-            description: lang === 'en' ? 'Speech recognition requires an internet connection. Please check your connection and try again.' : 'זיהוי דיבור דורש חיבור לאינטרנט. אנא בדקי את החיבור ונסי שוב.',
-            variant: 'destructive',
-          });
-          handleFullReset();
-        }
-        // else: let onend auto-restart for transient network hiccup
-      }
-      // no-speech: let onend auto-restart
-    };
-
-    recognition.onend = () => {
-      if (sessionId !== sessionIdRef.current || recognitionRef.current !== recognition) return;
-
-      if (isRecordingRef.current) {
-        try { recognition.start(); } catch {}
-      }
-    };
+    recorder.onstop = () => { handleRecordingStopped(); };
 
     isRecordingRef.current = true;
-    networkRetryCountRef.current = 0;
     try {
-      recognition.start();
+      recorder.start();
     } catch (e) {
-      console.error('Failed to start recognition:', e);
-      toast({ title: lang === 'en' ? 'Failed to start speech recognition' : 'שגיאה בהפעלת זיהוי דיבור', variant: 'destructive' });
+      console.error('Failed to start recording:', e);
+      toast({ title: lang === 'en' ? 'Failed to start recording' : 'שגיאה בהפעלת ההקלטה', variant: 'destructive' });
       handleFullReset();
       return;
     } finally {
@@ -198,40 +199,40 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
   };
 
   const stopRecording = () => {
+    if (!isRecordingRef.current) return;
     isRecordingRef.current = false;
     isStartingRef.current = false;
-    sessionIdRef.current += 1;
 
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
 
-    const recognition = recognitionRef.current;
-    recognitionRef.current = null;
-    if (recognition) {
-      recognition.onresult = null;
-      recognition.onerror = null;
-      recognition.onend = null;
-      try { recognition.stop(); } catch {}
+    setMode('processing');
+
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state !== 'inactive') {
+      try {
+        recorder.stop(); // fires onstop -> handleRecordingStopped
+      } catch {
+        handleRecordingStopped();
+      }
+    } else {
+      handleRecordingStopped();
     }
+  };
 
-    // Capture any remaining interim text before clearing
-    const pendingInterim = Object.keys(interimResultsByIndexRef.current)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .map((index) => interimResultsByIndexRef.current[index])
-      .join(' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+  const handleRecordingStopped = async () => {
+    // Release the microphone
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
 
-    setInterimTranscription('');
-    interimResultsByIndexRef.current = {};
+    const chunks = audioChunksRef.current;
+    audioChunksRef.current = [];
+    const recorder = mediaRecorderRef.current;
+    mediaRecorderRef.current = null;
 
-    // Use final text, falling back to any interim text not yet finalized
-    const finalText = accumulatedTextRef.current.trim();
-    const spokenText = finalText || pendingInterim;
-    if (!spokenText) {
+    if (!chunks.length) {
       toast({
         title: lang === 'en' ? 'No speech detected' : 'לא זוהה דיבור',
         description: lang === 'en' ? 'Please try again or type manually.' : 'אנא נסי שוב או הקלידי ידנית.',
@@ -240,20 +241,30 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
       setMode('idle');
       return;
     }
-    setMode('processing');
-    processTranscribedText(spokenText);
-  };
 
-  const processTranscribedText = async (text: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('structure-treatment-notes', {
-        body: { rawText: text, lang },
+      const blob = new Blob(chunks, { type: recorder?.mimeType || 'audio/webm' });
+      const audioBase64 = await blobToWavBase64(blob);
+
+      // Server caps audio at 10MB (~4 min at 16kHz mono)
+      if ((audioBase64.length * 3) / 4 > 10 * 1024 * 1024) {
+        toast({
+          title: lang === 'en' ? 'Recording too long' : 'ההקלטה ארוכה מדי',
+          description: lang === 'en' ? 'Please keep recordings under ~4 minutes.' : 'אנא הקליטי עד כ-4 דקות.',
+          variant: 'destructive',
+        });
+        setMode('idle');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('transcribe-treatment-audio', {
+        body: { audioBase64, mimeType: 'audio/wav', lang },
       });
 
-      if (error) {
-        console.error('AI structuring error:', error);
+      if (error || !data || (data as any).error) {
+        console.error('Transcription error:', error || (data as any)?.error);
         toast({
-          title: lang === 'en' ? 'AI processing failed' : 'עיבוד AI נכשל',
+          title: lang === 'en' ? 'Transcription failed' : 'התמלול נכשל',
           description: lang === 'en' ? 'Please try again or type your notes manually.' : 'אנא נסי שוב או הקלידי ידנית.',
           variant: 'destructive',
         });
@@ -261,13 +272,36 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
         return;
       }
 
-      const result = data as StructuredNotes;
-      setStructured(result);
-      setEditFields({ ...result });
+      const result = data as StructuredNotes & { transcription?: string };
+      const text = (result.transcription || '').trim();
+      const structuredResult: StructuredNotes = {
+        treatmentArea: result.treatmentArea || '',
+        pigmentFormula: result.pigmentFormula || '',
+        needleType: result.needleType || '',
+        clinicalNotes: result.clinicalNotes || '',
+      };
+
+      if (!text && !structuredResult.treatmentArea && !structuredResult.clinicalNotes) {
+        toast({
+          title: lang === 'en' ? 'No speech detected' : 'לא זוהה דיבור',
+          description: lang === 'en' ? 'Please try again or type manually.' : 'אנא נסי שוב או הקלידי ידנית.',
+          variant: 'destructive',
+        });
+        setMode('idle');
+        return;
+      }
+
+      setTranscription(text);
+      setStructured(structuredResult);
+      setEditFields({ ...structuredResult });
       setMode('result');
     } catch (err) {
-      console.error('Error processing text:', err);
-      toast({ title: lang === 'en' ? 'Connection error' : 'שגיאת חיבור', variant: 'destructive' });
+      console.error('Error processing recording:', err);
+      toast({
+        title: lang === 'en' ? 'Processing failed' : 'העיבוד נכשל',
+        description: lang === 'en' ? 'Please try again or type your notes manually.' : 'אנא נסי שוב או הקלידי ידנית.',
+        variant: 'destructive',
+      });
       setMode('idle');
     }
   };
@@ -314,10 +348,6 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
   const handleFullReset = () => {
     isRecordingRef.current = false;
     isStartingRef.current = false;
-    sessionIdRef.current += 1;
-    accumulatedTextRef.current = '';
-    finalResultsByIndexRef.current = {};
-    interimResultsByIndexRef.current = {};
     setMode('idle');
     setRawText('');
     setStructured(null);
@@ -328,13 +358,15 @@ const VoiceTreatmentRecord = ({ lang, clientName, onSave }: VoiceTreatmentRecord
     setShowTextInput(false);
     setTimer(0);
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-    if (recognitionRef.current) {
-      recognitionRef.current.onresult = null;
-      recognitionRef.current.onerror = null;
-      recognitionRef.current.onend = null;
-      try { recognitionRef.current.abort(); } catch {}
-      recognitionRef.current = null;
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.ondataavailable = null;
+      mediaRecorderRef.current.onstop = null;
+      try { mediaRecorderRef.current.stop(); } catch {}
+      mediaRecorderRef.current = null;
     }
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    audioChunksRef.current = [];
   };
 
   const handleEdit = () => { setIsEditing(true); setEditFields(structured ? { ...structured } : null); };
