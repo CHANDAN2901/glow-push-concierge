@@ -277,11 +277,14 @@ const Auth = () => {
         const destination = sanitizeRoleDestination(requested, signedInIsAdmin);
         navigate(destination, { replace: true });
       } else {
-        // Forward any valid code (referral OR admin coupon) so the handle_new_user trigger
+        // Forward any entered code (referral OR admin coupon) so the handle_new_user trigger
         // can call apply_referral_benefits — which grants free months and/or stores the
         // percentage discount (post_trial_discount_percent) decided by the admin.
-        const hasValidCode =
-          (promoStatus === 'valid_referral' || promoStatus === 'valid_academy') && !!promoCode.trim();
+        // We forward the code unless it was explicitly validated as invalid: the server-side
+        // RPC is the source of truth and safely ignores unknown codes. This avoids silently
+        // dropping a valid coupon when the artist typed it but never clicked "Apply".
+        const codeToApply =
+          promoCode.trim() && promoStatus !== 'invalid' ? promoCode.trim() : '';
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
@@ -290,7 +293,7 @@ const Auth = () => {
             data: {
               full_name: fullName,
               studio_name: studioName,
-              ...(hasValidCode ? { referral_code: promoCode.trim() } : {}),
+              ...(codeToApply ? { referral_code: codeToApply } : {}),
             },
           },
         });
