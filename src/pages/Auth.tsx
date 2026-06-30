@@ -209,6 +209,32 @@ const Auth = () => {
       if (isLogin) {
         const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
+          // If the email isn't confirmed yet, auto-resend verification and show the verify screen
+          const code = (error as any)?.code || '';
+          const msg = (error.message || '').toLowerCase();
+          if (code === 'email_not_confirmed' || msg.includes('email not confirmed') || msg.includes('not confirmed')) {
+            try {
+              await supabase.auth.resend({
+                type: 'signup',
+                email,
+                options: { emailRedirectTo: window.location.origin },
+              });
+            } catch (resendErr) {
+              console.warn('[auth] resend after email_not_confirmed failed', resendErr);
+            }
+            setVerificationEmail(email);
+            setVerificationExisting(true);
+            setVerificationSent(true);
+            setResendCooldown(60);
+            toast({
+              title: lang === 'en' ? 'Verification email sent!' : 'מייל אימות נשלח!',
+              description: lang === 'en'
+                ? 'Please confirm your email to log in. Check your inbox (and spam).'
+                : 'אנא אמתי את המייל שלך כדי להתחבר. בדקי את תיבת הדואר (וגם ספאם).',
+            });
+            setLoading(false);
+            return;
+          }
           // 🔔 Push notification on LOGIN FAILURE
           void sendAuthNotification({
             type: 'login_error',
