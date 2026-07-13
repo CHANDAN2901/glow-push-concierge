@@ -286,8 +286,12 @@ serve(async (req: Request) => {
       sentDaysMap.get(row.client_id)!.add(row.day);
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Compute "today" in the artist/client's local timezone (Israel), not the
+    // edge runtime's UTC clock — otherwise the day rollover happens ~2-3
+    // hours late/early relative to Israel midnight.
+    const israelTodayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
+    const [iy, im, id] = israelTodayStr.split('-').map(Number);
+    const today = new Date(Date.UTC(iy, im - 1, id));
 
     let pushesSent = 0;
     let fallbacksCreated = 0;
@@ -438,8 +442,11 @@ serve(async (req: Request) => {
     };
 
     for (const client of clients) {
-      const treatmentDate = new Date(client.treatment_date);
-      treatmentDate.setHours(0, 0, 0, 0);
+      // treatment_date is a plain YYYY-MM-DD column; parse its Y/M/D parts
+      // directly as a UTC-midnight-equivalent so the diff below is a pure
+      // calendar-day count, matching `today`'s Israel-local computation above.
+      const [ty, tm, td] = client.treatment_date.split('-').map(Number);
+      const treatmentDate = new Date(Date.UTC(ty, tm - 1, td));
       const daysSince = Math.floor((today.getTime() - treatmentDate.getTime()) / (1000 * 60 * 60 * 24));
 
       // Day 0 is handled immediately on treatment completion — skip it here

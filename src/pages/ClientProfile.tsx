@@ -38,6 +38,11 @@ const GOLD_BG_LIGHT = 'rgba(212, 175, 55, 0.08)';
 const HEADING_COLOR = 'hsl(0 0% 0%)';
 const BODY_COLOR = 'hsl(0 0% 25%)';
 
+// Local YYYY-MM-DD (never toISOString — that is UTC and shifts the date back a
+// day in timezones ahead of UTC, e.g. Israel).
+const toLocalDateStr = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 /* ── types ── */
 interface ClientRow {
   id: string;
@@ -267,7 +272,7 @@ function FinishTreatmentCTA({ client, clientDbId, lang, onTreatmentStarted }: {
       return;
     }
     setSaving(true);
-    const now = new Date().toISOString().split('T')[0];
+    const now = toLocalDateStr(new Date());
     const { error } = await supabase
       .from('clients')
       .update({ treatment_date: now })

@@ -119,9 +119,13 @@ serve(async (req: Request) => {
     }
 
     const notMentioned = lang === 'he' ? 'לא צוין' : 'Not mentioned';
+    const languageHint = lang === 'he'
+      ? "The speaker is dictating in Hebrew, and may switch to English for PMU technical terms (e.g. microblading, ombre, powder brows, lip blush). Transcribe primarily in Hebrew, keeping English technical terms in English."
+      : "The speaker is dictating in English, and may use Hebrew phrases. Transcribe primarily in English.";
 
     const systemPrompt = `You are a professional medical-beauty treatment documentation assistant.
 You will receive an audio recording from a PMU (Permanent Makeup) artist dictating treatment notes.
+${languageHint}
 
 Your job:
 1. Transcribe the audio accurately in the original spoken language.

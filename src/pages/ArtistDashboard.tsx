@@ -202,16 +202,22 @@ const hasRealTreatmentDate = (treatment_date?: string | null) => {
   return !Number.isNaN(new Date(normalized).getTime());
 };
 
-const calcRecoveryDay = (treatmentDate: string) => {
-  const d = new Date(treatmentDate);
-  if (Number.isNaN(d.getTime())) return 0;
-  return Math.max(0, Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24)));
-};
-
 // Local YYYY-MM-DD (never toISOString — that is UTC and shifts the date back a
 // day in timezones ahead of UTC, e.g. Israel).
 const toLocalDateStr = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+const calcRecoveryDay = (treatmentDate: string) => {
+  const d = new Date(treatmentDate);
+  if (Number.isNaN(d.getTime())) return 0;
+  // Diff local calendar days, not raw timestamps — otherwise the rollover
+  // happens at UTC midnight instead of the artist's local midnight.
+  const [ty, tm, td] = toLocalDateStr(d).split('-').map(Number);
+  const [ny, nm, nd] = toLocalDateStr(new Date()).split('-').map(Number);
+  const treatmentUtc = Date.UTC(ty, tm - 1, td);
+  const nowUtc = Date.UTC(ny, nm - 1, nd);
+  return Math.max(0, Math.round((nowUtc - treatmentUtc) / (1000 * 60 * 60 * 24)));
+};
 
 const ArtistDashboard = () => {
   const { t, lang, setLang } = useI18n();
