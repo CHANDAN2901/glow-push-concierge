@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createMorningInvoice } from "../_shared/morning.ts";
 
 serve(async (req: Request) => {
   // Tranzilla POSTs form data to this webhook after payment
@@ -56,7 +57,7 @@ serve(async (req: Request) => {
     // Look up tier from DB so any plan created in admin automatically works
     const { data: planRow } = await supabase
       .from("pricing_plans")
-      .select("subscription_tier, price_monthly")
+      .select("subscription_tier, price_monthly, name_he, name_en")
       .eq("slug", planSlug)
       .single();
 
@@ -135,6 +136,41 @@ serve(async (req: Request) => {
       ? `[tranzilla-webhook] ✅ Trial activated — userId=${userId} trial_ends_at=${updatePayload.trial_ends_at}`
       : `[tranzilla-webhook] ✅ Subscription upgraded — userId=${userId} tier=${tier}`;
     console.log(logMsg);
+
+    // Invoice creation is a side-effect of a successful payment, not a
+    // condition of it — never fail the webhook (and the subscription
+    // activation above) over a Morning.co error.
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, email, business_phone")
+        .eq("user_id", userId)
+        .single();
+
+      const chargedAmount = sum ? parseFloat(sum) : planRow?.price_monthly ?? 0;
+      const invoice = await createMorningInvoice({
+        clientName: profile?.full_name || "GlowPush Artist",
+        clientEmail: profile?.email || undefined,
+        clientPhone: profile?.business_phone || undefined,
+        description: `GlowPush — ${planRow?.name_he || planRow?.name_en || planSlug}`,
+        price: chargedAmount,
+        currency: "ILS",
+        lang: "he",
+      });
+
+      await supabase
+        .from("profiles")
+        .update({
+          morning_invoice_url: invoice.url?.he || invoice.url?.origin || null,
+          morning_invoice_number: invoice.number ?? null,
+        })
+        .eq("user_id", userId);
+
+      console.log(`[tranzilla-webhook] Morning invoice created for userId=${userId}`);
+    } catch (invoiceErr: any) {
+      console.error("[tranzilla-webhook] Morning invoice creation failed:", invoiceErr?.message);
+    }
+
     return new Response("ok", { status: 200 });
   } catch (err: any) {
     console.error("[tranzilla-webhook] Unhandled error:", err?.message);

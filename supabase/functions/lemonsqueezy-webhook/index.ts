@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createMorningInvoice } from "../_shared/morning.ts";
 
 const SLUG_TO_TIER: Record<string, string> = {
   pro: "lite",
@@ -159,6 +160,43 @@ serve(async (req: Request) => {
       ? `[lemonsqueezy-webhook] ✅ Trial activated — userId=${userId} via ${eventName} mode=${lsMode}`
       : `[lemonsqueezy-webhook] ✅ Upgraded userId=${userId} tier=${SLUG_TO_TIER[planSlug]} via ${eventName} mode=${lsMode}`;
     console.log(logMsg);
+
+    // Only invoice on an actual charge event, not renewal metadata updates
+    // that carry no new payment (subscription_updated fires on plan/card
+    // changes too). Invoice creation is a side-effect — never fails the webhook.
+    if (eventName === "order_created" || eventName === "subscription_payment_success") {
+      try {
+        const [{ data: profile }, { data: planRow }] = await Promise.all([
+          supabase.from("profiles").select("full_name, email, business_phone").eq("user_id", userId).single(),
+          supabase.from("pricing_plans").select("price_monthly, name_he, name_en, currency").eq("slug", planSlug).single(),
+        ]);
+
+        const totalCents = attrs?.total ?? attrs?.total_usd;
+        const chargedAmount = typeof totalCents === "number" ? totalCents / 100 : planRow?.price_monthly ?? 0;
+
+        const invoice = await createMorningInvoice({
+          clientName: profile?.full_name || "GlowPush Artist",
+          clientEmail: profile?.email || undefined,
+          clientPhone: profile?.business_phone || undefined,
+          description: `GlowPush — ${planRow?.name_he || planRow?.name_en || planSlug}`,
+          price: chargedAmount,
+          currency: planRow?.currency || "USD",
+          lang: "he",
+        });
+
+        await supabase
+          .from("profiles")
+          .update({
+            morning_invoice_url: invoice.url?.he || invoice.url?.origin || null,
+            morning_invoice_number: invoice.number ?? null,
+          })
+          .eq("user_id", userId);
+
+        console.log(`[lemonsqueezy-webhook] Morning invoice created for userId=${userId}`);
+      } catch (invoiceErr: any) {
+        console.error("[lemonsqueezy-webhook] Morning invoice creation failed:", invoiceErr?.message);
+      }
+    }
   } else if (eventName === "subscription_payment_failed") {
     // Increment failure count, mark past_due
     const { data: profile } = await supabase

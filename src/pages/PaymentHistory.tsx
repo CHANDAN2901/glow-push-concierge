@@ -19,6 +19,7 @@ interface PaymentRecord {
   amountIls: number | null;
   confirmation: string | null;
   lsOrderId: string | null;
+  invoiceUrl: string | null;
 }
 
 const PaymentHistory = () => {
@@ -33,7 +34,7 @@ const PaymentHistory = () => {
     if (!user) { setLoading(false); return; }
     supabase
       .from('profiles')
-      .select('last_charge_at, tranzilla_plan_slug, tranzilla_amount_agorot, last_charge_confirmation, ls_order_id')
+      .select('last_charge_at, tranzilla_plan_slug, tranzilla_amount_agorot, last_charge_confirmation, ls_order_id, morning_invoice_url')
       .eq('user_id', user.id)
       .maybeSingle()
       .then(({ data }) => {
@@ -44,6 +45,7 @@ const PaymentHistory = () => {
             amountIls: data.tranzilla_amount_agorot != null ? data.tranzilla_amount_agorot / 100 : null,
             confirmation: data.last_charge_confirmation ?? null,
             lsOrderId: data.ls_order_id ?? null,
+            invoiceUrl: data.morning_invoice_url ?? null,
           });
         }
         setLoading(false);
@@ -116,9 +118,9 @@ const PaymentHistory = () => {
                   ₪{record.amountIls}
                 </span>
               )}
-              {record.lsOrderId && (
+              {(record.invoiceUrl || record.lsOrderId) && (
                 <a
-                  href={`https://app.lemonsqueezy.com/my-orders/${record.lsOrderId}`}
+                  href={record.invoiceUrl || `https://app.lemonsqueezy.com/my-orders/${record.lsOrderId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-transform hover:scale-105 active:scale-95"
