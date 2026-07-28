@@ -82,6 +82,18 @@ export async function createMorningInvoice(input: MorningInvoiceInput): Promise<
           vatType: 0,
         },
       ],
+      // A receipt (type 400) documents money already received, so it needs a
+      // payment row alongside the income row (confirmed by the API's own
+      // "נא למלא לפחות שורת תקבולים אחת" / "fill in at least one payment row"
+      // error) — PaymentGroup 3 = credit card, matching how both gateways charge.
+      payment: [
+        {
+          date: new Date().toISOString().slice(0, 10),
+          type: 3,
+          price: input.price,
+          currency: input.currency || "ILS",
+        },
+      ],
     }),
   });
 
