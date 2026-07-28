@@ -29,6 +29,20 @@ const PaymentHistory = () => {
 
   const [record, setRecord] = useState<PaymentRecord | null>(null);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+
+  const generateInvoice = async () => {
+    if (generating) return;
+    setGenerating(true);
+    try {
+      const res = await supabase.functions.invoke('backfill-morning-invoice');
+      if (res.data?.url) {
+        setRecord((r) => (r ? { ...r, invoiceUrl: res.data.url } : r));
+      }
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) { setLoading(false); return; }
@@ -118,7 +132,7 @@ const PaymentHistory = () => {
                   ₪{record.amountIls}
                 </span>
               )}
-              {(record.invoiceUrl || record.lsOrderId) && (
+              {(record.invoiceUrl || record.lsOrderId) ? (
                 <a
                   href={record.invoiceUrl || `https://app.lemonsqueezy.com/my-orders/${record.lsOrderId}`}
                   target="_blank"
@@ -134,6 +148,21 @@ const PaymentHistory = () => {
                   <ExternalLink className="w-3.5 h-3.5" />
                   {t('payment.viewInvoice')}
                 </a>
+              ) : (
+                <button
+                  onClick={generateInvoice}
+                  disabled={generating}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-transform hover:scale-105 active:scale-95 disabled:opacity-60"
+                  style={{
+                    background: 'linear-gradient(145deg, #f3d078, #D4AF37)',
+                    color: '#fff',
+                    boxShadow: '0 4px 15px rgba(212, 175, 55, 0.4)',
+                    border: 'none',
+                  }}
+                >
+                  <Receipt className="w-3.5 h-3.5" />
+                  {generating ? (isHe ? 'מפיק...' : 'Generating...') : (isHe ? 'הפק חשבונית' : 'Generate Invoice')}
+                </button>
               )}
             </div>
           </div>
