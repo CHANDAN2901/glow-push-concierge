@@ -4,11 +4,14 @@
 
 const MORNING_BASE_URL = "https://api.greeninvoice.co.il/api/v1";
 
-// Document type code for "Invoice/Receipt" (חשבונית מס/קבלה) — the combined
-// document for a transaction that's already been paid (as opposed to 305,
-// a bare invoice implying payment is still pending). Confirmed against the
-// API's own JSON Schema enum: [10,100,200,210,300,305,320,330,400,405,500,600,610].
-export const MORNING_DOC_TYPE_INVOICE_RECEIPT = 320;
+// Document type code. Full enum recovered from the API blueprint:
+// 10 quote, 100 order, 200 delivery note, 210 return note, 300 transaction
+// account, 305 tax invoice, 320 tax invoice/receipt, 330 credit invoice,
+// 400 receipt, 405 donation receipt, 500 purchase order, 600/610 deposit.
+// 305/320 both require a VAT-registered business ("עוסק מורשה"); this
+// account is an exempt dealer ("עוסק פטור"), which can't issue VAT invoices
+// and gets a 400 error on 305/320 — a plain receipt (400) is what's valid.
+export const MORNING_DOC_TYPE_INVOICE_RECEIPT = 400;
 
 async function getMorningToken(): Promise<string> {
   const id = Deno.env.get("MORNING_API_KEY_ID");
