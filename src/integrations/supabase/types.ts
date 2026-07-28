@@ -1076,6 +1076,8 @@ export type Database = {
           ls_customer_id: string | null
           ls_order_id: string | null
           ls_subscription_id: string | null
+          morning_invoice_number: number | null
+          morning_invoice_url: string | null
           onboarding_checklist_dismissed: boolean
           onboarding_checklist_state: Json
           post_trial_discount_percent: number | null
@@ -1117,6 +1119,8 @@ export type Database = {
           ls_customer_id?: string | null
           ls_order_id?: string | null
           ls_subscription_id?: string | null
+          morning_invoice_number?: number | null
+          morning_invoice_url?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
           post_trial_discount_percent?: number | null
@@ -1158,6 +1162,8 @@ export type Database = {
           ls_customer_id?: string | null
           ls_order_id?: string | null
           ls_subscription_id?: string | null
+          morning_invoice_number?: number | null
+          morning_invoice_url?: string | null
           onboarding_checklist_dismissed?: boolean
           onboarding_checklist_state?: Json
           post_trial_discount_percent?: number | null
