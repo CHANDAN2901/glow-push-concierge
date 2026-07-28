@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const ALLOWED_ORIGINS = [
   "https://glowpush.app",
   "https://www.glowpush.app",
+  "https://glow-push-concierge-dev.lovable.app",
   "http://localhost:5173",
   "http://localhost:3000",
 ];
