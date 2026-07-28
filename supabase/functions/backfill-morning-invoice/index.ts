@@ -56,6 +56,13 @@ serve(async (req: Request) => {
     ? profile.tranzilla_amount_agorot / 100
     : planRow?.price_monthly ?? 0;
 
+  if (!price) {
+    return new Response(JSON.stringify({ error: "No charge amount on record — set tranzilla_plan_slug/tranzilla_amount_agorot first" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const invoice = await createMorningInvoice({
       clientName: profile.full_name || "GlowPush Artist",
