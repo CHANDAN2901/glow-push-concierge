@@ -56,50 +56,67 @@ export interface MorningInvoiceResult {
 export async function createMorningInvoice(input: MorningInvoiceInput): Promise<MorningInvoiceResult> {
   const token = await getMorningToken();
 
+  // Normalize to a positive number with 2-decimal precision. Morning rejects
+  // 0 / NaN / string prices as "ערך סכום תקבול צריך להיות שונה מ 0" (2434).
+  const rawPrice = Number(input.price);
+  if (!Number.isFinite(rawPrice) || rawPrice <= 0) {
+    throw new Error(`Morning invoice price must be > 0 (got ${input.price})`);
+  }
+  const price = Math.round(rawPrice * 100) / 100;
+  const currency = input.currency || "ILS";
+  const today = new Date().toISOString().slice(0, 10);
+
+  const body = {
+    type: MORNING_DOC_TYPE_INVOICE_RECEIPT,
+    lang: input.lang || "he",
+    currency,
+    vatType: 0, // document-level VAT (required by API even for VAT-exempt dealers)
+    client: {
+      name: input.clientName,
+      emails: input.clientEmail ? [input.clientEmail] : undefined,
+      phone: input.clientPhone,
+      add: true,
+      self: false,
+    },
+    income: [
+      {
+        description: input.description,
+        quantity: 1,
+        price,
+        currency,
+        currencyRate: 1,
+        vatType: 0,
+        vatRate: 0,
+      },
+    ],
+    // Receipt (type 400) requires at least one payment row matching income total.
+    // PaymentGroup 3 = credit card.
+    payment: [
+      {
+        date: today,
+        type: 3,
+        price,
+        currency,
+        currencyRate: 1,
+      },
+    ],
+  };
+
   const res = await fetch(`${MORNING_BASE_URL}/documents`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      type: MORNING_DOC_TYPE_INVOICE_RECEIPT,
-      lang: input.lang || "he",
-      currency: input.currency || "ILS",
-      client: {
-        name: input.clientName,
-        emails: input.clientEmail ? [input.clientEmail] : undefined,
-        phone: input.clientPhone,
-        add: true,
-        self: false,
-      },
-      income: [
-        {
-          description: input.description,
-          quantity: 1,
-          price: input.price,
-          currency: input.currency || "ILS",
-          vatType: 0,
-        },
-      ],
-      // A receipt (type 400) documents money already received, so it needs a
-      // payment row alongside the income row (confirmed by the API's own
-      // "נא למלא לפחות שורת תקבולים אחת" / "fill in at least one payment row"
-      // error) — PaymentGroup 3 = credit card, matching how both gateways charge.
-      payment: [
-        {
-          date: new Date().toISOString().slice(0, 10),
-          type: 3,
-          price: input.price,
-          currency: input.currency || "ILS",
-        },
-      ],
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) {
-    throw new Error(`Morning create-document failed: ${res.status} ${await res.text()}`);
+    const errText = await res.text();
+    console.error("[morning] create-document failed", { status: res.status, body, errText });
+    throw new Error(`Morning create-document failed: ${res.status} ${errText}`);
   }
 
   return res.json();
 }
+

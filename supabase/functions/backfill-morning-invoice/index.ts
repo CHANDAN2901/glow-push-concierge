@@ -87,7 +87,7 @@ serve(async (req: Request) => {
     });
   } catch (err: any) {
     console.error("[backfill-morning-invoice] failed:", err?.message);
-    return new Response(JSON.stringify({ error: "Invoice creation failed" }), {
+    return new Response(JSON.stringify({ error: err?.message || "Invoice creation failed" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
