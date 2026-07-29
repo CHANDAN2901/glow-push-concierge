@@ -100,6 +100,18 @@ export async function createMorningInvoice(input: MorningInvoiceInput): Promise<
         currencyRate: 1,
       },
     ],
+    // Presence of emailContent tells Green Invoice to email the document to
+    // client.emails right after creation — no separate "send" call needed.
+    ...(input.clientEmail
+      ? {
+          emailContent: {
+            subject: input.lang === "en" ? "Your GlowPush receipt" : "הקבלה שלך מ-GlowPush",
+            body: input.lang === "en"
+              ? "Thank you for your payment. Your receipt is attached."
+              : "תודה על התשלום. הקבלה שלך מצורפת.",
+          },
+        }
+      : {}),
   };
 
   const res = await fetch(`${MORNING_BASE_URL}/documents`, {
