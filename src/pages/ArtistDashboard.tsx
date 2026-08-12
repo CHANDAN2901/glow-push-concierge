@@ -1332,6 +1332,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             pushOptedIn: c.push_opted_in || false,
             birthDate: c.birth_date || null,
             medicalExceptionApproved: (c as any).medical_exception_approved || false,
+            createdAt: c.created_at || null,
           };
         });
         const totalCount = count ?? 0;
