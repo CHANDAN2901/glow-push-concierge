@@ -1660,7 +1660,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 {t('artist.dashboard.businessOverview')}
               </p>
 
-              {clients.length > 0 && !dismissedTouchup && (
+              {weeklyClientsCount > 0 && !dismissedTouchup && (
                 <div
                   className="relative mt-4 rounded-[2rem] animate-fade-up overflow-hidden"
                   style={{
