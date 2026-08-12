@@ -97,6 +97,7 @@ interface ClientEntry {
   pushOptedIn?: boolean;
   birthDate?: string | null;
   medicalExceptionApproved?: boolean;
+  createdAt?: string | null;
 }
 
 interface SmartMessage {
@@ -1139,6 +1140,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [clients, setClients] = useState<ClientEntry[]>([]);
 
+  // Clients actually added in the last 7 days (not the all-time total)
+  const weeklyClientsCount = useMemo(() => {
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    return clients.filter((c) => c.createdAt && new Date(c.createdAt).getTime() >= cutoff).length;
+  }, [clients]);
+
+
+
   // Keep selectedClient in sync with the clients array so treatment date
   // is always fresh after any fetchClients call (e.g. after edit/delete).
   useEffect(() => {
@@ -1323,6 +1332,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
             pushOptedIn: c.push_opted_in || false,
             birthDate: c.birth_date || null,
             medicalExceptionApproved: (c as any).medical_exception_approved || false,
+            createdAt: c.created_at || null,
           };
         });
         const totalCount = count ?? 0;
@@ -1650,7 +1660,7 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                 {t('artist.dashboard.businessOverview')}
               </p>
 
-              {clients.length > 0 && !dismissedTouchup && (
+              {weeklyClientsCount > 0 && !dismissedTouchup && (
                 <div
                   className="relative mt-4 rounded-[2rem] animate-fade-up overflow-hidden"
                   style={{
@@ -1673,8 +1683,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   </button>
                   <p className="text-sm font-bold leading-relaxed text-center relative z-10" style={{ color: '#4a3520' }}>
                     {lang === 'he'
-                      ? `🔥 שבוע מטורף! הכנסת ${clients.length} ${t('artist.dashboard.weeklyStats')}`
-                      : `🔥 Amazing week! You onboarded ${clients.length} new clients. Keep it up!`}
+                      ? `🔥 שבוע מטורף! הכנסת ${weeklyClientsCount} ${t('artist.dashboard.weeklyStats')}`
+                      : `🔥 Amazing week! You onboarded ${weeklyClientsCount} new clients. Keep it up!`}
                   </p>
                 </div>
               )}
