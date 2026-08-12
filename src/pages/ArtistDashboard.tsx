@@ -1683,8 +1683,8 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
                   </button>
                   <p className="text-sm font-bold leading-relaxed text-center relative z-10" style={{ color: '#4a3520' }}>
                     {lang === 'he'
-                      ? `🔥 שבוע מטורף! הכנסת ${clients.length} ${t('artist.dashboard.weeklyStats')}`
-                      : `🔥 Amazing week! You onboarded ${clients.length} new clients. Keep it up!`}
+                      ? `🔥 שבוע מטורף! הכנסת ${weeklyClientsCount} ${t('artist.dashboard.weeklyStats')}`
+                      : `🔥 Amazing week! You onboarded ${weeklyClientsCount} new clients. Keep it up!`}
                   </p>
                 </div>
               )}
