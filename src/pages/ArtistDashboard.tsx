@@ -1139,6 +1139,14 @@ const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [clients, setClients] = useState<ClientEntry[]>([]);
 
+  // Clients actually added in the last 7 days (not the all-time total)
+  const weeklyClientsCount = useMemo(() => {
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    return clients.filter((c) => c.created_at && new Date(c.created_at).getTime() >= cutoff).length;
+  }, [clients]);
+
+
+
   // Keep selectedClient in sync with the clients array so treatment date
   // is always fresh after any fetchClients call (e.g. after edit/delete).
   useEffect(() => {
