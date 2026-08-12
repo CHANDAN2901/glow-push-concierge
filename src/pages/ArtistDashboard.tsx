@@ -97,6 +97,7 @@ interface ClientEntry {
   pushOptedIn?: boolean;
   birthDate?: string | null;
   medicalExceptionApproved?: boolean;
+  createdAt?: string | null;
 }
 
 interface SmartMessage {
