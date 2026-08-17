@@ -101,7 +101,7 @@ export const translations: Record<string, Record<Language, string>> = {
   'artist.dashboard.businessOverview': { en: "Here's your business overview", he: 'הנה הסקירה העסקית שלך' },
   'artist.dashboard.weeklyStats': { en: 'new clients. Keep it up!', he: 'לקוחות חדשות השבוע. המשיכי כך!' },
   'artist.dashboard.metric.revenue': { en: 'Revenue', he: 'הכנסות' },
-  'artist.dashboard.metric.newClients': { en: 'New Clients', he: 'לקוחות חדשות' },
+  'artist.dashboard.metric.newClients': { en: 'Total Clients', he: 'סה"כ לקוחות' },
   'artist.dashboard.metric.today': { en: 'Today', he: 'היום' },
   'artist.dashboard.comingSoon': { en: 'Coming Soon', he: 'בקרוב' },
   'artist.dashboard.vsLastMonth': { en: 'vs last month', he: 'מחודש שעבר' },
